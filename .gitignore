@@ -9,5 +9,7 @@
 /.config/*
 !/.config/alacritty
 
+!/.zsh
+
 !/.tmux.conf
 !/.zshrc

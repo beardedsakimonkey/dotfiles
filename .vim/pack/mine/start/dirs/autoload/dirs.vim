@@ -551,7 +551,7 @@ fun! dirs#rename() abort
   let from = fnamemodify(getline('.'), ':p')
   if empty(from) | return | endif
   let to = s:interactive('Rename file: ')
-  if !to | return | endif
+  if empty(to) | return | endif
   call s:make_needed_dirs(to)
   call system('mv '.shellescape(from).' '.shellescape(to))
   call dirs#open(expand('%'))

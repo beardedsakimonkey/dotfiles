@@ -69,18 +69,18 @@ _fix-tilde-questionmark() {
 }
 zle -N _fix-tilde-questionmark
 
-bindkey "∆"   backward-word; bindkey "\Mj" backward-word
-bindkey "˙"   backward-char; bindkey "\Mh" backward-char
-bindkey "˚"   forward-word;  bindkey "\Mk" forward-word
-bindkey "¬"   forward-char;  bindkey "\Ml" forward-char
+bindkey "∆"   backward-word; bindkey "\M-j" backward-word
+bindkey "˙"   backward-char; bindkey "\M-h" backward-char
+bindkey "˚"   forward-word;  bindkey "\M-k" forward-word
+bindkey "¬"   forward-char;  bindkey "\M-l" forward-char
 
-bindkey "^P" up-line-or-search
-bindkey "^N" down-line-or-search
-bindkey "^A" beginning-of-line
-bindkey "^E" end-of-line
-bindkey "^U" backward-kill-line
-bindkey "\M." insert-last-word; bindkey "≥" insert-last-word
-bindkey -M menuselect '^M' .accept-line
+bindkey "\C-p" up-line-or-search
+bindkey "\C-n" down-line-or-search
+bindkey "\C-a" beginning-of-line
+bindkey "\C-e" end-of-line
+bindkey "\C-u" backward-kill-line
+bindkey "\M-." insert-last-word; bindkey "≥" insert-last-word
+bindkey -M menuselect "\C-m" .accept-line
 bindkey -M menuselect "^[[Z" reverse-menu-complete
 bindkey ' ' magic-space # expands history
 
@@ -88,10 +88,10 @@ bindkey -a 'H' vi-beginning-of-line
 bindkey -a 'L' vi-end-of-line
 
 bindkey -s '\eu' '^Ucd ..^M'
-bindkey "\Mm" _man-line; bindkey "µ" _man-line
-bindkey "\?" _fix-tilde-questionmark
-bindkey "\Ma" _change-first-word; bindkey "å" _change-first-word
-bindkey "^W" _backward-kill-to-slash
+bindkey "\M-m" _man-line; bindkey "µ" _man-line
+bindkey "?" _fix-tilde-questionmark
+bindkey "\M-a" _change-first-word; bindkey "å" _change-first-word
+bindkey "\C-w" _backward-kill-to-slash
 
 #
 # Modules
@@ -174,8 +174,11 @@ export LESS_TERMCAP_ue=$(printf "\e[0m")
 
 if [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
   source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-  bindkey '^ ' autosuggest-accept
+  bindkey "^ " autosuggest-accept
+  bindkey "^@" autosuggest-accept
 fi
+
+source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 export FZF_DEFAULT_COMMAND='ag -g ""'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

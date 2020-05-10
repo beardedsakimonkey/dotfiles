@@ -1,0 +1,174 @@
+# vim: ft=colortemplate et ts=2 sw=2
+
+Full name:     Gruvburn
+Short name:    gruvburn
+Author:        Myself <myself@somewhere.org>
+Neovim:        yes
+
+QuickFixLine      -> Search
+StatusLineTerm    -> StatusLine
+StatusLineTermNC  -> StatusLineNC
+Boolean           -> Constant
+Character         -> Constant
+Conditional       -> Statement
+Define            -> PreProc
+Debug             -> Special
+Delimiter         -> Special
+Exception         -> Statement
+Float             -> Constant
+Function          -> Identifier
+Include           -> PreProc
+Keyword           -> Statement
+Label             -> Statement
+Macro             -> PreProc
+Number            -> Constant
+Operator          -> Statement
+PreCondit         -> PreProc
+Repeat            -> Statement
+SpecialChar       -> Special
+SpecialComment    -> Special
+StorageClass      -> Type
+String            -> Constant
+Structure         -> Type
+Tag               -> Special
+Typedef           -> Type
+
+Background: dark
+
+Color: fg0        #cab081   223  White
+Color: fg1        #ddc7a1   223  White
+Color: bg0        #32302f   236  Black
+Color: bg1        #3a3735   237  DarkGrey
+Color: bg2        #3c3836   237  DarkGrey
+Color: bg3        #504945   239  DarkGrey
+Color: bg4        #504945   239  DarkGrey
+Color: bg5        #665c54   241  DarkGrey
+Color: bg_grey0   #7c6f64   243  DarkGrey
+Color: bg_grey1   #a89984   246  LightGrey
+Color: bg_red     #472322   52   DarkRed
+Color: bg_orange  #fe8019   ~    DarkRed
+Color: bg_yellow  #d8a657   214  Yellow
+Color: bg_green   #3d4220   22   DarkGreen
+Color: bg_magenta #1f3742   ~    DarkMagenta
+Color: bg_cyan    #391f42   ~    DarkCyan
+Color: red        #ea6962   167  Red
+Color: orange     #e78a4e   208  DarkYellow
+Color: yellow     #d8a657   214  Yellow
+Color: green      #99a55b   142  Green
+Color: cyan       #8ec07c   108  Cyan
+Color: blue       #83a598   109  Blue
+Color: magenta    #d3869b   175  Magenta
+Color: grey       #928374   245  LightGrey
+
+Term colors: bg0 red green yellow blue magenta cyan fg0 bg0 red green yellow blue magenta cyan fg0
+
+Variant: gui 256 8
+
+Normal fg0 bg0
+Terminal fg0 bg0
+EndOfBuffer bg0 bg0
+FoldColumn grey bg2
+Folded grey bg2
+SignColumn fg0 bg2
+IncSearch bg0 bg_orange
+Search bg0 bg_yellow
+ColorColumn none bg2
+Conceal grey none
+Cursor none none reverse
+CursorColumn none bg1
+CursorLine none bg1
+LineNr bg_grey0 none
+CursorLineNr bg_grey1 bg1
+DiffAdd none bg_green
+DiffDelete none bg_red
+DiffChange none bg_cyan
+DiffText none bg_magenta
+Directory green none
+ErrorMsg red none bold,underline
+WarningMsg yellow none bold
+ModeMsg fg0 none bold
+MoreMsg yellow none bold
+MatchParen none bg4
+NonText grey none
+Pmenu fg1 bg3
+PmenuSbar none bg3
+PmenuSel bg3 bg_grey1
+WildMenu bg3 bg_grey1
+PmenuThumb none bg_grey0
+Question yellow none
+StatusLine fg1 bg5
+StatusLineTerm fg1 bg5
+StatusLineNC grey bg2
+StatusLineTermNC grey bg2
+TabLine fg1 bg5
+TabLineFill fg0 bg2
+TabLineSel bg0 bg_grey1
+VertSplit bg5 none
+Visual none bg3
+VisualNOS none bg3
+QuickFixLine magenta none bold
+Debug orange none
+debugPC bg0 green
+debugBreakpoint bg0 red
+Boolean magenta none
+Number magenta none
+Float magenta none
+PreProc magenta none
+PreCondit magenta none
+Include magenta none
+Define magenta none
+Conditional red none
+Repeat red none
+Keyword red none
+Typedef red none
+Exception red none
+Statement red none
+Error red none
+StorageClass orange none
+Tag orange none
+Label orange none
+Structure orange none
+Operator orange none
+Title orange none bold
+Special yellow none
+SpecialChar yellow none
+Type yellow none
+Function blue none
+String green none
+Character green none
+Constant cyan none
+Macro cyan none
+Identifier blue none
+SpecialKey blue none
+Comment grey none
+SpecialComment grey none
+Todo fg1 bg_red
+Delimiter fg0 none
+Ignore grey none
+
+# vim
+vimCommentString -> Comment
+# vimTodo -> Todo
+
+# Help
+helpNote magenta none bold
+helpHeadline red none bold
+helpHeader orange none bold
+helpURL green none underline
+helpHyperTextEntry yellow none bold
+helpHyperTextJump yellow none
+helpCommand cyan none
+helpExample green none
+helpSpecial blue none
+helpSectionDelim grey none
+
+# HTML
+htmlArg yellow none italic
+
+# javascript
+javascriptFunction yellow none italic
+javascriptReserved orange none
+javascriptValue magenta none
+
+# rust
+rustFuncCall fg0 none

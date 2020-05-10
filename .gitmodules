@@ -1,0 +1,24 @@
+[submodule "vim-commentary"]
+	path = .vim/pack/third-party/start/vim-commentary
+	url = https://github.com/tpope/vim-commentary.git
+[submodule "vim-surround"]
+	path = .vim/pack/third-party/start/vim-surround
+	url = https://github.com/tpope/vim-surround.git
+[submodule "vim-repeat"]
+	path = .vim/pack/third-party/start/vim-repeat
+	url = https://github.com/tpope/vim-repeat.git
+[submodule "VimCompletesMe"]
+	path = .vim/pack/third-party/start/VimCompletesMe
+	url = https://github.com/ajh17/VimCompletesMe.git
+[submodule "vim-prettier"]
+	path = .vim/pack/third-party/start/vim-prettier
+	url = https://github.com/prettier/vim-prettier.git
+[submodule "vim-jsx-pretty"]
+	path = .vim/pack/third-party/start/vim-jsx-pretty
+	url = https://github.com/MaxMEllon/vim-jsx-pretty.git
+[submodule "vim-hack"]
+	path = .vim/pack/third-party/start/vim-hack
+	url = https://github.com/hhvm/vim-hack.git
+[submodule "vim-colortemplate"]
+	path = .vim/pack/third-party/opt/vim-colortemplate
+	url = https://github.com/lifepillar/vim-colortemplate.git

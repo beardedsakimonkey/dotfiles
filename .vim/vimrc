@@ -1,0 +1,393 @@
+set fileformats=unix,mac,dos
+set ttyfast
+set ttimeout
+" FIXME: esc-j in insert mode on slow connections
+set ttimeoutlen=10  " This must be a low value for <esc>-key not to be confused with an <a-…> mapping
+set mouse=a
+if has('nvim')
+  language en_US.UTF-8
+  set shada=!,'1000,<50,s10,h  " Override viminfo setting
+else
+  set viminfo=!,'300,<10000,s10,h,n~/.viminfo
+  " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
+  set <s-left>=b
+  set <s-right>=f
+  set <a-h>=h
+  set <a-j>=j
+  set <a-k>=k
+  set <a-l>=l
+  if $TERM =~# '^\%(tmux\|screen\)'
+    set ttymouse=xterm2
+    " Make bracketed paste mode work inside tmux:
+    let &t_BE = "\033[?2004h"
+    let &t_BD = "\033[?2004l"
+    let &t_PS = "\033[200~"
+    let &t_PE = "\033[201~"
+  endif
+endif
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
+" Show block cursor in Normal mode and line cursor in Insert mode
+let &t_ti.="\<Esc>[2 q"
+let &t_SI.="\<Esc>[6 q"
+let &t_SR.="\<Esc>[4 q"
+let &t_EI.="\<Esc>[2 q"
+let &t_te.="\<Esc>[0 q"
+
+syntax enable
+filetype plugin indent on
+set hidden " Allow buffer switching without saving
+set confirm " Prompt when quitting a modified buffer instead of failing
+set noswapfile nobackup
+set undofile " Enable persistent undo
+set undodir=~/.vim/undo
+set backspace=indent,eol,start " Intuitive backspacing in insert mode
+set nojoinspaces " Prevents inserting two spaces after punctuation on a join (J)
+set splitright " When splitting vertically, focus goes to the right window
+set splitbelow " When splitting horizontally, focus goes to the bottom window
+set formatoptions+=1j " Do not wrap after a one-letter word and remove extra comment when joining lines
+set autoindent " Use indentation of the first-line when reflowing a paragraph
+set shiftround " Round indent to multiple of shiftwidth (applies to < and >)
+set smarttab
+set expandtab " Use soft tabs by default
+set wrap
+set tabstop=2 shiftwidth=2 softtabstop=2
+
+set hlsearch " Highlight search results
+set incsearch " Search as you type
+set ignorecase " Case-insensitive search by default
+set infercase " Smart case when doing keyword completion
+set smartcase " Use case-sensitive search if there is a capital letter in the search expression
+set keywordprg=:help " Get help for word under cursor by pressing K
+set completeopt=menu " Use a popup menu when there is more than 1 match
+set wildignore+=*.git
+set wildmenu " Show possible matches when autocompleting
+set wildignorecase " Ignore case when completing file names and directories
+
+set scrolloff=6 " Keep some context when scrolling
+set sidescrolloff=5 " Ditto, but for horizontal scrolling
+set cursorline " Highlight the text line of the cursor
+set display=lastline
+set notitle " Do not set the terminal title
+set nonumber " Turn line numbering off
+set nowrap " Don't wrap lines by default
+set shortmess+=IcmF " No intro, suppress ins-completion messages, use [+] instead of [Modified]
+set noshowcmd " Don't show (partial) command in the last line of the screen
+set listchars=tab:>\ ,trail:- " Unicode glyphs might cause performance issues
+set nolist " Show listchars
+set background=dark
+if executable('rg')
+  set grepprg=rg\ -i\ --vimgrep
+else
+  set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
+endif
+set grepformat=%f:%l:%c:%m
+
+let g:LargeFile = 20*1024*1024 " 20MB
+augroup vimrc
+  autocmd!
+  " If a file is large, disable syntax highlighting and other stuff
+  autocmd BufReadPre *
+        \ let s = getfsize(expand("<afile>")) |
+        \ if s > g:LargeFile || s == -2 |
+        \   call my_buffer#large(fnamemodify(expand("<afile>"), ":p")) |
+        \ endif
+
+  " On opening a file, jump to the last known cursor position
+  autocmd BufReadPost *
+        \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
+        \   exe "normal! g`\"" |
+        \ endif
+
+  " Help in new tabs
+  autocmd BufEnter *.txt
+        \ if &buftype == 'help' |
+        \   silent! wincmd T |
+        \   nnoremap <buffer> q :q<cr> |
+        \ endif
+
+  " Disable automatic comment insertion
+  autocmd FileType * setlocal formatoptions-=cro
+
+  " Hide cursorline in other windows
+  autocmd WinEnter,FocusGained * set cursorline
+  autocmd WinLeave,FocusLost   * set nocursorline
+
+  " " Hide listchars in insert mode
+  " autocmd InsertEnter * set nolist
+  " autocmd InsertLeave * set list
+
+  " Colorscheme customization
+  autocmd ColorScheme * call MyColors()
+
+  " Custom status line for terminal buffers
+  if exists('##TerminalWinOpen')
+    autocmd TerminalWinOpen * setlocal statusline=%f
+  elseif exists('##TerminalOpen')
+    autocmd TerminalOpen * setlocal statusline=%f
+  elseif exists('##TermOpen')
+    autocmd TermOpen * setlocal statusline=%f
+  endif
+
+  " Open the quickfix window after calling 'cgetexpr'
+  autocmd QuickFixCmdPost cgetexpr cwindow
+
+  " Turn off hlsearch when moving the cursor
+  autocmd CursorMoved * call HlSearch()
+  autocmd InsertEnter * call StopHL()
+
+augroup END
+
+fun! HlSearch()
+  let s:pos = match(getline('.'), @/, col('.') - 1) + 1
+  if s:pos != col('.')
+    call StopHL()
+  endif
+endf
+
+fun! StopHL()
+  if !v:hlsearch || mode() !=# 'n'
+    return
+  endif
+  silent call feedkeys("\<Plug>(StopHL)", 'm')
+endf
+
+noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
+noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
+
+fun! MyColors()
+  highlight! link vimFuncName Normal
+  highlight! link vimVar Normal
+  highlight! link vimFuncVar Normal
+  highlight! link vimFunction Normal
+  highlight! link vimUserFunc Normal
+  highlight! link zshVariableDef Normal
+  highlight! link StatusLineTerm StatusLine
+  highlight! link StatusLineTermNC StatusLineNC
+endf
+
+" Statusline
+set laststatus=2 " Always show status line
+set noshowmode
+set statusline=%!MyStatusLine()
+
+fun! MyStatusLine()
+  return "%#Error#%{!&modifiable?'  X ':''}
+        \%#Error#%{&ro?'  RO ':''}
+        \%#Search#%{&modified?'  + ':''}
+        \%* %f"
+endf
+
+" Tabline
+set showtabline=1 " Only show the tab bar if there are at least 2 tabs
+set tabline=%!MyTabLine()
+
+fun! MyTabLine()
+  let s = ''
+  for i in range(1, tabpagenr('$'))
+    let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
+    let s .= '%'.i.'T %{MyTabLabel('.i.')}'
+  endfor
+  return s.'%#TabLineFill#%T'
+endf
+
+fun! MyTabLabel(n)
+  let buflist = tabpagebuflist(a:n)
+  let modified = ''
+  for b in buflist
+    if getbufvar(b, '&modified')
+      let modified = '+ '
+      break
+    endif
+  endfor
+  let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
+  return modified.name.' '
+endf
+
+command! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+command! -nargs=* -complete=file_in_path Grep cgetexpr my_fb#grep(<f-args>)
+
+let mapleader = "\<space>"
+let maplocalleader = ','
+
+noremap j gj
+noremap k gk
+nnoremap <c-e> <c-e><c-e>
+nnoremap <c-y> <c-y><c-y>
+vnoremap < <gv
+vnoremap > >gv
+nnoremap s "_s
+vnoremap s "_s
+nnoremap Z zz5<c-e>
+nnoremap <expr> p getreg('"') =~ "\n" ? 'p=`]' : 'p'
+nnoremap <expr> P getreg('"') =~ "\n" ? 'P=`]' : 'P'
+nnoremap * *zz
+nnoremap # #zz
+
+nnoremap Q @q
+noremap Y y$
+noremap H ^
+noremap L $
+noremap <silent> ( :<c-u>keepjumps normal! H<cr>
+noremap <silent> ) :<c-u>keepjumps normal! L<cr>
+nnoremap ; :
+vnoremap ; :
+nnoremap : ;
+vnoremap : ;
+noremap <silent> <tab> :<c-u>keepjumps normal! %<cr>
+nnoremap <c-p> <c-i>
+noremap T K
+noremap K gM
+nnoremap <home> gg
+nnoremap <end> G
+
+" see :help jump-motions
+nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
+nnoremap <silent> M :<c-u>keepjumps normal! M<cr>
+nnoremap <silent> { :<c-u>keepjumps normal! {<cr>
+nnoremap <silent> } :<c-u>keepjumps normal! }<cr>
+nnoremap <silent> n :<c-u>keepjumps normal! nzz<cr>
+nnoremap <silent> N :<c-u>keepjumps normal! Nzz<cr>
+
+map  ¬ <a-l>
+map  ˙ <a-h>
+map  ∆ <a-j>
+map  ˚ <a-k>
+map! ¬ <a-l>
+map! ˙ <a-h>
+map! ∆ <a-j>
+map! ˚ <a-k>
+imap π <a-p>
+
+inoremap <a-h> <c-o>h
+inoremap <a-j> <c-o>b
+inoremap <a-k> <c-o>w
+inoremap <a-l> <c-o>l
+inoremap <a-p> <c-r>"
+
+cnoremap <a-h> <left>
+cnoremap <a-j> <c-left>
+cnoremap <a-k> <c-right><right>
+cnoremap <a-l> <right>
+cnoremap <a-p> <c-r>"
+
+nnoremap <c-l> <c-w>l
+nnoremap <c-h> <c-w>h
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+
+nnoremap <silent> ]b :<c-u>bnext<cr>
+nnoremap <silent> [b :<c-u>bprev<cr>
+nnoremap <silent> [t :<c-u>tabprev<cr>
+nnoremap <silent> ]t :<c-u>tabnext<cr>
+nnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
+nnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
+vnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
+vnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
+nnoremap <silent> ]e :<c-u>call <sid>moveLine('+'.v:count1)<cr>
+nnoremap <silent> [e :<c-u>call <sid>moveLine('--'.v:count1)<cr>
+
+fun! s:moveLine(address)
+  normal! m`
+  execute 'move' a:address
+  normal! ``
+endf
+
+nnoremap <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
+nnoremap <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
+nnoremap <silent> ]Q :<c-u>cnfile<cr>zz
+nnoremap <silent> [Q :<c-u>cpfile<cr>zz
+nnoremap <silent> ]l :<c-u><c-r>=v:count1<cr>lnext<cr>zz
+nnoremap <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
+nnoremap <silent> ]L :<c-u>lnfile<cr>zz
+nnoremap <silent> [L :<c-u>lpfile<cr>zz
+
+nnoremap <silent>      <c-n> :<c-u>call my_find#buffer()<cr>
+nnoremap <silent> <leader>d  :<c-u>bd<cr>
+nnoremap <silent> <leader>q  :<c-u>b#<cr>
+
+nnoremap <silent> <leader>gd :<c-u>HGdiff<cr>
+nnoremap <silent> <leader>gl :<c-u>call my_find#hg_commit()<cr>
+
+nnoremap <silent> <leader>oc :<c-u>setlocal cursorline!<cr>
+nnoremap <silent> <leader>oi :<c-u>set ignorecase! \| set ignorecase?<cr>
+nnoremap <silent> <leader>ol :<c-u>setlocal list!<cr>
+nnoremap <silent> <leader>on :<c-u>setlocal number!<cr>
+nnoremap <silent> <leader>ot :<c-u>setlocal expandtab!<cr>
+nnoremap <silent> <expr> <leader>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+
+nnoremap <leader>a :<c-u>Grep<space>
+vnoremap <leader>a "sy:Grep <c-r>s
+nnoremap <silent> <leader>p :<c-u>call my_find#files()<cr>
+
+nnoremap <silent> <leader>ev :<c-u>edit $MYVIMRC<cr>
+nnoremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<cr>
+
+cnoremap <c-p> <up>
+cnoremap <c-n> <down>
+cnoremap <c-j> <c-g>
+cnoremap <c-k> <c-t>
+cnoremap <c-o> <c-r>=expand("%:t:r")<cr>
+
+nnoremap <silent> <2-leftmouse>  :let @/='\V\<'.escape(expand('<cword>'), '\').'\>'<cr>:set hls<cr>
+nnoremap <silent>            cd  :<c-u>cd %:h \| pwd<cr>
+nnoremap              <leader>s  :%s/\<<c-r><c-w>\>/
+nnoremap              <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
+noremap  <silent>     <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
+nnoremap <silent>     <leader>t  :<c-u>tabedit<cr>
+nnoremap <silent>     <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
+nnoremap <silent>     <leader>et :<c-u>edit ~/notes/todo.taskpaper<cr>
+nnoremap <leader>x :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+vnoremap * "ay/<c-r>a<cr>
+vnoremap # "ay?<c-r>a<cr>
+
+" Enabled Vim packages
+if !has('nvim')
+  packadd! matchit
+endif
+packadd! cfilter
+
+" Disabled Vim plugins
+let g:loaded_getscriptPlugin = 1
+let g:loaded_gzip = 1
+let g:loaded_logiPat = 1
+let g:loaded_rrhelper = 1
+let g:loaded_tarPlugin = 1
+let g:loaded_vimballPlugin = 1
+let g:loaded_zipPlugin = 1
+let g:loaded_netrwPlugin = 1
+
+" vim-prettier
+let g:prettier#autoformat = 1
+
+" vim-flow
+let g:flow#enable = 0
+let g:flow#timeout = 8
+let g:flow#errjmp = 0
+
+" vim-javascript
+let g:javascript_plugin_flow = 1
+
+" vim-reasonml
+let g:merlin_disable_default_keybindings = 1
+let g:merlin_split_method = "never"
+
+" dirs
+let g:loaded_dirvish = 1
+let g:dirs_mode = ':sort ,^.*/,'
+if !argc()
+  autocmd vimrc VimEnter * :silent! Dirs
+endif
+
+" vim-colortemplate
+packadd! vim-colortemplate
+autocmd vimrc BufWritePost *.colortemplate Colortemplate!
+command -nargs=0 Colortest runtime syntax/hitest.vim
+
+packadd! gruvburn
+silent! colorscheme gruvburn

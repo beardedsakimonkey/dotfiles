@@ -26,5 +26,8 @@
 	path = .zsh/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
 [submodule "fast-syntax-highlighting"]
-	path = /Users/tim/.zsh/fast-syntax-highlighting
+	path = .zsh/fast-syntax-highlighting
 	url = https://github.com/zdharma/fast-syntax-highlighting.git
+[submodule "nvim-lsp"]
+	path = .vim/pack/third-party/opt/nvim-lsp
+	url = https://github.com/neovim/nvim-lsp.git

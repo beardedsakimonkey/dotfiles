@@ -63,7 +63,6 @@ set infercase " Smart case when doing keyword completion
 set smartcase " Use case-sensitive search if there is a capital letter in the search expression
 set keywordprg=:help " Get help for word under cursor by pressing K
 set completeopt=menu " Use a popup menu when there is more than 1 match
-set wildignore+=*.git
 set wildmenu " Show possible matches when autocompleting
 set wildignorecase " Ignore case when completing file names and directories
 
@@ -71,13 +70,13 @@ set scrolloff=6 " Keep some context when scrolling
 set sidescrolloff=5 " Ditto, but for horizontal scrolling
 set cursorline " Highlight the text line of the cursor
 set display=lastline
-set notitle " Do not set the terminal title
 set nonumber " Turn line numbering off
 set nowrap " Don't wrap lines by default
 set shortmess+=IcmF " No intro, suppress ins-completion messages, use [+] instead of [Modified]
 set noshowcmd " Don't show (partial) command in the last line of the screen
 set listchars=tab:>\ ,trail:- " Unicode glyphs might cause performance issues
-set nolist " Show listchars
+set nolist " Hide listchars
+set signcolumn=no
 set background=dark
 if executable('rg')
   set grepprg=rg\ -i\ --vimgrep
@@ -107,6 +106,7 @@ augroup vimrc
         \ if &buftype == 'help' |
         \   silent! wincmd T |
         \   nnoremap <buffer> q :q<cr> |
+        \   nnoremap <buffer> <cr> <c-]> |
         \ endif
 
   " Disable automatic comment insertion
@@ -115,10 +115,6 @@ augroup vimrc
   " Hide cursorline in other windows
   autocmd WinEnter,FocusGained * set cursorline
   autocmd WinLeave,FocusLost   * set nocursorline
-
-  " " Hide listchars in insert mode
-  " autocmd InsertEnter * set nolist
-  " autocmd InsertLeave * set list
 
   " Colorscheme customization
   autocmd ColorScheme * call MyColors()
@@ -312,18 +308,15 @@ nnoremap <silent> <leader>q  :<c-u>b#<cr>
 nnoremap <silent> <leader>gd :<c-u>HGdiff<cr>
 nnoremap <silent> <leader>gl :<c-u>call my_find#hg_commit()<cr>
 
-nnoremap <silent> <leader>oc :<c-u>setlocal cursorline!<cr>
-nnoremap <silent> <leader>oi :<c-u>set ignorecase! \| set ignorecase?<cr>
-nnoremap <silent> <leader>ol :<c-u>setlocal list!<cr>
-nnoremap <silent> <leader>on :<c-u>setlocal number!<cr>
-nnoremap <silent> <leader>ot :<c-u>setlocal expandtab!<cr>
 nnoremap <silent> <expr> <leader>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 
 nnoremap <leader>a :<c-u>Grep<space>
 vnoremap <leader>a "sy:Grep <c-r>s
 nnoremap <silent> <leader>p :<c-u>call my_find#files()<cr>
+nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
 
-nnoremap <silent> <leader>ev :<c-u>edit $MYVIMRC<cr>
+nnoremap <silent> <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
+nnoremap <silent> <leader>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
 nnoremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<cr>
 
 cnoremap <c-p> <up>
@@ -338,8 +331,6 @@ nnoremap              <leader>s  :%s/\<<c-r><c-w>\>/
 nnoremap              <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent>     <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
 nnoremap <silent>     <leader>t  :<c-u>tabedit<cr>
-nnoremap <silent>     <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
-nnoremap <silent>     <leader>et :<c-u>edit ~/notes/todo.taskpaper<cr>
 nnoremap <leader>x :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -386,8 +377,16 @@ endif
 
 " vim-colortemplate
 packadd! vim-colortemplate
+let g:colortemplate_no_mappings = 1
 autocmd vimrc BufWritePost *.colortemplate Colortemplate!
+autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command -nargs=0 Colortest runtime syntax/hitest.vim
+
+" nvim-lsp
+if has('nvim-0.5')
+  packadd nvim-lsp
+  lua require'nvim_lsp'.vimls.setup{}
+endif
 
 packadd! gruvburn
 silent! colorscheme gruvburn

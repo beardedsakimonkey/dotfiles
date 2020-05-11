@@ -48,8 +48,8 @@ endif
 
 fun! s:list_dir(dir) abort
   let dir_esc = escape(a:dir, '{}')
-  let paths = glob(dir_esc.'*', 0, 1)
-        \ + glob(dir_esc.'.[^.]*', 0, 1)
+  let paths = glob(dir_esc.'*', 1, 1)
+        \ + glob(dir_esc.'.[^.]*', 1, 1)
   return map(paths, "fnamemodify(v:val, ':p')")
 endf
 
@@ -360,7 +360,7 @@ function! s:open_dir(d, reload) abort
 endfunction
 
 function! s:should_reload() abort
-  if line('$') < 1000 || '' ==# glob(getline('$'),1)
+  if line('$') < 10000 || '' ==# glob(getline('$'),1)
     return empty(getline(1)) && 1 == line('$')
   endif
   redraw | echo 'dirs: showing cached listing ("R" to reload)'

@@ -110,6 +110,18 @@ fun! my_find#buffer()
   call my_find#interactively(l:buffers, 's:switch_to_buffer', 'Switch buffer')
 endf
 
+
+" ------------------------------------------------------------------
+" Old files
+" ------------------------------------------------------------------
+fun! s:edit_file(files)
+  execute "edit" a:files[0]
+endf
+
+fun! my_find#oldfiles()
+  call my_find#interactively(v:oldfiles[:99], 's:edit_file', 'Oldfiles')
+endf
+
 " ------------------------------------------------------------------
 " Commit
 " ------------------------------------------------------------------
@@ -161,7 +173,7 @@ endf
 
 fun! my_find#files() abort
   if has('nvim')
-    echo 'not implemented'
+    call my_find#interactively('fd --max-depth 10 --type f', 's:edit_file', 'File')
     return
   endif
   if getcwd() =~# '^/data/users/sinap/'

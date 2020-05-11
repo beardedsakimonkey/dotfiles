@@ -31,8 +31,12 @@ zstyle ':completion:*' menu select=2
 zstyle ':completion:*' completer _complete _ignored _approximate
 zstyle ':completion:*' expand prefix suffix
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|[._-]=* r:|=* l:|=*'
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' group-name ''
+
+zstyle ':completion:*:default' list-colors no=00 fi=00 di=00\;34 pi=33 so=01\;35 bd=00\;35 cd=00\;34 or=00\;41 mi=00\;45 ex=01\;32
+zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
+zstyle ':completion:*:builtins' list-colors '=*=0;32'
+
+zstyle ':completion:*:warnings' format "%F{1}No match for:%f %d"
 
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
@@ -42,21 +46,26 @@ zmodload -i zsh/complist
 #
 
 _change-first-word() {
-  zle beginning-of-line
-  zle kill-word
+  zle .beginning-of-line
+  zle .kill-word
 }
 zle -N _change-first-word
 
 _man-line() {
-  first_arg=$(echo $LBUFFER | cut -d ' ' -f1)
+  if [[ -z $BUFFER ]]; then
+    return
+  fi
+  local buf=$BUFFER
+  first_arg=$(echo $BUFFER | cut -d ' ' -f1)
   LBUFFER="man $first_arg"
-  zle accept-line
+  zle .accept-line
+  zle -U $buf
 }
 zle -N _man-line
 
 _backward-kill-to-slash() {
   local WORDCHARS="${WORDCHARS:s@/@}"
-  zle backward-kill-word
+  zle .backward-kill-word
 }
 zle -N _backward-kill-to-slash
 
@@ -64,10 +73,18 @@ _fix-tilde-questionmark() {
   if [[ $LBUFFER[-1] == \~ ]]; then
     zle -U '/'
   else
-    zle self-insert
+    zle .self-insert
   fi
 }
 zle -N _fix-tilde-questionmark
+
+_cd_up() {
+  local buf=$BUFFER
+  BUFFER="cd .."
+  zle .accept-line
+  zle -U ${buf:-''}
+}
+zle -N _cd_up
 
 bindkey "∆"   backward-word; bindkey "\M-j" backward-word
 bindkey "˙"   backward-char; bindkey "\M-h" backward-char
@@ -87,11 +104,11 @@ bindkey ' ' magic-space # expands history
 bindkey -a 'H' vi-beginning-of-line
 bindkey -a 'L' vi-end-of-line
 
-bindkey -s '\eu' '^Ucd ..^M'
-bindkey "\M-m" _man-line; bindkey "µ" _man-line
-bindkey "?" _fix-tilde-questionmark
-bindkey "\M-a" _change-first-word; bindkey "å" _change-first-word
+bindkey "\C-b" _cd_up
+bindkey "\C-h" _man-line
+bindkey "\C-x" _change-first-word
 bindkey "\C-w" _backward-kill-to-slash
+bindkey "?" _fix-tilde-questionmark
 
 #
 # Modules
@@ -99,7 +116,7 @@ bindkey "\C-w" _backward-kill-to-slash
 
 autoload edit-command-line
 zle -N edit-command-line
-bindkey "\Me" edit-command-line; bindkey "´" edit-command-line
+bindkey "\C-o" edit-command-line
 
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
@@ -113,13 +130,14 @@ zstyle ':chpwd:*' recent-dirs-default true
 # VCS
 #
 
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' actionformats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{3}|%F{1}%a%F{5}]%f '
-zstyle ':vcs_info:*' formats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{5}]%f '
-zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{3}%r'
-precmd() {
-  vcs_info
-}
+# autoload -Uz vcs_info
+# zstyle ':vcs_info:*' actionformats '%F{magenta}[%F{green}%b%F{yellow}|%F{red}%a%F{magenta}]%f '
+# zstyle ':vcs_info:*' formats '%F{magenta}[%F{green}%b%F{magenta}]%f '
+# zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{red}:%F{yellow}%r'
+# precmd() {
+#   vcs_info
+# }
+# RPROMPT="\${vcs_info_msg_0_}"
 
 #
 # Prompt
@@ -129,9 +147,34 @@ PROMPT="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}"
 PROMPT+="%F{white}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
-RPROMPT="\${vcs_info_msg_0_}"
 
 SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+
+zle_highlight=(region:bg=#504945)
+
+#
+# Cursor
+#
+
+# # Remove mode switching delay.
+# KEYTIMEOUT=1
+
+# function zle-keymap-select {
+#   if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+#     echo -ne '\e[1 q'
+#   elif [[ ${KEYMAP} == main ]] ||
+#     [[ ${KEYMAP} == viins ]] ||
+#     [[ ${KEYMAP} = '' ]] ||
+#     [[ $1 = 'beam' ]]; then
+#       echo -ne '\e[5 q'
+#   fi
+# }
+# zle -N zle-keymap-select
+
+# zle-line-init() { echo -ne '\e[5 q' }
+# zle -N zle-line-init
+# zle-line-finish() { echo -ne '\e[1 q' }
+# zle -N zle-line-finish
 
 #
 # Aliases
@@ -180,8 +223,9 @@ fi
 
 source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
-export FZF_DEFAULT_COMMAND='ag -g ""'
+export FZF_DEFAULT_COMMAND='rg -g ""'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export PATH="$HOME/.fzf/bin/:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

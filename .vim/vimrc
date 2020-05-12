@@ -1,7 +1,6 @@
 set fileformats=unix,mac,dos
 set ttyfast
 set ttimeout
-" FIXME: esc-j in insert mode on slow connections
 set ttimeoutlen=10  " This must be a low value for <esc>-key not to be confused with an <a-…> mapping
 set mouse=a
 if has('nvim')
@@ -116,9 +115,6 @@ augroup vimrc
   autocmd WinEnter,FocusGained * set cursorline
   autocmd WinLeave,FocusLost   * set nocursorline
 
-  " Colorscheme customization
-  autocmd ColorScheme * call MyColors()
-
   " Custom status line for terminal buffers
   if exists('##TerminalWinOpen')
     autocmd TerminalWinOpen * setlocal statusline=%f
@@ -153,17 +149,6 @@ endf
 
 noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
 noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
-
-fun! MyColors()
-  highlight! link vimFuncName Normal
-  highlight! link vimVar Normal
-  highlight! link vimFuncVar Normal
-  highlight! link vimFunction Normal
-  highlight! link vimUserFunc Normal
-  highlight! link zshVariableDef Normal
-  highlight! link StatusLineTerm StatusLine
-  highlight! link StatusLineTermNC StatusLineNC
-endf
 
 " Statusline
 set laststatus=2 " Always show status line
@@ -331,11 +316,11 @@ nnoremap              <leader>s  :%s/\<<c-r><c-w>\>/
 nnoremap              <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent>     <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
 nnoremap <silent>     <leader>t  :<c-u>tabedit<cr>
-nnoremap <leader>x :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nnoremap <leader>x :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 vnoremap * "ay/<c-r>a<cr>
 vnoremap # "ay?<c-r>a<cr>
+
+cabbrev ~? ~/
 
 " Enabled Vim packages
 if !has('nvim')
@@ -361,15 +346,11 @@ let g:flow#enable = 0
 let g:flow#timeout = 8
 let g:flow#errjmp = 0
 
-" vim-javascript
-let g:javascript_plugin_flow = 1
-
 " vim-reasonml
 let g:merlin_disable_default_keybindings = 1
 let g:merlin_split_method = "never"
 
 " dirs
-let g:loaded_dirvish = 1
 let g:dirs_mode = ':sort ,^.*/,'
 if !argc()
   autocmd vimrc VimEnter * :silent! Dirs

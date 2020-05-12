@@ -85,7 +85,7 @@ DiffChange none bg_cyan
 DiffText none bg_magenta
 Directory green none
 ErrorMsg red none bold,underline
-WarningMsg yellow none bold
+WarningMsg yellow none
 ModeMsg fg0 none bold
 MoreMsg yellow none bold
 MatchParen none bg4
@@ -142,7 +142,7 @@ Identifier blue none
 SpecialKey blue none
 Comment grey none
 SpecialComment grey none
-Todo fg1 bg_red
+Todo fg1 bg_magenta
 Delimiter fg0 none
 Ignore grey none
 

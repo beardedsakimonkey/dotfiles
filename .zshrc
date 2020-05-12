@@ -86,10 +86,10 @@ _cd_up() {
 }
 zle -N _cd_up
 
-bindkey "∆"   backward-word; bindkey "\M-j" backward-word
-bindkey "˙"   backward-char; bindkey "\M-h" backward-char
-bindkey "˚"   forward-word;  bindkey "\M-k" forward-word
-bindkey "¬"   forward-char;  bindkey "\M-l" forward-char
+bindkey "∆" backward-word; bindkey "\M-j" backward-word
+bindkey "˙" backward-char; bindkey "\M-h" backward-char
+bindkey "˚" forward-word;  bindkey "\M-k" forward-word
+bindkey "¬" forward-char;  bindkey "\M-l" forward-char
 
 bindkey "\C-p" up-line-or-search
 bindkey "\C-n" down-line-or-search
@@ -221,7 +221,9 @@ if [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
   bindkey "^@" autosuggest-accept
 fi
 
-source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
+  source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+fi
 
 export FZF_DEFAULT_COMMAND='rg -g ""'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

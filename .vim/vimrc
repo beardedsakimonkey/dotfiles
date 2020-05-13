@@ -156,8 +156,8 @@ set noshowmode
 set statusline=%!MyStatusLine()
 
 fun! MyStatusLine()
-  return "%#Error#%{!&modifiable?'  X ':''}
-        \%#Error#%{&ro?'  RO ':''}
+  return "%#statusLineError#%{!&modifiable?'  X ':''}
+        \%#statusLineError#%{&ro?'  RO ':''}
         \%#Search#%{&modified?'  + ':''}
         \%* %f"
 endf
@@ -367,6 +367,7 @@ command -nargs=0 Colortest runtime syntax/hitest.vim
 if has('nvim-0.5')
   packadd nvim-lsp
   lua require'nvim_lsp'.vimls.setup{}
+  lua require'nvim_lsp'.rust_analyzer.setup{}
 endif
 
 packadd! gruvburn

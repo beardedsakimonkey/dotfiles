@@ -84,7 +84,7 @@ DiffDelete none bg_red
 DiffChange none bg_cyan
 DiffText none bg_magenta
 Directory green none
-ErrorMsg red none bold,underline
+ErrorMsg red none underline
 WarningMsg yellow none
 ModeMsg fg0 none bold
 MoreMsg yellow none bold
@@ -146,8 +146,16 @@ Todo fg1 bg_magenta
 Delimiter fg0 none
 Ignore grey none
 
+# status line
+statusLineError red bg5 bold
+
 # vim
 vimCommentString -> Comment
+vimFuncName -> Normal
+vimVar -> Normal
+vimFuncVar -> Normal
+vimFunction -> Normal
+vimUserFunc -> Normal
 
 # Help
 helpNote magenta none bold
@@ -160,6 +168,9 @@ helpCommand cyan none
 helpExample green none
 helpSpecial blue none
 helpSectionDelim grey none
+
+# zsh
+zshVariableDef -> Normal
 
 # nvim-lsp
 LspDiagnosticsError -> Comment

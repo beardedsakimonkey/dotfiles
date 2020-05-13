@@ -31,6 +31,7 @@ zstyle ':completion:*' menu select=2
 zstyle ':completion:*' completer _complete _ignored _approximate
 zstyle ':completion:*' expand prefix suffix
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle -e ':completion:*' special-dirs '[[ $PREFIX = (../)#(..) ]] && reply=(..)'
 
 zstyle ':completion:*:default' list-colors no=00 fi=00 di=00\;34 pi=33 so=01\;35 bd=00\;35 cd=00\;34 or=00\;41 mi=00\;45 ex=01\;32
 zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
@@ -56,8 +57,12 @@ _man-line() {
     return
   fi
   local buf=$BUFFER
-  first_arg=$(echo $BUFFER | cut -d ' ' -f1)
-  LBUFFER="man $first_arg"
+  args=(${(s/ /)BUFFER})
+  if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
+    LBUFFER="git help ${args[2]}"
+  else
+    LBUFFER="man ${args[1]}"
+  fi
   zle .accept-line
   zle -U $buf
 }
@@ -86,6 +91,16 @@ _cd_up() {
 }
 zle -N _cd_up
 
+# _tab() {
+#   if [[ -z $BUFFER ]]; then
+#     zle -U './'
+#     zle .list-choices
+#   else
+#     zle .complete-word
+#   fi
+# }
+# zle -N _tab
+
 bindkey "∆" backward-word; bindkey "\M-j" backward-word
 bindkey "˙" backward-char; bindkey "\M-h" backward-char
 bindkey "˚" forward-word;  bindkey "\M-k" forward-word
@@ -109,6 +124,7 @@ bindkey "\C-h" _man-line
 bindkey "\C-x" _change-first-word
 bindkey "\C-w" _backward-kill-to-slash
 bindkey "?" _fix-tilde-questionmark
+# bindkey "\t" _tab
 
 #
 # Modules
@@ -233,3 +249,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
 alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
+
+if [ -f ~/zshrc_local.zsh ]; then
+  source ~/zshrc_local.zsh
+fi

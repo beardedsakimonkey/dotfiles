@@ -4,15 +4,15 @@
 " input:    either a shell command that sends its output, one item per line,
 "           to stdout, or a List of items to be filtered.
 fun! my_find#interactively(input, callback, prompt) abort
-  let l:prompt = a:prompt . '>'
   let l:filter = ''  " Text used to filter the list
   let l:undoseq = [] " Stack to tell whether to undo when pressing backspace (1 = undo, 0 = do not undo)
   let l:winrestsize = winrestcmd() " Save current window layout
   " botright 10new does not set the right height, e.g., if the quickfix window is open
-  botright 1new | 9wincmd +
+  botright 1new | 15wincmd +
   setlocal buftype=nofile bufhidden=wipe nobuflisted nonumber norelativenumber noswapfile noundofile
         \  nowrap winfixheight foldmethod=manual nofoldenable modifiable noreadonly nospell
-  setlocal statusline=%#CommandMode#\ Finder\ %*\ %l\ of\ %L
+  exe 'setlocal statusline=%#CommandMode#\ '.a:prompt.'%*\ %l\ of\ %L'
+  syntax match Comment =.*\/\ze[^\/]\+\/\?$=
   let l:cur_buf = bufnr('%') " Store current buffer number
   if type(a:input) ==# 1 " v:t_string
     let l:input = systemlist(a:input)
@@ -23,7 +23,7 @@ fun! my_find#interactively(input, callback, prompt) abort
   endif
   setlocal cursorline
   redraw
-  echo l:prompt . ' '
+  echo '> '
   while 1
     let &ro=&ro " Force status line update
     let l:error = 0 " Set to 1 when pattern is invalid
@@ -77,7 +77,7 @@ fun! my_find#interactively(input, callback, prompt) abort
       endif
     endif
     redraw
-    echo (l:error ? '[Invalid pattern] ' : '').l:prompt l:filter
+    echo (l:error ? '[Invalid pattern] ' : '').'> ' l:filter
   endwhile
 endf
 

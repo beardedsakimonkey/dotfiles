@@ -100,9 +100,9 @@ StatusLine fg1 bg5
 StatusLineTerm fg1 bg5
 StatusLineNC grey bg2
 StatusLineTermNC grey bg2
-TabLine fg1 bg5
-TabLineFill fg0 bg2
-TabLineSel bg0 bg_grey1
+TabLine fg0 bg0
+TabLineFill fg0 bg0
+TabLineSel fg1 bg3
 VertSplit bg5 none
 Visual none bg3
 VisualNOS none bg3
@@ -173,16 +173,16 @@ helpSectionDelim grey none
 zshVariableDef -> Normal
 
 # nvim-lsp
-LspDiagnosticsError -> Comment
-LspDiagnosticsWarning -> Comment
-LspDiagnosticsInformation -> Comment
-LspDiagnosticsHint -> Comment
+LspDiagnosticsError grey bg_red
+LspDiagnosticsWarning grey bg_yellow
+LspDiagnosticsInformation grey bg_cyan
+LspDiagnosticsHint grey bg_green
 
 # HTML
-htmlArg yellow none italic
+htmlArg yellow none
 
 # javascript
-javascriptFunction yellow none italic
+javascriptFunction yellow none
 javascriptReserved orange none
 javascriptValue magenta none
 

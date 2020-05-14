@@ -1,6 +1,3 @@
-set nobuflisted
-setl cursorline
-
 nnoremap <silent> <buffer> q :<c-u>quit<cr>
 
 setlocal statusline=%!MyQuickfixStatusLine()

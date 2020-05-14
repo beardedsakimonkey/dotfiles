@@ -31,3 +31,6 @@
 [submodule "nvim-lsp"]
 	path = .vim/pack/third-party/opt/nvim-lsp
 	url = https://github.com/neovim/nvim-lsp.git
+[submodule "vim-qf"]
+	path = .vim/pack/third-party/start/vim-qf
+	url = https://github.com/romainl/vim-qf.git

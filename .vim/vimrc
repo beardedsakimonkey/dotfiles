@@ -100,10 +100,9 @@ augroup vimrc
         \   exe "normal! g`\"" |
         \ endif
 
-  " Help in new tabs
+  " Help windows
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
-        \   silent! wincmd T |
         \   nnoremap <buffer> q :q<cr> |
         \   nnoremap <buffer> <cr> <c-]> |
         \ endif
@@ -123,9 +122,6 @@ augroup vimrc
   elseif exists('##TermOpen')
     autocmd TermOpen * setlocal statusline=%f
   endif
-
-  " Open the quickfix window after calling 'cgetexpr'
-  autocmd QuickFixCmdPost cgetexpr cwindow
 
   " Turn off hlsearch when moving the cursor
   autocmd CursorMoved * call HlSearch()
@@ -326,7 +322,6 @@ cabbrev ~? ~/
 if !has('nvim')
   packadd! matchit
 endif
-packadd! cfilter
 
 " Disabled Vim plugins
 let g:loaded_getscriptPlugin = 1
@@ -357,7 +352,7 @@ if !argc()
 endif
 
 " vim-colortemplate
-packadd! vim-colortemplate
+packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 autocmd vimrc BufWritePost *.colortemplate Colortemplate!
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
@@ -369,6 +364,11 @@ if has('nvim-0.5')
   lua require'nvim_lsp'.vimls.setup{}
   lua require'nvim_lsp'.rust_analyzer.setup{}
 endif
+
+" vim-qf
+nmap <c-n> <plug>(qf_qf_toggle)
+let g:qf_max_height = 16
+let g:qf_auto_quit = 0
 
 packadd! gruvburn
 silent! colorscheme gruvburn

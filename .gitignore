@@ -11,6 +11,7 @@
 
 !/.zsh
 
+!/README.md
 !/.tmux.conf
 !/.zshrc
 !/tmux-256color.terminfo

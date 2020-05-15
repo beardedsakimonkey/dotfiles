@@ -1,3 +1,6 @@
+# disable C-s/C-q
+stty -ixon
+
 #
 # Options
 #

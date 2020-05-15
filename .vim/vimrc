@@ -17,7 +17,7 @@ else
   set <a-l>=l
   if $TERM =~# '^\%(tmux\|screen\)'
     set ttymouse=xterm2
-    " Make bracketed paste mode work inside tmux:
+    " Make bracketed paste mode work inside tmux
     let &t_BE = "\033[?2004h"
     let &t_BD = "\033[?2004l"
     let &t_PS = "\033[200~"
@@ -38,43 +38,43 @@ let &t_te.="\<Esc>[0 q"
 
 syntax enable
 filetype plugin indent on
-set hidden " Allow buffer switching without saving
-set confirm " Prompt when quitting a modified buffer instead of failing
+set hidden
+set confirm
 set noswapfile nobackup
-set undofile " Enable persistent undo
+set undofile
 set undodir=~/.vim/undo
-set backspace=indent,eol,start " Intuitive backspacing in insert mode
-set nojoinspaces " Prevents inserting two spaces after punctuation on a join (J)
-set splitright " When splitting vertically, focus goes to the right window
-set splitbelow " When splitting horizontally, focus goes to the bottom window
-set formatoptions+=1j " Do not wrap after a one-letter word and remove extra comment when joining lines
-set autoindent " Use indentation of the first-line when reflowing a paragraph
-set shiftround " Round indent to multiple of shiftwidth (applies to < and >)
+set backspace=indent,eol,start
+set nojoinspaces
+set splitright
+set splitbelow
+set formatoptions+=1j
+set autoindent
+set shiftround
 set smarttab
-set expandtab " Use soft tabs by default
+set expandtab
 set wrap
 set tabstop=2 shiftwidth=2 softtabstop=2
 
-set hlsearch " Highlight search results
-set incsearch " Search as you type
-set ignorecase " Case-insensitive search by default
-set infercase " Smart case when doing keyword completion
-set smartcase " Use case-sensitive search if there is a capital letter in the search expression
-set keywordprg=:help " Get help for word under cursor by pressing K
-set completeopt=menu " Use a popup menu when there is more than 1 match
-set wildmenu " Show possible matches when autocompleting
-set wildignorecase " Ignore case when completing file names and directories
+set hlsearch
+set incsearch
+set ignorecase
+set infercase
+set smartcase
+set keywordprg=:help
+set completeopt=menu
+set wildmenu
+set wildignorecase
 
-set scrolloff=6 " Keep some context when scrolling
-set sidescrolloff=5 " Ditto, but for horizontal scrolling
-set cursorline " Highlight the text line of the cursor
+set scrolloff=6
+set sidescrolloff=5
+set cursorline
 set display=lastline
-set nonumber " Turn line numbering off
-set nowrap " Don't wrap lines by default
-set shortmess+=IcmF " No intro, suppress ins-completion messages, use [+] instead of [Modified]
-set noshowcmd " Don't show (partial) command in the last line of the screen
-set listchars=tab:>\ ,trail:- " Unicode glyphs might cause performance issues
-set nolist " Hide listchars
+set nonumber
+set nowrap
+set shortmess+=IcmF
+set noshowcmd
+set listchars=tab:>\ ,trail:-
+set nolist
 set signcolumn=no
 set background=dark
 if executable('rg')
@@ -87,7 +87,6 @@ set grepformat=%f:%l:%c:%m
 let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
   autocmd!
-  " If a file is large, disable syntax highlighting and other stuff
   autocmd BufReadPre *
         \ let s = getfsize(expand("<afile>")) |
         \ if s > g:LargeFile || s == -2 |
@@ -100,7 +99,6 @@ augroup vimrc
         \   exe "normal! g`\"" |
         \ endif
 
-  " Help windows
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
         \   nnoremap <buffer> q :q<cr> |
@@ -110,11 +108,9 @@ augroup vimrc
   " Disable automatic comment insertion
   autocmd FileType * setlocal formatoptions-=cro
 
-  " Hide cursorline in other windows
   autocmd WinEnter,FocusGained * set cursorline
   autocmd WinLeave,FocusLost   * set nocursorline
 
-  " Custom status line for terminal buffers
   if exists('##TerminalWinOpen')
     autocmd TerminalWinOpen * setlocal statusline=%f
   elseif exists('##TerminalOpen')
@@ -123,10 +119,10 @@ augroup vimrc
     autocmd TermOpen * setlocal statusline=%f
   endif
 
-  " Turn off hlsearch when moving the cursor
   autocmd CursorMoved * call HlSearch()
   autocmd InsertEnter * call StopHL()
 
+  autocmd BufWritePost $MYVIMRC,~/.vim/vimrc source $MYVIMRC
 augroup END
 
 fun! HlSearch()
@@ -146,8 +142,10 @@ endf
 noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
 noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
+"
 " Statusline
-set laststatus=2 " Always show status line
+"
+set laststatus=2
 set noshowmode
 set statusline=%!MyStatusLine()
 
@@ -158,8 +156,10 @@ fun! MyStatusLine()
         \%* %f"
 endf
 
+"
 " Tabline
-set showtabline=1 " Only show the tab bar if there are at least 2 tabs
+"
+set showtabline=1
 set tabline=%!MyTabLine()
 
 fun! MyTabLine()
@@ -264,14 +264,11 @@ nnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
 nnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
 vnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
 vnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
-nnoremap <silent> ]e :<c-u>call <sid>moveLine('+'.v:count1)<cr>
-nnoremap <silent> [e :<c-u>call <sid>moveLine('--'.v:count1)<cr>
 
-fun! s:moveLine(address)
-  normal! m`
-  execute 'move' a:address
-  normal! ``
-endf
+nmap [e <Plug>move_line_up
+nmap ]e <Plug>move_line_down
+nmap [a <Plug>jump_arg_prev
+nmap ]a <Plug>jump_arg_next
 
 nnoremap <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
 nnoremap <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
@@ -282,9 +279,9 @@ nnoremap <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
 nnoremap <silent> ]L :<c-u>lnfile<cr>zz
 nnoremap <silent> [L :<c-u>lpfile<cr>zz
 
-nnoremap <silent>      <c-n> :<c-u>call my_find#buffer()<cr>
-nnoremap <silent> <leader>d  :<c-u>bd<cr>
-nnoremap <silent> <leader>q  :<c-u>b#<cr>
+nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
+nnoremap <silent> <leader>d :<c-u>bd<cr>
+nnoremap <silent> <leader>q :<c-u>b#<cr>
 
 nnoremap <silent> <leader>gd :<c-u>HGdiff<cr>
 nnoremap <silent> <leader>gl :<c-u>call my_find#hg_commit()<cr>
@@ -354,9 +351,10 @@ endif
 " vim-colortemplate
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
+let g:colortemplate_toolbar = 0
 autocmd vimrc BufWritePost *.colortemplate Colortemplate!
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
-command -nargs=0 Colortest runtime syntax/hitest.vim
+command! -nargs=0 Colortest runtime syntax/hitest.vim
 
 " nvim-lsp
 if has('nvim-0.5')
@@ -366,7 +364,7 @@ if has('nvim-0.5')
 endif
 
 " vim-qf
-nmap <c-n> <plug>(qf_qf_toggle)
+nmap <c-n> <Plug>(qf_qf_toggle)
 let g:qf_max_height = 16
 let g:qf_auto_quit = 0
 

@@ -100,9 +100,9 @@ StatusLine fg1 bg5
 StatusLineTerm fg1 bg5
 StatusLineNC grey bg2
 StatusLineTermNC grey bg2
-TabLine fg0 bg0
-TabLineFill fg0 bg0
-TabLineSel fg1 bg3
+TabLine fg0 bg1
+TabLineFill fg0 bg1
+TabLineSel fg1 bg5
 VertSplit bg5 none
 Visual none bg3
 VisualNOS none bg3

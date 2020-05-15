@@ -11,7 +11,7 @@ fun! my_find#interactively(input, callback, prompt) abort
   botright 1new | 15wincmd +
   setlocal buftype=nofile bufhidden=wipe nobuflisted nonumber norelativenumber noswapfile noundofile
         \  nowrap winfixheight foldmethod=manual nofoldenable modifiable noreadonly nospell
-  exe 'setlocal statusline=%#CommandMode#\ '.a:prompt.'%*\ %l\ of\ %L'
+  setlocal statusline=%#CommandMode#%*\ %l\ of\ %L
   syntax match Comment =.*\/\ze[^\/]\+\/\?$=
   let l:cur_buf = bufnr('%') " Store current buffer number
   if type(a:input) ==# 1 " v:t_string
@@ -98,9 +98,9 @@ fun! s:filter_close(bufnr, action, winrestsize)
 endf
 
 
-" ------------------------------------------------------------------
+"
 " Buffer
-" ------------------------------------------------------------------
+"
 fun! s:switch_to_buffer(buffers)
   execute "buffer" split(a:buffers[0], '\s\+')[0]
 endf
@@ -111,9 +111,9 @@ fun! my_find#buffer()
 endf
 
 
-" ------------------------------------------------------------------
+"
 " Old files
-" ------------------------------------------------------------------
+"
 fun! s:edit_file(files)
   execute "edit" a:files[0]
 endf
@@ -122,9 +122,9 @@ fun! my_find#oldfiles()
   call my_find#interactively(v:oldfiles[:99], 's:edit_file', 'Oldfiles')
 endf
 
-" ------------------------------------------------------------------
+"
 " Commit
-" ------------------------------------------------------------------
+"
 fun! my_find#hg_commit()
   let l:source = "hg log "
         \ ."--limit 20 "
@@ -140,9 +140,9 @@ fun! my_find#hg_commit()
   echom l:output
 endf
 
-" ------------------------------------------------------------------
+" 
 " Files
-" ------------------------------------------------------------------
+" 
 fun! s:open_file(outfile, channel, status)
   let results = filereadable(a:outfile) ? readfile(a:outfile) : []
   silent! call delete(a:outfile)

@@ -34,3 +34,6 @@
 [submodule "vim-qf"]
 	path = .vim/pack/third-party/start/vim-qf
 	url = https://github.com/romainl/vim-qf.git
+[submodule "argtextobj.vim"]
+	path = .vim/pack/third-party/start/argtextobj.vim
+	url = https://github.com/inkarkat/argtextobj.vim.git

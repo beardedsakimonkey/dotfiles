@@ -77,7 +77,7 @@ fun! my_find#interactively(input, callback, prompt) abort
       endif
     endif
     redraw
-    echo (l:error ? '[Invalid pattern] ' : '').'> ' l:filter
+    echo (l:error ? '[Invalid pattern] ' : '').'>' l:filter
   endwhile
 endf
 

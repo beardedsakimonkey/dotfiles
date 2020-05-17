@@ -1,6 +1,8 @@
 setlocal grepprg&
 set iskeyword-=#
 
+nnoremap <buffer> T K
+
 nnoremap <buffer> <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <buffer> <silent> <cr>  <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap <buffer> <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>

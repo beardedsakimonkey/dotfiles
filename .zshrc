@@ -40,7 +40,7 @@ zstyle ':completion:*:default' list-colors no=00 fi=00 di=00\;34 pi=33 so=01\;35
 zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
 zstyle ':completion:*:builtins' list-colors '=*=0;32'
 
-zstyle ':completion:*:warnings' format "%F{1}No match for:%f %d"
+zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
@@ -175,25 +175,25 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
-# # Remove mode switching delay.
-# KEYTIMEOUT=1
+# Remove mode switching delay.
+KEYTIMEOUT=1
 
-# function zle-keymap-select {
-#   if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-#     echo -ne '\e[1 q'
-#   elif [[ ${KEYMAP} == main ]] ||
-#     [[ ${KEYMAP} == viins ]] ||
-#     [[ ${KEYMAP} = '' ]] ||
-#     [[ $1 = 'beam' ]]; then
-#       echo -ne '\e[5 q'
-#   fi
-# }
-# zle -N zle-keymap-select
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] ||
+    [[ ${KEYMAP} == viins ]] ||
+    [[ ${KEYMAP} = '' ]] ||
+    [[ $1 = 'beam' ]]; then
+      echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
 
-# zle-line-init() { echo -ne '\e[5 q' }
-# zle -N zle-line-init
-# zle-line-finish() { echo -ne '\e[1 q' }
-# zle -N zle-line-finish
+zle-line-init() { echo -ne '\e[5 q' }
+zle -N zle-line-init
+zle-line-finish() { echo -ne '\e[1 q' }
+zle -N zle-line-finish
 
 #
 # Aliases
@@ -213,6 +213,8 @@ alias v='$EDITOR'
 
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/bin/:$PATH"
+
+export CORRECT_IGNORE=_*
 
 export HISTSIZE=100000
 export SAVEHIST=100000
@@ -243,10 +245,6 @@ fi
 if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
   source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 fi
-
-export FZF_DEFAULT_COMMAND='rg -g ""'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export PATH="$HOME/.fzf/bin/:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

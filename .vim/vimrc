@@ -87,6 +87,8 @@ set grepformat=%f:%l:%c:%m
 let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
   autocmd!
+  autocmd VimEnter * if expand('%') == '' | edit . | endif
+
   autocmd BufReadPre *
         \ let s = getfsize(expand("<afile>")) |
         \ if s > g:LargeFile || s == -2 |
@@ -102,7 +104,7 @@ augroup vimrc
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
         \   nnoremap <buffer> q :q<cr> |
-        \   nnoremap <buffer> <cr> <c-]> |
+        \   nnoremap <buffer> T <c-]> |
         \ endif
 
   " Disable automatic comment insertion
@@ -143,21 +145,20 @@ noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
 noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
 "
-" Statusline
+" Status line
 "
 set laststatus=2
 set noshowmode
 set statusline=%!MyStatusLine()
 
 fun! MyStatusLine()
-  return "%#statusLineError#%{!&modifiable?'  X ':''}
-        \%#statusLineError#%{&ro?'  RO ':''}
-        \%#Search#%{&modified?'  + ':''}
+  return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
+        \%2*%{&modified?'  + ':''}
         \%* %f"
 endf
 
 "
-" Tabline
+" Tab line
 "
 set showtabline=1
 set tabline=%!MyTabLine()
@@ -197,7 +198,6 @@ nnoremap <c-y> <c-y><c-y>
 vnoremap < <gv
 vnoremap > >gv
 nnoremap s "_s
-vnoremap s "_s
 nnoremap Z zz5<c-e>
 nnoremap <expr> p getreg('"') =~ "\n" ? 'p=`]' : 'p'
 nnoremap <expr> P getreg('"') =~ "\n" ? 'P=`]' : 'P'
@@ -216,8 +216,6 @@ nnoremap : ;
 vnoremap : ;
 noremap <silent> <tab> :<c-u>keepjumps normal! %<cr>
 nnoremap <c-p> <c-i>
-noremap T K
-noremap K gM
 nnoremap <home> gg
 nnoremap <end> G
 
@@ -315,11 +313,6 @@ vnoremap # "ay?<c-r>a<cr>
 
 cabbrev ~? ~/
 
-" Enabled Vim packages
-if !has('nvim')
-  packadd! matchit
-endif
-
 " Disabled Vim plugins
 let g:loaded_getscriptPlugin = 1
 let g:loaded_gzip = 1
@@ -328,7 +321,15 @@ let g:loaded_rrhelper = 1
 let g:loaded_tarPlugin = 1
 let g:loaded_vimballPlugin = 1
 let g:loaded_zipPlugin = 1
-let g:loaded_netrwPlugin = 1
+
+if !has('nvim')
+  packadd! matchit
+endif
+
+" netrw
+let g:netrw_use_errorwindow = 0
+let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
+let g:netrw_keepdir = 0
 
 " vim-prettier
 let g:prettier#autoformat = 1
@@ -341,12 +342,6 @@ let g:flow#errjmp = 0
 " vim-reasonml
 let g:merlin_disable_default_keybindings = 1
 let g:merlin_split_method = "never"
-
-" dirs
-let g:dirs_mode = ':sort ,^.*/,'
-if !argc()
-  autocmd vimrc VimEnter * :silent! Dirs
-endif
 
 " vim-colortemplate
 packadd vim-colortemplate

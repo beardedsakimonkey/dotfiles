@@ -37,3 +37,6 @@
 [submodule "argtextobj.vim"]
 	path = .vim/pack/third-party/start/argtextobj.vim
 	url = https://github.com/inkarkat/argtextobj.vim.git
+[submodule "vim-vinegar"]
+	path = .vim/pack/third-party/start/vim-vinegar
+	url = https://github.com/tpope/vim-vinegar.git

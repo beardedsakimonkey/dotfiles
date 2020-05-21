@@ -97,7 +97,9 @@ WildMenu bg3 bg_grey1
 PmenuThumb none bg_grey0
 Question yellow none
 StatusLine fg1 bg5
+StatusLineTerm fg1 bg5
 StatusLineNC grey bg2
+StatusLineTermNC grey bg2
 TabLine fg0 bg1
 TabLineFill fg0 bg1
 TabLineSel fg1 bg5
@@ -131,12 +133,12 @@ Title orange none bold
 Special yellow none
 SpecialChar yellow none
 Type yellow none
-Function fg0 none
+Function blue none
 String green none
 Character green none
 Constant cyan none
 Macro cyan none
-Identifier fg0 none
+Identifier blue none
 SpecialKey blue none
 Comment grey none
 SpecialComment grey none
@@ -145,17 +147,15 @@ Delimiter fg0 none
 Ignore grey none
 
 # status line
-User1 red bg5 bold # readonly/nomodifiable
-User2 -> Search # modified
+statusLineError red bg5 bold
 
 # vim
 vimCommentString -> Comment
-
-# nvim-lsp
-LspDiagnosticsError grey bg_red
-LspDiagnosticsWarning grey bg_yellow
-LspDiagnosticsInformation grey bg_cyan
-LspDiagnosticsHint grey bg_green
+vimFuncName -> Normal
+vimVar -> Normal
+vimFuncVar -> Normal
+vimFunction -> Normal
+vimUserFunc -> Normal
 
 # Help
 helpNote magenta none bold
@@ -168,6 +168,15 @@ helpCommand cyan none
 helpExample green none
 helpSpecial blue none
 helpSectionDelim grey none
+
+# zsh
+zshVariableDef -> Normal
+
+# nvim-lsp
+LspDiagnosticsError grey bg_red
+LspDiagnosticsWarning grey bg_yellow
+LspDiagnosticsInformation grey bg_cyan
+LspDiagnosticsHint grey bg_green
 
 # HTML
 htmlArg yellow none

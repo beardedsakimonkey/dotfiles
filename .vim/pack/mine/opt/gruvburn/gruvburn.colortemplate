@@ -32,6 +32,7 @@ String            -> Constant
 Structure         -> Type
 Tag               -> Special
 Typedef           -> Type
+NormalFloat       -> Pmenu
 
 Background: dark
 
@@ -49,8 +50,8 @@ Color: bg_red     #472322   52   DarkRed
 Color: bg_orange  #fe8019   ~    DarkRed
 Color: bg_yellow  #d8a657   214  Yellow
 Color: bg_green   #3d4220   22   DarkGreen
-Color: bg_magenta #1f3742   ~    DarkMagenta
-Color: bg_cyan    #391f42   ~    DarkCyan
+Color: bg_magenta #391f42   ~    DarkMagenta
+Color: bg_cyan    #1f3742   ~    DarkCyan
 Color: red        #ea6962   167  Red
 Color: orange     #e78a4e   208  DarkYellow
 Color: yellow     #d8a657   214  Yellow
@@ -97,12 +98,10 @@ WildMenu bg3 bg_grey1
 PmenuThumb none bg_grey0
 Question yellow none
 StatusLine fg1 bg5
-StatusLineTerm fg1 bg5
 StatusLineNC grey bg2
-StatusLineTermNC grey bg2
-TabLine fg0 bg1
+TabLine grey bg1
 TabLineFill fg0 bg1
-TabLineSel fg1 bg5
+TabLineSel fg0 bg5
 VertSplit bg5 none
 Visual none bg3
 VisualNOS none bg3
@@ -133,12 +132,12 @@ Title orange none bold
 Special yellow none
 SpecialChar yellow none
 Type yellow none
-Function blue none
+Function fg0 none
 String green none
 Character green none
 Constant cyan none
 Macro cyan none
-Identifier blue none
+Identifier fg0 none
 SpecialKey blue none
 Comment grey none
 SpecialComment grey none
@@ -147,7 +146,13 @@ Delimiter fg0 none
 Ignore grey none
 
 # status line
-statusLineError red bg5 bold
+User1 red bg5 bold
+User2 bg0 bg_yellow
+
+# isearch
+isearchCursorLine -> CursorLine
+isearchResults -> Normal
+isearchInput -> Normal
 
 # vim
 vimCommentString -> Comment
@@ -169,14 +174,11 @@ helpExample green none
 helpSpecial blue none
 helpSectionDelim grey none
 
-# zsh
-zshVariableDef -> Normal
-
 # nvim-lsp
 LspDiagnosticsError grey bg_red
-LspDiagnosticsWarning grey bg_yellow
-LspDiagnosticsInformation grey bg_cyan
-LspDiagnosticsHint grey bg_green
+LspDiagnosticsWarning grey bg_red
+LspDiagnosticsInformation grey red
+LspDiagnosticsHint grey bg_red
 
 # HTML
 htmlArg yellow none
@@ -188,3 +190,6 @@ javascriptValue magenta none
 
 # rust
 rustFuncCall fg0 none
+
+# lua
+luaFunction yellow none

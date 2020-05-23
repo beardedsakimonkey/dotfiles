@@ -87,8 +87,6 @@ set grepformat=%f:%l:%c:%m
 let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
   autocmd!
-  " autocmd VimEnter * if expand('%') == '' | edit . | endif
-
   autocmd BufReadPre *
         \ let s = getfsize(expand("<afile>")) |
         \ if s > g:LargeFile || s == -2 |
@@ -125,6 +123,12 @@ augroup vimrc
   autocmd InsertEnter * call StopHL()
 
   autocmd BufWritePost $MYVIMRC,~/.vim/vimrc source $MYVIMRC
+
+  autocmd BufWritePost ~/.vim/lua/* luafile %
+
+  if has('nvim-0.5')
+    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
+  endif
 augroup END
 
 fun! HlSearch()
@@ -187,7 +191,6 @@ endf
 
 command! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 command! -nargs=* -complete=file_in_path Grep cgetexpr my_fb#grep(<f-args>)
-command! Blah lua require'myfilter'.run()
 
 let mapleader = "\<space>"
 let maplocalleader = ','
@@ -238,17 +241,15 @@ map! ∆ <a-j>
 map! ˚ <a-k>
 imap π <a-p>
 
-inoremap <a-h> <c-o>h
+inoremap <a-h> <left>
+inoremap <a-l> <right>
 inoremap <a-j> <c-o>b
 inoremap <a-k> <c-o>w
-inoremap <a-l> <c-o>l
-inoremap <a-p> <c-r>"
 
 cnoremap <a-h> <left>
+cnoremap <a-l> <right>
 cnoremap <a-j> <c-left>
 cnoremap <a-k> <c-right><right>
-cnoremap <a-l> <right>
-cnoremap <a-p> <c-r>"
 
 nnoremap <c-l> <c-w>l
 nnoremap <c-h> <c-w>h
@@ -278,7 +279,14 @@ nnoremap <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
 nnoremap <silent> ]L :<c-u>lnfile<cr>zz
 nnoremap <silent> [L :<c-u>lpfile<cr>zz
 
-nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
+if has('nvim-0.5')
+  nnoremap <silent> <leader>o <cmd>lua require'isearch'.search_oldfiles()<cr>
+  nnoremap <silent> <leader>b <cmd>lua require'isearch'.search_buffers()<cr>
+else
+  nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
+  nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
+endif
+nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
 nnoremap <silent> <leader>d :<c-u>bd<cr>
 nnoremap <silent> <leader>q :<c-u>b#<cr>
 
@@ -289,12 +297,10 @@ nnoremap <silent> <expr> <leader>l (&hls && v:hlsearch ? ':nohls' : ':set hls').
 
 nnoremap <leader>a :<c-u>Grep<space>
 vnoremap <leader>a "sy:Grep <c-r>s
-nnoremap <silent> <leader>p :<c-u>call my_find#files()<cr>
-nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
 
 nnoremap <silent> <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
 nnoremap <silent> <leader>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-nnoremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<cr>
+nnoremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
 
 cnoremap <c-p> <up>
 cnoremap <c-n> <down>
@@ -351,8 +357,20 @@ command! -nargs=0 Colortest runtime syntax/hitest.vim
 " nvim-lsp
 if has('nvim-0.5')
   packadd nvim-lsp
-  lua require'nvim_lsp'.vimls.setup{}
-  lua require'nvim_lsp'.rust_analyzer.setup{}
+  command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+  lua <<
+require'nvim_lsp'.vimls.setup{}
+require'nvim_lsp'.rust_analyzer.setup{}
+require'nvim_lsp'.sumneko_lua.setup{
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = {"vim"}
+      }
+    }
+  }
+}
+.
 endif
 
 " vim-qf

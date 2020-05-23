@@ -20,7 +20,7 @@ nnoremap <silent> <Plug>jump_arg_next :<c-u>call <SID>jumpArg(1)<cr>
 fun! s:moveLine(dir, count)
   normal! m`
   execute 'move' (a:dir == 'up' ? '--' : '+').a:count
-  normal! ``
+  normal! =``
   silent! call repeat#set("\<Plug>move_line_".a:dir, a:count)
 endf
 

@@ -97,7 +97,6 @@ fun! s:filter_close(bufnr, action, winrestsize)
   echo "\r"
 endf
 
-
 "
 " Buffer
 "
@@ -110,7 +109,6 @@ fun! my_find#buffer()
   call my_find#interactively(l:buffers, 's:switch_to_buffer', 'Switch buffer')
 endf
 
-
 "
 " Old files
 "
@@ -119,7 +117,7 @@ fun! s:edit_file(files)
 endf
 
 fun! my_find#oldfiles()
-  call my_find#interactively(v:oldfiles[:99], 's:edit_file', 'Oldfiles')
+  call my_find#interactively(v:oldfiles, 's:edit_file', 'Oldfiles')
 endf
 
 "

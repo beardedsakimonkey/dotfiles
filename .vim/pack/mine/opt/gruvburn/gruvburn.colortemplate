@@ -141,7 +141,7 @@ Identifier fg0 none
 SpecialKey blue none
 Comment grey none
 SpecialComment grey none
-Todo fg1 bg_magenta
+Todo fg1 none
 Delimiter fg0 none
 Ignore grey none
 
@@ -153,6 +153,7 @@ User2 bg0 bg_yellow
 isearchCursorLine -> CursorLine
 isearchResults -> Normal
 isearchInput -> Normal
+isearchMatch red none underline
 
 # vim
 vimCommentString -> Comment
@@ -175,10 +176,10 @@ helpSpecial blue none
 helpSectionDelim grey none
 
 # nvim-lsp
-LspDiagnosticsError grey bg_red
-LspDiagnosticsWarning grey bg_red
-LspDiagnosticsInformation grey red
-LspDiagnosticsHint grey bg_red
+# LspDiagnosticsError grey bg_red
+# LspDiagnosticsWarning grey bg_red
+# LspDiagnosticsInformation grey red
+# LspDiagnosticsHint grey bg_red
 
 # HTML
 htmlArg yellow none

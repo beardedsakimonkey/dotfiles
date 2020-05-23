@@ -2,32 +2,39 @@ local api = vim.api
 
 local results_buf
 local results_win
+local ns
 
 local function fuzzy_match(str, query)
   if #query == 0 then return true end
   if #str == 0 then return false end
+  local match_cols = {}
   local qi = 1
-  for sc in str:gmatch('.') do
+  for si=1,#str do
+    local sc = str:sub(si, si)
     local qc = query:sub(qi, qi)
-    if qc == sc then
+    if sc == qc then
+      table.insert(match_cols, si)
       qi = qi + 1
       if qi > #query then
-        return true
+        return match_cols
       end
     end
   end
-  return false
+  return nil
 end
 
 local function fuzzy_filter(query, items)
   query = query or ''
-  local results = {}
-  for _,item in ipairs(items) do
-    if fuzzy_match(item, query) then
-      table.insert(results, item)
+  local lines = {}
+  local match_cols = {}
+  for _, item in ipairs(items) do
+    local matches = fuzzy_match(item, query)
+    if matches then
+      table.insert(lines, item)
+      table.insert(match_cols, matches)
     end
   end
-  return results
+  return lines, match_cols
 end
 
 local function move_results_cursor(offset)
@@ -38,7 +45,8 @@ local function move_results_cursor(offset)
   api.nvim_command('redraw!')
 end
 
-local function filter(items)
+local function filter(input)
+  }
   local frame_buf = api.nvim_create_buf(false, true)
   local input_buf = api.nvim_create_buf(false, true)
   results_buf = api.nvim_create_buf(false, true)
@@ -59,7 +67,7 @@ local function filter(items)
   local bot = '└' .. ('─'):rep(width - 2) .. '┘'
 
   local border_lines = {}
-  table.insert(border_lines,  top)
+  table.insert(border_lines, top)
   for _=1,height - 2 do
     table.insert(border_lines, mid)
   end
@@ -113,6 +121,13 @@ local function filter(items)
   api.nvim_win_set_option(frame_win, 'winhighlight', 'NormalFloat:isearchResults')
   api.nvim_win_set_option(input_win, 'winhighlight', 'NormalFloat:isearchInput')
   api.nvim_win_set_option(results_win, 'winhighlight', 'NormalFloat:isearchResults,CursorLine:isearchCursorLine')
+  local items
+  if type(input) == 'string' then
+    items = api.nvim_call_function('systemlist', { input })
+  else
+    assert(type(input) == 'table')
+    items = input
+  end
 
   local items_ = {}
   for k,v in ipairs(items) do
@@ -129,9 +144,18 @@ local function filter(items)
     local buf_lines = api.nvim_buf_get_lines(buf, firstline, firstline + 1, true)
     assert(#buf_lines > 0, 'empty lines')
     local query = buf_lines[1]
-    local results = fuzzy_filter(query, items_)
+    local lines, match_cols = fuzzy_filter(query, items_)
     vim.schedule(function ()
-      api.nvim_buf_set_lines(results_buf, 0, -1, true, results)
+      if ns then
+        api.nvim_buf_clear_namespace(results_buf, ns, 0, -1)
+      end
+      ns = api.nvim_create_namespace('')
+      api.nvim_buf_set_lines(results_buf, 0, -1, true, lines)
+      for line=1,#lines do
+        for _, col in ipairs(match_cols[line]) do
+          api.nvim_buf_add_highlight(results_buf, ns, 'isearchMatch', line - 1, col - 1, col)
+        end
+      end
       move_results_cursor(0)
     end)
   end
@@ -163,9 +187,14 @@ local function search_buffers()
   filter(bufnames)
 end
 
+local function search_files()
+  filter('fd --max-depth 10 --type f')
+end
+
 package.loaded.isearch = nil
 
 return {
+  search_files = search_files,
   search_buffers = search_buffers,
   search_oldfiles = search_oldfiles,
   prev_result = function () move_results_cursor(-1) end,

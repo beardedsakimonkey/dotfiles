@@ -75,7 +75,7 @@ set shortmess+=IcmF
 set noshowcmd
 set listchars=tab:>\ ,trail:-
 set nolist
-set signcolumn=no
+set signcolumn=auto
 set background=dark
 if executable('rg')
   set grepprg=rg\ -i\ --vimgrep
@@ -282,12 +282,14 @@ nnoremap <silent> [L :<c-u>lpfile<cr>zz
 if has('nvim-0.5')
   nnoremap <silent> <leader>o <cmd>lua require'isearch'.search_oldfiles()<cr>
   nnoremap <silent> <leader>b <cmd>lua require'isearch'.search_buffers()<cr>
+  nnoremap <silent> <leader>f <cmd>lua require'isearch'.search_files()<cr>
 else
   nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
   nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
+  nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
 endif
-nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
-nnoremap <silent> <leader>d :<c-u>bd<cr>
+nnoremap <silent> <leader>d :<c-u>BD<cr>
+nnoremap <silent> <leader>D :<c-u>bd<cr>
 nnoremap <silent> <leader>q :<c-u>b#<cr>
 
 nnoremap <silent> <leader>gd :<c-u>HGdiff<cr>
@@ -354,14 +356,30 @@ autocmd vimrc BufWritePost *.colortemplate Colortemplate!
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command! -nargs=0 Colortest runtime syntax/hitest.vim
 
-" nvim-lsp
 if has('nvim-0.5')
-  packadd nvim-lsp
   command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+
+  " completion-nvim
+  packadd completion-nvim
+  let g:completion_chain_complete_list = { 'default' : [ { 'complete_items': ['lsp'] } ] }
+  set completeopt=menuone,noinsert,noselect
+
+  " diagnostic-nvim
+  packadd diagnostic-nvim
+  let g:diagnostic_insert_delay = 1
+  nmap [d <cmd>PrevDiagnosticCycle<cr>
+  nmap ]d <cmd>NextDiagnosticCycle<cr>
+
+  " nvim-lsp
+  packadd nvim-lsp
   lua <<
 require'nvim_lsp'.vimls.setup{}
 require'nvim_lsp'.rust_analyzer.setup{}
 require'nvim_lsp'.sumneko_lua.setup{
+  on_attach = function()
+    require'diagnostic'.on_attach()
+    require'completion'.on_attach()
+  end,
   settings = {
     Lua = {
       diagnostics = {
@@ -378,11 +396,14 @@ nmap <c-n> <Plug>(qf_qf_toggle)
 let g:qf_max_height = 16
 let g:qf_auto_quit = 0
 
-" dirs
-let g:dirs_mode = ':sort ,^.*/,'
+" dirvish
+let g:dirvish_mode = ':sort ,^.*/,'
 if !argc()
-  autocmd vimrc VimEnter * :silent! Dirs
+  autocmd vimrc VimEnter * :silent! Dirvish
 endif
+
+" bufkill
+let g:BufKillCreateMappings = 0
 
 packadd! gruvburn
 silent! colorscheme gruvburn

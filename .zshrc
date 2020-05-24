@@ -133,6 +133,35 @@ bindkey "?" _fix-tilde-questionmark
 # Modules
 #
 
+# adds `ci[`, `dab`, etc..
+autoload -U select-bracketed
+zle -N select-bracketed
+for m in visual viopp; do
+  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+    bindkey -M $m $c select-bracketed
+  done
+done
+
+# adds `ci"`, `da'`, etc..
+autoload -U select-quoted
+zle -N select-quoted
+for m in visual viopp; do
+  for c in {a,i}{\',\",\`}; do
+    bindkey -M $m $c select-quoted
+  done
+done
+
+autoload -Uz surround
+zle -N delete-surround surround
+zle -N add-surround surround
+zle -N change-surround surround
+
+# NOTE: you have $KEYTIMEOUT ms in between the two keystrokes
+bindkey -a cs change-surround
+bindkey -a ds delete-surround
+bindkey -a ys add-surround
+bindkey -M visual S add-surround
+
 autoload edit-command-line
 zle -N edit-command-line
 bindkey "\C-o" edit-command-line
@@ -172,30 +201,6 @@ SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %
 zle_highlight=(region:bg=#504945)
 
 #
-# Cursor
-#
-
-# Remove mode switching delay.
-KEYTIMEOUT=1
-
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-    [[ ${KEYMAP} == viins ]] ||
-    [[ ${KEYMAP} = '' ]] ||
-    [[ $1 = 'beam' ]]; then
-      echo -ne '\e[5 q'
-  fi
-}
-zle -N zle-keymap-select
-
-zle-line-init() { echo -ne '\e[5 q' }
-zle -N zle-line-init
-zle-line-finish() { echo -ne '\e[1 q' }
-zle -N zle-line-finish
-
-#
 # Aliases
 #
 
@@ -211,10 +216,11 @@ alias v='$EDITOR'
 # Exports
 #
 
+export KEYTIMEOUT=40
+export CORRECT_IGNORE=_*
+
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/bin/:$PATH"
-
-export CORRECT_IGNORE=_*
 
 export HISTSIZE=100000
 export SAVEHIST=100000

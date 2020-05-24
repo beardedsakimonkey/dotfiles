@@ -46,7 +46,6 @@ local function move_results_cursor(offset)
 end
 
 local function filter(input)
-  }
   local frame_buf = api.nvim_create_buf(false, true)
   local input_buf = api.nvim_create_buf(false, true)
   results_buf = api.nvim_create_buf(false, true)

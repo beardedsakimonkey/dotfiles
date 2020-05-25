@@ -190,7 +190,7 @@ local function search_files()
   filter('fd --max-depth 10 --type f')
 end
 
-package.loaded.isearch = nil
+-- package.loaded.isearch = nil
 
 return {
   search_files = search_files,

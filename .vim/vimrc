@@ -5,12 +5,16 @@ set ttimeoutlen=10  " This must be a low value for <esc>-key not to be confused 
 set mouse=a
 if has('nvim')
   language en_US.UTF-8
-  set shada=!,'1000,<50,s10,h  " Override viminfo setting
+  " !     - Save and restore all-caps global variables
+  " '1000 - Marks will be remembered for the last 1000 files edited
+  " <50   - Contents of registers (up to 50 lines each) will be remembered
+  " s10   - Items with contents occupying more then 10 KiB are skipped
+  " h     - Disable the effect of 'hlsearch' when loading the shada file
+  set shada=!,'1000,<50,s10,h 
 else
-  set viminfo=!,'300,<10000,s10,h,n~/.viminfo
+  set viminfo=!,'1000,<50,s10,h
+  set viminfofile=~/.viminfo
   " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
-  set <s-left>=b
-  set <s-right>=f
   set <a-h>=h
   set <a-j>=j
   set <a-k>=k
@@ -88,9 +92,9 @@ let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
   autocmd!
   autocmd BufReadPre *
-        \ let s = getfsize(expand("<afile>")) |
+        \ let s = getfsize(expand('<afile>')) |
         \ if s > g:LargeFile || s == -2 |
-        \   call my_buffer#large(fnamemodify(expand("<afile>"), ":p")) |
+        \   call my_buffer#large(expand('<afile>:p')) |
         \ endif
 
   " On opening a file, jump to the last known cursor position
@@ -119,16 +123,17 @@ augroup vimrc
     autocmd TermOpen * setlocal statusline=%f
   endif
 
-  autocmd CursorMoved * call HlSearch()
-  autocmd InsertEnter * call StopHL()
-
-  autocmd BufWritePost $MYVIMRC,~/.vim/vimrc source $MYVIMRC
-
-  autocmd BufWritePost ~/.vim/lua/* luafile %
+  autocmd BufWritePost *.vim source <afile>
+  autocmd BufWritePost ~/.vim/vimrc source $MYVIMRC
+  autocmd BufWritePost ~/.vim/lua/* luafile <afile>
+  autocmd BufWritePost .tmux.conf call system('tmux source-file ' . expand('<afile>'))
 
   if has('nvim-0.5')
     autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
   endif
+
+  autocmd CursorMoved * call HlSearch()
+  autocmd InsertEnter * call StopHL()
 augroup END
 
 fun! HlSearch()
@@ -215,13 +220,14 @@ noremap L $
 noremap <silent> ( :<c-u>keepjumps normal! H<cr>
 noremap <silent> ) :<c-u>keepjumps normal! L<cr>
 nnoremap ; :
-vnoremap ; :
+xnoremap ; :
 nnoremap : ;
-vnoremap : ;
+xnoremap : ;
 noremap <silent> <tab> :<c-u>keepjumps normal! %<cr>
 nnoremap <c-p> <c-i>
 nnoremap <home> gg
 nnoremap <end> G
+nnoremap <leader>= H=L``
 
 " see :help jump-motions
 nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
@@ -239,7 +245,6 @@ map! ¬ <a-l>
 map! ˙ <a-h>
 map! ∆ <a-j>
 map! ˚ <a-k>
-imap π <a-p>
 
 inoremap <a-h> <left>
 inoremap <a-l> <right>
@@ -267,8 +272,14 @@ vnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
 
 nmap [e <Plug>move_line_up
 nmap ]e <Plug>move_line_down
-nmap [a <Plug>jump_arg_prev
-nmap ]a <Plug>jump_arg_next
+
+if has('nvim-0.5')
+  nmap [a <cmd>lua require'argmotion'.jump_prev()<cr>
+  nmap ]a <cmd>lua require'argmotion'.jump_next()<cr>
+else
+  nmap [a <Plug>jump_arg_prev
+  nmap ]a <Plug>jump_arg_next
+endif
 
 nnoremap <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
 nnoremap <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
@@ -288,6 +299,7 @@ else
   nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
   nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
 endif
+
 nnoremap <silent> <leader>d :<c-u>BD<cr>
 nnoremap <silent> <leader>D :<c-u>bd<cr>
 nnoremap <silent> <leader>q :<c-u>b#<cr>
@@ -337,6 +349,7 @@ if !has('nvim')
 endif
 
 " vim-prettier
+" packadd vim-prettier
 let g:prettier#autoformat = 1
 
 " vim-flow
@@ -387,8 +400,15 @@ if has('nvim-0.5')
   " nvim-lsp
   packadd nvim-lsp
   lua <<
-require'nvim_lsp'.vimls.setup{}
-require'nvim_lsp'.rust_analyzer.setup{}
+-- require'nvim_lsp'.rust_analyzer.setup{}
+
+require'nvim_lsp'.vimls.setup{
+  on_attach = function()
+    require'diagnostic'.on_attach()
+    require'completion'.on_attach()
+  end,
+}
+
 require'nvim_lsp'.sumneko_lua.setup{
   on_attach = function()
     require'diagnostic'.on_attach()

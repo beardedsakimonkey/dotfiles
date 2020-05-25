@@ -1,5 +1,4 @@
-# disable C-s/C-q
-stty -ixon
+stty -ixon # disable C-s/C-q
 
 #
 # Options
@@ -94,12 +93,21 @@ _cd_up() {
 }
 zle -N _cd_up
 
+function fg-bg() {
+  if [[ $#BUFFER -eq 0 ]]; then
+    fg
+  else
+    zle push-input
+  fi
+}
+zle -N fg-bg
+
 # _tab() {
-#   if [[ -z $BUFFER ]]; then
-#     zle -U './'
+#   if [[ $#BUFFER -eq 0 ]]; then
+#     zle -U 'cd ./'
 #     zle .list-choices
 #   else
-#     zle .complete-word
+#     zle .push-input
 #   fi
 # }
 # zle -N _tab
@@ -124,16 +132,16 @@ bindkey -a 'L' vi-end-of-line
 
 bindkey "\C-b" _cd_up
 bindkey "\C-h" _man-line
-bindkey "\C-x" _change-first-word
 bindkey "\C-w" _backward-kill-to-slash
 bindkey "?" _fix-tilde-questionmark
+bindkey '^Z' fg-bg
+bindkey -a "m" _change-first-word
 # bindkey "\t" _tab
 
 #
 # Modules
 #
 
-# adds `ci[`, `dab`, etc..
 autoload -U select-bracketed
 zle -N select-bracketed
 for m in visual viopp; do
@@ -142,7 +150,6 @@ for m in visual viopp; do
   done
 done
 
-# adds `ci"`, `da'`, etc..
 autoload -U select-quoted
 zle -N select-quoted
 for m in visual viopp; do
@@ -175,7 +182,7 @@ zstyle ':completion:*:*:cdr:*:*' menu selection
 zstyle ':chpwd:*' recent-dirs-default true
 
 #
-# VCS
+# Prompt
 #
 
 # autoload -Uz vcs_info
@@ -187,11 +194,7 @@ zstyle ':chpwd:*' recent-dirs-default true
 # }
 # RPROMPT="\${vcs_info_msg_0_}"
 
-#
-# Prompt
-#
-
-PROMPT="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}"
+PROMPT="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{white}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
@@ -201,15 +204,34 @@ SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %
 zle_highlight=(region:bg=#504945)
 
 #
+# Cursor
+#
+
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] ||
+    [[ ${KEYMAP} == viins ]] ||
+    [[ ${KEYMAP} = '' ]] ||
+    [[ $1 = 'beam' ]]; then
+      echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+
+zle-line-init() { echo -ne '\e[5 q' }
+zle -N zle-line-init
+zle-line-finish() { echo -ne '\e[1 q' }
+zle -N zle-line-finish
+
+#
 # Aliases
 #
 
 alias sudo='sudo '
 alias t='tmux attach || tmux new'
 alias ls='ls -F -G'
-alias ll='ls -ahlF'
-alias la='ls -FA'
-alias a='la'
+alias a='ls -A'
 alias v='$EDITOR'
 
 #
@@ -217,7 +239,7 @@ alias v='$EDITOR'
 #
 
 export KEYTIMEOUT=40
-export CORRECT_IGNORE=_*
+export CORRECT_IGNORE=_*,.*
 
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/bin/:$PATH"
@@ -226,10 +248,10 @@ export HISTSIZE=100000
 export SAVEHIST=100000
 export HISTFILE=~/.zsh_history
 
-export VISUAL=nvim
 export EDITOR=nvim
+export VISUAL=$EDITOR
 export PAGER=less
-export READNULLCMD=less
+export READNULLCMD=$PAGER
 
 export LESS_TERMCAP_mb=$(printf "\e[01;31m")
 export LESS_TERMCAP_md=$(printf "\e[00;33m")
@@ -250,6 +272,8 @@ fi
 
 if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
   source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+  # https://github.com/zdharma/fast-syntax-highlighting/issues/179
+  FAST_HIGHLIGHT[chroma-man]=
 fi
 
 export NVM_DIR="$HOME/.nvm"

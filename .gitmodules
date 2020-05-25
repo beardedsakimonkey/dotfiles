@@ -11,7 +11,7 @@
 	path = .vim/pack/third-party/start/VimCompletesMe
 	url = https://github.com/ajh17/VimCompletesMe.git
 [submodule "vim-prettier"]
-	path = .vim/pack/third-party/start/vim-prettier
+	path = .vim/pack/third-party/opt/vim-prettier
 	url = https://github.com/prettier/vim-prettier.git
 [submodule "vim-jsx-pretty"]
 	path = .vim/pack/third-party/start/vim-jsx-pretty

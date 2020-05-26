@@ -239,7 +239,7 @@ alias v='$EDITOR'
 # Exports
 #
 
-export KEYTIMEOUT=40
+export KEYTIMEOUT=20
 export CORRECT_IGNORE=_*,.*
 
 export PATH="$HOME/.cargo/bin/:$PATH"

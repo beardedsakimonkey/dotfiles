@@ -229,7 +229,6 @@ nnoremap <home> gg
 nnoremap <end> G
 nnoremap <leader>= H=L``
 
-" see :help jump-motions
 nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
 nnoremap <silent> M :<c-u>keepjumps normal! M<cr>
 nnoremap <silent> { :<c-u>keepjumps normal! {<cr>
@@ -246,15 +245,10 @@ map! ˙ <a-h>
 map! ∆ <a-j>
 map! ˚ <a-k>
 
-inoremap <a-h> <left>
-inoremap <a-l> <right>
-inoremap <a-j> <c-o>b
-inoremap <a-k> <c-o>w
-
-cnoremap <a-h> <left>
-cnoremap <a-l> <right>
-cnoremap <a-j> <c-left>
-cnoremap <a-k> <c-right><right>
+noremap! <a-h> <left>
+noremap! <a-l> <right>
+noremap! <a-j> <c-left>
+noremap! <a-k> <c-right>
 
 nnoremap <c-l> <c-w>l
 nnoremap <c-h> <c-w>h

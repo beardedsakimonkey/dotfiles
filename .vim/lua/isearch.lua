@@ -8,15 +8,17 @@ local function fuzzy_match(str, query)
   if #query == 0 then return true end
   if #str == 0 then return false end
   local match_cols = {}
-  local qi = 1
-  for si=1,#str do
-    local sc = str:sub(si, si)
-    local qc = query:sub(qi, qi)
-    if sc == qc then
-      table.insert(match_cols, si)
-      qi = qi + 1
-      if qi > #query then
-        return match_cols
+  for q in query:gmatch('%S+') do
+    local qi = 1
+    for si=1,#str do
+      local sc = str:sub(si, si)
+      local qc = q:sub(qi, qi)
+      if sc == qc then
+        table.insert(match_cols, si)
+        qi = qi + 1
+        if qi > #q then
+          return match_cols
+        end
       end
     end
   end
@@ -190,7 +192,7 @@ local function search_files()
   filter('fd --max-depth 10 --type f')
 end
 
--- package.loaded.isearch = nil
+package.loaded.isearch = nil
 
 return {
   search_files = search_files,

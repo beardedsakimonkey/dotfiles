@@ -51,6 +51,7 @@ zmodload -i zsh/complist
 _change-first-word() {
   zle .beginning-of-line
   zle .kill-word
+  zle .vi-insert
 }
 zle -N _change-first-word
 

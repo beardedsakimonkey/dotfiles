@@ -34,9 +34,6 @@
 [submodule "vim-qf"]
 	path = .vim/pack/third-party/start/vim-qf
 	url = https://github.com/romainl/vim-qf.git
-[submodule "vim-dirvish"]
-	path = .vim/pack/third-party/start/vim-dirvish
-	url = https://github.com/justinmk/vim-dirvish.git
 [submodule "vim-bufkill"]
 	path = .vim/pack/third-party/start/vim-bufkill
 	url = https://github.com/qpkorr/vim-bufkill.git

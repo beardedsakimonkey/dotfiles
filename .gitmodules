@@ -43,3 +43,6 @@
 [submodule "diagnostic-nvim"]
 	path = .vim/pack/third-party/opt/diagnostic-nvim
 	url = https://github.com/haorenW1025/diagnostic-nvim.git
+[submodule "vim-dirvish"]
+	path = .vim/pack/mine/start/vim-dirvish
+	url = https://github.com/beardedsakimonkey/vim-dirvish.git

@@ -287,11 +287,11 @@ nnoremap <silent> [L :<c-u>lpfile<cr>zz
 if has('nvim-0.5')
   nnoremap <silent> <leader>o <cmd>lua require'isearch'.search_oldfiles()<cr>
   nnoremap <silent> <leader>b <cmd>lua require'isearch'.search_buffers()<cr>
-  nnoremap <silent> <leader>f <cmd>lua require'isearch'.search_files()<cr>
+  nnoremap <silent> <leader>e <cmd>lua require'isearch'.search_files()<cr>
 else
   nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
   nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
-  nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
+  nnoremap <silent> <leader>e :<c-u>call my_find#files()<cr>
 endif
 
 nnoremap <silent> <leader>d :<c-u>BD<cr>

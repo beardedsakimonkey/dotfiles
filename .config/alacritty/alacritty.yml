@@ -224,7 +224,7 @@ colors:
 
   primary:
     background: '#32302f'
-    foreground: '#cab081'
+    foreground: '#bfa472'
 
   normal:
     black:   '#665c54'

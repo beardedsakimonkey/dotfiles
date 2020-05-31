@@ -23,10 +23,10 @@ local function get_parser()
   return M.parsers[buf]
 end
 
-local function node_at_cursor(tsroot)
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  return tsroot:named_descendant_for_range(cursor[1]-1, cursor[2], cursor[1]-1, cursor[2])
-end
+-- local function node_at_cursor(tsroot)
+--   local cursor = vim.api.nvim_win_get_cursor(0)
+--   return tsroot:named_descendant_for_range(cursor[1]-1, cursor[2], cursor[1]-1, cursor[2])
+-- end
 
 function noop()
 end

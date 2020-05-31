@@ -65,7 +65,7 @@ set ignorecase
 set infercase
 set smartcase
 set keywordprg=:help
-set completeopt=menu
+set completeopt=menu,noinsert
 set wildmenu
 set wildignorecase
 
@@ -79,7 +79,7 @@ set shortmess+=IcmF
 set noshowcmd
 set listchars=tab:>\ ,trail:-
 set nolist
-set signcolumn=no
+set signcolumn=auto
 set background=dark
 if executable('rg')
   set grepprg=rg\ -i\ --vimgrep
@@ -388,6 +388,14 @@ map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
   execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
+for v in ['g', ']', '[', 'z']
+  execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+  execute 'vmap '.v.'m <plug>(matchup-'.v.'%)'
+endfor
+for v in ['ds', 'cs']
+  execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+endfor
+
 function! IsCommentaryOpFunc()
   return &operatorfunc ==? matchstr(maparg('<Plug>Commentary', 'n'),
         \ '\c<SNR>\w\+\ze()\|set op\%(erator\)\?func=\zs.\{-\}\ze<cr>')
@@ -397,36 +405,14 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 if has('nvim-0.5')
   command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
 
-  " completion-nvim
-  packadd completion-nvim
-  let g:completion_chain_complete_list = { 'default' : [ { 'complete_items': ['lsp'] } ] }
-  set completeopt=menuone,noinsert,noselect
-
-  sign define LspDiagnosticsErrorSign text=E texthl= linehl=ErrorBg numhl=
-  sign define LspDiagnosticsWarningSign text=W texthl= linehl=WarningBg numhl=
-  sign define LspDiagnosticsInformationSign text=I texthl= linehl=InfoBg numhl=
-  sign define LspDiagnosticsHintSign text=H texthl= linehl=HintBg numhl=
-
   " nvim-lsp
   packadd nvim-lsp
-  lua <<
-require'nvim_lsp'.rust_analyzer.setup{}
 
-require'nvim_lsp'.vimls.setup{
-  on_attach = require'completion'.on_attach(),
-}
+  for name in ['LspDiagnosticsErrorSign', 'LspDiagnosticsWarningSign', 'LspDiagnosticsInformationSign', 'LspDiagnosticsHintSign']
+    call sign_define(name, {'text' : '--'})
+  endfor
 
-require'nvim_lsp'.sumneko_lua.setup{
-  on_attach = require'completion'.on_attach(),
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = {"vim"}
-      }
-    }
-  }
-}
-.
+  luafile ~/.vim/lua/my_lsp.lua
 endif
 
 packadd! gruvburn

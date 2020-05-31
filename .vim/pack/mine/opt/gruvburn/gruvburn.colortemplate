@@ -36,7 +36,7 @@ NormalFloat       -> Pmenu
 
 Background: dark
 
-Color: fg0        #cab081   223  White
+Color: fg0        #bfa472   223  White
 Color: fg1        #ddc7a1   223  White
 Color: bg0        #32302f   236  Black
 Color: bg1        #3a3735   237  DarkGrey
@@ -172,10 +172,15 @@ helpSpecial blue none
 helpSectionDelim grey none
 
 # nvim-lsp
-# LspDiagnosticsError grey bg_red
-# LspDiagnosticsWarning grey bg_red
-# LspDiagnosticsInformation grey red
-# LspDiagnosticsHint grey bg_red
+LspDiagnosticsError red bg2
+LspDiagnosticsWarning yellow bg2
+LspDiagnosticsInformation magenta bg2
+LspDiagnosticsHint magenta bg2
+
+LspDiagnosticsUnderlineError none bg_red
+LspDiagnosticsUnderlineWarning none bg_red
+LspDiagnosticsUnderlineInformation none bg_magenta
+LspDiagnosticsUnderlineHint none bg_magenta
 
 # HTML
 htmlArg yellow none
@@ -189,4 +194,4 @@ javascriptValue magenta none
 rustFuncCall fg0 none
 
 # lua
-luaFunction orange none
+luaFunction red none

@@ -18,7 +18,9 @@ nnoremap <buffer> <nowait> <silent> l :<c-u>call dirvish#open('edit', 0)<cr>
 nmap     <buffer> <nowait> <silent> q <Plug>(dirvish_quit)
 nnoremap <buffer> <nowait> <silent> ~ :<c-u>.call dirvish#open(expand("~"))<cr>
 
-nnoremap <buffer> <nowait> <silent> + :<c-u>.call my_dirvish#create()<cr>
-nnoremap <buffer> <nowait> <silent> d :<c-u>.call my_dirvish#delete()<cr>
-nnoremap <buffer> <nowait> <silent> c :<c-u>.call my_dirvish#copy()<cr>
-nnoremap <buffer> <nowait> <silent> r :<c-u>.call my_dirvish#rename()<cr>
+nnoremap <buffer> <nowait> <silent> + :<c-u>call my_dirvish#create()<cr>
+nnoremap <buffer> <nowait> <silent> d :<c-u>call my_dirvish#delete()<cr>
+nnoremap <buffer> <nowait> <silent> c :<c-u>call my_dirvish#copy()<cr>
+nnoremap <buffer> <nowait> <silent> r :<c-u>call my_dirvish#rename()<cr>
+
+nnoremap <buffer> <nowait> <silent> C :<c-u>lcd %<cr>

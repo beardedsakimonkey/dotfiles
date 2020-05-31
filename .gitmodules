@@ -40,9 +40,12 @@
 [submodule "completion-nvim"]
 	path = .vim/pack/third-party/opt/completion-nvim
 	url = https://github.com/haorenW1025/completion-nvim.git
-[submodule "diagnostic-nvim"]
-	path = .vim/pack/third-party/opt/diagnostic-nvim
-	url = https://github.com/haorenW1025/diagnostic-nvim.git
 [submodule "vim-dirvish"]
 	path = .vim/pack/mine/start/vim-dirvish
 	url = https://github.com/beardedsakimonkey/vim-dirvish.git
+[submodule "vim-matchup"]
+	path = .vim/pack/third-party/start/vim-matchup
+	url = https://github.com/andymass/vim-matchup
+[submodule "zsh-history-substring-search"]
+	path = .zsh/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git

@@ -118,8 +118,8 @@ bindkey "˙" backward-char; bindkey "\M-h" backward-char
 bindkey "˚" forward-word;  bindkey "\M-k" forward-word
 bindkey "¬" forward-char;  bindkey "\M-l" forward-char
 
-bindkey "\C-p" up-line-or-search
-bindkey "\C-n" down-line-or-search
+# bindkey "\C-p" up-line-or-search
+# bindkey "\C-n" down-line-or-search
 bindkey "\C-a" beginning-of-line
 bindkey "\C-e" end-of-line
 bindkey "\C-u" backward-kill-line
@@ -275,6 +275,14 @@ if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; t
   source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
   # https://github.com/zdharma/fast-syntax-highlighting/issues/179
   FAST_HIGHLIGHT[chroma-man]=
+fi
+
+if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; then
+  source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
+  bindkey "\C-p" history-substring-search-up
+  bindkey "\C-n" history-substring-search-down
+  HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#3d4220"
+  HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#472322"
 fi
 
 export NVM_DIR="$HOME/.nvm"

@@ -18,7 +18,7 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt inc_append_history
 
-setopt correct
+# setopt correct
 setopt NO_flow_control
 setopt interactive_comments
 

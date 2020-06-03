@@ -168,6 +168,12 @@ fun! MyStatusLine()
         \%* %f"
 endf
 
+" fun! MyStatusLine() abort
+"   return "%{luaeval('(not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and not vim.tbl_isempty(vim.lsp.util.diagnostics_by_buf))
+"         \ and [[E:]] .. vim.lsp.util.buf_diagnostics_count([[Error]]) .. [[ W:]] .. vim.lsp.util.buf_diagnostics_count([[Warning]])
+"         \ or [[off]]')}"
+" endf
+
 "
 " Tab line
 "

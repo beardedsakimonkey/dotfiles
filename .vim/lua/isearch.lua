@@ -4,39 +4,90 @@ local results_buf
 local results_win
 local ns
 
-local function fuzzy_match(str, query)
-  if #query == 0 then return true end
-  if #str == 0 then return false end
-  local match_cols = {}
-  for q in query:gmatch('%S+') do
-    local qi = 1
-    for si=1,#str do
-      local sc = str:sub(si, si)
-      local qc = q:sub(qi, qi)
-      if sc == qc then
-        table.insert(match_cols, si)
-        qi = qi + 1
-        if qi > #q then
-          return match_cols
-        end
+local function find_min_subsequence(target, sequence)
+  local t = 1
+  local s = 1
+  local min_subsequence = {
+    length = -1,
+    start_index = nil,
+    indices = {},
+  }
+  while t <= #target do
+    -- increment `t` until it is on the character `s` is on
+    while s <= #sequence and t <= #target do
+      if sequence:sub(s, s) == target:sub(t, t) then
+        break
+      end
+      t = t + 1
+    end
+    if t > #target then break end
+
+    -- find the next valid subsequence in `target`
+    local new_min = {
+      length = 1,
+      start_index = t,
+      indices = {},
+    }
+    while s <= #sequence and t <= #target do
+      if sequence:sub(s, s) ~= target:sub(t, t) then
+        t = t + 1
+        new_min.length = new_min.length + 1
+      else
+        table.insert(new_min.indices, t)
+        s = s + 1
       end
     end
+
+    if s > #sequence then
+      if new_min.length < min_subsequence.length
+        or min_subsequence.length == -1 then
+        min_subsequence = new_min
+      end
+    end
+
+    s = 1
+    t = new_min.start_index + 1
   end
-  return nil
+
+  return min_subsequence.start_index == nil and nil or min_subsequence.indices
 end
 
-local function fuzzy_filter(query, items)
-  query = query or ''
-  local lines = {}
-  local match_cols = {}
-  for _, item in ipairs(items) do
-    local matches = fuzzy_match(item, query)
-    if matches then
-      table.insert(lines, item)
-      table.insert(match_cols, matches)
+local function calc_score(indices, path)
+  local tail_s, tail_e  = path:find('[^/]+/?$')
+  if not tail_s then return 0 end
+  local count = 0
+  for _, index in ipairs(indices) do
+    if index >= tail_s  and index <= tail_e then
+      count = count + 1
     end
   end
-  return lines, match_cols
+  return count
+end
+
+local function fuzzy_match(query, line)
+  if #line == 0 then return nil end
+  local match = { columns = {}, score = 0, line = line }
+  if #query == 0 then return match end
+  local columns = find_min_subsequence(line, query)
+  if vim.tbl_isempty(columns) then return nil end
+  match.columns = columns
+  match.score = calc_score(match.columns, line)
+  return match
+end
+
+local function fuzzy_filter(query, lines)
+  query = query or ''
+  local matches = {}
+  for _, line in ipairs(lines) do
+    local match = fuzzy_match(query, line)
+    if match then
+      table.insert(matches, match)
+    end
+  end
+  table.sort(matches, function (a, b)
+    return a.score > b.score
+  end)
+  return matches
 end
 
 local function move_results_cursor(offset)
@@ -47,21 +98,21 @@ local function move_results_cursor(offset)
   api.nvim_command('redraw!')
 end
 
-local function filter(input)
+local function filter(source)
   local frame_buf = api.nvim_create_buf(false, true)
   local input_buf = api.nvim_create_buf(false, true)
   results_buf = api.nvim_create_buf(false, true)
 
   api.nvim_buf_set_option(input_buf, 'bufhidden', 'wipe')
 
-  local columns = api.nvim_get_option('columns')
-  local lines = api.nvim_get_option('lines')
+  local num_columns = api.nvim_get_option('columns')
+  local num_lines = api.nvim_get_option('lines')
 
-  local height = math.ceil(lines * 0.6 - 4)
-  local width = math.ceil(columns * 0.6)
+  local height = math.ceil(num_lines * 0.6 - 4)
+  local width = math.ceil(num_columns * 0.6)
 
-  local row = math.ceil((lines - height) / 2 - 1)
-  local col = math.ceil((columns - width) / 2)
+  local row = math.ceil((num_lines - height) / 2 - 1)
+  local col = math.ceil((num_columns - width) / 2)
 
   local top = '┌' .. ('─'):rep(width - 2) .. '┐'
   local mid = '│' .. (' '):rep(width - 2) .. '│'
@@ -69,7 +120,7 @@ local function filter(input)
 
   local border_lines = {}
   table.insert(border_lines, top)
-  for _=1,height - 2 do
+  for _ = 1, height - 2 do
     table.insert(border_lines, mid)
   end
   table.insert(border_lines, bot)
@@ -122,21 +173,22 @@ local function filter(input)
   api.nvim_win_set_option(frame_win, 'winhighlight', 'NormalFloat:isearchResults')
   api.nvim_win_set_option(input_win, 'winhighlight', 'NormalFloat:isearchInput')
   api.nvim_win_set_option(results_win, 'winhighlight', 'NormalFloat:isearchResults,CursorLine:isearchCursorLine')
-  local items
-  if type(input) == 'string' then
-    items = api.nvim_call_function('systemlist', { input })
+
+  local input
+  if type(source) == 'string' then
+    input = api.nvim_call_function('systemlist', { source })
   else
-    assert(type(input) == 'table')
-    items = input
+    assert(type(source) == 'table')
+    input = source
   end
 
-  local items_ = {}
-  for k,v in ipairs(items) do
+  local lines = {}
+  for k, v in ipairs(input) do
     local fname = api.nvim_call_function('fnamemodify', { v, ':~' })
-    items_[k] = fname
+    lines[k] = fname
   end
 
-  api.nvim_buf_set_lines(results_buf, 0, -1, true, items_)
+  api.nvim_buf_set_lines(results_buf, 0, -1, true, lines)
 
   local function on_lines(_, buf, _, firstline)
     if firstline ~= 0 then
@@ -145,16 +197,22 @@ local function filter(input)
     local buf_lines = api.nvim_buf_get_lines(buf, firstline, firstline + 1, true)
     assert(#buf_lines > 0, 'empty lines')
     local query = buf_lines[1]
-    local lines, match_cols = fuzzy_filter(query, items_)
+    local matches = fuzzy_filter(query, lines)
     vim.schedule(function ()
       if ns then
         api.nvim_buf_clear_namespace(results_buf, ns, 0, -1)
       end
       ns = api.nvim_create_namespace('')
-      api.nvim_buf_set_lines(results_buf, 0, -1, true, lines)
-      for line=1,#lines do
-        for _, col in ipairs(match_cols[line]) do
-          api.nvim_buf_add_highlight(results_buf, ns, 'isearchMatch', line - 1, col - 1, col)
+
+      local matched_lines = {}
+      for _, match in ipairs(matches) do
+        table.insert(matched_lines, match.line)
+      end
+      api.nvim_buf_set_lines(results_buf, 0, -1, true, matched_lines)
+
+      for i, match in ipairs(matches) do
+        for _, match_col in ipairs(match.columns) do
+          api.nvim_buf_add_highlight(results_buf, ns, 'isearchMatch', i - 1, match_col - 1, match_col)
         end
       end
       move_results_cursor(0)
@@ -180,7 +238,7 @@ end
 local function search_buffers()
   local bufs = api.nvim_list_bufs()
   local bufnames = {}
-  for i=#bufs,1,-1 do
+  for i =# bufs, 1, -1 do
     if api.nvim_buf_is_loaded(bufs[i]) then
       table.insert(bufnames, api.nvim_buf_get_name(bufs[i]))
     end

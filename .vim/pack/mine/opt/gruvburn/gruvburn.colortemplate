@@ -38,6 +38,7 @@ Background: dark
 
 Color: fg0        #bfa472   223  White
 Color: fg1        #ddc7a1   223  White
+Color: bg_dark    #2e2c2a   ~    Black
 Color: bg0        #32302f   236  Black
 Color: bg1        #3a3735   237  DarkGrey
 Color: bg2        #3c3836   237  DarkGrey
@@ -71,7 +72,7 @@ Terminal fg0 bg0
 EndOfBuffer bg0 bg0
 FoldColumn grey bg2
 Folded grey bg2
-SignColumn fg0 bg2
+SignColumn fg0 bg_dark
 IncSearch bg0 bg_orange
 Search bg0 bg_yellow
 ColorColumn none bg2
@@ -172,10 +173,10 @@ helpSpecial blue none
 helpSectionDelim grey none
 
 # nvim-lsp
-LspDiagnosticsError red bg2
-LspDiagnosticsWarning yellow bg2
-LspDiagnosticsInformation magenta bg2
-LspDiagnosticsHint magenta bg2
+LspDiagnosticsError red bg_dark
+LspDiagnosticsWarning yellow bg_dark
+LspDiagnosticsInformation magenta bg_dark
+LspDiagnosticsHint magenta bg_dark
 
 LspDiagnosticsUnderlineError none bg_red
 LspDiagnosticsUnderlineWarning none bg_red

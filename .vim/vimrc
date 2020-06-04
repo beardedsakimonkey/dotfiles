@@ -66,8 +66,10 @@ set infercase
 set smartcase
 set keywordprg=:help
 set completeopt=menu,noinsert
+set complete+=kspell
 set wildmenu
 set wildignorecase
+set wildignore+=build/*,*/node_modules/*
 
 set scrolloff=6
 set sidescrolloff=5
@@ -103,6 +105,12 @@ augroup vimrc
         \   exe "normal! g`\"" |
         \ endif
 
+  " Auto-create parent directories. But not for URIs (paths containing "://").
+  au BufWritePre,FileWritePre *
+        \ if @% !~# '\(://\)' |
+        \   call mkdir(expand('<afile>:p:h'), 'p') |
+        \ endif
+
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
         \   nnoremap <buffer> q :q<cr> |
@@ -134,23 +142,23 @@ augroup vimrc
     autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
   endif
 
+  fun! HlSearch()
+    let s:pos = match(getline('.'), @/, col('.') - 1) + 1
+    if s:pos != col('.')
+      call StopHL()
+    endif
+  endf
+
+  fun! StopHL()
+    if !v:hlsearch || mode() !=# 'n'
+      return
+    endif
+    silent call feedkeys("\<Plug>(StopHL)", 'm')
+  endf
+
   autocmd CursorMoved * call HlSearch()
   autocmd InsertEnter * call StopHL()
 augroup END
-
-fun! HlSearch()
-  let s:pos = match(getline('.'), @/, col('.') - 1) + 1
-  if s:pos != col('.')
-    call StopHL()
-  endif
-endf
-
-fun! StopHL()
-  if !v:hlsearch || mode() !=# 'n'
-    return
-  endif
-  silent call feedkeys("\<Plug>(StopHL)", 'm')
-endf
 
 noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
 noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
@@ -202,8 +210,25 @@ fun! MyTabLabel(n)
   return modified.name.' '
 endf
 
-command! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
-command! -nargs=* -complete=file_in_path Grep cgetexpr my_fb#grep(<f-args>)
+command! -range                  Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+command! -nargs=*
+      \  -complete=file_in_path  Grep      cgetexpr my_fb#grep(<f-args>)
+command! -nargs=1                PackInstall call <sid>packInstall(<q-args>)
+
+fun! s:packInstall(url)
+  let url = a:url
+  if url !~ '.git$'
+    let url .= '.git'
+  endif
+  let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
+  " sanity check
+  if strlen(repo) == strlen(url)
+    echomsg 'regex failed'
+    return
+  endif
+  let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
+  execute '!'.cmd
+endf
 
 let mapleader = "\<space>"
 let maplocalleader = ','
@@ -221,16 +246,21 @@ nnoremap <expr> P getreg('"') =~ "\n" ? 'P=`]' : 'P'
 nnoremap * *zz
 nnoremap # #zz
 
+nnoremap ; :
+xnoremap ; :
+nnoremap : ;
+xnoremap : ;
+nnoremap ' `
+xnoremap ' `
+nnoremap ` '
+xnoremap ` '
+
 nnoremap Q @q
 noremap Y y$
 noremap H ^
 noremap L $
 noremap <silent> ( :<c-u>keepjumps normal! H<cr>
 noremap <silent> ) :<c-u>keepjumps normal! L<cr>
-nnoremap ; :
-xnoremap ; :
-nnoremap : ;
-xnoremap : ;
 " noremap <silent> <tab> :<c-u>keepjumps normal! %<cr>
 nnoremap <c-p> <c-i>
 nnoremap <home> gg
@@ -330,12 +360,9 @@ nnoremap              <leader>s  :%s/\<<c-r><c-w>\>/
 nnoremap              <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent>     <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
 nnoremap <silent>     <leader>t  :<c-u>tabedit<cr>
-nnoremap <leader>x :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nnoremap                     gZ  :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 vnoremap * "ay/<c-r>a<cr>
 vnoremap # "ay?<c-r>a<cr>
-
-inoremap <silent> <expr> <c-j> pumvisible() ? "\<c-n>" : ''
-inoremap <silent> <expr> <c-k> pumvisible() ? "\<c-p>" : ''
 
 cabbrev ~? ~/
 
@@ -349,6 +376,7 @@ let g:loaded_vimballPlugin = 1
 let g:loaded_zipPlugin = 1
 let g:loaded_netrwPlugin = 1
 let g:loaded_matchit = 1
+let g:did_install_default_menus = 1 " $VIMRUNTIME/menu.vim
 
 " vim-prettier
 " packadd vim-prettier
@@ -384,6 +412,10 @@ endif
 
 " vim-bufkill
 let g:BufKillCreateMappings = 0
+
+" vim-linediff
+let g:linediff_buffer_type = 'scratch'
+xnoremap <expr> D (mode() ==# "V" ? ':Linediff<cr>' : 'D')
 
 " vim-matchup
 let g:matchup_surround_enabled = 1
@@ -423,3 +455,25 @@ endif
 
 packadd! gruvburn
 silent! colorscheme gruvburn
+
+"
+" from justinmk's init.vim
+"
+xnoremap <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
+xnoremap <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
+
+" word-wise i_CTRL-Y
+inoremap <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
+
+nnoremap gqax :%!tidy -q -i -xml -utf8<cr>
+nnoremap gqah :%!tidy -q -i -ashtml -utf8<cr>
+nnoremap gqaj :%!python -m json.tool<cr>
+nnoremap gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg:%!python -m json.tool<cr>
+
+nnoremap / ms/
+
+nnoremap g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
+nnoremap gj i<c-j><esc>k$
+
+command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
+command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))

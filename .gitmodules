@@ -46,3 +46,9 @@
 [submodule "zsh-history-substring-search"]
 	path = .zsh/zsh-history-substring-search
 	url = https://github.com/zsh-users/zsh-history-substring-search.git
+[submodule "vim-endwise"]
+	path = .vim/pack/third-party/start/vim-endwise
+	url = https://github.com/tpope/vim-endwise.git
+[submodule "linediff.vim"]
+	path = /Users/tim/.vim/pack/third-party/start/linediff.vim
+	url = https://github.com/AndrewRadev/linediff.vim.git

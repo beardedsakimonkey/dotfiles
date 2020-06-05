@@ -10,7 +10,7 @@ local function find_min_subsequence(target, sequence)
   local min_subsequence = {
     length = -1,
     start_index = nil,
-    indices = {},
+    columns = {},
   }
   while t <= #target do
     -- increment `t` until it is on the character `s` is on
@@ -26,14 +26,14 @@ local function find_min_subsequence(target, sequence)
     local new_min = {
       length = 1,
       start_index = t,
-      indices = {},
+      columns = {},
     }
     while s <= #sequence and t <= #target do
       if sequence:sub(s, s) ~= target:sub(t, t) then
         t = t + 1
         new_min.length = new_min.length + 1
       else
-        table.insert(new_min.indices, t)
+        table.insert(new_min.columns, t)
         s = s + 1
       end
     end
@@ -49,17 +49,23 @@ local function find_min_subsequence(target, sequence)
     t = new_min.start_index + 1
   end
 
-  return min_subsequence.start_index == nil and nil or min_subsequence.indices
+  return min_subsequence.start_index == nil and nil or min_subsequence.columns
 end
 
-local function calc_score(indices, path)
+local function calc_score(columns, path)
   local tail_s, tail_e  = path:find('[^/]+/?$')
   if not tail_s then return 0 end
   local count = 0
-  for _, index in ipairs(indices) do
-    if index >= tail_s  and index <= tail_e then
+  local prev_column = -1
+  for i, column in ipairs(columns) do
+    local is_consecutive = column == prev_column + 1
+    if is_consecutive then
       count = count + 1
     end
+    if column >= tail_s  and column <= tail_e then
+      count = count + 1
+    end
+    prev_column = column
   end
   return count
 end
@@ -161,12 +167,12 @@ local function filter(source)
   api.nvim_buf_set_keymap(input_buf, 'i', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', { nowait = true, noremap = true, silent = true })
   api.nvim_buf_set_keymap(input_buf, 'n', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', { nowait = true, noremap = true, silent = true })
 
-  api.nvim_buf_set_keymap(input_buf, 'i', '<c-j>', '<cmd>lua require"isearch".next_result()<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<c-k>', '<cmd>lua require"isearch".prev_result()<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<cr>', '<cmd>lua require"isearch".open_result()<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<c-l>', '<cmd>lua require"isearch".open_result("vsplit")<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<c-s>', '<cmd>lua require"isearch".open_result("split")<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<c-t>', '<cmd>lua require"isearch".open_result("tabedit")<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<c-j>', '<cmd>lua require"my.isearch".next_result()<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<c-k>', '<cmd>lua require"my.isearch".prev_result()<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<cr>', '<cmd>lua require"my.isearch".open_result()<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<c-l>', '<cmd>lua require"my.isearch".open_result("vsplit")<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<c-s>', '<cmd>lua require"my.isearch".open_result("split")<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<c-t>', '<cmd>lua require"my.isearch".open_result("tabedit")<cr>', { nowait = true, noremap = true, silent = true })
 
   api.nvim_win_set_option(results_win, 'cursorline', true)
 
@@ -219,7 +225,7 @@ local function filter(source)
     end)
   end
 
-  api.nvim_buf_attach(input_buf, false, { on_lines = on_lines })
+  api.nvim_buf_attach(input_buf, false, { on_lines = vim.schedule_wrap(on_lines) })
   api.nvim_command('startinsert')
 end
 
@@ -235,11 +241,19 @@ local function search_oldfiles()
   filter(api.nvim_get_vvar('oldfiles'))
 end
 
+-- exclude unloaded buffers, current buffer, buffers in the current tabpage
+local function is_interesting_buffer(b)
+  return api.nvim_buf_is_loaded(b)
+    and api.nvim_buf_get_option(b, 'buftype') == ''
+    and b ~= api.nvim_get_current_buf()
+    and vim.fn.index(vim.fn.tabpagebuflist(), b) == -1
+end
+
 local function search_buffers()
   local bufs = api.nvim_list_bufs()
   local bufnames = {}
   for i =# bufs, 1, -1 do
-    if api.nvim_buf_is_loaded(bufs[i]) then
+    if is_interesting_buffer(bufs[i]) then
       table.insert(bufnames, api.nvim_buf_get_name(bufs[i]))
     end
   end
@@ -250,7 +264,7 @@ local function search_files()
   filter('fd --max-depth 10 --type f')
 end
 
-package.loaded.isearch = nil
+package.loaded['my.isearch'] = nil
 
 return {
   search_files = search_files,

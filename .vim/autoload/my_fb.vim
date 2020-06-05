@@ -17,7 +17,12 @@ fun! my_fb#grep(...) abort
   elseif cwd =~# '^/data/users/sinap/fbsource'
     setlocal grepprg=fbgs\ --color=off\ --limit=100\ --stripdir\ --ignore-case
   endif
-  let res = system(join([&grepprg] + [shellescape(expandcmd(join(a:000, ' ')))], ' '))
+  let cmd = &grepprg . ' ' . shellescape(a:1)
+  if a:0 > 1
+    let cmd .=  ' ' . shellescape(expandcmd(a:2))
+  endif
+  " echom cmd
+  let res = system(cmd)
   if empty(res)
     echo 'no results'
   endif

@@ -1,53 +1,27 @@
 local api = vim.api
 local ts = vim.treesitter
+local util = require'my.util'
 
-local M = { parsers = {} }
-
-local function get_lang()
-  return api.nvim_buf_get_option(0, 'filetype')
-end
-
-local function has_parser()
-  -- undocumented, see neovim/src/nvim/api/vim.c
-  return #api.nvim_get_runtime_file('parser/' .. get_lang() .. '.*', false) > 0
-end
-
-local function get_parser()
-  if not has_parser() then
-    return
-  end
-  local buf = api.nvim_get_current_buf()
-  if not M.parsers[buf] then
-    M.parsers[buf] = ts.get_parser(buf)
-  end
-  return M.parsers[buf]
-end
-
--- local function node_at_cursor(tsroot)
---   local cursor = vim.api.nvim_win_get_cursor(0)
---   return tsroot:named_descendant_for_range(cursor[1]-1, cursor[2], cursor[1]-1, cursor[2])
--- end
+local M = {}
 
 function noop()
 end
 
 local function jump(direction)
-  parser = get_parser()
+  parser = util.get_parser()
   local tstree = parser:parse()
   local tsroot = tstree:root()
 
-  local query = [[
-    (arguments) @a
-  ]]
-
   local cursor = vim.api.nvim_win_get_cursor(0)
 
-  local cquery = ts.parse_query(get_lang(), query)
+  -- argument_list?
+  local cquery = util.parse_query('(arguments) @a')
 
   local captures = {}
 
+  -- print(vim.inspect(tsroot:sexpr()))
+
   for id, node in cquery:iter_captures(tsroot, parser.bufnr, cursor[1]-1, cursor[1]) do
-    -- print(vim.inspect(node:sexpr()))
     table.insert(captures, node)
   end
 
@@ -98,6 +72,5 @@ function M.jump_next()
   jump(1)
 end
 
-package.loaded.argmotion = nil
-
+package.loaded['my.argument'] = nil
 return M

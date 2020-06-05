@@ -62,6 +62,7 @@ Color: blue       #83a598   109  Blue
 Color: magenta    #d3869b   175  Magenta
 Color: dark_green #98971a   106  DarkGreen
 Color: grey       #928374   245  LightGrey
+Color: skyblue    #80a0ff   ~    Cyan
 
 Term colors: bg0 red green yellow blue magenta cyan fg0 bg0 red green yellow blue magenta cyan fg0
 
@@ -142,7 +143,7 @@ Macro cyan none
 Identifier fg0 none
 SpecialKey blue none
 Comment grey none
-SpecialComment grey none
+SpecialComment grey none 
 Todo fg1 none
 Delimiter fg0 none
 Ignore grey none
@@ -173,15 +174,16 @@ helpSpecial blue none
 helpSectionDelim grey none
 
 # nvim-lsp
-LspDiagnosticsError red bg_dark
-LspDiagnosticsWarning yellow bg_dark
-LspDiagnosticsInformation magenta bg_dark
-LspDiagnosticsHint magenta bg_dark
+# NOTE: for sign column, use `bg_dark` for bg
+LspDiagnosticsError red none
+LspDiagnosticsWarning orange none
+LspDiagnosticsInformation skyblue none
+LspDiagnosticsHint skyblue none
 
 LspDiagnosticsUnderlineError none bg_red
 LspDiagnosticsUnderlineWarning none bg_red
-LspDiagnosticsUnderlineInformation none bg_magenta
-LspDiagnosticsUnderlineHint none bg_magenta
+LspDiagnosticsUnderlineInformation none bg_cyan
+LspDiagnosticsUnderlineHint none bg_cyan
 
 # HTML
 htmlArg yellow none

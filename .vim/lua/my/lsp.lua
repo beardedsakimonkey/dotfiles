@@ -4,13 +4,31 @@ local protocol = require 'vim.lsp.protocol'
 
 local M = {}
 
+local diagnostic_ns = vim.api.nvim_create_namespace("my_lsp_diagnostics")
+
+local function buf_diagnostics_virtual_text(bufnr, diagnostics)
+  if not diagnostics then
+    return
+  end
+  local buffer_line_diagnostics = util.diagnostics_group_by_line(diagnostics)
+  for line, line_diags in pairs(buffer_line_diagnostics) do
+    local virt_texts = {}
+    for i = 1, #line_diags do
+      local severity_name = protocol.DiagnosticSeverity[line_diags[i].severity]
+      table.insert(virt_texts, {'✘', 'LspDiagnostics' .. severity_name})
+    end
+    vim.api.nvim_buf_set_virtual_text(bufnr, diagnostic_ns, line, virt_texts, {})
+  end
+end
+
 function M.update_diagnostics(bufnr, diagnostics)
   bufnr = bufnr or vim.api.nvim_win_get_buf(0)
   diagnostics = diagnostics or util.diagnostics_by_buf[bufnr]
+
   util.buf_diagnostics_save_positions(bufnr, diagnostics)
   util.buf_diagnostics_underline(bufnr, diagnostics)
-  -- util.buf_diagnostics_virtual_text(bufnr, diagnostics)
-  util.buf_diagnostics_signs(bufnr, diagnostics)
+  buf_diagnostics_virtual_text(bufnr, diagnostics)
+  -- util.buf_diagnostics_signs(bufnr, diagnostics)
   vim.api.nvim_command("doautocmd User LspDiagnosticsChanged")
 
   -- vim.fn.setqflist({}, 'a', {
@@ -30,6 +48,7 @@ local function monkey_patch_diagnostics()
     end
 
     util.buf_clear_diagnostics(bufnr)
+    vim.api.nvim_buf_clear_namespace(bufnr, diagnostic_ns, 0, -1)
 
     local diagnostics = result.diagnostics
 
@@ -65,12 +84,13 @@ local function on_attach()
   setup_keymaps(bufnr)
 
   monkey_patch_diagnostics()
-  vim.api.nvim_command [[augroup my_lsp]]
-  vim.api.nvim_command [[autocmd! * <buffer>"]]
-  vim.api.nvim_command [[autocmd InsertLeave <buffer> lua require'my_lsp'.update_diagnostics()]]
-  vim.api.nvim_command [[augroup end]]
 
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  vim.api.nvim_command("augroup my_lsp")
+  vim.api.nvim_command("autocmd! * <buffer>")
+  vim.api.nvim_command("autocmd InsertLeave <buffer> lua require'my.lsp'.update_diagnostics()")
+  vim.api.nvim_command("augroup end")
+
+  -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
 nvim_lsp.rust_analyzer.setup{
@@ -94,4 +114,5 @@ nvim_lsp.sumneko_lua.setup{
 
 -- vim.lsp.set_log_level("debug")
 
+package.loaded['my.lsp'] = nil
 return M

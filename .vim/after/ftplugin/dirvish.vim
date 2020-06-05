@@ -6,10 +6,10 @@ silent! nunmap <buffer> <c-n>
 nnoremap <buffer> <nowait> <silent> t :<c-u>.call dirvish#open('tabedit', 0)<cr>
 xnoremap <buffer> <nowait> <silent> t :<c-u>.call dirvish#open('tabedit', 0)<cr>
 
-nnoremap <buffer> <nowait> <silent> v :<c-u>.call dirvish#open('vsplit', 0)<cr>
+nnoremap <buffer> <nowait> <silent> v :<c-u>.call dirvish#open('vsplit', 1)<bar>call feedkeys("\<Plug>(dirvish_quit)")<cr>
 xnoremap <buffer> <nowait> <silent> v :call dirvish#open('vsplit', 0)<cr>
 
-nnoremap <buffer> <nowait> <silent> s :<c-u>.call dirvish#open("split", 1)<cr>
+nnoremap <buffer> <nowait> <silent> s :<c-u>.call dirvish#open("split", 1)<bar>call feedkeys("\<Plug>(dirvish_quit)")<cr>
 xnoremap <buffer> <nowait> <silent> s :call dirvish#open("split", 1)<cr>
 
 nmap     <buffer> <nowait> <silent> h <Plug>(dirvish_up)

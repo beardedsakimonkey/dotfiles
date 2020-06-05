@@ -131,12 +131,12 @@ augroup vimrc
     autocmd TermOpen * setlocal statusline=%f
   endif
 
-  autocmd BufWritePost *.vim source <afile>
   autocmd BufWritePost ~/.vim/vimrc source $MYVIMRC
   autocmd BufWritePost ~/.vim/lua/* luafile <afile>
   autocmd BufWritePost .tmux.conf call system('tmux source-file ' . expand('<afile>'))
 
   autocmd BufRead,BufNewFile *.metal set filetype=cpp
+  autocmd BufRead,BufNewFile *.fnl   set filetype=clojure
 
   if has('nvim-0.5')
     autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
@@ -306,8 +306,8 @@ nmap [e <Plug>move_line_up
 nmap ]e <Plug>move_line_down
 
 if has('nvim-0.5')
-  nmap [a <cmd>lua require'argmotion'.jump_prev()<cr>
-  nmap ]a <cmd>lua require'argmotion'.jump_next()<cr>
+  nmap [a <cmd>lua require'my.argument'.jump_prev()<cr>
+  nmap ]a <cmd>lua require'my.argument'.jump_next()<cr>
 else
   nmap [a <Plug>jump_arg_prev
   nmap ]a <Plug>jump_arg_next
@@ -323,9 +323,9 @@ nnoremap <silent> ]L :<c-u>lnfile<cr>zz
 nnoremap <silent> [L :<c-u>lpfile<cr>zz
 
 if has('nvim-0.5')
-  nnoremap <silent> <leader>o <cmd>lua require'isearch'.search_oldfiles()<cr>
-  nnoremap <silent> <leader>b <cmd>lua require'isearch'.search_buffers()<cr>
-  nnoremap <silent> <leader>f <cmd>lua require'isearch'.search_files()<cr>
+  nnoremap <silent> <leader>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+  nnoremap <silent> <leader>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+  nnoremap <silent> <leader>f <cmd>lua require'my.isearch'.search_files()<cr>
 else
   nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
   nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
@@ -360,7 +360,7 @@ nnoremap              <leader>s  :%s/\<<c-r><c-w>\>/
 nnoremap              <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent>     <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
 nnoremap <silent>     <leader>t  :<c-u>tabedit<cr>
-nnoremap                     gZ  :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nnoremap                     gy  :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 vnoremap * "ay/<c-r>a<cr>
 vnoremap # "ay?<c-r>a<cr>
 
@@ -422,6 +422,7 @@ let g:matchup_surround_enabled = 1
 let g:matchup_matchparen_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
+let g:matchup_matchparen_enabled = 0 " disable highlighting
 map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
   execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
@@ -446,18 +447,24 @@ if has('nvim-0.5')
   " nvim-lsp
   packadd nvim-lsp
 
-  for name in ['LspDiagnosticsErrorSign', 'LspDiagnosticsWarningSign', 'LspDiagnosticsInformationSign', 'LspDiagnosticsHintSign']
-    call sign_define(name, {'text' : '--'})
-  endfor
+  " for name in ['LspDiagnosticsErrorSign', 'LspDiagnosticsWarningSign', 'LspDiagnosticsInformationSign', 'LspDiagnosticsHintSign']
+  "   call sign_define(name, {'text' : '››'})
+  " endfor
 
-  luafile ~/.vim/lua/my_lsp.lua
+  luafile ~/.vim/lua/my/lsp.lua
+
+  " text-object: comment
+  xnoremap <expr>   ac luaeval("require'my.comment'.set_marks()")
+  onoremap <silent> ac :normal Vac<CR>
+  xnoremap <expr>   ic luaeval("require'my.comment'.set_marks()")
+  onoremap <silent> ic :normal Vic<CR>
 endif
 
 packadd! gruvburn
 silent! colorscheme gruvburn
 
 "
-" from justinmk's init.vim
+" adapted from justinmk's init.vim
 "
 xnoremap <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
 xnoremap <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
@@ -477,3 +484,31 @@ nnoremap gj i<c-j><esc>k$
 
 command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
 command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
+
+" text-object: inner line (leading whitespace trimmed)
+function! s:line_inner_movement(count) abort
+  if empty(getline('.'))
+    return "\<Esc>"
+  endif
+  let [lopen, lclose] = [line('.'), line('.')]
+  let copen = match(getline('.'), '\S') + 1
+  let cclose = col('$') - 1
+  call setpos("'[", [0, lopen, copen, 0])
+  call setpos("']", [0, lclose, cclose, 0])
+  return "`[o`]"
+endfunction
+xnoremap <expr>   il <SID>line_inner_movement(v:count1)
+onoremap <silent> il :normal vil<CR>
+
+" text-object: outer line
+function! s:line_outer_movement(count) abort
+  if empty(getline('.'))
+    return "\<Esc>"
+  endif
+  let [lopen, copen, lclose, cclose] = [line('.'), 1, line('.'), col('$')]
+  call setpos("'[", [0, lopen, copen, 0])
+  call setpos("']", [0, lclose, cclose, 0])
+  return "`[o`]"
+endfunction
+xnoremap <expr>   al <SID>line_outer_movement(v:count1)
+onoremap <silent> al :normal val<CR>

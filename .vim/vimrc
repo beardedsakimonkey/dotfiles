@@ -117,6 +117,8 @@ augroup vimrc
         \   nnoremap <buffer> T <c-]> |
         \ endif
 
+  autocmd BufEnter man:///* wincmd L
+
   " Disable automatic comment insertion
   autocmd FileType * setlocal formatoptions-=cro
 
@@ -217,6 +219,9 @@ command! -nargs=1                PackInstall call <sid>packInstall(<q-args>)
 
 fun! s:packInstall(url)
   let url = a:url
+  if url =~ '/$'
+    let url = url[:-2]
+  endif
   if url !~ '.git$'
     let url .= '.git'
   endif
@@ -442,7 +447,13 @@ endfunction
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
 if has('nvim-0.5')
-  command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+  function! s:checkLsp()
+    set nomore
+    lua print(vim.inspect(vim.lsp.buf_get_clients()))
+    set more
+  endfunction
+
+  command! CheckLsp call s:checkLsp()
 
   " nvim-lsp
   packadd nvim-lsp
@@ -484,6 +495,8 @@ nnoremap gj i<c-j><esc>k$
 
 command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
 command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
+
+cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 
 " text-object: inner line (leading whitespace trimmed)
 function! s:line_inner_movement(count) abort

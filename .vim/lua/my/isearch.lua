@@ -2,7 +2,10 @@ local api = vim.api
 
 local results_buf
 local results_win
-local ns
+local input_buf
+
+local matches_ns = api.nvim_create_namespace('isearch_matches')
+local count_ns = api.nvim_create_namespace('isearch_count')
 
 local function find_min_subsequence(target, sequence)
   local t = 1
@@ -57,7 +60,7 @@ local function calc_score(columns, path)
   if not tail_s then return 0 end
   local count = 0
   local prev_column = -1
-  for i, column in ipairs(columns) do
+  for _, column in ipairs(columns) do
     local is_consecutive = column == prev_column + 1
     if is_consecutive then
       count = count + 1
@@ -74,7 +77,7 @@ local function fuzzy_match(query, line)
   if #line == 0 then return nil end
   local match = { columns = {}, score = 0, line = line }
   if #query == 0 then return match end
-  local columns = find_min_subsequence(line, query)
+  local columns = find_min_subsequence(line:lower(), query:lower())
   if vim.tbl_isempty(columns) then return nil end
   match.columns = columns
   match.score = calc_score(match.columns, line)
@@ -96,17 +99,23 @@ local function fuzzy_filter(query, lines)
   return matches
 end
 
+local function update_results_info(total)
+  local virt_text = { {'(' .. total .. ')', 'Comment'} }
+  api.nvim_buf_set_virtual_text(input_buf, count_ns, 0, virt_text, {})
+  api.nvim_command('redraw!')
+end
+
 local function move_results_cursor(offset)
-  local pos = api.nvim_win_get_cursor(results_win)
+  local cursor_row, _ = unpack(api.nvim_win_get_cursor(results_win))
   local lines = api.nvim_buf_line_count(results_buf)
-  local row = math.max(1, math.min(lines, pos[1] + offset))
+  local row = math.max(1, math.min(lines, cursor_row + offset))
   api.nvim_win_set_cursor(results_win, { row, 0 })
   api.nvim_command('redraw!')
 end
 
 local function filter(source)
   local frame_buf = api.nvim_create_buf(false, true)
-  local input_buf = api.nvim_create_buf(false, true)
+  input_buf = api.nvim_create_buf(false, true)
   results_buf = api.nvim_create_buf(false, true)
 
   api.nvim_buf_set_option(input_buf, 'bufhidden', 'wipe')
@@ -169,7 +178,7 @@ local function filter(source)
 
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-j>', '<cmd>lua require"my.isearch".next_result()<cr>', { nowait = true, noremap = true, silent = true })
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-k>', '<cmd>lua require"my.isearch".prev_result()<cr>', { nowait = true, noremap = true, silent = true })
-  api.nvim_buf_set_keymap(input_buf, 'i', '<cr>', '<cmd>lua require"my.isearch".open_result()<cr>', { nowait = true, noremap = true, silent = true })
+  api.nvim_buf_set_keymap(input_buf, 'i', '<cr>', '<cmd>lua require"my.isearch".open_result("edit")<cr>', { nowait = true, noremap = true, silent = true })
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-l>', '<cmd>lua require"my.isearch".open_result("vsplit")<cr>', { nowait = true, noremap = true, silent = true })
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-s>', '<cmd>lua require"my.isearch".open_result("split")<cr>', { nowait = true, noremap = true, silent = true })
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-t>', '<cmd>lua require"my.isearch".open_result("tabedit")<cr>', { nowait = true, noremap = true, silent = true })
@@ -179,6 +188,9 @@ local function filter(source)
   api.nvim_win_set_option(frame_win, 'winhighlight', 'NormalFloat:isearchResults')
   api.nvim_win_set_option(input_win, 'winhighlight', 'NormalFloat:isearchInput')
   api.nvim_win_set_option(results_win, 'winhighlight', 'NormalFloat:isearchResults,CursorLine:isearchCursorLine')
+
+  -- redraw before running a potentially slow command
+  api.nvim_command('redraw!')
 
   local input
   if type(source) == 'string' then
@@ -195,6 +207,7 @@ local function filter(source)
   end
 
   api.nvim_buf_set_lines(results_buf, 0, -1, true, lines)
+  update_results_info(#lines)
 
   local function on_lines(_, buf, _, firstline)
     if firstline ~= 0 then
@@ -205,10 +218,7 @@ local function filter(source)
     local query = buf_lines[1]
     local matches = fuzzy_filter(query, lines)
     vim.schedule(function ()
-      if ns then
-        api.nvim_buf_clear_namespace(results_buf, ns, 0, -1)
-      end
-      ns = api.nvim_create_namespace('')
+      api.nvim_buf_clear_namespace(results_buf, matches_ns, 0, -1)
 
       local matched_lines = {}
       for _, match in ipairs(matches) do
@@ -218,10 +228,11 @@ local function filter(source)
 
       for i, match in ipairs(matches) do
         for _, match_col in ipairs(match.columns) do
-          api.nvim_buf_add_highlight(results_buf, ns, 'isearchMatch', i - 1, match_col - 1, match_col)
+          api.nvim_buf_add_highlight(results_buf, matches_ns, 'isearchMatch', i - 1, match_col - 1, match_col)
         end
       end
       move_results_cursor(0)
+      update_results_info(#matched_lines)
     end)
   end
 
@@ -230,7 +241,6 @@ local function filter(source)
 end
 
 local function open_result(cmd)
-  cmd = cmd or 'edit'
   local pos = api.nvim_win_get_cursor(results_win)
   local row = pos[1]
   local lines = api.nvim_buf_get_lines(results_buf, row - 1, row, true)
@@ -242,7 +252,7 @@ local function search_oldfiles()
 end
 
 -- exclude unloaded buffers, current buffer, buffers in the current tabpage
-local function is_interesting_buffer(b)
+local function should_show_buffer(b)
   return api.nvim_buf_is_loaded(b)
     and api.nvim_buf_get_option(b, 'buftype') == ''
     and b ~= api.nvim_get_current_buf()
@@ -253,7 +263,7 @@ local function search_buffers()
   local bufs = api.nvim_list_bufs()
   local bufnames = {}
   for i =# bufs, 1, -1 do
-    if is_interesting_buffer(bufs[i]) then
+    if should_show_buffer(bufs[i]) then
       table.insert(bufnames, api.nvim_buf_get_name(bufs[i]))
     end
   end
@@ -261,7 +271,7 @@ local function search_buffers()
 end
 
 local function search_files()
-  filter('fd --max-depth 10 --type f')
+  filter('fd --max-depth 5 -I --type f')
 end
 
 package.loaded['my.isearch'] = nil

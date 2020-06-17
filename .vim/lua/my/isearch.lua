@@ -123,8 +123,8 @@ local function filter(source)
   local num_columns = api.nvim_get_option('columns')
   local num_lines = api.nvim_get_option('lines')
 
-  local height = math.ceil(num_lines * 0.6 - 4)
-  local width = math.ceil(num_columns * 0.6)
+  local height = math.ceil(20)
+  local width = math.ceil(num_columns * (num_columns < 160 and 0.9 or 0.6))
 
   local row = math.ceil((num_lines - height) / 2 - 1)
   local col = math.ceil((num_columns - width) / 2)

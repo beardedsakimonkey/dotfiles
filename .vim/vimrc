@@ -65,8 +65,9 @@ set ignorecase
 set infercase
 set smartcase
 set keywordprg=:help
-set completeopt=menu,noinsert
-set complete+=kspell
+set completeopt=menu
+set complete=.
+set complete-=t
 set wildmenu
 set wildignorecase
 set wildignore+=build/*,*/node_modules/*

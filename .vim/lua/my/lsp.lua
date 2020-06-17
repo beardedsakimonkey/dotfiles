@@ -69,10 +69,13 @@ end
 local function setup_keymaps(bufnr)
   local keymaps = {
     ['<cr>'] = '<cmd>lua vim.lsp.buf.declaration()<cr>',
-    ['T'] = '<cmd>lua vim.lsp.buf.hover()<cr>',
-    ['gR'] = '<cmd>lua vim.lsp.buf.references()<cr>',
-    ['gr'] = '<cmd>lua vim.lsp.buf.rename()<cr>',
-    ['gd'] = "<cmd>lua vim.lsp.util.show_line_diagnostics()<cr>",
+    ['gd'] = '<cmd>lua vim.lsp.buf.definition()<cr>',
+    ['gh'] = '<cmd>lua vim.lsp.buf.hover()<cr>',
+    ['gr'] = '<cmd>lua vim.lsp.buf.references()<cr>',
+    ['gs'] = '<cmd>lua vim.lsp.buf.signature_help()<cr>',
+    ['gt'] = '<cmd>lua vim.lsp.buf.type_definition()<cr>',
+    ['ge'] = "<cmd>lua vim.lsp.util.show_line_diagnostics()<cr>",
+    ['R'] = '<cmd>lua vim.lsp.buf.rename()<cr>',
   }
   for lhs,rhs in pairs(keymaps) do
     vim.api.nvim_buf_set_keymap(bufnr, 'n', lhs, rhs, { noremap = true, silent = true })
@@ -93,9 +96,9 @@ local function on_attach()
   -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
-nvim_lsp.rust_analyzer.setup{
-  on_attach = on_attach,
-}
+-- nvim_lsp.rust_analyzer.setup{
+--   on_attach = on_attach,
+-- }
 
 nvim_lsp.vimls.setup{
   on_attach = on_attach,

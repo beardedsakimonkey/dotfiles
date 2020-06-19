@@ -12,9 +12,9 @@ endf
 
 fun! my_fb#grep(...) abort
   let cwd = getcwd()
-  if cwd =~# '^/data/users/sinap/www'
+  if cwd =~# '^/data/users/'.$USER.'/www'
     setlocal grepprg=tbgsw\ --color=off\ --limit=100\ --stripdir\ --ignore-case
-  elseif cwd =~# '^/data/users/sinap/fbsource'
+  elseif cwd =~# '^/data/users/'.$USER.'/fbsource'
     setlocal grepprg=fbgs\ --color=off\ --limit=100\ --stripdir\ --ignore-case
   endif
   let cmd = &grepprg . ' ' . shellescape(a:1)

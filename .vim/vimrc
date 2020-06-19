@@ -171,19 +171,24 @@ noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 "
 set laststatus=2
 set noshowmode
-set statusline=%!MyStatusLine()
+if has('nvim')
+  fun! MyStatusLineNeovim() abort
+    return  MyStatusLine() .
+          \" %3*%{luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))
+          \ and not vim.tbl_isempty(vim.lsp.util.diagnostics_by_buf)
+          \ and \"⚉\"
+          \ or \"\"')}%*"
+  endf
+  set statusline=%!MyStatusLineNeovim()
+else
+  set statusline=%!MyStatusLine()
+endif
 
-fun! MyStatusLine()
+fun! MyStatusLine() abort
   return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
         \%2*%{&modified?'  + ':''}
         \%* %f"
 endf
-
-" fun! MyStatusLine() abort
-"   return "%{luaeval('(not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and not vim.tbl_isempty(vim.lsp.util.diagnostics_by_buf))
-"         \ and [[E:]] .. vim.lsp.util.buf_diagnostics_count([[Error]]) .. [[ W:]] .. vim.lsp.util.buf_diagnostics_count([[Warning]])
-"         \ or [[off]]')}"
-" endf
 
 "
 " Tab line
@@ -232,6 +237,7 @@ fun! s:packInstall(url)
     echomsg 'regex failed'
     return
   endif
+  " FIXME: git expands the tilde
   let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
   execute '!'.cmd
 endf
@@ -247,10 +253,10 @@ vnoremap < <gv
 vnoremap > >gv
 nnoremap s "_s
 nnoremap Z zz5<c-e>
-nnoremap <expr> p getreg('"') =~ "\n" ? 'p=`]' : 'p'
-nnoremap <expr> P getreg('"') =~ "\n" ? 'P=`]' : 'P'
 nnoremap * *zz
 nnoremap # #zz
+nnoremap p pmx=`]`x
+nnoremap P Pmx=`]`x
 
 nnoremap ; :
 xnoremap ; :
@@ -298,6 +304,11 @@ nnoremap <c-l> <c-w>l
 nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
+
+nnoremap <a-l> <c-w>L
+nnoremap <a-h> <c-w>H
+nnoremap <a-j> <c-w>J
+nnoremap <a-k> <c-w>K
 
 nnoremap <silent> ]b :<c-u>bnext<cr>
 nnoremap <silent> [b :<c-u>bprev<cr>
@@ -370,6 +381,7 @@ nnoremap                     gy  :echo "hi<" . synIDattr(synID(line("."),col("."
 vnoremap * "ay/<c-r>a<cr>
 vnoremap # "ay?<c-r>a<cr>
 
+cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 cabbrev ~? ~/
 
 " Disabled Vim plugins
@@ -447,19 +459,22 @@ function! IsCommentaryOpFunc()
 endfunction
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
+"
+" Neovim nightly
+"
 if has('nvim-0.5')
-  function! s:checkLsp()
-    set nomore
-    lua print(vim.inspect(vim.lsp.buf_get_clients()))
-    set more
-  endfunction
+  command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
 
-  command! CheckLsp call s:checkLsp()
+  function! s:restartLsp()
+    lua vim.lsp.stop_client(vim.lsp.get_active_clients())
+    doautocmd BufReadPost
+  endfunction
+  command! RestartLsp call <sid>restartLsp()
 
   " nvim-lsp
   packadd nvim-lsp
 
-  " for name in ['LspDiagnosticsErrorSign', 'LspDiagnosticsWarningSign', 'LspDiagnosticsInformationSign', 'LspDiagnosticsHintSign']
+  " for name in ['LspDiagnosticsErrorSign', 
   "   call sign_define(name, {'text' : '››'})
   " endfor
 
@@ -494,10 +509,10 @@ nnoremap / ms/
 nnoremap g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
 nnoremap gj i<c-j><esc>k$
 
-command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
-command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
-
-cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
+if executable('lynx')
+  command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
+  command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
+endif
 
 " text-object: inner line (leading whitespace trimmed)
 function! s:line_inner_movement(count) abort

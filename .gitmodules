@@ -47,8 +47,8 @@
 	path = .zsh/zsh-history-substring-search
 	url = https://github.com/zsh-users/zsh-history-substring-search.git
 [submodule "linediff.vim"]
-	path = /Users/tim/.vim/pack/third-party/start/linediff.vim
+	path = .vim/pack/third-party/start/linediff.vim
 	url = https://github.com/AndrewRadev/linediff.vim.git
 [submodule "vim-apathy"]
-	path = /Users/tim/.vim/pack/third-party/start/vim-apathy
+	path = .vim/pack/third-party/start/vim-apathy
 	url = https://github.com/tpope/vim-apathy.git

@@ -59,7 +59,7 @@ _man-line() {
   if [[ -z $BUFFER ]]; then
     return
   fi
-  local buf=$BUFFER
+  # local buf=$BUFFER
   args=(${(s/ /)BUFFER})
   if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
     LBUFFER="git help ${args[2]}"
@@ -67,7 +67,7 @@ _man-line() {
     LBUFFER="man ${args[1]}"
   fi
   zle .accept-line
-  zle -U $buf
+  # zle -U $buf
 }
 zle -N _man-line
 
@@ -87,10 +87,10 @@ _fix-tilde-questionmark() {
 zle -N _fix-tilde-questionmark
 
 _cd_up() {
-  local buf=$BUFFER
+  # local buf=$BUFFER
   BUFFER="cd .."
   zle .accept-line
-  zle -U ${buf:-''}
+  # zle -U ${buf:-''}
 }
 zle -N _cd_up
 

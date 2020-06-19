@@ -48,6 +48,7 @@ Color: bg5        #665c54   241  DarkGrey
 Color: bg_grey0   #7c6f64   243  DarkGrey
 Color: bg_grey1   #a89984   246  LightGrey
 Color: bg_red     #472322   52   DarkRed
+Color: bg_dark_orange  #4c3524   52   DarkRed
 Color: bg_orange  #fe8019   ~    DarkRed
 Color: bg_yellow  #d8a657   214  Yellow
 Color: bg_green   #3d4220   22   DarkGreen
@@ -85,8 +86,8 @@ LineNr bg_grey0 none
 CursorLineNr bg_grey1 bg1
 DiffAdd none bg_green
 DiffDelete none bg_red
-DiffChange none bg_cyan
-DiffText none bg_magenta
+DiffChange none bg0
+DiffText none bg_dark_orange
 Directory green none
 ErrorMsg red none underline
 WarningMsg yellow none
@@ -151,6 +152,7 @@ Ignore grey none
 # status line
 User1 red bg5 bold
 User2 bg0 bg_yellow
+User3 green bg5
 
 # isearch
 isearchCursorLine -> CursorLine
@@ -181,7 +183,7 @@ LspDiagnosticsInformation skyblue none
 LspDiagnosticsHint skyblue none
 
 LspDiagnosticsUnderlineError none bg_red
-LspDiagnosticsUnderlineWarning none bg_red
+LspDiagnosticsUnderlineWarning none bg_dark_orange
 LspDiagnosticsUnderlineInformation none bg_cyan
 LspDiagnosticsUnderlineHint none bg_cyan
 
@@ -195,6 +197,7 @@ javascriptValue magenta none
 
 # rust
 rustFuncCall fg0 none
+rustQuestionMark orange none
 
 # lua
 luaFunction red none

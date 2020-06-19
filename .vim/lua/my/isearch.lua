@@ -140,7 +140,7 @@ local function filter(source)
   end
   table.insert(border_lines, bot)
 
-  results_win = api.nvim_open_win(results_buf, true, {
+  results_win = api.nvim_open_win(results_buf, false, {
     style = 'minimal',
     relative = 'editor',
     width = width - 4,
@@ -149,7 +149,7 @@ local function filter(source)
     col = col + 2,
   })
 
-  api.nvim_command([[syntax match Comment =.*\/\ze[^\/]\+\/\?$=]])
+  -- api.nvim_command([[syntax match Comment =.*\/\ze[^\/]\+\/\?$=]])
 
   local frame_win = api.nvim_open_win(frame_buf, false, {
     style = 'minimal',

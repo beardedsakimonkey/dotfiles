@@ -88,17 +88,20 @@ local function on_attach()
 
   monkey_patch_diagnostics()
 
-  vim.api.nvim_command("augroup my_lsp")
-  vim.api.nvim_command("autocmd! * <buffer>")
-  vim.api.nvim_command("autocmd InsertLeave <buffer> lua require'my.lsp'.update_diagnostics()")
-  vim.api.nvim_command("augroup end")
+  vim.api.nvim_command('augroup my_lsp')
+  vim.api.nvim_command('autocmd! * <buffer>')
+  vim.api.nvim_command('autocmd InsertLeave <buffer> lua require"my.lsp".update_diagnostics()')
+  vim.api.nvim_command('autocmd User LspDiagnosticsChanged redrawstatus!')
+  vim.api.nvim_command('autocmd User LspMessageUpdate redrawstatus!')
+  vim.api.nvim_command('autocmd User LspStatusUpdate redrawstatus!')
+  vim.api.nvim_command('augroup end')
 
-  -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
--- nvim_lsp.rust_analyzer.setup{
---   on_attach = on_attach,
--- }
+nvim_lsp.rls.setup{
+  on_attach = on_attach,
+}
 
 nvim_lsp.vimls.setup{
   on_attach = on_attach,

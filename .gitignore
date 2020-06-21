@@ -12,7 +12,7 @@
 
 !/.zsh
 
-!/README.md
+!/post-install.sh
 !/.tmux.conf
 !/.zshrc
 !/tmux-256color.terminfo

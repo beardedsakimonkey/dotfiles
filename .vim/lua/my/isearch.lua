@@ -244,7 +244,7 @@ local function open_result(cmd)
   local pos = api.nvim_win_get_cursor(results_win)
   local row = pos[1]
   local lines = api.nvim_buf_get_lines(results_buf, row - 1, row, true)
-  api.nvim_command('stopinsert|close|'.. cmd .. lines[1])
+  api.nvim_command('stopinsert|close|'.. cmd .. ' ' .. lines[1])
 end
 
 local function search_oldfiles()

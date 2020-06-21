@@ -1,29 +1,34 @@
-stty -ixon # disable C-s/C-q
+#
+# General
+#
+
+stty start undef # disable C-s
+stty stop undef # disable C-q
+stty quit undef # disable C-\
 
 #
 # Options
 #
 
-setopt auto_cd
-setopt auto_pushd
-setopt cdable_vars
-setopt pushd_ignore_dups
-setopt pushd_silent
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt CDABLE_VARS
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT
 
-setopt hist_reduce_blanks
-setopt list_packed
-setopt menu_complete
+setopt HIST_REDUCE_BLANKS
+setopt LIST_PACKED
+setopt MENU_COMPLETE
 
-setopt hist_ignore_all_dups
-setopt hist_save_no_dups
-setopt inc_append_history
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt INC_APPEND_HISTORY
 
-# setopt correct
-setopt NO_flow_control
-setopt interactive_comments
+unsetopt FLOW_CONTROL
+setopt INTERACTIVE_COMMENTS
 
-setopt prompt_subst
-setopt transient_rprompt
+setopt PROMPT_SUBST
+setopt TRANSIENT_RPROMPT
 
 #
 # Completion
@@ -46,16 +51,19 @@ zmodload -i zsh/complist
 
 #
 # Bindings
+# NOTE: `emulate -L zsh` is used to diable some custom setopts
 #
 
-_change-first-word() {
+function _change-first-word() {
+  emulate -L zsh
   zle .beginning-of-line
   zle .kill-word
   zle .vi-insert
 }
 zle -N _change-first-word
 
-_man-line() {
+function _man-line() {
+  emulate -L zsh
   if [[ -z $BUFFER ]]; then
     return
   fi
@@ -71,13 +79,15 @@ _man-line() {
 }
 zle -N _man-line
 
-_backward-kill-to-slash() {
+function _backward-kill-to-slash() {
+  emulate -L zsh
   local WORDCHARS="${WORDCHARS:s@/@}"
   zle .backward-kill-word
 }
 zle -N _backward-kill-to-slash
 
-_fix-tilde-questionmark() {
+function _fix-tilde-questionmark() {
+  emulate -L zsh
   if [[ $LBUFFER[-1] == \~ ]]; then
     zle -U '/'
   else
@@ -86,7 +96,8 @@ _fix-tilde-questionmark() {
 }
 zle -N _fix-tilde-questionmark
 
-_cd_up() {
+function _cd_up() {
+  emulate -L zsh
   # local buf=$BUFFER
   BUFFER="cd .."
   zle .accept-line
@@ -95,6 +106,7 @@ _cd_up() {
 zle -N _cd_up
 
 function fg-bg() {
+  emulate -L zsh
   if [[ $#BUFFER -eq 0 ]]; then
     fg
   else
@@ -103,15 +115,22 @@ function fg-bg() {
 }
 zle -N fg-bg
 
-# _tab() {
-#   if [[ $#BUFFER -eq 0 ]]; then
-#     zle -U 'cd ./'
-#     zle .list-choices
-#   else
-#     zle .push-input
-#   fi
-# }
-# zle -N _tab
+function tab-or-list-dirs() {
+  emulate -L zsh
+  if [[ $#BUFFER == 0 ]]; then
+    # NOTE: leaving `cd` in the prompt is suboptimal because it prevents utilizing suffix aliases.
+    # However, deleting it would prevent subsequent tabbing through the list.
+    BUFFER="cd "
+    CURSOR=3
+    zle list-choices
+    # select the first result
+    zle expand-or-complete
+  else
+    # do what TAB does by default
+    zle expand-or-complete
+  fi
+}
+zle -N tab-or-list-dirs
 
 bindkey "∆" backward-word; bindkey "\M-j" backward-word
 bindkey "˙" backward-char; bindkey "\M-h" backward-char
@@ -137,7 +156,8 @@ bindkey "\C-w" _backward-kill-to-slash
 bindkey "?" _fix-tilde-questionmark
 bindkey '^Z' fg-bg
 bindkey -a "m" _change-first-word
-# bindkey "\t" _tab
+bindkey '\t' tab-or-list-dirs
+
 
 #
 # Modules
@@ -177,11 +197,6 @@ bindkey "\C-o" edit-command-line
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
-autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
-add-zsh-hook chpwd chpwd_recent_dirs
-zstyle ':completion:*:*:cdr:*:*' menu selection
-zstyle ':chpwd:*' recent-dirs-default true
-
 #
 # Prompt
 #
@@ -200,8 +215,9 @@ PROMPT+="%F{white}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
 
-SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+# SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
 
+# region: vi-mode visual select
 zle_highlight=(region:bg=#504945)
 
 #
@@ -227,6 +243,7 @@ zle -N zle-line-finish
 
 #
 # Aliases
+# NOTE: you can escape commands in the alias defintion with `\` to avoid recursive alias expansion
 #
 
 alias sudo='sudo '
@@ -237,6 +254,7 @@ alias v='$EDITOR'
 
 #
 # Exports
+# NOTE: you should put exports that should exist for non-interactive shells in ~/.zshenv
 #
 
 export KEYTIMEOUT=20
@@ -265,18 +283,21 @@ export LESS_TERMCAP_ue=$(printf "\e[0m")
 # Third-party
 #
 
+# zsh-autosuggestions
 if [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
   source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
   bindkey "^ " autosuggest-accept
   bindkey "^@" autosuggest-accept
 fi
 
+# fast-syntax-highlighting
 if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
   source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
   # https://github.com/zdharma/fast-syntax-highlighting/issues/179
   FAST_HIGHLIGHT[chroma-man]=
 fi
 
+# zsh-history-substring-search
 if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; then
   source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
   bindkey "\C-p" history-substring-search-up;   bindkey -a "\C-p" history-substring-search-up
@@ -285,6 +306,14 @@ if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; 
   HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#472322"
 fi
 
+# fasd
+if [ -n `command -v fasd` ]; then
+  alias j='fasd_cd -d'
+  alias jj='fasd_cd -d -i'
+  eval "$(fasd --init zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
+fi
+
+# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"

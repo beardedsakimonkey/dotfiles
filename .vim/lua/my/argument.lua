@@ -8,7 +8,11 @@ function noop()
 end
 
 local function jump(direction)
-  parser = util.get_parser()
+  local parser = util.get_parser()
+  if not parser then
+    print('missing treesitter parser')
+    return
+  end
   local tstree = parser:parse()
   local tsroot = tstree:root()
 

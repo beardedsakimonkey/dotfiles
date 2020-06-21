@@ -4,6 +4,10 @@ local M = {}
 
 function M.set_marks()
   local parser = util.get_parser()
+  if not parser then
+    print('missing treesitter parser')
+    return '\\<Esc>'
+  end
   local tstree = parser:parse()
   local tsroot = tstree:root()
 

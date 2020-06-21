@@ -4,7 +4,7 @@ local protocol = require 'vim.lsp.protocol'
 
 local M = {}
 
-local diagnostic_ns = vim.api.nvim_create_namespace("my_lsp_diagnostics")
+local diagnostic_ns = vim.api.nvim_create_namespace('my_lsp_diagnostics')
 
 local function buf_diagnostics_virtual_text(bufnr, diagnostics)
   if not diagnostics then
@@ -23,7 +23,7 @@ end
 
 function M.update_diagnostics(bufnr, diagnostics)
   bufnr = bufnr or vim.api.nvim_win_get_buf(0)
-  diagnostics = diagnostics or util.diagnostics_by_buf[bufnr]
+  diagnostics = diagnostics or util.diagnostics_by_buf[bufnr] or {}
 
   util.buf_diagnostics_save_positions(bufnr, diagnostics)
   util.buf_diagnostics_underline(bufnr, diagnostics)
@@ -68,8 +68,8 @@ end
 
 local function setup_keymaps(bufnr)
   local keymaps = {
-    ['<cr>'] = '<cmd>lua vim.lsp.buf.declaration()<cr>',
-    ['gd'] = '<cmd>lua vim.lsp.buf.definition()<cr>',
+    ['<cr>'] = '<cmd>lua vim.lsp.buf.definition()<cr>',
+    ['gd'] = '<cmd>lua vim.lsp.buf.declaration()<cr>',
     ['gh'] = '<cmd>lua vim.lsp.buf.hover()<cr>',
     ['gr'] = '<cmd>lua vim.lsp.buf.references()<cr>',
     ['gs'] = '<cmd>lua vim.lsp.buf.signature_help()<cr>',
@@ -91,37 +91,37 @@ local function on_attach()
   vim.api.nvim_command('augroup my_lsp')
   vim.api.nvim_command('autocmd! * <buffer>')
   vim.api.nvim_command('autocmd InsertLeave <buffer> lua require"my.lsp".update_diagnostics()')
-  vim.api.nvim_command('autocmd User LspDiagnosticsChanged redrawstatus!')
-  vim.api.nvim_command('autocmd User LspMessageUpdate redrawstatus!')
-  vim.api.nvim_command('autocmd User LspStatusUpdate redrawstatus!')
   vim.api.nvim_command('augroup end')
 
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
-nvim_lsp.rls.setup{
-  on_attach = on_attach,
-}
+if not vim.g.loaded_my_lsp then
+  nvim_lsp.rls.setup{
+    on_attach = on_attach,
+  }
 
-nvim_lsp.vimls.setup{
-  on_attach = on_attach,
-}
+  nvim_lsp.vimls.setup{
+    on_attach = on_attach,
+  }
 
-nvim_lsp.sumneko_lua.setup{
-  on_attach = on_attach,
-  settings = {
-    runtime = {
-      version = 'Lua 5.1',
-    },
-    Lua = {
-      diagnostics = {
-        globals = {'vim', 'unpack'}
+  nvim_lsp.sumneko_lua.setup{
+    on_attach = on_attach,
+    settings = {
+      runtime = {
+        version = 'Lua 5.1',
+      },
+      Lua = {
+        diagnostics = {
+          globals = {'vim', 'unpack'}
+        }
       }
     }
   }
-}
+end
+vim.g.loaded_my_lsp = true
 
--- vim.lsp.set_log_level("debug")
+-- vim.lsp.set_log_level('debug')
 
 package.loaded['my.lsp'] = nil
 return M

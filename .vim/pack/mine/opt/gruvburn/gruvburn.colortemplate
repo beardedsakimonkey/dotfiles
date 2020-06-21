@@ -3,6 +3,7 @@
 Full name:     Gruvburn
 Short name:    gruvburn
 Author:        Myself <myself@somewhere.org>
+Maintainer:    Myself
 Neovim:        yes
 
 QuickFixLine      -> Search
@@ -152,7 +153,8 @@ Ignore grey none
 # status line
 User1 red bg5 bold
 User2 bg0 bg_yellow
-User3 yellow bg5
+User3 green bg5
+User4 red bg5
 
 # isearch
 isearchCursorLine -> CursorLine

@@ -242,17 +242,6 @@ zle-line-finish() { echo -ne '\e[1 q' }
 zle -N zle-line-finish
 
 #
-# Aliases
-# NOTE: you can escape commands in the alias defintion with `\` to avoid recursive alias expansion
-#
-
-alias sudo='sudo '
-alias t='tmux attach || tmux new'
-alias ls='ls -F -G'
-alias a='ls -A'
-alias v='$EDITOR'
-
-#
 # Exports
 # NOTE: you should put exports that should exist for non-interactive shells in ~/.zshenv
 #
@@ -307,10 +296,14 @@ if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; 
 fi
 
 # fasd
-if [ -n `command -v fasd` ]; then
+if [ -n "$(command -v fasd)" ]; then
+  eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
+  unalias a z zz
   alias j='fasd_cd -d'
   alias jj='fasd_cd -d -i'
-  eval "$(fasd --init zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
+  bindkey 'å' fasd-complete
+  bindkey 'ƒ' fasd-complete-f
+  bindkey '∂' fasd-complete-d
 fi
 
 # nvm
@@ -318,6 +311,17 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
 alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
+
+#
+# Aliases
+# NOTE: you can escape commands in the alias defintion with `\` to avoid recursive alias expansion
+#
+
+alias sudo='sudo '
+alias t='tmux attach || tmux new'
+alias ls='ls -F -G'
+alias a='ls -A'
+alias v='$EDITOR'
 
 if [ -f ~/zshrc_local.zsh ]; then
   source ~/zshrc_local.zsh

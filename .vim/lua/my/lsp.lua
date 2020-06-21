@@ -58,6 +58,9 @@ local function monkey_patch_diagnostics()
       end
     end
 
+    -- update diagnostics count buffer variable for the statusline
+    vim.fn.setbufvar(bufnr, 'diagnostics_count', #diagnostics)
+
     local mode = vim.api.nvim_get_mode().mode
     local in_insert_mode = mode == 'i' or mode == 'ic'
     if not in_insert_mode then

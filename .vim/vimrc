@@ -174,10 +174,15 @@ set laststatus=2
 set noshowmode
 if has('nvim-0.5')
   fun! MyStatusLineNeovim() abort
-    return  MyStatusLine() .
-          \" %3*%{luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))
-          \ and \"[lsp]\"
-          \ or \"\"')}%*"
+    return  MyStatusLine() . ' ' .
+          \"%3*%{luaeval('
+          \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count == nil or vim.b.diagnostics_count == 0))
+          \ and [[✔]] or [[]]
+          \')}%*" .
+          \"%4*%{luaeval('
+          \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count and vim.b.diagnostics_count > 0))
+          \ and [[✘]] or [[]]
+          \')}%*"
   endf
   set statusline=%!MyStatusLineNeovim()
 else
@@ -255,8 +260,8 @@ nnoremap s "_s
 nnoremap Z zz5<c-e>
 nnoremap * *zz
 nnoremap # #zz
-nnoremap p pmx=`]`x
-nnoremap P Pmx=`]`x
+nnoremap p pmx=']`x
+nnoremap P Pmx=']`x
 
 nnoremap ; :
 xnoremap ; :
@@ -371,14 +376,17 @@ cnoremap <c-j> <c-g>
 cnoremap <c-k> <c-t>
 cnoremap <c-o> <c-r>=expand("%:t:r")<cr>
 
-nnoremap <silent>        cd  :<c-u>cd %:h \| pwd<cr>
-nnoremap          <leader>s  :%s/\<<c-r><c-w>\>/
-nnoremap          <leader>w  :<c-u>w !sudo tee % >/dev/null<cr>
-noremap  <silent> <leader>y  y:<c-u>call my_fb#yank(@0)<cr>
-nnoremap <silent> <leader>t  :<c-u>tabedit<cr>
-nnoremap                 gy  :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nnoremap <silent> cd  :<c-u>cd %:h \| pwd<cr>
+nnoremap <leader>s :%s/\<<c-r><c-w>\>/
+nnoremap <leader>w :<c-u>w !sudo tee % >/dev/null<cr>
+noremap  <silent> <leader>y y:<c-u>call my_fb#yank(@0)<cr>
+nnoremap <silent> <leader>t :<c-u>tabedit<cr>
+nnoremap gy :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+" TODO: why doesn't zv work?
 vnoremap * "ay/<c-r>a<cr>
 vnoremap # "ay?<c-r>a<cr>
+
+nnoremap g= ms'[=']`s
 
 cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 cabbrev ~? ~/
@@ -470,6 +478,9 @@ let g:quickhl_manual_colors = [
       \ "ctermfg=7   ctermbg=2   guibg=#4070a0",
       \ "ctermfg=7   ctermbg=3   guibg=#40a070",
       \ ]
+
+" rust.vim
+" let g:rustfmt_autosave = 1
 
 "
 " Neovim nightly

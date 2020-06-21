@@ -1,7 +1,8 @@
-setlocal statusline=%!MyDirvishStatusline()
-fun! MyDirvishStatusline() abort
-  return " (%{exists('w:dirvish')?'alt:'.w:dirvish.altbuf.', prev: '.w:dirvish.prevbuf : ''}) "
-endf
+setlocal statusline=%f
+" setlocal statusline=%!MyDirvishStatusline()
+" fun! MyDirvishStatusline() abort
+"   return " (%{exists('w:dirvish')?'alt:'.w:dirvish.altbuf.', prev: '.w:dirvish.prevbuf : ''}) "
+" endf
 
 silent! nunmap <buffer> <c-p>
 silent! nunmap <buffer> <c-n>

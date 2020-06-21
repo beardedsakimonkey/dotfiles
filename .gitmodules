@@ -58,3 +58,6 @@
 [submodule "fasd"]
 	path = .zsh/fasd
 	url = https://github.com/clvv/fasd.git
+[submodule "rust.vim"]
+	path = .vim/pack/third-party/start/rust.vim
+	url = https://github.com/rust-lang/rust.vim

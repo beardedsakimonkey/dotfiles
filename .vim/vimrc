@@ -115,17 +115,16 @@ augroup vimrc
 
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
+        \   setlocal cursorline |
         \   nnoremap <buffer> q :q<cr> |
         \   nnoremap <buffer> T <c-]> |
         \ endif
-
-  autocmd BufEnter man:///* wincmd L
 
   " Disable automatic comment insertion
   autocmd FileType * setlocal formatoptions-=cro
 
   autocmd WinEnter,FocusGained * set cursorline
-  autocmd WinLeave,FocusLost   * set nocursorline
+  autocmd WinLeave,FocusLost   * if !exists("b:isearch_preview") | set nocursorline | endif
 
   if exists('##TerminalWinOpen')
     autocmd TerminalWinOpen * setlocal statusline=%f
@@ -139,7 +138,7 @@ augroup vimrc
   autocmd BufWritePost ~/.vim/lua/* luafile <afile>
   autocmd BufWritePost .tmux.conf call system('tmux source-file ' . expand('<afile>'))
 
-  autocmd BufRead,BufNewFile *.metal set filetype=cpp
+  autocmd BufRead,BufNewFile *.metal set filetype=glsl
   autocmd BufRead,BufNewFile *.fnl   set filetype=clojure
 
   if has('nvim-0.5')
@@ -225,8 +224,20 @@ endf
 
 command! -range                  Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 command! -nargs=*
-      \  -complete=file_in_path  Grep      cgetexpr my_fb#grep(<f-args>)
+      \ -complete=file_in_path Grep call <sid>grep(<f-args>)
 command! -nargs=1                PackInstall call <sid>packInstall(<q-args>)
+
+fun! s:grep(...) abort
+  if a:0 == 0
+    return
+  endif
+  let cmd = 'rg -i --vimgrep '.shellescape(a:1)
+  if a:0 > 1
+    let cmd .=  ' '.shellescape(expandcmd(a:2))
+  endif
+  " could also populate the quickfix list, and hide it?
+  execute "lua require'my.isearch'.grep([[".cmd."]])"
+endf
 
 fun! s:packInstall(url)
   let url = a:url
@@ -244,7 +255,7 @@ fun! s:packInstall(url)
   endif
   " FIXME: git expands the tilde
   let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
-  execute '!'.cmd
+  execute '!(cd ~ && '.cmd.')'
 endf
 
 let mapleader = "\<space>"
@@ -260,8 +271,8 @@ nnoremap s "_s
 nnoremap Z zz5<c-e>
 nnoremap * *zz
 nnoremap # #zz
-nnoremap p pmx=']`x
-nnoremap P Pmx=']`x
+nnoremap <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
+nnoremap <expr> P getreg('"') =~ "\n" ? "Pmx=']`x" : "P"
 
 nnoremap ; :
 xnoremap ; :
@@ -345,30 +356,30 @@ nnoremap <silent> ]L :<c-u>lnfile<cr>zz
 nnoremap <silent> [L :<c-u>lpfile<cr>zz
 
 if has('nvim-0.5')
-  nnoremap <silent> <leader>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-  nnoremap <silent> <leader>b <cmd>lua require'my.isearch'.search_buffers()<cr>
-  nnoremap <silent> <leader>f <cmd>lua require'my.isearch'.search_files()<cr>
+  noremap <silent> <leader>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+  noremap <silent> <leader>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+  noremap <silent> <leader>f <cmd>lua require'my.isearch'.search_files()<cr>
 else
-  nnoremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
-  nnoremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
-  nnoremap <silent> <leader>f :<c-u>call my_find#files()<cr>
+  noremap <silent> <leader>o :<c-u>call my_find#oldfiles()<cr>
+  noremap <silent> <leader>b :<c-u>call my_find#buffer()<cr>
+  noremap <silent> <leader>f :<c-u>call my_find#files()<cr>
 endif
 
-nnoremap <silent> <leader>d :<c-u>BD<cr>
-nnoremap <silent> <leader>D :<c-u>bd<cr>
-nnoremap <silent> <leader>q :<c-u>b#<cr>
+noremap <silent> <leader>d :<c-u>BD<cr>
+noremap <silent> <leader>D :<c-u>bd<cr>
+noremap <silent> <leader>q :<c-u>b#<cr>
 
-nnoremap <silent> <leader>gd :<c-u>HGdiff<cr>
-nnoremap <silent> <leader>gl :<c-u>call my_find#hg_commit()<cr>
+noremap <silent> <leader>gd :<c-u>HGdiff<cr>
+noremap <silent> <leader>gl :<c-u>call my_find#hg_commit()<cr>
 
-nnoremap <silent> <expr> <leader>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+noremap <silent> <expr> <leader>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 
 nnoremap <leader>a :<c-u>Grep<space>
 vnoremap <leader>a "sy:Grep <c-r>s
 
-nnoremap <silent> <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
-nnoremap <silent> <leader>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-nnoremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
+noremap <silent> <leader>ev :<c-u>edit ~/.vim/vimrc<cr>
+noremap <silent> <leader>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
+noremap <silent> <leader>et :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
 
 cnoremap <c-p> <up>
 cnoremap <c-n> <down>
@@ -420,6 +431,7 @@ let g:merlin_split_method = "never"
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
+" FIXME: race-condition caused by vim language server
 autocmd vimrc BufWritePost *.colortemplate Colortemplate!
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command! -nargs=0 Colortest runtime syntax/hitest.vim
@@ -470,7 +482,7 @@ endfunction
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
 " vim-quickhl
-nmap <2-leftmouse> <Plug>(quickhl-manual-this)
+nmap <2-leftmouse> <Plug>(quickhl-manual-this-whole-word)
 nmap <rightmouse> <Plug>(quickhl-manual-reset)
 let g:quickhl_manual_colors = [
       \ "ctermfg=16  ctermbg=153 guibg=#0a7383",

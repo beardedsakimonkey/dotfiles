@@ -45,7 +45,6 @@ Color: bg1        #3a3735   237  DarkGrey
 Color: bg2        #3c3836   237  DarkGrey
 Color: bg3        #504945   239  DarkGrey
 Color: bg4        #504945   239  DarkGrey
-Color: bg5        #665c54   241  DarkGrey
 Color: bg_grey0   #7c6f64   243  DarkGrey
 Color: bg_grey1   #a89984   246  LightGrey
 Color: bg_red     #472322   52   DarkRed
@@ -84,14 +83,14 @@ Cursor none none reverse
 CursorColumn none bg1
 CursorLine none bg1
 LineNr bg_grey0 none
-CursorLineNr bg_grey1 bg1
+CursorLineNr bg0 yellow
 DiffAdd none bg_green
 DiffDelete none bg_red
 DiffChange none bg0
 DiffText none bg_dark_orange
 Directory green none
 ErrorMsg red none underline
-WarningMsg yellow none
+WarningMsg yellow none bold
 ModeMsg fg0 none bold
 MoreMsg yellow none bold
 MatchParen none bg4
@@ -102,12 +101,12 @@ PmenuSel bg3 bg_grey1
 WildMenu bg3 bg_grey1
 PmenuThumb none bg_grey0
 Question yellow none
-StatusLine fg1 bg5
+StatusLine fg0 bg4
 StatusLineNC grey bg2
 TabLine grey bg1
 TabLineFill fg0 bg1
-TabLineSel fg0 bg5
-VertSplit bg5 none
+TabLineSel fg0 bg4
+VertSplit bg4 none
 Visual none bg3
 VisualNOS none bg3
 QuickFixLine magenta none bold
@@ -151,15 +150,16 @@ Delimiter fg0 none
 Ignore grey none
 
 # status line
-User1 red bg5 bold
+User1 red bg4 bold
 User2 bg0 bg_yellow
-User3 green bg5
-User4 red bg5
+User3 green bg4
+User4 red bg4
 
 # isearch
 isearchCursorLine -> CursorLine
 isearchResults -> Normal
 isearchInput -> Normal
+isearchPreview -> Normal
 isearchMatch red none underline
 
 # vim

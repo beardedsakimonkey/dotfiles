@@ -49,6 +49,8 @@ zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
 
+_comp_options+=(globdots) # complete dotfiles without entering a .
+
 #
 # Bindings
 # NOTE: `emulate -L zsh` is used to diable some custom setopts

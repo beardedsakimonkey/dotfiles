@@ -134,17 +134,15 @@ function tab-or-list-dirs() {
 }
 zle -N tab-or-list-dirs
 
-bindkey "∆" backward-word; bindkey "\M-j" backward-word
-bindkey "˙" backward-char; bindkey "\M-h" backward-char
-bindkey "˚" forward-word;  bindkey "\M-k" forward-word
-bindkey "¬" forward-char;  bindkey "\M-l" forward-char
+bindkey "\M-j" backward-word
+bindkey "\M-h" backward-char
+bindkey "\M-k" forward-word
+bindkey "\M-l" forward-char
 
-# bindkey "\C-p" up-line-or-search
-# bindkey "\C-n" down-line-or-search
 bindkey "\C-a" beginning-of-line
 bindkey "\C-e" end-of-line
 bindkey "\C-u" backward-kill-line
-bindkey "\M-." insert-last-word; bindkey "≥" insert-last-word
+bindkey "\M-." insert-last-word
 bindkey -M menuselect "\C-m" .accept-line
 bindkey -M menuselect "^[[Z" reverse-menu-complete
 bindkey ' ' magic-space # expands history
@@ -295,6 +293,9 @@ if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; 
   bindkey "\C-n" history-substring-search-down; bindkey -a "\C-n" history-substring-search-down
   HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#3d4220"
   HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#472322"
+else
+  bindkey "\C-p" up-line-or-search
+  bindkey "\C-n" down-line-or-search
 fi
 
 # fasd
@@ -303,9 +304,9 @@ if [ -n "$(command -v fasd)" ]; then
   unalias a z zz
   alias j='fasd_cd -d'
   alias jj='fasd_cd -d -i'
-  bindkey 'å' fasd-complete
-  bindkey 'ƒ' fasd-complete-f
-  bindkey '∂' fasd-complete-d
+  bindkey "\M-a" fasd-complete
+  bindkey "\M-f" fasd-complete-f
+  bindkey "\M-d" fasd-complete-d
 fi
 
 # nvm

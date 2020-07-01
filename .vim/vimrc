@@ -124,7 +124,7 @@ augroup vimrc
   autocmd FileType * setlocal formatoptions-=cro
 
   autocmd WinEnter,FocusGained * set cursorline
-  autocmd WinLeave,FocusLost   * if !exists("b:isearch_preview") | set nocursorline | endif
+  autocmd WinLeave,FocusLost   * set nocursorline
 
   if exists('##TerminalWinOpen')
     autocmd TerminalWinOpen * setlocal statusline=%f
@@ -289,7 +289,6 @@ noremap H ^
 noremap L $
 noremap <silent> ( :<c-u>keepjumps normal! H<cr>
 noremap <silent> ) :<c-u>keepjumps normal! L<cr>
-" noremap <silent> <tab> :<c-u>keepjumps normal! %<cr>
 nnoremap <c-p> <c-i>
 nnoremap <home> gg
 nnoremap <end> G
@@ -301,15 +300,6 @@ nnoremap <silent> { :<c-u>keepjumps normal! {<cr>
 nnoremap <silent> } :<c-u>keepjumps normal! }<cr>
 nnoremap <silent> n :<c-u>keepjumps normal! nzzzv<cr>
 nnoremap <silent> N :<c-u>keepjumps normal! Nzzzv<cr>
-
-map  ¬ <a-l>
-map  ˙ <a-h>
-map  ∆ <a-j>
-map  ˚ <a-k>
-map! ¬ <a-l>
-map! ˙ <a-h>
-map! ∆ <a-j>
-map! ˚ <a-k>
 
 noremap! <a-h> <left>
 noremap! <a-l> <right>
@@ -387,7 +377,7 @@ cnoremap <c-j> <c-g>
 cnoremap <c-k> <c-t>
 cnoremap <c-o> <c-r>=expand("%:t:r")<cr>
 
-nnoremap <silent> cd  :<c-u>cd %:h \| pwd<cr>
+nnoremap <silent> cd :<c-u>cd %:h \| pwd<cr>
 nnoremap <leader>s :%s/\<<c-r><c-w>\>/
 nnoremap <leader>w :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent> <leader>y y:<c-u>call my_fb#yank(@0)<cr>
@@ -459,10 +449,10 @@ xnoremap <expr> D (mode() ==# "V" ? ':Linediff<cr>' : 'D')
 
 " vim-matchup
 let g:matchup_surround_enabled = 1
-let g:matchup_matchparen_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
-let g:matchup_matchparen_enabled = 0 " disable highlighting
+let g:matchup_motion_keepjumps = 1
+autocmd vimrc FileType vim let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
   execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
@@ -502,7 +492,7 @@ if has('nvim-0.5')
 
   function! s:restartLsp()
     lua vim.lsp.stop_client(vim.lsp.get_active_clients())
-    doautocmd BufReadPost
+    edit
   endfunction
   command! RestartLsp call <sid>restartLsp()
 

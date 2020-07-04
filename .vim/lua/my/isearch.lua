@@ -1,14 +1,18 @@
 local api = vim.api
 
+local frame_buf
 local results_buf
 local results_win
 local preview_buf
 local preview_win
 local input_buf
 local input_win
+-- the window from which the search was executed
+local prev_win
+local show_preview
 
+-- namespaces are useful for batch deletion/updating
 local matches_ns = api.nvim_create_namespace('isearch_matches')
-local count_ns = api.nvim_create_namespace('isearch_count')
 
 local function find_min_subsequence(target, sequence)
   local t = 1
@@ -107,7 +111,7 @@ end
 
 local function update_results_info(total)
   local virt_text = { {'(' .. total .. ')', 'Comment'} }
-  api.nvim_buf_set_virtual_text(input_buf, count_ns, 0, virt_text, {})
+  api.nvim_buf_set_virtual_text(input_buf, -1, 0, virt_text, {})
   api.nvim_command('redraw!')
 end
 
@@ -147,12 +151,20 @@ local function update_preview()
   -- newlines`
   api.nvim_buf_set_lines(preview_buf, 0, -1, true, lines)
   if found_line_nr then
-    api.nvim_win_set_cursor(preview_win, { tonumber(line_nr) or 0, 0 })
+    local line = tonumber(line_nr) or 1
+    api.nvim_win_set_cursor(preview_win, { line, 0 })
+    api.nvim_buf_add_highlight(preview_buf, -1, 'isearchPreviewLine', line - 1, 0, -1)
   end
   api.nvim_set_current_win(preview_win)
-  -- XXX: this fires FileType autocommands, which can mean spinning up language
-  -- servers. There doesn't seem to be a way to detect syntax while avoiding
-  -- this.
+  -- XXX: This will trigger an autocmd in $VIMRUNTIME/filetype.vim to set
+  -- 'filetype', which will, in turn, trigger a FileType autocmd in
+  -- $VIMRUNTIME/syntax/syntax.vim to set 'syntax'. Unfortunately, triggering
+  -- FileType can cause nvim_lsp to spin up a language server. Ideally,
+  -- nvim_lsp would allow users to define their own `autocmd`s, which would
+  -- allow for something like:
+  --
+  --    autocmd FileType foo if &buftype isnot "nofile" | ... | endif
+  --
   api.nvim_command('doautocmd filetypedetect BufRead ' .. vim.fn.fnameescape(filename))
   api.nvim_set_current_win(input_win)
 end
@@ -163,16 +175,18 @@ local function move_results_cursor(offset)
   local row = math.max(1, math.min(lines, cursor_row + offset))
   api.nvim_win_set_cursor(results_win, { row, 0 })
   api.nvim_command('redraw!')
-  if vim.b.show_preview == 1 then
+  if show_preview == true then
     vim.schedule(update_preview)
   end
 end
 
-local function filter(source, show_preview)
-  local frame_buf = api.nvim_create_buf(false, true)
+local function search(source, _show_preview)
+  show_preview = _show_preview
+  frame_buf = api.nvim_create_buf(false, true)
   input_buf = api.nvim_create_buf(false, true)
   results_buf = api.nvim_create_buf(false, true)
   preview_buf = api.nvim_create_buf(false, true)
+  prev_win = api.nvim_get_current_win()
 
   api.nvim_buf_set_option(input_buf, 'bufhidden', 'wipe')
 
@@ -215,8 +229,6 @@ local function filter(source, show_preview)
       row = row + 1,
       col = col + 2 + math.ceil((width - 4) / 2) + 1,
     })
-    -- exposed for hacking around custom cursorline hiding in autocmd
-    vim.b.isearch_preview = 1
   end
 
   local frame_win = api.nvim_open_win(frame_buf, false, {
@@ -238,16 +250,8 @@ local function filter(source, show_preview)
     row = row + 1,
     col = col + 2,
   })
-  -- using a buffer-local variable instead of a global lua variable so we don't
-  -- have to worry about cleanup.
-  vim.b.show_preview = show_preview and 1 or 0
 
-  local cmd = 'silent bwipeout'
-  if frame_buf then cmd = cmd .. ' ' .. frame_buf end
-  if results_buf then cmd = cmd .. ' ' .. results_buf end
-  if preview_buf then cmd = cmd .. ' ' .. preview_buf end
-  -- TODO: could also cleanup lua globals
-  api.nvim_command('autocmd BufWipeout <buffer> '..cmd)
+  api.nvim_command('autocmd BufWipeout <buffer> lua require"my.isearch".quit()')
 
   local opts = { nowait = true, noremap = true, silent = true }
   api.nvim_buf_set_keymap(input_buf, 'i', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', opts)
@@ -263,10 +267,6 @@ local function filter(source, show_preview)
   api.nvim_buf_set_keymap(input_buf, 'i', '<c-t>', '<cmd>lua require"my.isearch".open_result("tabedit")<cr>', opts)
 
   api.nvim_win_set_option(results_win, 'cursorline', true)
-  if show_preview then
-    -- TODO: use `search()` instead of this hack
-    api.nvim_win_set_option(preview_win, 'rnu', true)
-  end
 
   api.nvim_win_set_option(frame_win, 'winhighlight', 'NormalFloat:isearchResults')
   api.nvim_win_set_option(input_win, 'winhighlight', 'NormalFloat:isearchInput')
@@ -354,7 +354,7 @@ end
 
 local function search_oldfiles()
   -- TODO: would like to also score based on ordering
-  filter(api.nvim_get_vvar('oldfiles'), true)
+  search(api.nvim_get_vvar('oldfiles'), true)
 end
 
 -- exclude unloaded buffers, current buffer, buffers in the current tabpage
@@ -374,15 +374,34 @@ local function search_buffers()
     end
   end
   -- TODO: some way to delete buffers
-  filter(bufnames, true)
+  search(bufnames, true)
 end
 
 local function search_files()
-  filter('fd --max-depth 5 -I --type f', true)
+  search('fd --max-depth 5 -I --type f', true)
 end
 
 local function grep(cmd)
-  filter(cmd, true)
+  search(cmd, true)
+end
+
+local function quit()
+  local cmd = 'silent bwipeout'
+  if frame_buf then cmd = cmd .. ' ' .. frame_buf end
+  if results_buf then cmd = cmd .. ' ' .. results_buf end
+  if preview_buf then cmd = cmd .. ' ' .. preview_buf end
+  api.nvim_command(cmd)
+  -- XXX: what happens if window isn't around any longer?
+  api.nvim_set_current_win(prev_win)
+  frame_buf = nil
+  results_buf = nil
+  results_win = nil
+  preview_buf = nil
+  preview_win = nil
+  input_buf = nil
+  input_win = nil
+  prev_win = nil
+  show_preview = nil
 end
 
 package.loaded['my.isearch'] = nil
@@ -395,4 +414,5 @@ return {
   prev_result = function () move_results_cursor(-1) end,
   next_result = function () move_results_cursor(1) end,
   open_result = open_result,
+  quit = quit,
 }

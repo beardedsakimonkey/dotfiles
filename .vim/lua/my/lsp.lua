@@ -30,11 +30,6 @@ function M.update_diagnostics(bufnr, diagnostics)
   buf_diagnostics_virtual_text(bufnr, diagnostics)
   -- util.buf_diagnostics_signs(bufnr, diagnostics)
   vim.api.nvim_command("doautocmd User LspDiagnosticsChanged")
-
-  -- vim.fn.setqflist({}, 'a', {
-  --   title = 'Language Server';
-  --   items = vim.lsp.util.locations_to_items(diagnostics);
-  -- })
 end
 
 local function monkey_patch_diagnostics()
@@ -44,6 +39,9 @@ local function monkey_patch_diagnostics()
     local bufnr = vim.uri_to_bufnr(uri)
     if not bufnr then
       vim.lsp.err_message("LSP.publishDiagnostics: Couldn't find buffer for ", uri)
+      return
+    end
+    if not vim.api.nvim_buf_is_loaded(bufnr) then
       return
     end
 

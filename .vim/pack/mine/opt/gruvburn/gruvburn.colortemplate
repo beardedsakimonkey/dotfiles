@@ -83,7 +83,7 @@ Cursor none none reverse
 CursorColumn none bg1
 CursorLine none bg1
 LineNr bg_grey0 none
-CursorLineNr bg0 yellow
+CursorLineNr yellow bg0
 DiffAdd none bg_green
 DiffDelete none bg_red
 DiffChange none bg0
@@ -161,6 +161,7 @@ isearchResults -> Normal
 isearchInput -> Normal
 isearchPreview -> Normal
 isearchMatch red none underline
+isearchPreviewLine none bg_green
 
 # vim
 vimCommentString -> Comment

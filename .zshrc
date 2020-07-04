@@ -13,6 +13,7 @@ stty quit undef # disable C-\
 setopt AUTO_CD
 setopt AUTO_PUSHD
 setopt CDABLE_VARS
+setopt CD_SILENT 2&>/dev/null # needs zsh 5.8
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
@@ -134,15 +135,15 @@ function tab-or-list-dirs() {
 }
 zle -N tab-or-list-dirs
 
-bindkey "\M-j" backward-word
-bindkey "\M-h" backward-char
-bindkey "\M-k" forward-word
-bindkey "\M-l" forward-char
+bindkey "^[j" backward-word
+bindkey "^[h" backward-char
+bindkey "^[k" forward-word
+bindkey "^[l" forward-char
 
 bindkey "\C-a" beginning-of-line
 bindkey "\C-e" end-of-line
 bindkey "\C-u" backward-kill-line
-bindkey "\M-." insert-last-word
+bindkey "^[." insert-last-word
 bindkey -M menuselect "\C-m" .accept-line
 bindkey -M menuselect "^[[Z" reverse-menu-complete
 bindkey ' ' magic-space # expands history
@@ -192,12 +193,12 @@ bindkey -M visual S add-surround
 
 autoload edit-command-line
 zle -N edit-command-line
-bindkey "\C-o" edit-command-line
+bindkey "\C-o" edit-command-line; bindkey -a "\C-o" edit-command-line
 
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
-#
+
 # Prompt
 #
 
@@ -282,8 +283,6 @@ fi
 # fast-syntax-highlighting
 if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
   source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-  # https://github.com/zdharma/fast-syntax-highlighting/issues/179
-  FAST_HIGHLIGHT[chroma-man]=
 fi
 
 # zsh-history-substring-search
@@ -304,9 +303,9 @@ if [ -n "$(command -v fasd)" ]; then
   unalias a z zz
   alias j='fasd_cd -d'
   alias jj='fasd_cd -d -i'
-  bindkey "\M-a" fasd-complete
-  bindkey "\M-f" fasd-complete-f
-  bindkey "\M-d" fasd-complete-d
+  bindkey "^[a" fasd-complete
+  bindkey "^[f" fasd-complete-f
+  bindkey "^[d" fasd-complete-d
 fi
 
 # nvm
@@ -329,3 +328,18 @@ alias v='$EDITOR'
 if [ -f ~/zshrc_local.zsh ]; then
   source ~/zshrc_local.zsh
 fi
+
+#
+# Functions
+#
+
+function mv() {
+  if (( $# > 1 )); then
+    # XXX: will probably choke if path contains a literal /
+    local basedir=${2%/*}
+    if [ ! -d "$basedir" ]; then
+      mkdir -p "$basedir"
+    fi
+  fi
+  command mv "$@"
+}

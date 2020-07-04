@@ -65,7 +65,8 @@ set ignorecase
 set infercase
 set smartcase
 set keywordprg=:help
-set completeopt=menu
+" set completeopt=menu
+set completeopt=
 set complete=.
 set complete-=t
 set wildmenu
@@ -421,8 +422,7 @@ let g:merlin_split_method = "never"
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
-" FIXME: race-condition caused by vim language server
-autocmd vimrc BufWritePost *.colortemplate Colortemplate!
+autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore=
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command! -nargs=0 Colortest runtime syntax/hitest.vim
 
@@ -452,7 +452,7 @@ let g:matchup_surround_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
 let g:matchup_motion_keepjumps = 1
-autocmd vimrc FileType vim let b:matchup_matchparen_enabled = 0
+autocmd vimrc FileType vim,lua,zsh let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
   execute 'omap '.v.'m <plug>(matchup-'.v.'%)'

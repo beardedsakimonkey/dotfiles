@@ -62,5 +62,5 @@
 	path = .vim/pack/third-party/start/rust.vim
 	url = https://github.com/rust-lang/rust.vim
 [submodule "vim-glsl"]
-	path = ~/.vim/pack/third-party/start/vim-glsl
+	path = .vim/pack/third-party/start/vim-glsl.vim
 	url = https://github.com/tikhomirov/vim-glsl.git

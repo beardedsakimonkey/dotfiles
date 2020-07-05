@@ -50,14 +50,19 @@ local function monkey_patch_diagnostics()
 
     local diagnostics = result.diagnostics
 
+    local diagnostics_count = 0
     for _, diagnostic in ipairs(diagnostics) do
       if diagnostic.severity == nil then
         diagnostic.severity = protocol.DiagnosticSeverity.Error
       end
+      if diagnostic.severity == protocol.DiagnosticSeverity.Error
+        or diagnostic.severity == protocol.DiagnosticSeverity.Warning then
+        diagnostics_count = diagnostics_count + 1
+      end
     end
 
     -- update diagnostics count buffer variable for the statusline
-    vim.fn.setbufvar(bufnr, 'diagnostics_count', #diagnostics)
+    vim.fn.setbufvar(bufnr, 'diagnostics_count', diagnostics_count)
 
     local mode = vim.api.nvim_get_mode().mode
     local in_insert_mode = mode == 'i' or mode == 'ic'

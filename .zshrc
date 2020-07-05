@@ -49,6 +49,7 @@ zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
+compdef _vim v
 
 _comp_options+=(globdots) # complete dotfiles without entering a .
 
@@ -121,8 +122,9 @@ zle -N fg-bg
 function tab-or-list-dirs() {
   emulate -L zsh
   if [[ $#BUFFER == 0 ]]; then
-    # NOTE: leaving `cd` in the prompt is suboptimal because it prevents utilizing suffix aliases.
-    # However, deleting it would prevent subsequent tabbing through the list.
+    # NOTE: leaving `cd` in the prompt is suboptimal because it prevents
+    # utilizing suffix aliases. However, deleting it would prevent subsequent
+    # tabbing through the list.
     BUFFER="cd "
     CURSOR=3
     zle list-choices
@@ -162,6 +164,7 @@ bindkey '\t' tab-or-list-dirs
 
 #
 # Modules
+# see: /usr/local/Cellar/zsh/5.8/share/zsh/functions/
 #
 
 autoload -U select-bracketed
@@ -198,22 +201,22 @@ bindkey "\C-o" edit-command-line; bindkey -a "\C-o" edit-command-line
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
-
+#
 # Prompt
 #
 
 # autoload -Uz vcs_info
+# zstyle ':vcs_info:*' enable git hg
 # zstyle ':vcs_info:*' actionformats '%F{magenta}[%F{green}%b%F{yellow}|%F{red}%a%F{magenta}]%f '
 # zstyle ':vcs_info:*' formats '%F{magenta}[%F{green}%b%F{magenta}]%f '
-# zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{red}:%F{yellow}%r'
 # precmd() {
 #   vcs_info
 # }
-# RPROMPT="\${vcs_info_msg_0_}"
 
 PROMPT="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{white}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
+# PROMPT+="\${vcs_info_msg_0_}"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
 
 # SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
@@ -247,7 +250,7 @@ zle -N zle-line-finish
 # NOTE: you should put exports that should exist for non-interactive shells in ~/.zshenv
 #
 
-export KEYTIMEOUT=20
+export KEYTIMEOUT=15
 export CORRECT_IGNORE=_*,.*
 
 export PATH="$HOME/.cargo/bin/:$PATH"
@@ -323,11 +326,8 @@ alias sudo='sudo '
 alias t='tmux attach || tmux new'
 alias ls='ls -F -G'
 alias a='ls -A'
-alias v='$EDITOR'
-
-if [ -f ~/zshrc_local.zsh ]; then
-  source ~/zshrc_local.zsh
-fi
+# `compdef` doesn't seem to work on aliases
+function v() { $EDITOR "$@" }
 
 #
 # Functions
@@ -343,3 +343,11 @@ function mv() {
   fi
   command mv "$@"
 }
+
+#
+# Source local rc
+#
+
+if [ -f ~/zshrc_local.zsh ]; then
+  source ~/zshrc_local.zsh
+fi

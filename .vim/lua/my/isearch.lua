@@ -1,4 +1,5 @@
 local api = vim.api
+local loop = vim.loop
 
 local frame_buf
 local results_buf
@@ -10,6 +11,24 @@ local input_win
 -- the window from which the search was executed
 local prev_win
 local show_preview
+
+local function debounce(fn, duration)
+  vim.validate {
+    fn = {fn, 'f'},
+    duration = {duration, 'n'},
+  }
+  local timer = loop.new_timer()
+  -- we probably only ever want to close the timer when `debounced_fn` gets gc'd
+  local debounced_fn = function(...)
+    local _arg = arg
+    timer:stop()
+    timer:start(duration, 0, vim.schedule_wrap(function()
+      fn(_arg)
+      timer:stop()
+    end))
+  end
+  return debounced_fn
+end
 
 -- namespaces are useful for batch deletion/updating
 local matches_ns = api.nvim_create_namespace('isearch_matches')
@@ -156,18 +175,20 @@ local function update_preview()
     api.nvim_buf_add_highlight(preview_buf, -1, 'isearchPreviewLine', line - 1, 0, -1)
   end
   api.nvim_set_current_win(preview_win)
-  -- XXX: This will trigger an autocmd in $VIMRUNTIME/filetype.vim to set
+  -- This will trigger an autocmd in $VIMRUNTIME/filetype.vim to set
   -- 'filetype', which will, in turn, trigger a FileType autocmd in
   -- $VIMRUNTIME/syntax/syntax.vim to set 'syntax'. Unfortunately, triggering
   -- FileType can cause nvim_lsp to spin up a language server. Ideally,
   -- nvim_lsp would allow users to define their own `autocmd`s, which would
   -- allow for something like:
   --
-  --    autocmd FileType foo if &buftype isnot "nofile" | ... | endif
+  --    autocmd FileType foo if &modifiable | ... | endif
   --
   api.nvim_command('doautocmd filetypedetect BufRead ' .. vim.fn.fnameescape(filename))
   api.nvim_set_current_win(input_win)
 end
+
+local update_preview_debounced = debounce(update_preview, 100)
 
 local function move_results_cursor(offset)
   local cursor_row, _ = unpack(api.nvim_win_get_cursor(results_win))
@@ -176,7 +197,7 @@ local function move_results_cursor(offset)
   api.nvim_win_set_cursor(results_win, { row, 0 })
   api.nvim_command('redraw!')
   if show_preview == true then
-    vim.schedule(update_preview)
+    update_preview_debounced()
   end
 end
 
@@ -296,7 +317,7 @@ local function search(source, _show_preview)
   -- matching.
   api.nvim_buf_set_lines(results_buf, 0, -1, true, lines)
   update_results_info(#lines)
-  if show_preview then update_preview() end
+  if show_preview then update_preview_debounced() end
 
   local function on_lines(_, buf, _, firstline)
     if firstline ~= 0 then
@@ -332,6 +353,7 @@ local function search(source, _show_preview)
 
   api.nvim_buf_attach(input_buf, false, { on_lines = vim.schedule_wrap(on_lines) })
   api.nvim_command('startinsert')
+  api.nvim_win_set_option(input_win, 'cursorline', false)
 end
 
 local function open_result(cmd)

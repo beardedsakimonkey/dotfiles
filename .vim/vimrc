@@ -73,6 +73,14 @@ set wildmenu
 set wildignorecase
 set wildignore+=build/*,*/node_modules/*
 
+set foldtext=v:folddashes.getline(v:foldstart)
+set foldmethod=marker
+set foldlevelstart=0
+set foldopen-=block
+
+set nomodeline
+set modelines=0
+
 set scrolloff=6
 set sidescrolloff=5
 set cursorline
@@ -83,6 +91,7 @@ set shortmess+=IcmFS
 set shortmess-=s
 set noshowcmd
 set listchars=tab:>\ ,trail:-
+set fillchars=fold:\ 
 set nolist
 set signcolumn=auto
 set background=dark
@@ -117,6 +126,7 @@ augroup vimrc
   autocmd BufEnter *.txt
         \ if &buftype == 'help' |
         \   setlocal cursorline |
+        \   setlocal scrolloff=0 |
         \   nnoremap <buffer> q :q<cr> |
         \   nnoremap <buffer> T <c-]> |
         \ endif
@@ -291,10 +301,11 @@ noremap L $
 noremap <silent> ( :<c-u>keepjumps normal! H<cr>
 noremap <silent> ) :<c-u>keepjumps normal! L<cr>
 nnoremap <c-p> <c-i>
-nnoremap <home> gg
-nnoremap <end> G
+nmap <home> gg
+nmap <end> G
 nnoremap <leader>= H=L``
 
+nnoremap <silent> gg :<c-u>keepjumps normal! gg<cr>
 nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
 nnoremap <silent> M :<c-u>keepjumps normal! M<cr>
 nnoremap <silent> { :<c-u>keepjumps normal! {<cr>

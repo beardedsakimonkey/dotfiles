@@ -1,5 +1,3 @@
-# vim: ft=colortemplate et ts=2 sw=2
-
 Full name:     Gruvburn
 Short name:    gruvburn
 Author:        Myself <myself@somewhere.org>
@@ -39,16 +37,16 @@ Background: dark
 
 Color: fg0        #bfa472   223  White
 Color: fg1        #ddc7a1   223  White
-Color: bg_dark    #2e2c2a   ~    Black
 Color: bg0        #32302f   236  Black
 Color: bg1        #3a3735   237  DarkGrey
 Color: bg2        #3c3836   237  DarkGrey
 Color: bg3        #504945   239  DarkGrey
 Color: bg4        #504945   239  DarkGrey
+Color: bg_dark    #2e2c2a   ~    Black
 Color: bg_grey0   #7c6f64   243  DarkGrey
 Color: bg_grey1   #a89984   246  LightGrey
 Color: bg_red     #472322   52   DarkRed
-Color: bg_dark_orange  #4c3524   52   DarkRed
+Color: bg_dark_orange  #6b4223   52   DarkRed
 Color: bg_orange  #fe8019   ~    DarkRed
 Color: bg_yellow  #d8a657   214  Yellow
 Color: bg_green   #3d4220   22   DarkGreen
@@ -65,6 +63,10 @@ Color: dark_green #98971a   106  DarkGreen
 Color: grey       #928374   245  LightGrey
 Color: skyblue    #80a0ff   ~    Cyan
 
+Color: fg_dark_yellow  #5b5b26   214  Yellow
+Color: fg_yellow       #cec15c   214  Yellow
+Color: fg_dark_orange  #eab04b   214  Yellow
+
 Term colors: bg0 red green yellow blue magenta cyan fg0 bg0 red green yellow blue magenta cyan fg0
 
 Variant: gui 256 8
@@ -75,8 +77,8 @@ EndOfBuffer bg0 bg0
 FoldColumn grey bg2
 Folded grey bg2
 SignColumn fg0 bg_dark
-IncSearch bg0 bg_orange
-Search bg0 bg_yellow
+IncSearch fg_dark_orange bg_dark_orange
+Search fg_yellow fg_dark_yellow
 ColorColumn none bg2
 Conceal grey none
 Cursor none none reverse
@@ -156,7 +158,7 @@ User3 green bg4
 User4 red bg4
 
 # isearch
-isearchCursorLine -> CursorLine
+isearchCursorLine fg1 bg1
 isearchResults -> Normal
 isearchInput -> Normal
 isearchPreview -> Normal

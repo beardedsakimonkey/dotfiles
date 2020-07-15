@@ -111,18 +111,8 @@ if not vim.g.loaded_my_lsp then
     on_attach = on_attach,
   }
 
-  nvim_lsp.sumneko_lua.setup{
+  nvim_lsp.clangd.setup{
     on_attach = on_attach,
-    settings = {
-      runtime = {
-        version = 'Lua 5.1',
-      },
-      Lua = {
-        diagnostics = {
-          globals = {'vim', 'unpack'}
-        }
-      }
-    }
   }
 end
 vim.g.loaded_my_lsp = true

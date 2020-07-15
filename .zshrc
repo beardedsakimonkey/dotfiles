@@ -45,6 +45,10 @@ zstyle ':completion:*:default' list-colors no=00 fi=00 di=00\;34 pi=33 so=01\;35
 zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
 zstyle ':completion:*:builtins' list-colors '=*=0;32'
 
+zstyle ':completion:*:*:mpv:*' file-patterns \
+  '*.(#i)(flv|mp4|webm|mkv|wmv|mov|avi|mp3|ogg|wma|flac|wav|aiff|m4a|m4b|m4v|gif|ifo)(-.) *(-/):directories' \
+  '*:all-files'
+
 zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 
 autoload -Uz compinit && compinit
@@ -102,10 +106,8 @@ zle -N _fix-tilde-questionmark
 
 function _cd_up() {
   emulate -L zsh
-  # local buf=$BUFFER
   BUFFER="cd .."
   zle .accept-line
-  # zle -U ${buf:-''}
 }
 zle -N _cd_up
 
@@ -201,25 +203,16 @@ bindkey "\C-o" edit-command-line; bindkey -a "\C-o" edit-command-line
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
+autoload -Uz zcalc
+
 #
 # Prompt
 #
 
-# autoload -Uz vcs_info
-# zstyle ':vcs_info:*' enable git hg
-# zstyle ':vcs_info:*' actionformats '%F{magenta}[%F{green}%b%F{yellow}|%F{red}%a%F{magenta}]%f '
-# zstyle ':vcs_info:*' formats '%F{magenta}[%F{green}%b%F{magenta}]%f '
-# precmd() {
-#   vcs_info
-# }
-
 PROMPT="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{white}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
-# PROMPT+="\${vcs_info_msg_0_}"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
-
-# SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
 
 # region: vi-mode visual select
 zle_highlight=(region:bg=#504945)
@@ -322,26 +315,51 @@ alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
 # NOTE: you can escape commands in the alias defintion with `\` to avoid recursive alias expansion
 #
 
-alias sudo='sudo '
-alias t='tmux attach || tmux new'
-alias ls='ls -F -G'
+alias sudo='\sudo '
+alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
+alias ls='\ls -FG'
 alias a='ls -A'
 # `compdef` doesn't seem to work on aliases
 function v() { $EDITOR "$@" }
+
+alias -s {avi,flv,mkv,mp4,mpeg,mpg,ogv,wmv,flac,mp3,ogg,wav}=mpv
+alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.part,flac.part,mp3.part,ogg.part,wav.part}=mpv
 
 #
 # Functions
 #
 
 function mv() {
+  emulate -L zsh
   if (( $# > 1 )); then
-    # XXX: will probably choke if path contains a literal /
-    local basedir=${2%/*}
-    if [ ! -d "$basedir" ]; then
-      mkdir -p "$basedir"
+    local destdir=${_%/*}
+    if [ ! -d "$destdir" ]; then
+      mkdir -p "$destdir"
     fi
   fi
   command mv "$@"
+}
+
+function megadl() {
+  emulate -L zsh
+  if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
+    command megadl "$@"
+  else
+    # FIXME: this assumes a single url argument
+    local count=1
+    if (( $# > 2 )) && [[ $_ =~ "[:digit:]+" ]]; then
+      count="$_"
+    fi
+    local url="$1"
+    for i in {0..count} ; do
+      url=$(base64 -d <<<"$url")
+    done
+    if [[ "$url" =~ "mega.nz" ]];then
+      megadl "$url"
+    else
+      echo "bad url -- $url"
+    fi
+  fi
 }
 
 #

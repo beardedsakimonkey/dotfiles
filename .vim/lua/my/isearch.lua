@@ -263,6 +263,7 @@ local function search(source, _show_preview)
 
   api.nvim_buf_set_lines(frame_buf, 0, -1, true, border_lines)
 
+  -- TODO: use prompt_setprompt()?
   input_win = api.nvim_open_win(input_buf, true, {
     style = 'minimal',
     relative = 'editor',

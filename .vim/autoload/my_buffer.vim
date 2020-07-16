@@ -3,7 +3,7 @@
 fun! my_buffer#large(name)
   let b:my_large_file = 1
   syntax clear
-  set eventignore+=FileType
+  set eventignore=all
   let &backupskip .= ',' . a:name
   setlocal foldmethod=manual nofoldenable noswapfile noundofile
   augroup my_large_buffer
@@ -13,7 +13,7 @@ fun! my_buffer#large(name)
 endf
 
 fun! s:restore_eventignore()
-  set eventignore-=FileType
+  set eventignore&vim
   autocmd! my_large_buffer
   augroup! my_large_buffer
 endf

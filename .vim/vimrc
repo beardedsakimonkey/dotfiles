@@ -3,35 +3,37 @@ set ttyfast
 set ttimeout
 set ttimeoutlen=10  " This must be a low value for <esc>-key not to be confused with an <a-…> mapping
 set mouse=a
+set lazyredraw
+set synmaxcol=250
 if has('nvim')
-  language en_US.UTF-8
-  " !    - Save and restore all-caps global variables
-  " '200 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
-  " <50  - Contents of registers (up to 50 lines each) will be remembered
-  " s10  - Items with contents occupying more then 10 KiB are skipped
-  " h    - Disable the effect of 'hlsearch' when loading the shada file
-  set shada=!,'200,<50,s10,h 
+    language en_US.UTF-8
+    " !    - Save and restore all-caps global variables
+    " '200 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
+    " <50  - Contents of registers (up to 50 lines each) will be remembered
+    " s10  - Items with contents occupying more then 10 KiB are skipped
+    " h    - Disable the effect of 'hlsearch' when loading the shada file
+    set shada=!,'200,<50,s10,h 
 else
-  set viminfo=!,'200,<50,s10,h
-  set viminfofile=~/.viminfo
-  " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
-  set <a-h>=h
-  set <a-j>=j
-  set <a-k>=k
-  set <a-l>=l
-  if $TERM =~# '^\%(tmux\|screen\)'
-    set ttymouse=xterm2
-    " Make bracketed paste mode work inside tmux
-    let &t_BE = "\033[?2004h"
-    let &t_BD = "\033[?2004l"
-    let &t_PS = "\033[200~"
-    let &t_PE = "\033[201~"
-  endif
+    set viminfo=!,'200,<50,s10,h
+    set viminfofile=~/.viminfo
+    " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
+    set <a-h>=h
+    set <a-j>=j
+    set <a-k>=k
+    set <a-l>=l
+    if $TERM =~# '^\%(tmux\|screen\)'
+        set ttymouse=xterm2
+        " Make bracketed paste mode work inside tmux
+        let &t_BE = "\033[?2004h"
+        let &t_BD = "\033[?2004l"
+        let &t_PS = "\033[200~"
+        let &t_PE = "\033[201~"
+    endif
 endif
 if exists('+termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
 endif
 " Show block cursor in Normal mode and line cursor in Insert mode
 let &t_ti.="\<Esc>[2 q"
@@ -56,15 +58,14 @@ set autoindent
 set shiftround
 set smarttab
 set expandtab
-set wrap
-set tabstop=2 shiftwidth=2 softtabstop=2
-
+set shiftwidth=4
+set tabstop=4
+set softtabstop=-1
 if has('nvim')
-  set display=msgsep
+    set display=msgsep
 else
-  set display=lastline
+    set display=lastline
 endif
-
 set hlsearch
 set incsearch
 set ignorecase
@@ -89,92 +90,97 @@ set modelines=0
 set scrolloff=2
 set sidescrolloff=2
 set virtualedit=block
-set nonumber
 set nowrap
-set shortmess+=IcmFS
+set shortmess+=aTWIcFS
 set shortmess-=s
 set noshowcmd
-set listchars=tab:>\ ,trail:-
+set listchars=tab:>\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
-set nolist
 set signcolumn=auto
 set background=dark
 if executable('rg')
-  set grepprg=rg\ -i\ --vimgrep
+    set grepprg=rg\ -i\ --vimgrep
 else
-  set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
+    set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
 endif
 set grepformat=%f:%l:%c:%m
 
 let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
-  autocmd!
-  autocmd BufReadPre *
-        \ let s = getfsize(expand('<afile>')) |
-        \ if s > g:LargeFile || s == -2 |
-        \   call my_buffer#large(expand('<afile>:p')) |
-        \ endif
+    autocmd!
+    autocmd BufReadPre *
+                \ let s = getfsize(expand('<afile>')) |
+                \ if s > g:LargeFile || s == -2 |
+                \   call my_buffer#large(expand('<afile>:p')) |
+                \ endif
 
-  " On opening a file, jump to the last known cursor position
-  autocmd BufReadPost *
-        \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
-        \   exe "normal! g`\"" |
-        \ endif
+    " On opening a file, jump to the last known cursor position
+    autocmd BufReadPost *
+                \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
+                \   exe "normal! g`\"" |
+                \ endif
 
-  " Auto-create parent directories. But not for URIs (paths containing "://").
-  au BufWritePre,FileWritePre *
-        \ if @% !~# '\(://\)' |
-        \   call mkdir(expand('<afile>:p:h'), 'p') |
-        \ endif
+    " Auto-create parent directories. But not for URIs (paths containing "://").
+    au BufWritePre,FileWritePre *
+                \ if @% !~# '\(://\)' |
+                \   call mkdir(expand('<afile>:p:h'), 'p') |
+                \ endif
 
-  autocmd BufEnter *.txt
-        \ if &buftype == 'help' |
-        \   setlocal scrolloff=0 |
-        \   nnoremap <buffer> q :q<cr> |
-        \   nnoremap <buffer> T <c-]> |
-        \ endif
+    autocmd BufEnter *.txt
+                \ if &buftype == 'help' |
+                \   setlocal scrolloff=0 |
+                \   nnoremap <buffer> q :q<cr> |
+                \   nnoremap <buffer> T <c-]> |
+                \ endif
 
-  " Disable automatic comment insertion
-  autocmd FileType * setlocal formatoptions-=cro
+    " Disable automatic comment insertion
+    autocmd FileType * setlocal formatoptions-=cro
 
-  if exists('##TerminalWinOpen')
-    autocmd TerminalWinOpen * setlocal statusline=%f
-  elseif exists('##TerminalOpen')
-    autocmd TerminalOpen * setlocal statusline=%f
-  elseif exists('##TermOpen')
-    autocmd TermOpen * setlocal statusline=%f
-  endif
-
-  autocmd BufWritePost ~/.vim/vimrc source $MYVIMRC
-  autocmd BufWritePost ~/.vim/lua/* luafile <afile>
-  autocmd BufWritePost *tmux.conf   call system('tmux source-file '.expand('<afile>'))
-
-  autocmd BufRead,BufNewFile *.metal    set filetype=glsl
-  autocmd BufRead,BufNewFile *.fnl      set filetype=clojure
-  autocmd BufRead,BufNewFile *tmux.conf set filetype=tmux
-
-  if has('nvim-0.5')
-    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
-  endif
-
-  fun! HlSearch()
-    " TODO: bail out if cursor is at top/bottom of window
-    " let wininfo = getwininfo(win_getid())
-    let pos = match(getline('.'), @/, col('.') - 1) + 1
-    if pos != col('.')
-      call StopHL()
+    if exists('##TerminalWinOpen')
+        autocmd TerminalWinOpen * setlocal statusline=%f
+    elseif exists('##TerminalOpen')
+        autocmd TerminalOpen * setlocal statusline=%f
+    elseif exists('##TermOpen')
+        autocmd TermOpen * setlocal statusline=%f
     endif
-  endf
 
-  fun! StopHL()
-    if !v:hlsearch || mode() !=# 'n'
-      return
+    " Warning: any BufWritePost autocmd after this will not get run when
+    " writing vimrc, because sourcing the vimrc will clear the augroup
+    autocmd BufWritePost ~/.vim/vimrc source $MYVIMRC
+    autocmd BufWritePost ~/.vim/lua/* luafile <afile>
+    autocmd BufWritePost *tmux.conf   call system('tmux source-file '.expand('<afile>'))
+
+    autocmd BufRead,BufNewFile *.metal    set filetype=glsl
+    autocmd BufRead,BufNewFile *.fnl      set filetype=clojure
+    autocmd BufRead,BufNewFile *tmux.conf set filetype=tmux
+
+    if has('nvim-0.5')
+        autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
     endif
-    silent call feedkeys("\<Plug>(StopHL)", 'm')
-  endf
 
-  autocmd CursorMoved * call HlSearch()
-  autocmd InsertEnter * call StopHL()
+    fun! HlSearch()
+        " bail out if cursor is at top/bottom of window
+        let wininfo = getwininfo(win_getid())[0]
+        let lnum = getcurpos()[1]
+        if lnum == wininfo.botline - &scrolloff || lnum == wininfo.topline + &scrolloff
+            return
+        endif
+
+        let pos = match(getline('.'), @/, col('.') - 1) + 1
+        if pos != col('.')
+            call StopHL()
+        endif
+    endf
+
+    fun! StopHL()
+        if !v:hlsearch || mode() !=# 'n'
+            return
+        endif
+        silent call feedkeys("\<Plug>(StopHL)", 'm')
+    endf
+
+    autocmd CursorMoved * call HlSearch()
+    autocmd InsertEnter * call StopHL()
 augroup END
 
 noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
@@ -186,26 +192,26 @@ noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 set laststatus=2
 set noshowmode
 if has('nvim-0.5')
-  fun! MyStatusLineNeovim() abort
-    return  MyStatusLine() . ' ' .
-          \"%3*%{luaeval('
-          \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count == nil or vim.b.diagnostics_count == 0))
-          \ and [[✔]] or [[]]
-          \')}%*" .
-          \"%4*%{luaeval('
-          \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count and vim.b.diagnostics_count > 0))
-          \ and [[✘]] or [[]]
-          \')}%*"
-  endf
-  set statusline=%!MyStatusLineNeovim()
+    fun! MyStatusLineNeovim() abort
+        return  MyStatusLine() . ' ' .
+                    \"%3*%{luaeval('
+                    \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count == nil or vim.b.diagnostics_count == 0))
+                    \ and [[✔]] or [[]]
+                    \')}%*" .
+                    \"%4*%{luaeval('
+                    \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count and vim.b.diagnostics_count > 0))
+                    \ and [[✘]] or [[]]
+                    \')}%*"
+    endf
+    set statusline=%!MyStatusLineNeovim()
 else
-  set statusline=%!MyStatusLine()
+    set statusline=%!MyStatusLine()
 endif
 
 fun! MyStatusLine() abort
-  return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
-        \%2*%{&modified?'  + ':''}
-        \%* %f"
+    return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
+                \%2*%{&modified?'  + ':''}
+                \%* %f"
 endf
 
 "
@@ -215,61 +221,61 @@ set showtabline=1
 set tabline=%!MyTabLine()
 
 fun! MyTabLine()
-  let s = ''
-  for i in range(1, tabpagenr('$'))
-    let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
-    let s .= '%'.i.'T %{MyTabLabel('.i.')}'
-  endfor
-  return s.'%#TabLineFill#%T'
+    let s = ''
+    for i in range(1, tabpagenr('$'))
+        let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
+        let s .= '%'.i.'T %{MyTabLabel('.i.')}'
+    endfor
+    return s.'%#TabLineFill#%T'
 endf
 
 fun! MyTabLabel(n)
-  let buflist = tabpagebuflist(a:n)
-  let modified = ''
-  for b in buflist
-    if getbufvar(b, '&modified')
-      let modified = '+ '
-      break
-    endif
-  endfor
-  let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
-  return modified.name.' '
+    let buflist = tabpagebuflist(a:n)
+    let modified = ''
+    for b in buflist
+        if getbufvar(b, '&modified')
+            let modified = '+ '
+            break
+        endif
+    endfor
+    let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
+    return modified.name.' '
 endf
 
 command! -range                  Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 command! -nargs=*
-      \ -complete=file_in_path Grep call <sid>grep(<f-args>)
+            \ -complete=file_in_path Grep call <sid>grep(<f-args>)
 command! -nargs=1                PackInstall call <sid>packInstall(<q-args>)
 
 fun! s:grep(...) abort
-  if a:0 == 0
-    return
-  endif
-  let cmd = 'rg -i --vimgrep '.shellescape(a:1)
-  if a:0 > 1
-    let cmd .=  ' '.shellescape(expandcmd(a:2))
-  endif
-  " could also populate the quickfix list, and hide it?
-  execute "lua require'my.isearch'.grep([[".cmd."]])"
+    if a:0 == 0
+        return
+    endif
+    let cmd = 'rg -i --vimgrep '.shellescape(a:1)
+    if a:0 > 1
+        let cmd .=  ' '.shellescape(expandcmd(a:2))
+    endif
+    " could also populate the quickfix list, and hide it?
+    execute "lua require'my.isearch'.grep([[".cmd."]])"
 endf
 
 fun! s:packInstall(url)
-  let url = a:url
-  if url =~ '/$'
-    let url = url[:-2]
-  endif
-  if url !~ '.git$'
-    let url .= '.git'
-  endif
-  let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
-  " sanity check
-  if strlen(repo) == strlen(url)
-    echomsg 'regex failed'
-    return
-  endif
-  " FIXME: git expands the tilde
-  let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
-  execute '!(cd ~ && '.cmd.')'
+    let url = a:url
+    if url =~ '/$'
+        let url = url[:-2]
+    endif
+    if url !~ '.git$'
+        let url .= '.git'
+    endif
+    let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
+    " sanity check
+    if strlen(repo) == strlen(url)
+        echomsg 'regex failed'
+        return
+    endif
+    " FIXME: git expands the tilde
+    let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
+    execute '!(cd ~ && '.cmd.')'
 endf
 
 let mapleader = "\<s-f5>"
@@ -282,7 +288,7 @@ nnoremap <c-y> <c-y><c-y>
 vnoremap < <gv
 vnoremap > >gv
 nnoremap s "_s
-nnoremap Z zz
+nnoremap Z zzzH
 nnoremap * *zz
 nnoremap # #zz
 nnoremap <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
@@ -302,7 +308,13 @@ noremap <silent> ) :<c-u>keepjumps normal! L<cr>
 nnoremap <c-p> <c-i>
 nmap <home> gg
 nmap <end> G
+nnoremap <pageup> <pageup>H
+nnoremap <pagedown> <pagedown>L
 nnoremap <space>= H=L``
+nnoremap g<c-v> `[v`]
+nnoremap gV     '[V']
+nnoremap c* *``/<up><cr>``cgn
+nnoremap c# #``/<up><cr>``cgN
 
 nnoremap <silent> gg :<c-u>keepjumps normal! gg<cr>
 nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
@@ -340,11 +352,11 @@ nmap [e <Plug>move_line_up
 nmap ]e <Plug>move_line_down
 
 if has('nvim-0.5')
-  nmap [a <cmd>lua require'my.argument'.jump_prev()<cr>
-  nmap ]a <cmd>lua require'my.argument'.jump_next()<cr>
+    nmap [a <cmd>lua require'my.argument'.jump_prev()<cr>
+    nmap ]a <cmd>lua require'my.argument'.jump_next()<cr>
 else
-  nmap [a <Plug>jump_arg_prev
-  nmap ]a <Plug>jump_arg_next
+    nmap [a <Plug>jump_arg_prev
+    nmap ]a <Plug>jump_arg_next
 endif
 
 nnoremap <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
@@ -357,13 +369,13 @@ nnoremap <silent> ]L :<c-u>lnfile<cr>zz
 nnoremap <silent> [L :<c-u>lpfile<cr>zz
 
 if has('nvim-0.5')
-  noremap <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-  noremap <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
-  noremap <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
+    noremap <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+    noremap <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+    noremap <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
 else
-  noremap <silent> <space>o :<c-u>call my_find#oldfiles()<cr>
-  noremap <silent> <space>b :<c-u>call my_find#buffer()<cr>
-  noremap <silent> <space>f :<c-u>call my_find#files()<cr>
+    noremap <silent> <space>o :<c-u>call my_find#oldfiles()<cr>
+    noremap <silent> <space>b :<c-u>call my_find#buffer()<cr>
+    noremap <silent> <space>f :<c-u>call my_find#files()<cr>
 endif
 
 noremap <silent> <space>d :<c-u>BD<cr>
@@ -400,7 +412,8 @@ vnoremap * "ay/<c-r>a<cr>zv
 vnoremap # "ay?<c-r>a<cr>zv
 nnoremap * *zv
 nnoremap # #zv
-nnoremap U :let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+nnoremap U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+nnoremap <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
 
 nnoremap g= ms'[=']`s
 
@@ -436,7 +449,7 @@ let g:merlin_split_method = "never"
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
-autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore=
+autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore&vim
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command! -nargs=0 Colortest runtime syntax/hitest.vim
 
@@ -449,10 +462,10 @@ let g:qf_mapping_ack_style = 1
 " vim-dirvish
 let g:dirvish_mode = ':sort ,^.*/,'
 autocmd vimrc VimEnter *
-      \ let has_stdin = &modified |
-      \ if !argc() && !has_stdin |
-      \   silent! Dirvish |
-      \ endif
+            \ let has_stdin = &modified |
+            \ if !argc() && !has_stdin |
+            \   silent! Dirvish |
+            \ endif
 
 " vim-bufkill
 let g:BufKillCreateMappings = 0
@@ -469,31 +482,21 @@ let g:matchup_motion_keepjumps = 1
 autocmd vimrc FileType vim,lua,zsh,c,cpp let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
-  execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
+    execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 for v in ['g', ']', '[', 'z']
-  execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
-  execute 'vmap '.v.'m <plug>(matchup-'.v.'%)'
+    execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+    execute 'vmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 for v in ['ds', 'cs']
-  execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+    execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 
 function! IsCommentaryOpFunc()
-  return &operatorfunc ==? matchstr(maparg('<Plug>Commentary', 'n'),
-        \ '\c<SNR>\w\+\ze()\|set op\%(erator\)\?func=\zs.\{-\}\ze<cr>')
+    return &operatorfunc ==? matchstr(maparg('<Plug>Commentary', 'n'),
+                \ '\c<SNR>\w\+\ze()\|set op\%(erator\)\?func=\zs.\{-\}\ze<cr>')
 endfunction
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
-
-" vim-quickhl
-nmap <2-leftmouse> <Plug>(quickhl-manual-this-whole-word)
-nmap <rightmouse> <Plug>(quickhl-manual-reset)
-let g:quickhl_manual_colors = [
-      \ "ctermfg=16  ctermbg=153 guibg=#0a7383",
-      \ "ctermfg=7   ctermbg=1   guibg=#a07040",
-      \ "ctermfg=7   ctermbg=2   guibg=#4070a0",
-      \ "ctermfg=7   ctermbg=3   guibg=#40a070",
-      \ ]
 
 " rust.vim
 " let g:rustfmt_autosave = 1
@@ -502,29 +505,29 @@ let g:quickhl_manual_colors = [
 " Neovim nightly
 "
 if has('nvim-0.5')
-  command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+    command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
 
-  function! s:restartLsp()
-    lua vim.lsp.stop_client(vim.lsp.get_active_clients())
-    edit
-  endfunction
-  command! RestartLsp call <sid>restartLsp()
+    function! s:restartLsp()
+        lua vim.lsp.stop_client(vim.lsp.get_active_clients())
+        edit
+    endfunction
+    command! RestartLsp call <sid>restartLsp()
 
-  " for name in ['LspDiagnosticsErrorSign', 
-  "   call sign_define(name, {'text' : '››'})
-  " endfor
+    " for name in ['LspDiagnosticsErrorSign', 
+    "   call sign_define(name, {'text' : '››'})
+    " endfor
 
-  " autocmd vimrc FileType vim lua vim.lsp.buf_attach_client(vim.api.nvim_get_current_buf(), vim.lsp.start_client({ cmd = { "vim-language-server", "--stdio" }, root_dir = "/Users/tim/" }))
-  " nvim-lsp
-  packadd nvim-lsp
+    " autocmd vimrc FileType vim lua vim.lsp.buf_attach_client(vim.api.nvim_get_current_buf(), vim.lsp.start_client({ cmd = { "vim-language-server", "--stdio" }, root_dir = "/Users/tim/" }))
+    " nvim-lsp
+    packadd nvim-lsp
 
-  luafile ~/.vim/lua/my/lsp.lua
+    luafile ~/.vim/lua/my/lsp.lua
 
-  " text-object: comment
-  xnoremap <expr>   ac luaeval("require'my.comment'.set_marks()")
-  onoremap <silent> ac :normal Vac<CR>
-  xnoremap <expr>   ic luaeval("require'my.comment'.set_marks()")
-  onoremap <silent> ic :normal Vic<CR>
+    " text-object: comment
+    xnoremap <expr>   ac luaeval("require'my.comment'.set_marks()")
+    onoremap <silent> ac :normal Vac<CR>
+    xnoremap <expr>   ic luaeval("require'my.comment'.set_marks()")
+    onoremap <silent> ic :normal Vic<CR>
 endif
 
 packadd! gruvburn
@@ -547,59 +550,133 @@ nnoremap <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages
 nnoremap gj i<c-j><esc>k$
 
 if executable('lynx')
-  command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
-  command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
+    command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
+    command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
 endif
 
-" text-object: inner line (leading whitespace trimmed)
-function! s:line_inner_movement(count) abort
-  if empty(getline('.'))
-    return "\<Esc>"
-  endif
-  let [lopen, lclose] = [line('.'), line('.')]
-  let copen = match(getline('.'), '\S') + 1
-  let cclose = col('$') - 1
-  call setpos("'[", [0, lopen, copen, 0])
-  call setpos("']", [0, lclose, cclose, 0])
-  return "`[o`]"
-endfunction
-xnoremap <expr>   il <SID>line_inner_movement(v:count1)
-onoremap <silent> il :normal vil<CR>
-
-" text-object: outer line
-function! s:line_outer_movement(count) abort
-  if empty(getline('.'))
-    return "\<Esc>"
-  endif
-  let [lopen, copen, lclose, cclose] = [line('.'), 1, line('.'), col('$')]
-  call setpos("'[", [0, lopen, copen, 0])
-  call setpos("']", [0, lclose, cclose, 0])
-  return "`[o`]"
-endfunction
-xnoremap <expr>   al <SID>line_outer_movement(v:count1)
-onoremap <silent> al :normal val<CR>
-
 "
-" from lacygoill's vimrc
+" adapted from lacygoill's vimrc
 "
 nno <expr> <space>. <sid>repeat_last_edit_on_last_changed_text()
 
 fu s:repeat_last_edit_on_last_changed_text() abort
-  " put the last changed text inside the search register, so that we can refer
-  " to it with the text-object `gn`
-  let changed = getreg('"', 1, 1)
-  if empty(changed) | return | endif
-  call map(changed, {_,v -> escape(v, '\')})
-  if len(changed) == 1
-    let pat = changed[0]
-  else
-    " can't join with real newlines: they would be translated as NULs in the search register
-    " we need to join with the *atom* `\n`
-    let pat = changed->join('\n')
-  endif
-  call setreg('/', '\V'..pat, 'c')
-  set hls
-  return "cgn\<c-@>"
-  "          ├────┘
-  "          └ insert the previously inserted text and stop insert
+    " put the last changed text inside the search register, so that we can refer
+    " to it with the text-object `gn`
+    let changed = getreg('"', 1, 1)
+    if empty(changed) | return | endif
+    call map(changed, {_,v -> escape(v, '\')})
+    if len(changed) == 1
+        let pat = changed[0]
+    else
+        " can't join with real newlines: they would be translated as NULs in the search register
+        " we need to join with the *atom* `\n`
+        let pat = changed->join('\n')
+    endif
+    call setreg('/', '\V'..pat, 'c')
+    set hls
+    return "cgn\<c-@>"
+    "          ├────┘
+    "          └ insert the previously inserted text and stop insert
 endfu
+
+" text-object: number
+xno <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
+ono <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
+
+" same thing, but includes possible whitespace after the number
+xno <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
+ono <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
+
+fu s:textobj_number(around) abort
+    let stopline = line('.')
+    let pat = '\%('..s:get_patnum()..'\)'..(a:around ? '\s*' : '')
+    " move cursor to end of number
+    if !search(pat, 'ceW', stopline)
+        return
+    endif
+
+    " start visual selection from end of number
+    norm! v
+
+    " select back to start of number
+    call search(pat, 'bcW', stopline)
+    " clear command-line when pressing `.` (e.g. `dan .`)
+    echo
+endfu
+
+fu s:get_patnum() abort
+    let sign = '[-+]\='
+    let decimal = '\d\+\.\=\d*'
+    let fraction = '\.\d\+'
+    let exponent = '[eE]'..sign..'\d\+'
+    let number = printf('%s\%%(%s\|%s\)\%%(%s\)\=', sign, decimal, fraction, exponent)
+
+    let binary = '0b[01]\+'
+    let hex = '0x\x\+'
+
+    " the order matters; keep `number` at the end
+    let pat = binary..'\|'..hex..'\|'..number
+    return pat
+endfu
+
+" text-object: inner line (leading whitespace trimmed)
+ono <silent> il :<c-u>norm! _vg_<cr>
+
+" search only in visual selection
+xno <silent> / :<c-u>call <sid>visual_slash()<cr>
+
+fu s:visual_slash() abort
+    if line("'<") == line("'>")
+        call feedkeys('gv/', 'in')
+    else
+        " Do not reselect the visual selection with `gv`.{{{
+        "
+        " It could make move the end of the selection when you type some pattern
+        " which matches inside.  That's not what we want.
+        " We want to search  in the last visual selection as  it was defined; we
+        " don't want to redefine it in the process.
+        "}}}
+        call feedkeys('/\%V', 'in')
+    endif
+endfu
+
+" repeat last edit on all the visually selected lines with dot
+xno <silent> . :norm! .<cr>
+
+com! -bar DiffOrig echo s:diff_orig()
+
+fu s:diff_orig() abort
+    let cole_save = &l:conceallevel
+    setl conceallevel=0
+
+    let tempfile = tempname()..'/Original File'
+    exe 'vnew '..tempfile
+    setl buftype=nofile nobuflisted noswapfile nowrap
+
+    sil 0r ++edit #
+    keepj $d_
+    setl nomodifiable readonly
+
+    diffthis
+    nno <buffer><expr><nowait><silent> q reg_recording() isnot# '' ? 'q' : ':<c-u>q<cr>'
+    let &filetype = getbufvar('#', '&ft')
+
+    let s:tmp_partial = function('s:diff_orig_restore_settings', [cole_save])
+    augroup diff_orig_restore_settings
+        au! * <buffer>
+        au BufWipeOut <buffer>  call timer_start(0, s:tmp_partial)
+    augroup END
+
+    exe winnr('#')..'windo diffthis'
+    return ''
+endfu
+
+fu s:diff_orig_restore_settings(conceallevel,_) abort
+    exe 'setl conceallevel='..a:conceallevel
+    diffoff!
+    norm! zvzz
+    aug! diff_orig_restore_settings
+    unlet s:tmp_partial
+endfu
+
+" TODO: add mapping to evaluate the current line

@@ -391,17 +391,13 @@ if has('nvim-0.5')
     noremap <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
     noremap <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
     noremap <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
-else
-    noremap <silent> <space>o :<c-u>call my_find#oldfiles()<cr>
-    noremap <silent> <space>b :<c-u>call my_find#buffer()<cr>
-    noremap <silent> <space>f :<c-u>call my_find#files()<cr>
 endif
 
 noremap <silent> <space>d :<c-u>BD<cr>
 noremap <silent> <space>D :<c-u>bd<cr>
 noremap <silent> <space>q :<c-u>b#<cr>
 
-noremap <silent> <space>gd :<c-u>HGdiff<cr>
+noremap <silent> <space>gd :<c-u>Diffusion<cr>
 noremap <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
 
 noremap <silent> <expr> <space>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"

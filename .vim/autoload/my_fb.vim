@@ -1,4 +1,3 @@
-" Copy Diffusion URL
 fun! my_fb#copy_diffusion_url() range
     let f = expand( "%:p" )[len(system("hg root")):]
     let range = line('.')
@@ -29,31 +28,6 @@ fun! my_fb#grep(...) abort
     return res
 endf
 
-fun! my_fb#auto_import() abort
-    let word = expand("<cword>")
-    if empty(word)
-        return
-    endif
-    let line = getline(".")
-    let wordPos = strridx(line, word, col(".") - 1) - 1
-    let react = ""
-    if wordPos > -1 && line[wordPos] == '<'
-        let react = ".react"
-    endif
-    let cursorPos = getpos(".")
-    let foundline = search("require")
-    let newline = "const ".word." = require('".word.react."');"
-    if !search(newline)
-        call append(foundline, "const ".word." = require('".word.react."');")
-        let cursorPos[1] = cursorPos[1] + 1
-        echom "require added: ".word
-    else
-        echom word." is already required"
-    endif
-    call setpos(".", cursorPos)
-endf
-
-" Yank text to clipboard
 fun! my_fb#yank(text)
     let escape = system('yank', a:text)
     if v:shell_error

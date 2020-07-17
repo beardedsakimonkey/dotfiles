@@ -46,8 +46,8 @@ zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
 zstyle ':completion:*:builtins' list-colors '=*=0;32'
 
 zstyle ':completion:*:*:mpv:*' file-patterns \
-  '*.(#i)(flv|mp4|webm|mkv|wmv|mov|avi|mp3|ogg|wma|flac|wav|aiff|m4a|m4b|m4v|gif|ifo)(-.) *(-/):directories' \
-  '*:all-files'
+    '*.(#i)(flv|mp4|webm|mkv|wmv|mov|avi|mp3|ogg|wma|flac|wav|aiff|m4a|m4b|m4v|gif|ifo)(-.) *(-/):directories' \
+    '*:all-files'
 
 zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 
@@ -63,79 +63,79 @@ _comp_options+=(globdots) # complete dotfiles without entering a .
 #
 
 function _change-first-word() {
-  emulate -L zsh
-  zle .beginning-of-line
-  zle .kill-word
-  zle .vi-insert
+    emulate -L zsh
+    zle .beginning-of-line
+    zle .kill-word
+    zle .vi-insert
 }
 zle -N _change-first-word
 
 function _man-line() {
-  emulate -L zsh
-  if [[ -z $BUFFER ]]; then
-    return
-  fi
-  # local buf=$BUFFER
-  args=(${(s/ /)BUFFER})
-  if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
-    LBUFFER="git help ${args[2]}"
-  else
-    LBUFFER="man ${args[1]}"
-  fi
-  zle .accept-line
-  # zle -U $buf
+    emulate -L zsh
+    if [[ -z $BUFFER ]]; then
+        return
+    fi
+    # local buf=$BUFFER
+    args=(${(s/ /)BUFFER})
+    if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
+        LBUFFER="git help ${args[2]}"
+    else
+        LBUFFER="man ${args[1]}"
+    fi
+    zle .accept-line
+    # zle -U $buf
 }
 zle -N _man-line
 
 function _backward-kill-to-slash() {
-  emulate -L zsh
-  local WORDCHARS="${WORDCHARS:s@/@}"
-  zle .backward-kill-word
+    emulate -L zsh
+    local WORDCHARS="${WORDCHARS:s@/@}"
+    zle .backward-kill-word
 }
 zle -N _backward-kill-to-slash
 
 function _fix-tilde-questionmark() {
-  emulate -L zsh
-  if [[ $LBUFFER[-1] == \~ ]]; then
-    zle -U '/'
-  else
-    zle .self-insert
-  fi
+    emulate -L zsh
+    if [[ $LBUFFER[-1] == \~ ]]; then
+        zle -U '/'
+    else
+        zle .self-insert
+    fi
 }
 zle -N _fix-tilde-questionmark
 
 function _cd_up() {
-  emulate -L zsh
-  BUFFER="cd .."
-  zle .accept-line
+    emulate -L zsh
+    BUFFER="cd .."
+    zle .accept-line
 }
 zle -N _cd_up
 
 function fg-bg() {
-  emulate -L zsh
-  if [[ $#BUFFER -eq 0 ]]; then
-    fg
-  else
-    zle push-input
-  fi
+    emulate -L zsh
+    if [[ $#BUFFER -eq 0 ]]; then
+        fg
+    else
+        zle push-input
+    fi
 }
 zle -N fg-bg
 
 function tab-or-list-dirs() {
-  emulate -L zsh
-  if [[ $#BUFFER == 0 ]]; then
-    # NOTE: leaving `cd` in the prompt is suboptimal because it prevents
-    # utilizing suffix aliases. However, deleting it would prevent subsequent
-    # tabbing through the list.
-    BUFFER="cd "
-    CURSOR=3
-    zle list-choices
-    # select the first result
-    zle expand-or-complete
-  else
-    # do what TAB does by default
-    zle expand-or-complete
-  fi
+    emulate -L zsh
+    if [[ $#BUFFER == 0 ]]; then
+        # NOTE: leaving `cd` in the prompt is suboptimal because it prevents
+        # utilizing suffix aliases. However, deleting it would prevent subsequent
+        # tabbing through the list.
+        BUFFER="cd "
+        CURSOR=3
+        zle list-choices
+        # select the first result
+        zle expand-or-complete
+    else
+        # do what TAB does by default
+        zle expand-or-complete
+    fi
 }
 zle -N tab-or-list-dirs
 
@@ -172,17 +172,17 @@ bindkey '\t' tab-or-list-dirs
 autoload -U select-bracketed
 zle -N select-bracketed
 for m in visual viopp; do
-  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
-    bindkey -M $m $c select-bracketed
-  done
+    for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+        bindkey -M $m $c select-bracketed
+    done
 done
 
 autoload -U select-quoted
 zle -N select-quoted
 for m in visual viopp; do
-  for c in {a,i}{\',\",\`}; do
-    bindkey -M $m $c select-quoted
-  done
+    for c in {a,i}{\',\",\`}; do
+        bindkey -M $m $c select-quoted
+    done
 done
 
 autoload -Uz surround
@@ -222,14 +222,14 @@ zle_highlight=(region:bg=#504945)
 #
 
 function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-    [[ ${KEYMAP} == viins ]] ||
-    [[ ${KEYMAP} = '' ]] ||
-    [[ $1 = 'beam' ]]; then
-      echo -ne '\e[5 q'
-  fi
+    if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+        echo -ne '\e[1 q'
+    elif [[ ${KEYMAP} == main ]] ||
+        [[ ${KEYMAP} == viins ]] ||
+        [[ ${KEYMAP} = '' ]] ||
+        [[ $1 = 'beam' ]]; then
+            echo -ne '\e[5 q'
+    fi
 }
 zle -N zle-keymap-select
 
@@ -271,44 +271,49 @@ export LESS_TERMCAP_ue=$(printf "\e[0m")
 
 # zsh-autosuggestions
 if [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-  bindkey "^ " autosuggest-accept
-  bindkey "^@" autosuggest-accept
+    source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+    bindkey "^ " autosuggest-accept
+    bindkey "^@" autosuggest-accept
 fi
 
 # fast-syntax-highlighting
 if [ -f ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]; then
-  source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+    source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 fi
 
 # zsh-history-substring-search
 if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; then
-  source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
-  bindkey "\C-p" history-substring-search-up;   bindkey -a "\C-p" history-substring-search-up
-  bindkey "\C-n" history-substring-search-down; bindkey -a "\C-n" history-substring-search-down
-  HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#3d4220"
-  HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#472322"
+    source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
+    bindkey    "\C-p" history-substring-search-up
+    bindkey -a "\C-p" history-substring-search-up
+    bindkey    "\C-n" history-substring-search-down
+    bindkey -a "\C-n" history-substring-search-down
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#3d4220"
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#472322"
 else
-  bindkey "\C-p" up-line-or-search
-  bindkey "\C-n" down-line-or-search
+    bindkey "\C-p" up-line-or-search
+    bindkey "\C-n" down-line-or-search
 fi
 
 # fasd
 if [ -n "$(command -v fasd)" ]; then
-  eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
-  unalias a z zz
-  alias j='fasd_cd -d'
-  alias jj='fasd_cd -d -i'
-  bindkey "^[a" fasd-complete
-  bindkey "^[f" fasd-complete-f
-  bindkey "^[d" fasd-complete-d
+    eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
+    unalias a z zz
+    alias j='fasd_cd -d'
+    alias jj='fasd_cd -d -i'
+    alias vv='fasd -f -t -e $EDITOR -b viminfo'
+    bindkey "^[a" fasd-complete
+    bindkey "^[f" fasd-complete-f
+    bindkey "^[d" fasd-complete-d
 fi
 
 # nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
-alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
+if [ -d "$HOME/.nvm" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
+    alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
+fi
 
 #
 # Aliases
@@ -330,36 +335,36 @@ alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.pa
 #
 
 function mv() {
-  emulate -L zsh
-  if (( $# > 1 )); then
-    local destdir=${_%/*}
-    if [ ! -d "$destdir" ]; then
-      mkdir -p "$destdir"
+    emulate -L zsh
+    if (( $# > 1 )); then
+        local destdir=${_%/*}
+        if [ ! -d "$destdir" ]; then
+            mkdir -p "$destdir"
+        fi
     fi
-  fi
-  command mv "$@"
+    command mv "$@"
 }
 
 function megadl() {
-  emulate -L zsh
-  if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
-    command megadl "$@"
-  else
-    # FIXME: this assumes a single url argument
-    local count=1
-    if (( $# > 2 )) && [[ $_ =~ "[:digit:]+" ]]; then
-      count="$_"
-    fi
-    local url="$1"
-    for i in {0..count} ; do
-      url=$(base64 -d <<<"$url")
-    done
-    if [[ "$url" =~ "mega.nz" ]];then
-      megadl "$url"
+    emulate -L zsh
+    if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
+        command megadl "$@"
     else
-      echo "bad url -- $url"
+        # FIXME: this assumes a single url argument
+        local count=1
+        if (( $# > 2 )) && [[ $_ =~ "[:digit:]+" ]]; then
+            count="$_"
+        fi
+        local url="$1"
+        for i in {0..count} ; do
+            url=$(base64 -d <<<"$url")
+        done
+        if [[ "$url" =~ "mega.nz" ]];then
+            megadl "$url"
+        else
+            echo "bad url -- $url"
+        fi
     fi
-  fi
 }
 
 #
@@ -367,5 +372,5 @@ function megadl() {
 #
 
 if [ -f ~/zshrc_local.zsh ]; then
-  source ~/zshrc_local.zsh
+    source ~/zshrc_local.zsh
 fi

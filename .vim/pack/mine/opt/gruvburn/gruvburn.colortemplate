@@ -37,9 +37,9 @@ Background: dark
 
 Color: fg0        #bfa472   223  White
 Color: fg1        #ddc7a1   223  White
-Color: bg0        #32302f   236  Black
-Color: bg1        #3a3735   237  DarkGrey
-Color: bg2        #3c3836   237  DarkGrey
+Color: bg0        #3a3837   236  Black
+Color: bg1        #3f3d3c   237  DarkGrey
+Color: bg2        #3f3d3c   237  DarkGrey
 Color: bg3        #504945   239  DarkGrey
 Color: bg4        #504945   239  DarkGrey
 Color: bg_dark    #2e2c2a   ~    Black
@@ -61,6 +61,7 @@ Color: blue       #83a598   109  Blue
 Color: magenta    #d3869b   175  Magenta
 Color: dark_green #98971a   106  DarkGreen
 Color: grey       #928374   245  LightGrey
+# intentionally bright color for prominence
 Color: skyblue    #80a0ff   ~    Cyan
 
 Color: fg_dark_yellow  #5b5b26   214  Yellow
@@ -150,6 +151,7 @@ SpecialComment grey none
 Todo fg1 none
 Delimiter fg0 none
 Ignore grey none
+Underlined blue none underline
 
 # status line
 User1 red bg4 bold

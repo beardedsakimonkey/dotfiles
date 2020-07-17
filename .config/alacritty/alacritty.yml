@@ -223,7 +223,7 @@ colors:
     cursor: '#ff00ff'
 
   primary:
-    background: '#32302f'
+    background: '#3a3837'
     foreground: '#bfa472'
 
   normal:

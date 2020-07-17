@@ -96,7 +96,7 @@ set shortmess-=s
 set noshowcmd
 set listchars=tab:>\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
-set signcolumn=auto
+set signcolumn=no
 set background=dark
 if executable('rg')
     set grepprg=rg\ -i\ --vimgrep
@@ -188,20 +188,39 @@ noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
 "
 " Status line
+" TODO: why does buf_diagnostics_count() sometimes return nil??
 "
+lua <<
+_G.lsp_statusline_no_errors = function ()
+    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+        return ''
+    end
+    local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+    local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+    if errors == 0 and warnings == 0 then
+        return '✔'
+    end
+    return ''
+end
+_G.lsp_statusline_has_errors = function ()
+    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+        return ''
+    end
+    local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+    local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+    if errors > 0 or warnings > 0 then
+        return '✘'
+    end
+    return ''
+end
+.
 set laststatus=2
 set noshowmode
 if has('nvim-0.5')
     fun! MyStatusLineNeovim() abort
         return  MyStatusLine() . ' ' .
-                    \"%3*%{luaeval('
-                    \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count == nil or vim.b.diagnostics_count == 0))
-                    \ and [[✔]] or [[]]
-                    \')}%*" .
-                    \"%4*%{luaeval('
-                    \ (not vim.tbl_isempty(vim.lsp.buf_get_clients(0)) and (vim.b.diagnostics_count and vim.b.diagnostics_count > 0))
-                    \ and [[✘]] or [[]]
-                    \')}%*"
+                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
+                    \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
     endf
     set statusline=%!MyStatusLineNeovim()
 else
@@ -310,12 +329,12 @@ nmap <home> gg
 nmap <end> G
 nnoremap <pageup> <pageup>H
 nnoremap <pagedown> <pagedown>L
-nnoremap <space>= H=L``
 nnoremap g<c-v> `[v`]
 nnoremap gV     '[V']
 nnoremap c* *``/<up><cr>``cgn
 nnoremap c# #``/<up><cr>``cgN
 
+" TODO: how to keepjumps in visual mode without breaking selection
 nnoremap <silent> gg :<c-u>keepjumps normal! gg<cr>
 nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
 nnoremap <silent> M :<c-u>keepjumps normal! M<cr>
@@ -394,7 +413,9 @@ noremap <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
 noremap <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
 noremap <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
 noremap <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-noremap <silent> <space>et :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
+noremap <silent> <space>en :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
+noremap <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
+noremap <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
 cnoremap <c-p> <up>
 cnoremap <c-n> <down>
@@ -414,8 +435,8 @@ nnoremap * *zv
 nnoremap # #zv
 nnoremap U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
 nnoremap <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
-
 nnoremap g= ms'[=']`s
+nnoremap <space>= H=L``
 
 cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 cabbrev ~? ~/
@@ -449,7 +470,7 @@ let g:merlin_split_method = "never"
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
-autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore&vim
+autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore&vim | colo gruvburn
 autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 command! -nargs=0 Colortest runtime syntax/hitest.vim
 
@@ -679,4 +700,18 @@ fu s:diff_orig_restore_settings(conceallevel,_) abort
     unlet s:tmp_partial
 endfu
 
-" TODO: add mapping to evaluate the current line
+" calculate
+nno =c :<c-u>call <sid>eval_line()<cr>
+
+fu s:eval_line() abort
+    let line = getline('.')
+    let res = system('bc<<<"'..line..'"')
+    " bc doesn't exit non-zero on error
+    if res[0] is '('
+        echoerr res
+    else
+        call setline('.', line .. ' = ' .. trim(res))
+    endif
+endfu
+
+" TODO: create visual mode mapping "D" that duplicates the selection, and comments one of them

@@ -367,6 +367,21 @@ function megadl() {
     fi
 }
 
+function subup() {
+    git submodule foreach "
+    git fetch;
+    git log --date=relative --graph --format=\"%C(blue)%h %C(yellow)%>(12)%ad %Cgreen%<(7)%aN%C(auto)%d %Creset%s\" HEAD..FETCH_HEAD;
+    if [[ \$(git rev-parse HEAD) != \$(git rev-parse FETCH_HEAD) ]]; then
+        read -n 1 -p 'checkout origin/HEAD? [yn] ' key;
+        echo;
+        if [[ \$key = 'y' ]]; then
+            git checkout FETCH_HEAD;
+        fi
+    fi
+    true
+"
+}
+
 #
 # Source local rc
 #

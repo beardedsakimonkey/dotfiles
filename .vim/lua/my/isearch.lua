@@ -378,6 +378,7 @@ end
 
 local function search_oldfiles()
     -- TODO: would like to also score based on ordering
+    -- TODO: filter out directories?
     search(api.nvim_get_vvar('oldfiles'), true)
 end
 

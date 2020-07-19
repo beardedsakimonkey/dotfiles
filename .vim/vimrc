@@ -112,8 +112,25 @@ augroup vimrc
     autocmd BufReadPre *
                 \ let s = getfsize(expand('<afile>')) |
                 \ if s > g:LargeFile || s == -2 |
-                \   call my_buffer#large(expand('<afile>:p')) |
+                \   call <sid>large_buffer(expand('<afile>:p')) |
                 \ endif
+
+    fu s:large_buffer(name)
+        let b:my_large_file = 1
+        syntax clear
+        set eventignore=all
+        let &backupskip .= ',' . a:name
+        setlocal foldmethod=manual nofoldenable noswapfile noundofile
+        aug large_buffer | au!
+            au BufWinEnter <buffer> call <sid>restore_eventignore()
+        aug END
+    endfu
+
+    fu s:restore_eventignore()
+        set eventignore&vim
+        au! large_buffer
+        aug! large_buffer
+    endfu
 
     " On opening a file, jump to the last known cursor position
     autocmd BufReadPost *
@@ -130,8 +147,8 @@ augroup vimrc
     autocmd BufEnter *.txt
                 \ if &buftype == 'help' |
                 \   setlocal scrolloff=0 |
-                \   nnoremap <buffer> q :q<cr> |
-                \   nnoremap <buffer> T <c-]> |
+                \   nno <buffer> q :q<cr> |
+                \   nno <buffer> T <c-]> |
                 \ endif
 
     " Disable automatic comment insertion
@@ -159,7 +176,7 @@ augroup vimrc
         autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
     endif
 
-    fun! HlSearch()
+    fu HlSearch()
         " bail out if cursor is at top/bottom of window
         let wininfo = getwininfo(win_getid())[0]
         let lnum = getcurpos()[1]
@@ -171,21 +188,21 @@ augroup vimrc
         if pos != col('.')
             call StopHL()
         endif
-    endf
+    endfu
 
-    fun! StopHL()
+    fu StopHL()
         if !v:hlsearch || mode() !=# 'n'
             return
         endif
         silent call feedkeys("\<Plug>(StopHL)", 'm')
-    endf
+    endfu
 
     autocmd CursorMoved * call HlSearch()
     autocmd InsertEnter * call StopHL()
 augroup END
 
-noremap <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
-noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
+no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
+no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
 "
 " Status line
@@ -218,21 +235,21 @@ if has('nvim-0.5')
         return ''
     end
 .
-    fun! MyStatusLineNeovim() abort
+    fu MyStatusLineNeovim() abort
         return  MyStatusLine() . ' ' .
                     \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
-    endf
+    endfu
     set statusline=%!MyStatusLineNeovim()
 else
     set statusline=%!MyStatusLine()
 endif
 
-fun! MyStatusLine() abort
+fu MyStatusLine() abort
     return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
                 \%2*%{&modified?'  + ':''}
                 \%* %f"
-endf
+endfu
 
 "
 " Tab line
@@ -240,16 +257,16 @@ endf
 set showtabline=1
 set tabline=%!MyTabLine()
 
-fun! MyTabLine()
+fu MyTabLine()
     let s = ''
     for i in range(1, tabpagenr('$'))
         let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
         let s .= '%'.i.'T %{MyTabLabel('.i.')}'
     endfor
     return s.'%#TabLineFill#%T'
-endf
+endfu
 
-fun! MyTabLabel(n)
+fu MyTabLabel(n)
     let buflist = tabpagebuflist(a:n)
     let modified = ''
     for b in buflist
@@ -260,14 +277,13 @@ fun! MyTabLabel(n)
     endfor
     let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
     return modified.name.' '
-endf
+endfu
 
-command! -range                  Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
-command! -nargs=*
-            \ -complete=file_in_path Grep call <sid>grep(<f-args>)
-command! -nargs=1                PackInstall call <sid>packInstall(<q-args>)
+com! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
-fun! s:grep(...) abort
+com! -nargs=* -complete=file_in_path Grep call <sid>grep(<f-args>)
+
+fu s:grep(...) abort
     if a:0 == 0
         return
     endif
@@ -277,9 +293,11 @@ fun! s:grep(...) abort
     endif
     " could also populate the quickfix list, and hide it?
     execute "lua require'my.isearch'.grep([[".cmd."]])"
-endf
+endfu
 
-fun! s:packInstall(url)
+com! -nargs=1 PackInstall call <sid>packInstall(<q-args>)
+
+fu s:packInstall(url)
     let url = a:url
     if url =~ '/$'
         let url = url[:-2]
@@ -296,146 +314,147 @@ fun! s:packInstall(url)
     " FIXME: git expands the tilde
     let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
     execute '!(cd ~ && '.cmd.')'
-endf
+endfu
 
 let mapleader = "\<s-f5>"
 let maplocalleader = "\<s-f6>"
 
-noremap j gj
-noremap k gk
-nnoremap <c-e> <c-e><c-e>
-nnoremap <c-y> <c-y><c-y>
-vnoremap < <gv
-vnoremap > >gv
-nnoremap s "_s
-nnoremap Z zzzH
-nnoremap * *zz
-nnoremap # #zz
-nnoremap <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
-nnoremap <expr> P getreg('"') =~ "\n" ? "Pmx=']`x" : "P"
+no j gj
+no k gk
+nno <c-e> <c-e><c-e>
+nno <c-y> <c-y><c-y>
+xno < <gv
+xno > >gv
+nno s "_s
+nno Z zzzH
+xno Z zzzH
+nno * *zz
+nno # #zz
+nno <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
+nno <expr> P getreg('"') =~ "\n" ? "Pmx=']`x" : "P"
 
-nnoremap ; :
-xnoremap ; :
-nnoremap : ;
-xnoremap : ;
+nno ; :
+xno ; :
+nno : ;
+xno : ;
 
-nnoremap Q @q
-noremap Y y$
-noremap H ^
-noremap L $
-noremap <silent> ( :<c-u>keepjumps normal! H<cr>
-noremap <silent> ) :<c-u>keepjumps normal! L<cr>
-nnoremap <c-p> <c-i>
-nmap <home> gg
-nmap <end> G
-nnoremap <pageup> <pageup>H
-nnoremap <pagedown> <pagedown>L
-nnoremap g<c-v> `[v`]
-nnoremap gV     '[V']
-nnoremap c* *``/<up><cr>``cgn
-nnoremap c# #``/<up><cr>``cgN
+nno Q @q
+no Y y$
+no H ^
+no L $
+no <silent> ( :<c-u>keepjumps normal! H<cr>
+no <silent> ) :<c-u>keepjumps normal! L<cr>
+nno <c-p> <c-i>
+nm <home> gg
+nm <end> G
+nno <pageup> <pageup>H
+nno <pagedown> <pagedown>L
+nno g<c-v> `[v`]
+nno gV     '[V']
+nno c* *``/<up><cr>``cgn
+nno c# #``/<up><cr>``cgN
 
 " TODO: how to keepjumps in visual mode without breaking selection
-nnoremap <silent> gg :<c-u>keepjumps normal! gg<cr>
-nnoremap <silent> G :<c-u>keepjumps normal! G<cr>
-nnoremap <silent> M :<c-u>keepjumps normal! M<cr>
-nnoremap <silent> { :<c-u>keepjumps normal! {<cr>
-nnoremap <silent> } :<c-u>keepjumps normal! }<cr>
-nnoremap <silent> n :<c-u>keepjumps normal! nzzzv<cr>
-nnoremap <silent> N :<c-u>keepjumps normal! Nzzzv<cr>
+nno <silent> gg :<c-u>keepjumps normal! gg<cr>
+nno <silent> G :<c-u>keepjumps normal! G<cr>
+nno <silent> M :<c-u>keepjumps normal! M<cr>
+nno <silent> { :<c-u>keepjumps normal! {<cr>
+nno <silent> } :<c-u>keepjumps normal! }<cr>
+nno <silent> n :<c-u>keepjumps normal! nzzzv<cr>
+nno <silent> N :<c-u>keepjumps normal! Nzzzv<cr>
 
-noremap! <a-h> <left>
-noremap! <a-l> <right>
-noremap! <a-j> <c-left>
-noremap! <a-k> <c-right>
+no! <a-h> <left>
+no! <a-l> <right>
+no! <a-j> <c-left>
+no! <a-k> <c-right>
 
-nnoremap <c-l> <c-w>l
-nnoremap <c-h> <c-w>h
-nnoremap <c-j> <c-w>j
-nnoremap <c-k> <c-w>k
+nno <c-l> <c-w>l
+nno <c-h> <c-w>h
+nno <c-j> <c-w>j
+nno <c-k> <c-w>k
 
-nnoremap <a-l> <c-w>L
-nnoremap <a-h> <c-w>H
-nnoremap <a-j> <c-w>J
-nnoremap <a-k> <c-w>K
+nno <a-l> <c-w>L
+nno <a-h> <c-w>H
+nno <a-j> <c-w>J
+nno <a-k> <c-w>K
 
-nnoremap <silent> ]b :<c-u>bnext<cr>
-nnoremap <silent> [b :<c-u>bprev<cr>
-nnoremap <silent> [t :<c-u>tabprev<cr>
-nnoremap <silent> ]t :<c-u>tabnext<cr>
-nnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
-nnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
-vnoremap <silent> ]n /\v^[<\|=>]{7}<cr>
-vnoremap <silent> [n ?\v^[<\|=>]{7}<cr>
+nno <silent> ]b :<c-u>bnext<cr>
+nno <silent> [b :<c-u>bprev<cr>
+nno <silent> [t :<c-u>tabprev<cr>
+nno <silent> ]t :<c-u>tabnext<cr>
+nno <silent> ]n /\v^[<\|=>]{7}<cr>
+nno <silent> [n ?\v^[<\|=>]{7}<cr>
+xno <silent> ]n /\v^[<\|=>]{7}<cr>
+xno <silent> [n ?\v^[<\|=>]{7}<cr>
 
-nmap [e <Plug>move_line_up
-nmap ]e <Plug>move_line_down
+nm [e <Plug>move_line_up
+nm ]e <Plug>move_line_down
 
 if has('nvim-0.5')
-    nmap [a <cmd>lua require'my.argument'.jump_prev()<cr>
-    nmap ]a <cmd>lua require'my.argument'.jump_next()<cr>
+    nm [a <cmd>lua require'my.argument'.jump_prev()<cr>
+    nm ]a <cmd>lua require'my.argument'.jump_next()<cr>
 else
-    nmap [a <Plug>jump_arg_prev
-    nmap ]a <Plug>jump_arg_next
+    nm [a <Plug>jump_arg_prev
+    nm ]a <Plug>jump_arg_next
 endif
 
-nnoremap <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
-nnoremap <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
-nnoremap <silent> ]Q :<c-u>cnfile<cr>zz
-nnoremap <silent> [Q :<c-u>cpfile<cr>zz
-nnoremap <silent> ]l :<c-u><c-r>=v:count1<cr>lnext<cr>zz
-nnoremap <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
-nnoremap <silent> ]L :<c-u>lnfile<cr>zz
-nnoremap <silent> [L :<c-u>lpfile<cr>zz
+nno <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
+nno <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
+nno <silent> ]Q :<c-u>cnfile<cr>zz
+nno <silent> [Q :<c-u>cpfile<cr>zz
+nno <silent> ]l :<c-u><c-r>=v:count1<cr>lnext<cr>zz
+nno <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
+nno <silent> ]L :<c-u>lnfile<cr>zz
+nno <silent> [L :<c-u>lpfile<cr>zz
 
 if has('nvim-0.5')
-    noremap <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-    noremap <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
-    noremap <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
+    no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+    no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+    no <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
 endif
 
-noremap <silent> <space>d :<c-u>BD<cr>
-noremap <silent> <space>D :<c-u>bd<cr>
-noremap <silent> <space>q :<c-u>b#<cr>
+no <silent> <space>d :<c-u>BD<cr>
+no <silent> <space>D :<c-u>bd<cr>
+no <silent> <space>q :<c-u>b#<cr>
 
-noremap <silent> <space>gd :<c-u>Diffusion<cr>
-noremap <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
+no <silent> <space>gd :<c-u>Diffusion<cr>
+no <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
 
-noremap <silent> <expr> <space>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+no <silent> <expr> <space>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 
-nnoremap <space>a :<c-u>Grep<space>
-vnoremap <space>a "sy:Grep <c-r>s
+nno <space>a :<c-u>Grep<space>
+xno <space>a "sy:Grep <c-r>s
 
-noremap <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
-noremap <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
-noremap <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
-noremap <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-noremap <silent> <space>en :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
-noremap <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
-noremap <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
+no <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
+no <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
+no <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
+no <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
+no <silent> <space>en :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
+no <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
+no <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
-cnoremap <c-p> <up>
-cnoremap <c-n> <down>
-cnoremap <c-j> <c-g>
-cnoremap <c-k> <c-t>
-cnoremap <c-o> <c-r>=expand("%:t:r")<cr>
+cno <c-p> <up>
+cno <c-n> <down>
+cno <c-j> <c-g>
+cno <c-k> <c-t>
+cno <c-o> <c-r>=expand("%:t:r")<cr>
 
-nnoremap <silent> cd :<c-u>cd %:h \| pwd<cr>
+nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 " TODO: any way to get inccommand to update?
-nnoremap <space>s :%s///<left>
-nnoremap <space>w :<c-u>w !sudo tee % >/dev/null<cr>
-noremap  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
-nnoremap <silent> <space>t :<c-u>tabedit<cr>
-nnoremap gy :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-vnoremap * "ay/<c-r>a<cr>zv
-vnoremap # "ay?<c-r>a<cr>zv
-nnoremap * *zv
-nnoremap # #zv
-nnoremap U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
-nnoremap <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
-nnoremap g= ms'[=']`s
-nnoremap <space>= H=L``
-nnoremap 'e 2g;zz
+nno <space>s :%s///<left>
+nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
+no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
+nno <silent> <space>t :<c-u>tabedit<cr>
+nno gy :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+xno * "ay/<c-r>a<cr>zv
+xno # "ay?<c-r>a<cr>zv
+nno * *zv
+nno # #zv
+nno U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+nno <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+nno g= ms'[=']`s
+nno <space>= H=L``
+nno 'e 2g;zz
 
 cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 cabbrev ~? ~/
@@ -470,11 +489,11 @@ packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
 autocmd vimrc BufWritePost *.colortemplate set eventignore=FileType | Colortemplate! | set eventignore&vim | colo gruvburn
-autocmd vimrc BufEnter *.colortemplate nnoremap <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
-command! -nargs=0 Colortest runtime syntax/hitest.vim
+autocmd vimrc BufEnter *.colortemplate nno <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
+com! -nargs=0 Colortest runtime syntax/hitest.vim
 
 " vim-qf
-nmap <c-n> <Plug>(qf_qf_toggle)
+nm <c-n> <Plug>(qf_qf_toggle)
 let g:qf_auto_quit = 0
 let g:qf_auto_resize = 0
 let g:qf_mapping_ack_style = 1
@@ -492,7 +511,7 @@ let g:BufKillCreateMappings = 0
 
 " vim-linediff
 let g:linediff_buffer_type = 'scratch'
-xnoremap <expr> D (mode() ==# "V" ? ':Linediff<cr>' : 'D')
+xno <expr> D (mode() ==# "V" ? ':Linediff<cr>' : 'D')
 
 " vim-matchup
 let g:matchup_surround_enabled = 1
@@ -512,10 +531,10 @@ for v in ['ds', 'cs']
     execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 
-function! IsCommentaryOpFunc()
+fu IsCommentaryOpFunc()
     return &operatorfunc ==? matchstr(maparg('<Plug>Commentary', 'n'),
                 \ '\c<SNR>\w\+\ze()\|set op\%(erator\)\?func=\zs.\{-\}\ze<cr>')
-endfunction
+endfu
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
 " rust.vim
@@ -525,13 +544,13 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 " Neovim nightly
 "
 if has('nvim-0.5')
-    command! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+    com! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
 
-    function! s:restartLsp()
+    fu s:restartLsp()
         lua vim.lsp.stop_client(vim.lsp.get_active_clients())
         edit
-    endfunction
-    command! RestartLsp call <sid>restartLsp()
+    endfu
+    com! RestartLsp call <sid>restartLsp()
 
     " for name in ['LspDiagnosticsErrorSign', 
     "   call sign_define(name, {'text' : '››'})
@@ -544,10 +563,10 @@ if has('nvim-0.5')
     luafile ~/.vim/lua/my/lsp.lua
 
     " text-object: comment
-    xnoremap <expr>   ac luaeval("require'my.comment'.set_marks()")
-    onoremap <silent> ac :normal Vac<CR>
-    xnoremap <expr>   ic luaeval("require'my.comment'.set_marks()")
-    onoremap <silent> ic :normal Vic<CR>
+    xno <expr>   ac luaeval("require'my.comment'.set_marks()")
+    ono <silent> ac :normal Vac<CR>
+    xno <expr>   ic luaeval("require'my.comment'.set_marks()")
+    ono <silent> ic :normal Vic<CR>
 endif
 
 packadd! gruvburn
@@ -556,23 +575,18 @@ silent! colorscheme gruvburn
 "
 " adapted from justinmk's init.vim
 "
-xnoremap <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
-xnoremap <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
+xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
+xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
 
-nnoremap gqax :%!tidy -q -i -xml -utf8<cr>
-nnoremap gqah :%!tidy -q -i -ashtml -utf8<cr>
-nnoremap gqaj :%!python -m json.tool<cr>
-nnoremap gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg:%!python -m json.tool<cr>
+nno gqax :%!tidy -q -i -xml -utf8<cr>
+nno gqah :%!tidy -q -i -ashtml -utf8<cr>
+nno gqaj :%!python -m json.tool<cr>
+nno gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg:%!python -m json.tool<cr>
 
-nnoremap / ms/
+nno / ms/
 
-nnoremap <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
-nnoremap gj i<c-j><esc>k$
-
-if executable('lynx')
-    command! -nargs=1 Web       vnew|call termopen('lynx -use_mouse '.shellescape(<q-args>))
-    command! -nargs=1 Websearch vnew|call termopen('lynx -use_mouse '.shellescape('https://duckduckgo.com/?q='.substitute(<q-args>,'#','%23','g')))
-endif
+nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
+nno gj i<c-j><esc>k$
 
 "
 " adapted from lacygoill's vimrc
@@ -699,22 +713,38 @@ fu s:diff_orig_restore_settings(conceallevel,_) abort
     unlet s:tmp_partial
 endfu
 
-" dump
-" TODO: visual mode mapping
-" TODO: file-type specific
-nno =d :<c-u>call <sid>dump_result()<cr>
+nno <silent> =d V:<c-u>call <sid>dump_result()<cr>
+xno <silent> =d :<c-u>call <sid>dump_result()<cr>
 
 fu s:dump_result() abort
-    " let line = getline('.')
-    " call setline('.', line .. ' = ' .. trim(res))
+    let [line_start, column_start] = getpos("'<")[1:2]
+    let [line_end, column_end] = getpos("'>")[1:2]
+    if line_start != line_end
+        echohl ErrorMsg | echo "can't do multiline selection" | echohl None
+        return
+    endif
+    let lines = getline(line_start, line_end)
+    if empty(lines) | return | endif
+    let line = lines[0][column_start-1:column_end-1]
+    if empty(line) | return | endif
+    if &filetype is# 'vim'
+        let res = eval(line)
+    elseif &filetype is# 'lua'
+        let res = luaeval(line)
+    elseif &filetype =~# 'z\?sh'
+        let res = system(line)
+    else
+        return
+    endif
+    call setline('.', getline('.')[0:column_end] .. ' = ' .. trim(res))
 endfu
 
-function! s:fasd_update() abort
+autocmd vimrc BufReadPost * call s:fasd_update()
+fu s:fasd_update() abort
   if empty(&buftype) || &filetype ==# 'dirvish'
     call jobstart(['fasd', '-A', expand('%:p')])
   endif
-endfunction
-autocmd vimrc BufReadPost * call s:fasd_update()
+endfu
 
 let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)

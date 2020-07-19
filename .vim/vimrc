@@ -95,7 +95,7 @@ set nowrap
 set shortmess+=aTWIcFS
 set shortmess-=s
 set noshowcmd
-set listchars=tab:>\ ,trail:-,nbsp:∅
+set listchars=tab:›\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
 set signcolumn=no
 set background=dark
@@ -105,6 +105,14 @@ else
     set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
 endif
 set grepformat=%f:%l:%c:%m
+
+if !exists('s:SID')
+    fu s:SID() abort
+        return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
+    endfu
+    let s:SID = printf('<SNR>%d_', s:SID())
+    delfu s:SID
+endif
 
 let g:LargeFile = 20*1024*1024 " 20MB
 augroup vimrc
@@ -328,8 +336,6 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno * *zz
-nno # #zz
 nno <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
 nno <expr> P getreg('"') =~ "\n" ? "Pmx=']`x" : "P"
 
@@ -337,6 +343,8 @@ nno ; :
 xno ; :
 nno : ;
 xno : ;
+
+nno ' `
 
 nno Q @q
 no Y y$
@@ -349,10 +357,6 @@ nm <home> gg
 nm <end> G
 nno <pageup> <pageup>H
 nno <pagedown> <pagedown>L
-nno g<c-v> `[v`]
-nno gV     '[V']
-nno c* *``/<up><cr>``cgn
-nno c# #``/<up><cr>``cgN
 
 " TODO: how to keepjumps in visual mode without breaking selection
 nno <silent> gg :<c-u>keepjumps normal! gg<cr>
@@ -387,16 +391,35 @@ nno <silent> [n ?\v^[<\|=>]{7}<cr>
 xno <silent> ]n /\v^[<\|=>]{7}<cr>
 xno <silent> [n ?\v^[<\|=>]{7}<cr>
 
-nm [e <Plug>move_line_up
-nm ]e <Plug>move_line_down
+nno <expr> [e <sid>move_line_setup('up')
+nno <expr> ]e <sid>move_line_setup('down')
 
-if has('nvim-0.5')
-    nm [a <cmd>lua require'my.argument'.jump_prev()<cr>
-    nm ]a <cmd>lua require'my.argument'.jump_next()<cr>
-else
-    nm [a <Plug>jump_arg_prev
-    nm ]a <Plug>jump_arg_next
-endif
+fu s:move_line_setup(dir, asldf, sadf) abort
+    let s:indent_with_shiftround = {'dir': a:dir}
+    let &opfunc = s:SID .. 'move_line'
+    return 'g@l'
+endfu
+
+" FIXME: v:count1 doesn't work if indenting
+fu s:move_line(_) abort
+    let dir = s:indent_with_shiftround.dir
+    norm! m`
+    exec 'move' (dir is# 'up' ? '--' : '+') .. v:count1
+    norm! =``
+endfu
+
+nno <silent> [a :<c-u>call <SID>jump_arg(0)<cr>
+nno <silent> ]a :<c-u>call <SID>jump_arg(1)<cr>
+
+fu s:jump_arg(forward)
+    let flags = (a:forward ? '' : 'b').'W'
+    call searchpair('[({[]', ',', '[]})]', flags, 's:isCursorInStringOrComment()')
+endfu
+
+fu s:isCursorInStringOrComment()
+    let syn = synIDattr(synID(line('.'), col('.'), 0), 'name')
+    return syn =~? 'string' || syn =~? 'comment'
+endfu
 
 nno <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
 nno <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
@@ -443,21 +466,34 @@ nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 " TODO: any way to get inccommand to update?
 nno <space>s :%s///<left>
 nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
-no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
-nno gy :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-xno * "ay/<c-r>a<cr>zv
-xno # "ay?<c-r>a<cr>zv
-nno * *zv
-nno # #zv
-nno U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
+
+nno             U :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
 nno <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
 nno g= ms'[=']`s
 nno <space>= H=L``
 nno 'e 2g;zz
+nno g<c-v> `[v`]
+nno gV     '[V']
+xno * "ayms/<c-r>a<cr>zzzv
+xno # "ayms?<c-r>a<cr>zzzv
+nno * ms*zzzv
+nno # ms#zzzv
+nno c* *``/<up><cr>``cgn
+nno c# #``/<up><cr>``cgN
 
-cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
-cabbrev ~? ~/
+nno gy :<c-u>call <sid>show_syntax()<cr>
+fu s:show_syntax()
+    echo printf("hi<%s> trans<%s> lo<%s>",
+                \ synIDattr(synID(line("."), col("."),1), "name"),
+                \ synIDattr(synID(line("."), col("."),0), "name"),
+                \ synIDattr(synIDtrans(synID(line("."), col("."), 1)), "name"))
+endfu
+
+cnorea <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
+" TODO: immediately expand
+ca ~? ~/
 
 " Disabled Vim plugins
 let g:loaded_getscriptPlugin = 1
@@ -552,21 +588,8 @@ if has('nvim-0.5')
     endfu
     com! RestartLsp call <sid>restartLsp()
 
-    " for name in ['LspDiagnosticsErrorSign', 
-    "   call sign_define(name, {'text' : '››'})
-    " endfor
-
-    " autocmd vimrc FileType vim lua vim.lsp.buf_attach_client(vim.api.nvim_get_current_buf(), vim.lsp.start_client({ cmd = { "vim-language-server", "--stdio" }, root_dir = "/Users/tim/" }))
-    " nvim-lsp
     packadd nvim-lsp
-
     luafile ~/.vim/lua/my/lsp.lua
-
-    " text-object: comment
-    xno <expr>   ac luaeval("require'my.comment'.set_marks()")
-    ono <silent> ac :normal Vac<CR>
-    xno <expr>   ic luaeval("require'my.comment'.set_marks()")
-    ono <silent> ic :normal Vic<CR>
 endif
 
 packadd! gruvburn
@@ -733,6 +756,8 @@ fu s:dump_result() abort
         let res = luaeval(line)
     elseif &filetype =~# 'z\?sh'
         let res = system(line)
+    elseif &filetype =~# 'javascript'
+        " TODO
     else
         return
     endif

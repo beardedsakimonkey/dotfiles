@@ -167,6 +167,18 @@ isearchPreview -> Normal
 isearchMatch red none underline
 isearchPreviewLine none bg_green
 
+# nvim-lsp
+# NOTE: for sign column, use `bg_dark` for bg
+LspDiagnosticsError red none
+LspDiagnosticsWarning orange none
+LspDiagnosticsInformation skyblue none
+LspDiagnosticsHint skyblue none
+
+LspDiagnosticsUnderlineError none bg_red
+LspDiagnosticsUnderlineWarning none bg_dark_orange
+LspDiagnosticsUnderlineInformation none bg_cyan
+LspDiagnosticsUnderlineHint none bg_cyan
+
 # vim
 vimCommentString -> Comment
 
@@ -182,25 +194,22 @@ helpExample green none
 helpSpecial blue none
 helpSectionDelim grey none
 
-# nvim-lsp
-# NOTE: for sign column, use `bg_dark` for bg
-LspDiagnosticsError red none
-LspDiagnosticsWarning orange none
-LspDiagnosticsInformation skyblue none
-LspDiagnosticsHint skyblue none
-
-LspDiagnosticsUnderlineError none bg_red
-LspDiagnosticsUnderlineWarning none bg_dark_orange
-LspDiagnosticsUnderlineInformation none bg_cyan
-LspDiagnosticsUnderlineHint none bg_cyan
-
 # HTML
 htmlArg yellow none
 
 # javascript
-javascriptFunction yellow none
-javascriptReserved orange none
+javascriptFunction orange none
+javascriptReserved blue none
 javascriptValue magenta none
+
+# jsx
+jsxComponentName yellow none bold
+jsxTagName yellow none bold
+jsxAttrib yellow none
+
+# reason
+reasonStorage orange none
+reasonModPath blue none
 
 # rust
 rustFuncCall fg0 none

@@ -1,4 +1,5 @@
 local nvim_lsp = require 'nvim_lsp'
+local configs = require 'nvim_lsp/configs'
 local util = require 'vim.lsp.util'
 local protocol = require 'vim.lsp.protocol'
 
@@ -64,9 +65,6 @@ local function monkey_patch_diagnostics()
             end
         end
 
-        -- update diagnostics count buffer variable for the statusline
-        vim.fn.setbufvar(bufnr, 'diagnostics_count', diagnostics_count)
-
         local mode = vim.api.nvim_get_mode().mode
         local in_insert_mode = mode == 'i' or mode == 'ic'
         if not in_insert_mode then
@@ -107,15 +105,15 @@ end
 
 if not vim.g.loaded_my_lsp then
     nvim_lsp.rls.setup{
-        on_attach = on_attach,
+        -- on_attach = on_attach,
     }
 
     nvim_lsp.vimls.setup{
-        on_attach = on_attach,
+        -- on_attach = on_attach,
     }
 
     nvim_lsp.clangd.setup{
-        on_attach = on_attach,
+        -- on_attach = on_attach,
     }
 end
 vim.g.loaded_my_lsp = true

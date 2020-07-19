@@ -62,48 +62,22 @@ _comp_options+=(globdots) # complete dotfiles without entering a .
 # NOTE: `emulate -L zsh` is used to diable some custom setopts
 #
 
-function _change-first-word() {
-    emulate -L zsh
-    zle .beginning-of-line
-    zle .kill-word
-    zle .vi-insert
-}
-zle -N _change-first-word
+# bindkey "^[j" backward-word
+# bindkey "^[h" backward-char
+# bindkey "^[k" forward-word
+# bindkey "^[l" forward-char
 
-function _man-line() {
-    emulate -L zsh
-    if [[ -z $BUFFER ]]; then
-        return
-    fi
-    # local buf=$BUFFER
-    args=(${(s/ /)BUFFER})
-    if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
-        LBUFFER="git help ${args[2]}"
-    else
-        LBUFFER="man ${args[1]}"
-    fi
-    zle .accept-line
-    # zle -U $buf
-}
-zle -N _man-line
+bindkey "\C-a" beginning-of-line
+bindkey "\C-e" end-of-line
+bindkey "\C-u" backward-kill-line
+bindkey -M menuselect "\C-m" .accept-line
+bindkey -M menuselect "^[[Z" reverse-menu-complete
+bindkey ' ' magic-space # expands history
 
-function _backward-kill-to-slash() {
-    emulate -L zsh
-    local WORDCHARS="${WORDCHARS:s@/@}"
-    zle .backward-kill-word
-}
-zle -N _backward-kill-to-slash
+bindkey -a 'H' vi-beginning-of-line
+bindkey -a 'L' vi-end-of-line
 
-function _fix-tilde-questionmark() {
-    emulate -L zsh
-    if [[ $LBUFFER[-1] == \~ ]]; then
-        zle -U '/'
-    else
-        zle .self-insert
-    fi
-}
-zle -N _fix-tilde-questionmark
-
+bindkey "\C-b" _cd_up
 function _cd_up() {
     emulate -L zsh
     BUFFER="cd .."
@@ -111,7 +85,45 @@ function _cd_up() {
 }
 zle -N _cd_up
 
-function fg-bg() {
+bindkey "\C-h" _man_line
+function _man_line() {
+    emulate -L zsh
+    if [[ -z $BUFFER ]]; then
+        return
+    fi
+    args=(${(s/ /)BUFFER})
+    if [[ $args[1] == 'git' ]] && (( $#args > 1 )); then
+        LBUFFER="git help ${args[2]}"
+    else
+        LBUFFER="man ${args[1]}"
+    fi
+    zle .accept-line
+}
+zle -N _man_line
+
+bindkey "\C-w" _backward_kill_to_slash
+function _backward_kill_to_slash() {
+    emulate -L zsh
+    local WORDCHARS="${WORDCHARS:s@/@}"
+    zle .backward-kill-word
+}
+zle -N _backward_kill_to_slash
+
+
+bindkey "?" _fix_tilde_questionmark
+function _fix_tilde_questionmark() {
+    emulate -L zsh
+    if [[ $LBUFFER[-1] == \~ ]]; then
+        zle -U '/'
+    else
+        zle .self-insert
+    fi
+}
+zle -N _fix_tilde_questionmark
+
+
+bindkey '^Z' _fg_bg
+function _fg_bg() {
     emulate -L zsh
     if [[ $#BUFFER -eq 0 ]]; then
         fg
@@ -119,9 +131,10 @@ function fg-bg() {
         zle push-input
     fi
 }
-zle -N fg-bg
+zle -N _fg_bg
 
-function tab-or-list-dirs() {
+bindkey '\t' _tab_or_list_dirs
+function _tab_or_list_dirs() {
     emulate -L zsh
     if [[ $#BUFFER == 0 ]]; then
         # NOTE: leaving `cd` in the prompt is suboptimal because it prevents
@@ -137,31 +150,24 @@ function tab-or-list-dirs() {
         zle expand-or-complete
     fi
 }
-zle -N tab-or-list-dirs
+zle -N _tab_or_list_dirs
 
-bindkey "^[j" backward-word
-bindkey "^[h" backward-char
-bindkey "^[k" forward-word
-bindkey "^[l" forward-char
+bindkey -a "m" _change_first_word
+function _change_first_word() {
+    emulate -L zsh
+    zle .beginning-of-line
+    zle .kill-word
+    zle .vi-insert
+}
+zle -N _change_first_word
 
-bindkey "\C-a" beginning-of-line
-bindkey "\C-e" end-of-line
-bindkey "\C-u" backward-kill-line
-bindkey "^[." insert-last-word
-bindkey -M menuselect "\C-m" .accept-line
-bindkey -M menuselect "^[[Z" reverse-menu-complete
-bindkey ' ' magic-space # expands history
-
-bindkey -a 'H' vi-beginning-of-line
-bindkey -a 'L' vi-end-of-line
-
-bindkey "\C-b" _cd_up
-bindkey "\C-h" _man-line
-bindkey "\C-w" _backward-kill-to-slash
-bindkey "?" _fix-tilde-questionmark
-bindkey '^Z' fg-bg
-bindkey -a "m" _change-first-word
-bindkey '\t' tab-or-list-dirs
+# FIXME: zsh-autosuggestions messes this up
+bindkey -a ";" _insert_last_word
+function _insert_last_word() {
+    zle .vi-add-next
+    zle .insert-last-word
+}
+zle -N _insert_last_word
 
 
 #
@@ -247,7 +253,7 @@ export KEYTIMEOUT=15
 export CORRECT_IGNORE=_*,.*
 
 export PATH="$HOME/.cargo/bin/:$PATH"
-export PATH="$HOME/bin/:$PATH"
+export PATH="$HOME/bin:$PATH"
 
 export HISTSIZE=100000
 export SAVEHIST=100000
@@ -300,11 +306,8 @@ if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
     unalias a z zz
     alias j='fasd_cd -d'
-    alias jj='fasd_cd -d -i'
-    alias vv='fasd -f -t -e $EDITOR -b viminfo'
-    bindkey "^[a" fasd-complete
-    bindkey "^[f" fasd-complete-f
-    bindkey "^[d" fasd-complete-d
+    alias vf='fasd -f -t -e vicd'
+    alias vd='fasd -d -t -e vicd'
 fi
 
 # nvm
@@ -352,11 +355,11 @@ function megadl() {
     else
         # FIXME: this assumes a single url argument
         local count=1
-        if (( $# > 2 )) && [[ $_ =~ "[:digit:]+" ]]; then
-            count="$_"
+        if (( $# > 1 )) && [[ ${@[-1]} =~ [0-9] ]]; then
+            count="${@[-1]}"
         fi
         local url="$1"
-        for i in {0..count} ; do
+        for i in {1..$count}; do
             url=$(base64 -d <<<"$url")
         done
         if [[ "$url" =~ "mega.nz" ]];then

@@ -4,7 +4,7 @@
 !/.vim
 /.vim/*
 !/.vim/**
-/.vim/.netrw*
+/.vim/local.vim
 
 !/.config
 /.config/*

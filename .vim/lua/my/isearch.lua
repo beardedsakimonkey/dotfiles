@@ -163,9 +163,6 @@ local function update_preview()
         clear_preview()
         return
     end
-    -- NOTE: using `nvim_buf_set_lines()` instead of `:edit` has the drawback of
-    -- not being able to jump to the " mark. However, it means we don't have to
-    -- worry about whether we should unload buffers.
     -- FIXME: this sometimes errors for binary files: `String cannot contain
     -- newlines`
     api.nvim_buf_set_lines(preview_buf, 0, -1, true, lines)
@@ -177,13 +174,7 @@ local function update_preview()
     api.nvim_set_current_win(preview_win)
     -- This will trigger an autocmd in $VIMRUNTIME/filetype.vim to set
     -- 'filetype', which will, in turn, trigger a FileType autocmd in
-    -- $VIMRUNTIME/syntax/syntax.vim to set 'syntax'. Unfortunately, triggering
-    -- FileType can cause nvim_lsp to spin up a language server. Ideally,
-    -- nvim_lsp would allow users to define their own `autocmd`s, which would
-    -- allow for something like:
-    --
-    --    autocmd FileType foo if &modifiable | ... | endif
-    --
+    -- $VIMRUNTIME/syntax/syntax.vim to set 'syntax'.
     api.nvim_command('doautocmd filetypedetect BufRead ' .. vim.fn.fnameescape(filename))
     api.nvim_set_current_win(input_win)
 end
@@ -210,6 +201,7 @@ local function search(source, _show_preview)
     prev_win = api.nvim_get_current_win()
 
     api.nvim_buf_set_option(input_buf, 'bufhidden', 'wipe')
+    api.nvim_buf_set_option(input_buf, 'buftype', 'nofile')
 
     local num_columns = api.nvim_get_option('columns')
     local num_lines = api.nvim_get_option('lines')

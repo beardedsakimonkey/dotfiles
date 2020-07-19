@@ -63,6 +63,7 @@ set tabstop=4
 set softtabstop=-1
 if has('nvim')
     set display=msgsep
+    set inccommand=nosplit
 else
     set display=lastline
 endif
@@ -190,33 +191,33 @@ noremap! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 " Status line
 " TODO: why does buf_diagnostics_count() sometimes return nil??
 "
-lua <<
-_G.lsp_statusline_no_errors = function ()
-    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-        return ''
-    end
-    local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-    local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-    if errors == 0 and warnings == 0 then
-        return '✔'
-    end
-    return ''
-end
-_G.lsp_statusline_has_errors = function ()
-    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-        return ''
-    end
-    local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-    local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-    if errors > 0 or warnings > 0 then
-        return '✘'
-    end
-    return ''
-end
-.
 set laststatus=2
 set noshowmode
 if has('nvim-0.5')
+    lua <<
+    _G.lsp_statusline_no_errors = function ()
+        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+            return ''
+        end
+        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+        if errors == 0 and warnings == 0 then
+            return '✔'
+        end
+        return ''
+    end
+    _G.lsp_statusline_has_errors = function ()
+        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+            return ''
+        end
+        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+        if errors > 0 or warnings > 0 then
+            return '✘'
+        end
+        return ''
+    end
+.
     fun! MyStatusLineNeovim() abort
         return  MyStatusLine() . ' ' .
                     \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
@@ -420,7 +421,8 @@ cnoremap <c-k> <c-t>
 cnoremap <c-o> <c-r>=expand("%:t:r")<cr>
 
 nnoremap <silent> cd :<c-u>cd %:h \| pwd<cr>
-nnoremap <space>s :%s/\<<c-r><c-w>\>/
+" TODO: any way to get inccommand to update?
+nnoremap <space>s :%s///<left>
 nnoremap <space>w :<c-u>w !sudo tee % >/dev/null<cr>
 noremap  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 nnoremap <silent> <space>t :<c-u>tabedit<cr>
@@ -433,6 +435,7 @@ nnoremap U             :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hl
 nnoremap <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
 nnoremap g= ms'[=']`s
 nnoremap <space>= H=L``
+nnoremap 'e 2g;zz
 
 cnoreabbrev <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 cabbrev ~? ~/
@@ -496,7 +499,7 @@ let g:matchup_surround_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
 let g:matchup_motion_keepjumps = 1
-autocmd vimrc FileType vim,lua,zsh,c,cpp let b:matchup_matchparen_enabled = 0
+autocmd vimrc FileType * let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 for v in ['g', ']', '[', 'z', 'a', 'i']
     execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
@@ -696,18 +699,26 @@ fu s:diff_orig_restore_settings(conceallevel,_) abort
     unlet s:tmp_partial
 endfu
 
-" calculate
-nno =c :<c-u>call <sid>eval_line()<cr>
+" dump
+" TODO: visual mode mapping
+" TODO: file-type specific
+nno =d :<c-u>call <sid>dump_result()<cr>
 
-fu s:eval_line() abort
-    let line = getline('.')
-    let res = system('bc<<<"'..line..'"')
-    " bc doesn't exit non-zero on error
-    if res[0] is '('
-        echoerr res
-    else
-        call setline('.', line .. ' = ' .. trim(res))
-    endif
+fu s:dump_result() abort
+    " let line = getline('.')
+    " call setline('.', line .. ' = ' .. trim(res))
 endfu
+
+function! s:fasd_update() abort
+  if empty(&buftype) || &filetype ==# 'dirvish'
+    call jobstart(['fasd', '-A', expand('%:p')])
+  endif
+endfunction
+autocmd vimrc BufReadPost * call s:fasd_update()
+
+let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
+if filereadable(vimrc_local)
+    execute 'source' vimrc_local
+endif
 
 " TODO: create visual mode mapping "D" that duplicates the selection, and comments one of them

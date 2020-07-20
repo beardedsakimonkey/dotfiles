@@ -64,3 +64,12 @@
 [submodule "tmux-copycat"]
 	path = .config/tmux/tmux-copycat
 	url = https://github.com/tmux-plugins/tmux-copycat.git
+[submodule "vim-sleuth"]
+	path = .vim/pack/third-party/start/vim-sleuth
+	url = https://github.com/tpope/vim-sleuth.git
+[submodule "vim-characterize"]
+	path = .vim/pack/third-party/start/vim-characterize
+	url = https://github.com/tpope/vim-characterize.git
+[submodule "vim-lion"]
+	path = .vim/pack/third-party/start/vim-lion
+	url = https://github.com/tommcdo/vim-lion.git

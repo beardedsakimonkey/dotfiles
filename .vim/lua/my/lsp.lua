@@ -1,7 +1,4 @@
 local nvim_lsp = require 'nvim_lsp'
-local configs = require 'nvim_lsp/configs'
-local util = require 'vim.lsp.util'
-local protocol = require 'vim.lsp.protocol'
 
 local M = {}
 

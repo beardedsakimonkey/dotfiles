@@ -1,14 +1,10 @@
 setlocal statusline=%f
-" setlocal statusline=%!MyDirvishStatusline()
-" fun! MyDirvishStatusline() abort
-"   return " (%{exists('w:dirvish')?'alt:'.w:dirvish.altbuf.', prev: '.w:dirvish.prevbuf : ''}) "
-" endf
 
 silent! nunmap <buffer> <c-p>
 silent! nunmap <buffer> <c-n>
 
 nnoremap <buffer> <nowait> <silent> t :<c-u>.call dirvish#open('tabedit', 0)<cr>
-xnoremap <buffer> <nowait> <silent> t :<c-u>.call dirvish#open('tabedit', 0)<cr>
+xnoremap <buffer> <nowait> <silent> t :call dirvish#open('tabedit', 0)<cr>
 
 nnoremap <buffer> <nowait> <silent> v :<c-u>.call dirvish#open('vsplit', 1)<bar>call feedkeys("\<Plug>(dirvish_quit)")<cr>
 xnoremap <buffer> <nowait> <silent> v :call dirvish#open('vsplit', 0)<cr>

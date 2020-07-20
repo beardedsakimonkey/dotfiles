@@ -175,7 +175,7 @@ local function update_preview()
     -- This will trigger an autocmd in $VIMRUNTIME/filetype.vim to set
     -- 'filetype', which will, in turn, trigger a FileType autocmd in
     -- $VIMRUNTIME/syntax/syntax.vim to set 'syntax'.
-    api.nvim_command('doautocmd filetypedetect BufRead ' .. vim.fn.fnameescape(filename))
+    api.nvim_command('doautocmd <nomodeline> filetypedetect BufRead ' .. vim.fn.fnameescape(filename))
     api.nvim_set_current_win(input_win)
 end
 
@@ -269,8 +269,6 @@ local function search(source, _show_preview)
 
     local opts = { nowait = true, noremap = true, silent = true }
     api.nvim_buf_set_keymap(input_buf, 'i', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', opts)
-    api.nvim_buf_set_keymap(input_buf, 'n', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', opts)
-
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-j>', '<cmd>lua require"my.isearch".next_result()<cr>', opts)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-k>', '<cmd>lua require"my.isearch".prev_result()<cr>', opts)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-d>', '<cmd>lua require"my.isearch".scroll_preview_down()<cr>', opts)

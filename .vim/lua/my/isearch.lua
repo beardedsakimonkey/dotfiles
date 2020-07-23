@@ -135,6 +135,7 @@ local function update_results_info(total)
 end
 
 local function update_preview()
+    if not preview_buf then return end
     local cursor_row, _ = unpack(api.nvim_win_get_cursor(results_win))
     local cursor_line = api.nvim_buf_get_lines(results_buf, cursor_row - 1, cursor_row, true)
     assert(#cursor_line > 0, 'empty buf_get_lines - buffer got unloaded?')

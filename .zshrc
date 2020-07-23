@@ -17,10 +17,10 @@ setopt CD_SILENT 2&>/dev/null # needs zsh 5.8
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
-setopt HIST_REDUCE_BLANKS
 setopt LIST_PACKED
 setopt MENU_COMPLETE
 
+setopt HIST_REDUCE_BLANKS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt INC_APPEND_HISTORY
@@ -304,10 +304,28 @@ fi
 # fasd
 if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
-    unalias a z zz
-    alias j='fasd_cd -d'
-    alias vf='fasd -f -t -e vicd'
-    alias vd='fasd -d -t -e vicd'
+    unalias a s sd sf d f z zz
+    alias d='fasd_cd -d'
+    alias vf='fasd_cdv -f'
+    alias vd='fasd_cdv -d'
+    alias va='fasd_cdv -a'
+
+    function fasd_cdv() {
+        if (( $# < 1 )); then
+            fasd "$@"
+        else
+            local _fasd_ret="$(fasd -e 'printf %s' "$@")"
+            [ -z "$_fasd_ret" ] && return
+            if [ -d "$_fasd_ret" ]; then
+                cd "$_fasd_ret"
+                $EDITOR
+            elif [ -e "$_fasd_ret" ]; then
+                cd $(dirname "$_fasd_ret")
+                $EDITOR $(basename "$_fasd_ret")
+            fi
+        fi
+    }
+    compctl -U -K _fasd_zsh_cmd_complete -V fasd -x 'C[-1,-*e],s[-]n[1,e]' -c - 'c[-1,-A][-1,-D]' -f -- fasd_cdv
 fi
 
 # nvm

@@ -1,7 +1,7 @@
 "
 " Commit
 "
-fun! my_find#hg_commit()
+fu my_find#hg_commit()
     let l:source = "hg log "
                 \ ."--limit 20 "
                 \ ."--color always "
@@ -14,12 +14,12 @@ fun! my_find#hg_commit()
         return
     endif
     echom l:output
-endf
+endfu
 
 " 
 " Files
 " 
-fun! s:open_file(outfile, ...)
+fu s:open_file(outfile, ...)
     let results = filereadable(a:outfile) ? readfile(a:outfile) : []
     silent! call delete(a:outfile)
     wincmd p
@@ -33,9 +33,9 @@ fun! s:open_file(outfile, ...)
         tabnew
     endif
     execute 'edit' fnameescape(file)
-endf
+endfu
 
-fun! s:myc() abort
+fu s:myc() abort
     let outfile = tempname()
     let cmd = "CLICOLOR_FORCE=1 myc --confirmkey --height 20 2>/dev/tty >" . fnameescape(outfile)
     botright 20new
@@ -51,9 +51,9 @@ fun! s:myc() abort
                     \ "exit_cb": function('s:open_file', [outfile])
                     \ })
     endif
-endf
+endfu
 
-fun! my_find#files() abort
+fu my_find#files() abort
     if getcwd() =~# '^/data/users/'.$USER
         call s:myc()
         return
@@ -61,4 +61,4 @@ fun! my_find#files() abort
     if has('nvim')
         lua require'my.isearch'.search_files()
     endif
-endf
+endfu

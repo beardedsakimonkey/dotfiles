@@ -1,12 +1,11 @@
-augroup my_reason
-  autocmd! * <buffer>
-  autocmd BufWritePre <buffer> :ReasonPrettyPrint
-augroup END
+aug my_reason | au! * <buffer>
+  au BufWritePre <buffer> :ReasonPrettyPrint
+aug END
 
-nnoremap <nowait><buffer><silent> <cr>  :MerlinLocate<cr>
-nnoremap <nowait><buffer>           gh  :MerlinTypeOf<cr>
-nnoremap <nowait><buffer><silent>   ,d  :MerlinDestruct<cr>
-nnoremap <nowait><buffer>           ,n  :MerlinGrowEnclosing<cr>
-nnoremap <nowait><buffer>           ,m  :MerlinShrinkEnclosing<cr>
-nnoremap <nowait><buffer>            R  <plug>(MerlinRename)
-nnoremap <nowait><buffer>           ,R  <plug>(MerlinRenameAppend)
+nno <nowait> <buffer> <silent> <cr>  :MerlinLocate<cr>
+nno <nowait> <buffer>            gh  :MerlinTypeOf<cr>
+nno <nowait> <buffer> <silent>   ,d  :MerlinDestruct<cr>
+nno <nowait> <buffer>            ,n  :MerlinGrowEnclosing<cr>
+nno <nowait> <buffer>            ,m  :MerlinShrinkEnclosing<cr>
+nno <nowait> <buffer>             R  <plug>(MerlinRename)
+nno <nowait> <buffer>            ,R  <plug>(MerlinRenameAppend)

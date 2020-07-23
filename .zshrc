@@ -340,12 +340,22 @@ alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.pa
 function mv() {
     emulate -L zsh
     if (( $# > 1 )); then
-        local destdir=${_%/*}
+        local destdir=${@[-1]%/*}
         if [ ! -d "$destdir" ]; then
             mkdir -p "$destdir"
         fi
     fi
     command mv "$@"
+}
+
+function cd() {
+    emulate -L zsh
+    if (( $# > 0 )) && [[ ! -d "$1" && -e "$1" ]]; then
+        printf 'no such directory: %s\n' "$1"
+        builtin cd $(dirname $1)
+    else
+        builtin cd "$@"
+    fi
 }
 
 function megadl() {
@@ -365,7 +375,7 @@ function megadl() {
         if [[ "$url" =~ "mega.nz" ]];then
             megadl "$url"
         else
-            echo "bad url -- $url"
+            printf "bad url: %s\n" "$url"
         fi
     fi
 }
@@ -373,12 +383,12 @@ function megadl() {
 function subup() {
     git submodule foreach "
     git fetch;
-    git log --date=relative --graph --format=\"%C(blue)%h %C(yellow)%>(12)%ad %Cgreen%<(7)%aN%C(auto)%d %Creset%s\" HEAD..FETCH_HEAD;
-    if [[ \$(git rev-parse HEAD) != \$(git rev-parse FETCH_HEAD) ]]; then
+    git log --date=relative --graph --format=\"%C(blue)%h %C(yellow)%>(12)%ad %Cgreen%<(7)%aN%C(auto)%d %Creset%s\" HEAD..origin/HEAD;
+    if [[ \$(git rev-parse HEAD) != \$(git rev-parse origin/HEAD) ]]; then
         read -n 1 -p 'checkout origin/HEAD? [yn] ' key;
-        echo;
+        printf '\\n';
         if [[ \$key = 'y' ]]; then
-            git checkout FETCH_HEAD;
+            git checkout origin/HEAD;
         fi
     fi
     true

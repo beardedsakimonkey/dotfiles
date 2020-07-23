@@ -1,7 +1,13 @@
+syntax enable
+filetype plugin indent on
+
 if has('nvim')
     set rtp^=~/.vim
     set rtp+=~/.vim/after
     let &packpath = &runtimepath
+endif
+
+if has('nvim')
     " !    - Save and restore all-caps global variables
     " '200 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
     " <50  - Contents of registers (up to 50 lines each) will be remembered
@@ -11,6 +17,9 @@ if has('nvim')
 else
     set viminfo=!,'200,<50,s10,h
     set viminfofile=~/.viminfo
+endif
+
+if !has('nvim')
     " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
     set <a-h>=h
     set <a-j>=j
@@ -24,14 +33,22 @@ else
         let &t_PS = "\033[200~"
         let &t_PE = "\033[201~"
     endif
+    set ttyfast
 endif
-set fileformats=unix,mac,dos
-set ttyfast
+
+if has('nvim')
+    set display=msgsep
+    set inccommand=nosplit
+else
+    set display=lastline
+endif
+
+set lazyredraw
 set ttimeout
 set ttimeoutlen=10  " This must be a low value for <esc>-key not to be confused with an <a-…> mapping
 set mouse=a
-set lazyredraw
 set synmaxcol=250
+
 if exists('+termguicolors')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -44,18 +61,19 @@ let &t_SR.="\<Esc>[4 q"
 let &t_EI.="\<Esc>[2 q"
 let &t_te.="\<Esc>[0 q"
 
-syntax enable
-filetype plugin indent on
 set hidden
 set confirm
 set noswapfile nobackup
 set undofile
 set undodir=~/.vim/undo
-set backspace=indent,eol,start
-set nojoinspaces
+
 set splitright
 set splitbelow
+
+set backspace=indent,eol,start
+set nojoinspaces
 set formatoptions+=1j
+
 set autoindent
 set shiftround
 set smarttab
@@ -63,20 +81,17 @@ set expandtab
 set shiftwidth=4
 set tabstop=4
 set softtabstop=-1
-if has('nvim')
-    set display=msgsep
-    set inccommand=nosplit
-else
-    set display=lastline
-endif
+
 set hlsearch
 set incsearch
 set ignorecase
 set infercase
 set smartcase
+
 set keywordprg=:help
 set completeopt=menu
 set complete=.,i,w,b
+
 set wildmenu
 set wildignorecase
 set wildignore&vim
@@ -90,18 +105,22 @@ set foldopen-=block
 set nomodeline
 set modelines=0
 
+set shortmess&vim
+set shortmess+=aTWIcFS
+set shortmess-=s
+
 set scrolloff=2
 set sidescrolloff=2
 set virtualedit=block
 set nowrap
-set shortmess&vim
-set shortmess+=aTWIcFS
-set shortmess-=s
-set noshowcmd
+
 set listchars=tab:›\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
+
 set signcolumn=no
+set noshowcmd
 set background=dark
+
 if executable('rg')
     set grepprg=rg\ -i\ --vimgrep
 else
@@ -117,35 +136,32 @@ if !exists('s:SID')
     delfu s:SID
 endif
 
-let g:LargeFile = 20*1024*1024 " 20MB
-augroup vimrc
-    autocmd!
-    autocmd BufReadPre *
+aug vimrc | au!
+    au BufReadPre *
                 \ let s = getfsize(expand('<afile>')) |
                 \ if s > g:LargeFile || s == -2 |
-                \   call <sid>large_buffer(expand('<afile>:p')) |
+                \   call <sid>large_buf(expand('<afile>:p')) |
                 \ endif
 
-    fu s:large_buffer(name)
+    let g:LargeFile = 20*1024*1024 " 20MB
+
+    fu s:large_buf(name)
         let b:my_large_file = 1
         syntax clear
-        set eventignore=all
+        set ei=all
         let &backupskip .= ',' . a:name
-        setlocal foldmethod=manual nofoldenable noswapfile noundofile
+        setl foldmethod=manual nofoldenable noswapfile noundofile
         aug large_buffer | au!
-            au BufWinEnter <buffer> call <sid>restore_eventignore()
+            au BufWinEnter <buffer> 
+                        \ set ei&vim |
+                        \ au! large_buffer |
+                        \ aug! large_buffer
         aug END
     endfu
 
-    fu s:restore_eventignore()
-        set eventignore&vim
-        au! large_buffer
-        aug! large_buffer
-    endfu
-
-    autocmd BufReadPost *
+    au BufReadPost *
                 \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
-                \   exe "normal! g`\"" |
+                \   exe "norm! g`\"" |
                 \ endif
 
     " Auto-create parent directories. But not for URIs (paths containing "://").
@@ -154,37 +170,39 @@ augroup vimrc
                 \   call mkdir(expand('<afile>:p:h'), 'p') |
                 \ endif
 
-    autocmd BufEnter *.txt
-                \ if &buftype == 'help' |
-                \   setlocal scrolloff=0 |
+    au BufEnter *.txt
+                \ if &buftype is# 'help' |
+                \   setl scrolloff=0 |
                 \   nno <buffer> q :q<cr> |
                 \   nno <buffer> T <c-]> |
                 \ endif
 
-    " Disable automatic comment insertion
-    autocmd FileType * setlocal formatoptions-=cro
+    au FileType * setl fo-=cro
 
     if exists('##TerminalWinOpen')
-        autocmd TerminalWinOpen * setlocal statusline=%f
+        au TerminalWinOpen * setl stl=%f
     elseif exists('##TerminalOpen')
-        autocmd TerminalOpen * setlocal statusline=%f
+        au TerminalOpen * setl stl=%f
     elseif exists('##TermOpen')
-        autocmd TermOpen * setlocal statusline=%f
+        au TermOpen * setl stl=%f
     endif
 
     " Warning: any BufWritePost autocmd after this will not get run when
     " writing vimrc, because sourcing the vimrc will clear the augroup
-    autocmd BufWritePost ~/.vim/vimrc source $MYVIMRC
-    autocmd BufWritePost ~/.vim/lua/* luafile <afile>
-    autocmd BufWritePost *tmux.conf   call system('tmux source-file '.expand('<afile>'))
+    au BufWritePost ~/.vim/vimrc so $MYVIMRC
+    au BufWritePost ~/.vim/lua/* luafile <afile>
+    au BufWritePost *tmux.conf   call system('tmux source-file '.expand('<afile>'))
 
-    autocmd BufRead,BufNewFile *.metal    set filetype=glsl
-    autocmd BufRead,BufNewFile *.fnl      set filetype=clojure
-    autocmd BufRead,BufNewFile *tmux.conf set filetype=tmux
+    au BufRead,BufNewFile *.metal    set ft=glsl
+    au BufRead,BufNewFile *.fnl      set ft=clojure
+    au BufRead,BufNewFile *tmux.conf set ft=tmux
 
     if has('nvim-0.5')
-        autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank('DiffAdd')
+        au TextYankPost * sil! lua require'vim.highlight'.on_yank('DiffAdd')
     endif
+
+    au CursorMoved * call HlSearch()
+    au InsertEnter * call StopHL()
 
     fu HlSearch()
         " bail out if cursor is at top/bottom of window
@@ -204,15 +222,12 @@ augroup vimrc
         if !v:hlsearch || mode() !=# 'n'
             return
         endif
-        silent call feedkeys("\<Plug>(StopHL)", 'm')
+        sil call feedkeys("\<Plug>(StopHL)", 'm')
     endfu
 
-    autocmd CursorMoved * call HlSearch()
-    autocmd InsertEnter * call StopHL()
-augroup END
-
-no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
-no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
+    no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
+    no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
+aug END
 
 "
 " Status line
@@ -302,7 +317,7 @@ fu s:grep(...) abort
         let cmd .=  ' '.shellescape(expandcmd(a:2))
     endif
     " could also populate the quickfix list, and hide it?
-    execute "lua require'my.isearch'.grep([[".cmd."]])"
+    exe "lua require'my.isearch'.grep([[".cmd."]])"
 endfu
 
 com! -nargs=1 PackInstall call <sid>packInstall(<q-args>)
@@ -316,14 +331,13 @@ fu s:packInstall(url)
         let url .= '.git'
     endif
     let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
-    " sanity check
-    if strlen(repo) == strlen(url)
+    if strlen(repo) is strlen(url)
         echomsg 'regex failed'
         return
     endif
     " FIXME: git expands the tilde
     let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
-    execute '!(cd ~ && '.cmd.')'
+    exe '!(cd ~ && '.cmd.')'
 endfu
 
 let mapleader = "\<s-f5>"
@@ -352,8 +366,8 @@ nno Q @q
 no Y y$
 no H ^
 no L $
-no <silent> ( :<c-u>keepjumps normal! H<cr>
-no <silent> ) :<c-u>keepjumps normal! L<cr>
+no <silent> ( :<c-u>keepj norm! H<cr>
+no <silent> ) :<c-u>keepj norm! L<cr>
 nno <c-p> <c-i>
 nm <home> gg
 nm <end> G
@@ -361,13 +375,13 @@ nno <pageup> <pageup>H
 nno <pagedown> <pagedown>L
 
 " TODO: how to keepjumps in visual mode without breaking selection
-nno <silent> gg :<c-u>keepjumps normal! gg<cr>
-nno <silent> G :<c-u>keepjumps normal! G<cr>
-nno <silent> M :<c-u>keepjumps normal! M<cr>
-nno <silent> { :<c-u>keepjumps normal! {<cr>
-nno <silent> } :<c-u>keepjumps normal! }<cr>
-nno <silent> n :<c-u>keepjumps normal! nzzzv<cr>
-nno <silent> N :<c-u>keepjumps normal! Nzzzv<cr>
+nno <silent> gg :<c-u>keepj norm! gg<cr>
+nno <silent> G :<c-u>keepj norm! G<cr>
+nno <silent> M :<c-u>keepj norm! M<cr>
+nno <silent> { :<c-u>keepj norm! {<cr>
+nno <silent> } :<c-u>keepj norm! }<cr>
+nno <silent> n :<c-u>keepj norm! nzzzv<cr>
+nno <silent> N :<c-u>keepj norm! Nzzzv<cr>
 
 no! <a-h> <left>
 no! <a-l> <right>
@@ -396,7 +410,7 @@ xno <silent> [n ?\v^[<\|=>]{7}<cr>
 nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
 
-fu s:move_line_setup(dir, asldf, sadf) abort
+fu s:move_line_setup(dir) abort
     let s:indent_with_shiftround = {'dir': a:dir}
     let &opfunc = s:SID .. 'move_line'
     return 'g@l'
@@ -410,8 +424,8 @@ fu s:move_line(_) abort
     norm! =``
 endfu
 
-nno <silent> [a :<c-u>call <SID>jump_arg(0)<cr>
-nno <silent> ]a :<c-u>call <SID>jump_arg(1)<cr>
+nno <silent> [a :<c-u>call <sid>jump_arg(0)<cr>
+nno <silent> ]a :<c-u>call <sid>jump_arg(1)<cr>
 
 fu s:jump_arg(forward)
     let flags = (a:forward ? '' : 'b').'W'
@@ -454,7 +468,7 @@ no <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
 no <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
 no <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
 no <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-no <silent> <space>en :<c-u>edit ~/notes/todo.taskpaper<bar>set bufhidden=wipe<cr>
+no <silent> <space>en :<c-u>edit ~/notes/notes.md<bar>set bh=wipe<cr>
 no <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
 no <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
@@ -465,19 +479,25 @@ cno <c-k> <c-t>
 cno <c-o> <c-r>=expand("%:t:r")<cr>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
-" TODO: any way to get inccommand to update?
-nno <space>s :%s///<left>
 nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 
-nno             U :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
-nno <2-leftmouse> :<c-u>let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+" TODO: any way to get inccommand to update?
+nno <space>s :<c-u>%s///<left>
+
+nno 'e 2g;zz
+xm <expr> gd mode() is# 'V' ? 'ygvgcP' : 'gd'
+
+nno g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
+nno <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
+
 nno g= ms'[=']`s
 nno <space>= H=L``
-nno 'e 2g;zz
+
 nno g<c-v> `[v`]
 nno gV     '[V']
+
 xno * "ayms/<c-r>a<cr>zzzv
 xno # "ayms?<c-r>a<cr>zzzv
 nno * ms*zzzv
@@ -486,6 +506,7 @@ nno c* *``/<up><cr>``cgn
 nno c# #``/<up><cr>``cgN
 
 nno gy :<c-u>call <sid>show_syntax()<cr>
+
 fu s:show_syntax()
     echo printf("hi<%s> trans<%s> lo<%s>",
                 \ synIDattr(synID(line("."), col("."),1), "name"),
@@ -499,7 +520,6 @@ ca ~? ~/
 
 " Disabled Vim plugins
 let g:loaded_getscriptPlugin = 1
-let g:loaded_gzip = 1
 let g:loaded_logiPat = 1
 let g:loaded_rrhelper = 1
 let g:loaded_tarPlugin = 1
@@ -508,7 +528,9 @@ let g:loaded_vimball = 1
 let g:loaded_zipPlugin = 1
 let g:loaded_netrwPlugin = 1
 let g:loaded_matchit = 1
+
 let g:did_install_default_menus = 1 " $VIMRUNTIME/menu.vim
+
 if has('nvim')
     let g:loaded_python_provider = 0
     let g:loaded_perl_provider = 0
@@ -533,8 +555,8 @@ let g:merlin_split_method = "never"
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 1
 let g:colortemplate_toolbar = 0
-autocmd vimrc BufWritePost *.colortemplate set ei=FileType | Colortemplate! | set ei&vim | exe 'colo' g:colors_name
-autocmd vimrc BufEnter *.colortemplate nno <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
+au vimrc BufWritePost *.colortemplate set ei=FileType | Colortemplate! | set ei&vim | exe 'colo' g:colors_name
+au vimrc BufEnter *.colortemplate nno <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
 com! -nargs=0 Colortest runtime syntax/hitest.vim
 
 " vim-qf
@@ -545,7 +567,7 @@ let g:qf_mapping_ack_style = 1
 
 " vim-dirvish
 let g:dirvish_mode = ':sort ,^.*/,'
-autocmd vimrc VimEnter *
+au vimrc VimEnter *
             \ let has_stdin = &modified |
             \ if !argc() && !has_stdin |
             \   silent! Dirvish |
@@ -556,24 +578,25 @@ let g:BufKillCreateMappings = 0
 
 " vim-linediff
 let g:linediff_buffer_type = 'scratch'
-xno <expr> D (mode() ==# "V" ? ':Linediff<cr>' : 'D')
+xno <expr> D mode() is# 'V' ? ':Linediff<cr>' : 'D'
 
 " vim-matchup
 let g:matchup_surround_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
 let g:matchup_motion_keepjumps = 1
-autocmd vimrc FileType * let b:matchup_matchparen_enabled = 0
+au vimrc FileType * let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
+
 for v in ['g', ']', '[', 'z', 'a', 'i']
-    execute 'omap '.v.'m <plug>(matchup-'.v.'%)'
+    exe 'omap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 for v in ['g', ']', '[', 'z']
-    execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
-    execute 'vmap '.v.'m <plug>(matchup-'.v.'%)'
+    exe 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+    exe 'vmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 for v in ['ds', 'cs']
-    execute 'nmap '.v.'m <plug>(matchup-'.v.'%)'
+    exe 'nmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 
 fu IsCommentaryOpFunc()
@@ -602,7 +625,7 @@ if has('nvim-0.5')
 endif
 
 packadd! gruvburn
-silent! colorscheme gruvburn
+sil! colo gruvburn
 
 "
 " adapted from justinmk's init.vim
@@ -727,10 +750,10 @@ fu s:diff_orig() abort
     let &filetype = getbufvar('#', '&ft')
 
     let s:tmp_partial = function('s:diff_orig_restore_settings', [cole_save])
-    augroup diff_orig_restore_settings
+    aug diff_orig_restore_settings
         au! * <buffer>
         au BufWipeOut <buffer>  call timer_start(0, s:tmp_partial)
-    augroup END
+    aug END
 
     exe winnr('#')..'windo diffthis'
     return ''
@@ -759,14 +782,14 @@ fu s:dump_result() abort
     if empty(lines) | return | endif
     let line = lines[0][column_start-1:column_end-1]
     if empty(line) | return | endif
-    if &filetype is# 'vim'
+    if &ft is# 'vim'
         let res = eval(line)
-    elseif &filetype is# 'lua'
+    elseif &ft is# 'lua'
         " FIXME: null characters
         let res = luaeval('vim.inspect(' .. line .. ')')
-    elseif &filetype =~# 'z\?sh'
+    elseif &ft =~# 'z\?sh'
         let res = system(line)
-    elseif &filetype =~# 'javascript'
+    elseif &ft =~# 'javascript'
         " TODO
         return
     else
@@ -778,29 +801,30 @@ endfu
 ino <silent> <c-l> <c-r>=<sid>insert_log()<cr>
 
 fu s:insert_log()
-    if &filetype is# 'javascript'
+    if &ft is# 'javascript'
         call feedkeys("console.log()\<left>")
         return ''
-    elseif &filetype is# 'lua'
+    elseif &ft is# 'lua'
         call feedkeys("print(vim.inspect())\<left>\<left>")
         return ''
-    elseif &filetype is# 'reason'
+    elseif &ft is# 'reason'
         return '[%debugger];'
-    elseif &filetype is# 'vim'
+    elseif &ft is# 'vim'
         return 'echom '
     endif
 endfu
 
-autocmd vimrc BufReadPost * call s:fasd_update()
-fu s:fasd_update() abort
-  if empty(&buftype) || &filetype ==# 'dirvish'
-    call jobstart(['fasd', '-A', expand('%:p')])
-  endif
-endfu
-
-let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
-if filereadable(vimrc_local)
-    execute 'source' vimrc_local
+if executable('fasd')
+  au vimrc BufReadPost * call s:fasd_update()
+  fu s:fasd_update() abort
+    if empty(&buftype) || &ft is# 'dirvish'
+      call jobstart(['fasd', '-A', expand('%:p')])
+    endif
+  endfu
 endif
 
-" TODO: create visual mode mapping "D" that duplicates the selection, and comments one of them
+" source local config
+let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
+if filereadable(vimrc_local)
+    exe 'source' vimrc_local
+endif

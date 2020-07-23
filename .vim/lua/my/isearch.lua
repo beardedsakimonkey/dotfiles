@@ -206,6 +206,10 @@ local function search(source, _show_preview)
     local num_columns = api.nvim_get_option('columns')
     local num_lines = api.nvim_get_option('lines')
 
+    if num_columns < 160 then
+        show_preview = false
+    end
+
     local height = math.ceil((num_lines * (num_lines < 30 and 0.8 or 0.9)))
     local width = math.ceil(num_columns * (num_columns < 160 and 0.8 or 0.9))
 

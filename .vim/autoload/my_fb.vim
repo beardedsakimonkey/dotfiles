@@ -1,4 +1,4 @@
-fun! my_fb#copy_diffusion_url() range
+fu my_fb#copy_diffusion_url() range
     let f = expand( "%:p" )[len(system("hg root")):]
     let range = line('.')
     if a:lastline - a:firstline > 0
@@ -7,9 +7,9 @@ fun! my_fb#copy_diffusion_url() range
     let url = system("diffusion", f . ":" . range)
     call my_fb#yank(url)
     echomsg "Copied: ".url
-endf
+endfu
 
-fun! my_fb#grep(...) abort
+fu my_fb#grep(...) abort
     let cwd = getcwd()
     if cwd =~# '^/data/users/'.$USER.'/www'
         setlocal grepprg=tbgsw\ --color=off\ --limit=100\ --stripdir\ --ignore-case
@@ -26,13 +26,13 @@ fun! my_fb#grep(...) abort
         echo 'no results'
     endif
     return res
-endf
+endfu
 
-fun! my_fb#yank(text)
+fu my_fb#yank(text)
     let escape = system('yank', a:text)
     if v:shell_error
         echoerr escape
     else
         call writefile([escape], '/dev/tty', 'b')
     endif
-endf
+endfu

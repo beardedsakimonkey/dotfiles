@@ -216,7 +216,6 @@ font:
   #
   #indexed_colors: []
 
-# Colors
 colors:
   cursor:
     text: '#000000'
@@ -343,9 +342,8 @@ mouse:
   # alacritty should wait for accepting multiple clicks as one double
   # or triple click.
 
-  # disabled so it's easier to double click in vim
-  double_click: { threshold: 0 }
-  triple_click: { threshold: 0 }
+  #double_click: { threshold: 300 }
+  #triple_click: { threshold: 300 }
 
   # If this is `true`, the cursor is temporarily hidden when typing.
   hide_when_typing: true

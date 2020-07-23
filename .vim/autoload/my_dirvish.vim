@@ -1,11 +1,11 @@
-fun! s:list_dir(dir) abort
+fu s:list_dir(dir) abort
     let dir_esc = escape(a:dir, '{}')
     let paths = glob(dir_esc.'*', 1, 1)
                 \ + glob(dir_esc.'.[^.]*', 1, 1)
     return map(paths, "fnamemodify(v:val, ':p')")
-endf
+endfu
 
-fun! s:interactive(prefix) abort
+fu s:interactive(prefix) abort
     let head = expand('%')
     let tail = ''
     let undoseq = []
@@ -104,17 +104,17 @@ fun! s:interactive(prefix) abort
         echohl None
         echon tail
     endwhile
-endf
+endfu
 
-fun! s:close_interactive(bufnr, winrestsize)
+fu s:close_interactive(bufnr, winrestsize)
     wincmd p
     execute "bwipe!" a:bufnr
     exe a:winrestsize
     redraw
     echo "\r"
-endf
+endfu
 
-fun! s:make_needed_dirs(path) abort
+fu s:make_needed_dirs(path) abort
     if a:path[-1:] ==# '/' && !isdirectory(a:path)
         call mkdir(a:path, 'p', 0700)
     else
@@ -123,18 +123,18 @@ fun! s:make_needed_dirs(path) abort
             call mkdir(head, 'p', 0700)
         endif
     endif
-endf
+endfu
 
-fun! my_dirvish#create() abort
+fu my_dirvish#create() abort
     let path = s:interactive('Create file: ')
     if empty(path) | return | endif
     call s:make_needed_dirs(path)
     call system('touch '.shellescape(path))
     call dirvish#open(expand('%'))
     call search('\V\^'.escape(path, '\').'\$', 'cw')
-endf
+endfu
 
-fun! my_dirvish#copy() abort
+fu my_dirvish#copy() abort
     let from = fnamemodify(getline('.'), ':p')
     if empty(from) | return | endif
     let to = s:interactive('Copy file: ')
@@ -142,9 +142,9 @@ fun! my_dirvish#copy() abort
     call s:make_needed_dirs(to)
     call system('cp '.shellescape(from).' '.shellescape(to))
     call dirvish#open(expand('%'))
-endf
+endfu
 
-fun! my_dirvish#rename() abort
+fu my_dirvish#rename() abort
     let from = fnamemodify(getline('.'), ':p')
     if empty(from) | return | endif
     let to = s:interactive('Rename file: ')
@@ -152,9 +152,9 @@ fun! my_dirvish#rename() abort
     call s:make_needed_dirs(to)
     call system('mv '.shellescape(from).' '.shellescape(to))
     call dirvish#open(expand('%'))
-endf
+endfu
 
-fun! my_dirvish#delete() abort
+fu my_dirvish#delete() abort
     let file = fnamemodify(getline('.'), ':p')
     if empty(file)
         return
@@ -176,4 +176,4 @@ fun! my_dirvish#delete() abort
         redraw
         echo "\r"
     endif
-endf
+endfu

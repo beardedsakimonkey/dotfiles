@@ -12,6 +12,7 @@
 !/.config/tmux
 
 !/.zsh
+!/.zshenv
 
 !/post-install.sh
 !/.tmux.conf

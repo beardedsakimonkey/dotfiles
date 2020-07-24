@@ -62,11 +62,6 @@ _comp_options+=(globdots) # complete dotfiles without entering a .
 # NOTE: `emulate -L zsh` is used to diable some custom setopts
 #
 
-# bindkey "^[j" backward-word
-# bindkey "^[h" backward-char
-# bindkey "^[k" forward-word
-# bindkey "^[l" forward-char
-
 bindkey "\C-a" beginning-of-line
 bindkey "\C-e" end-of-line
 bindkey "\C-u" backward-kill-line
@@ -252,25 +247,6 @@ zle -N zle-line-finish
 export KEYTIMEOUT=15
 export CORRECT_IGNORE=_*,.*
 
-export PATH="$HOME/.cargo/bin/:$PATH"
-export PATH="$HOME/bin:$PATH"
-
-export HISTSIZE=100000
-export SAVEHIST=100000
-export HISTFILE=~/.zsh_history
-
-export EDITOR=nvim
-export VISUAL=$EDITOR
-export PAGER=less
-export READNULLCMD=$PAGER
-
-export LESS_TERMCAP_mb=$(printf "\e[01;31m")
-export LESS_TERMCAP_md=$(printf "\e[00;33m")
-export LESS_TERMCAP_us=$(printf "\e[01;31m")
-export LESS_TERMCAP_me=$(printf "\e[0m")
-export LESS_TERMCAP_se=$(printf "\e[0m")
-export LESS_TERMCAP_ue=$(printf "\e[0m")
-
 #
 # Third-party
 #
@@ -317,10 +293,10 @@ if [ -n "$(command -v fasd)" ]; then
             local _fasd_ret="$(fasd -e 'printf %s' "$@")"
             [ -z "$_fasd_ret" ] && return
             if [ -d "$_fasd_ret" ]; then
-                cd "$_fasd_ret"
+                builtin cd "$_fasd_ret"
                 $EDITOR
             elif [ -e "$_fasd_ret" ]; then
-                cd $(dirname "$_fasd_ret")
+                builtin cd $(dirname "$_fasd_ret")
                 $EDITOR $(basename "$_fasd_ret")
             fi
         fi
@@ -360,6 +336,7 @@ function mv() {
     if (( $# > 1 )); then
         local destdir=${@[-1]%/*}
         if [ ! -d "$destdir" ]; then
+            printf 'making intermediate directories: %s\n' "$destdir"
             mkdir -p "$destdir"
         fi
     fi
@@ -381,7 +358,7 @@ function megadl() {
     if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
         command megadl "$@"
     else
-        # FIXME: this assumes a single url argument
+        # TODO: just loop, don't pass a count
         local count=1
         if (( $# > 1 )) && [[ ${@[-1]} =~ [0-9] ]]; then
             count="${@[-1]}"

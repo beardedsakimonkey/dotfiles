@@ -128,13 +128,80 @@ else
 endif
 set grepformat=%f:%l:%c:%m
 
-if !exists('s:SID')
-    fu s:SID() abort
-        return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
+"
+" Status line
+" TODO: why does buf_diagnostics_count() sometimes return nil??
+"
+set laststatus=2
+set noshowmode
+if has('nvim-0.5')
+    lua <<
+    _G.lsp_statusline_no_errors = function ()
+        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+            return ''
+        end
+        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+        if errors == 0 and warnings == 0 then
+            return '✔'
+        end
+        return ''
+    end
+    _G.lsp_statusline_has_errors = function ()
+        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
+            return ''
+        end
+        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
+        if errors > 0 or warnings > 0 then
+            return '✘'
+        end
+        return ''
+    end
+.
+    fu MyStatusLineNeovim() abort
+        return  MyStatusLine() . ' ' .
+                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
+                    \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
     endfu
-    let s:SID = printf('<SNR>%d_', s:SID())
-    delfu s:SID
+    set statusline=%!MyStatusLineNeovim()
+else
+    set statusline=%!MyStatusLine()
 endif
+
+fu MyStatusLine() abort
+    return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
+                \%2*%{&modified?'  + ':''}
+                \%* %f"
+endfu
+
+"
+" Tab line
+"
+set showtabline=1
+set tabline=%!MyTabLine()
+
+fu MyTabLine()
+    let s = ''
+    for i in range(1, tabpagenr('$'))
+        let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
+        let s .= '%'.i.'T %{MyTabLabel('.i.')}'
+    endfor
+    return s.'%#TabLineFill#%T'
+endfu
+
+fu MyTabLabel(n)
+    let buflist = tabpagebuflist(a:n)
+    let modified = ''
+    for b in buflist
+        if getbufvar(b, '&modified')
+            let modified = '+ '
+            break
+        endif
+    endfor
+    let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
+    return modified.name.' '
+endfu
 
 aug vimrc | au!
     au BufReadPre *
@@ -238,80 +305,13 @@ aug vimrc | au!
     endif
 aug END
 
-"
-" Status line
-" TODO: why does buf_diagnostics_count() sometimes return nil??
-"
-set laststatus=2
-set noshowmode
-if has('nvim-0.5')
-    lua <<
-    _G.lsp_statusline_no_errors = function ()
-        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-            return ''
-        end
-        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-        if errors == 0 and warnings == 0 then
-            return '✔'
-        end
-        return ''
-    end
-    _G.lsp_statusline_has_errors = function ()
-        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-            return ''
-        end
-        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-        if errors > 0 or warnings > 0 then
-            return '✘'
-        end
-        return ''
-    end
-.
-    fu MyStatusLineNeovim() abort
-        return  MyStatusLine() . ' ' .
-                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
-                    \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
+if !exists('s:SID')
+    fu s:SID() abort
+        return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
     endfu
-    set statusline=%!MyStatusLineNeovim()
-else
-    set statusline=%!MyStatusLine()
+    let s:SID = printf('<SNR>%d_', s:SID())
+    delfu s:SID
 endif
-
-fu MyStatusLine() abort
-    return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
-                \%2*%{&modified?'  + ':''}
-                \%* %f"
-endfu
-
-"
-" Tab line
-"
-set showtabline=1
-set tabline=%!MyTabLine()
-
-fu MyTabLine()
-    let s = ''
-    for i in range(1, tabpagenr('$'))
-        let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
-        let s .= '%'.i.'T %{MyTabLabel('.i.')}'
-    endfor
-    return s.'%#TabLineFill#%T'
-endfu
-
-fu MyTabLabel(n)
-    let buflist = tabpagebuflist(a:n)
-    let modified = ''
-    for b in buflist
-        if getbufvar(b, '&modified')
-            let modified = '+ '
-            break
-        endif
-    endfor
-    let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
-    return modified.name.' '
-endfu
 
 com! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
@@ -420,14 +420,14 @@ nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
 
 fu s:move_line_setup(dir) abort
-    let s:indent_with_shiftround = {'dir': a:dir}
+    let s:move_line = {'dir': a:dir}
     let &opfunc = s:SID .. 'move_line'
     return 'g@l'
 endfu
 
 " FIXME: v:count1 doesn't work if indenting
 fu s:move_line(_) abort
-    let dir = s:indent_with_shiftround.dir
+    let dir = s:move_line.dir
     norm! m`
     exe 'move' (dir is# 'up' ? '--' : '+') .. v:count1
     norm! =``
@@ -472,6 +472,7 @@ no <silent> <expr> <space>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 
 nno <space>a :<c-u>Grep<space>
 xno <space>a "sy:Grep <c-r>s
+xno <space>m :<c-u>make<cr>
 
 no <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
 no <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
@@ -518,14 +519,7 @@ cnorea <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 " TODO: immediately expand
 ca ~? ~/
 
-nno gy :<c-u>call <sid>show_syntax()<cr>
-
-fu s:show_syntax()
-    echo printf("hi<%s> trans<%s> lo<%s>",
-                \ synIDattr(synID(line("."), col("."),1), "name"),
-                \ synIDattr(synID(line("."), col("."),0), "name"),
-                \ synIDattr(synIDtrans(synID(line("."), col("."), 1)), "name"))
-endfu
+nno <silent> gy :<c-u>call colortemplate#syn#toggle()<cr>
 
 nno <silent> <space>v V:<c-u>call <sid>eval()<cr>
 xno <silent> <space>v :<c-u>call <sid>eval()<cr>
@@ -567,12 +561,23 @@ fu s:insert_log()
         call feedkeys("print(vim.inspect())\<left>\<left>")
         return ''
     elseif &ft is# 'reason'
-        call feedkeys('Js.log()\<left>')
+        call feedkeys('Js.log();\<left>\<left>')
         return ''
     elseif &ft is# 'vim'
         return 'echom '
     endif
 endfu
+
+fu s:map_change_option(...)
+  let [key, opt] = a:000[0:1]
+  let op = get(a:, 3, 'set '.opt.'!')
+  exe 'nno <silent> co'.key.' :'.op.'<cr>'
+endfu
+
+call s:map_change_option('n', 'number')
+call s:map_change_option('c', 'cursorline')
+call s:map_change_option('b', 'background', 'let &background = &background == "dark" ? "light" : "dark"<bar>redraw')
+call s:map_change_option('w', 'wrap')
 
 "
 " adapted from justinmk's init.vim
@@ -588,7 +593,6 @@ nno gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg
 nno / ms/
 
 nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
-nno gj i<c-j><esc>k$
 
 "
 " adapted from lacygoill's vimrc
@@ -654,7 +658,7 @@ fu s:get_patnum() abort
     return pat
 endfu
 
-" text-object: inner line (leading whitespace trimmed)
+" text-object: inner line
 ono <silent> il :<c-u>norm! _vg_<cr>
 
 " search only in visual selection
@@ -714,6 +718,35 @@ fu s:diff_orig_restore_settings(conceallevel,_) abort
     unlet s:tmp_partial
 endfu
 
+"
+" adapted from junegunn's vimrc
+"
+omap <silent> ac :<C-U>call <SID>inner_comment(0)<CR>
+
+function! s:inner_comment(vis)
+    if synIDattr(synID(line('.'), col('.'), 0), 'name') !~? 'comment'
+        return
+    endif
+
+    let origin = line('.')
+    let lines = []
+    for dir in [-1, 1]
+        let line = origin
+        let line += dir
+        while line >= 1 && line <= line('$')
+            execute 'normal!' line.'G^'
+            if synIDattr(synID(line('.'), col('.'), 0), 'name') !~? 'comment'
+                break
+            endif
+            let line += dir
+        endwhile
+        let line -= dir
+        call add(lines, line)
+    endfor
+
+    execute 'normal!' lines[0].'GV'.lines[1].'G'
+endfunction
+
 " Disabled Vim plugins
 let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat = 1
@@ -749,11 +782,11 @@ let g:merlin_split_method = "never"
 
 " vim-colortemplate
 packadd vim-colortemplate
-let g:colortemplate_no_mappings = 1
+let g:colortemplate_no_mappings = 0
+let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
 au vimrc BufWritePost *.colortemplate set ei=FileType | Colortemplate! | set ei&vim | exe 'colo' g:colors_name
-au vimrc BufEnter *.colortemplate nno <silent> <buffer> ga :<c-u>call colortemplate#getinfo(v:count1)<cr>
-com! -nargs=0 Colortest runtime syntax/hitest.vim
+com! -nargs=0 HiTest runtime syntax/hitest.vim
 
 " vim-qf
 nm <c-n> <Plug>(qf_qf_toggle)
@@ -763,11 +796,11 @@ let g:qf_mapping_ack_style = 1
 
 " vim-dirvish
 let g:dirvish_mode = ':sort ,^.*/,'
+au vimrc StdinReadPost * let s:has_stdin = 1
 au vimrc VimEnter *
             \ if !argc() && !get(s:, 'has_stdin', 0) |
             \   silent! Dirvish |
             \ endif
-au vimrc StdinReadPost * let s:has_stdin = 1
 
 " vim-bufkill
 let g:BufKillCreateMappings = 0
@@ -804,6 +837,13 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 " rust.vim
 " let g:rustfmt_autosave = 1
 
+" goyo.vim
+nno <silent> _ :<c-u>Goyo<cr>
+
+" splitjoin.vim
+let g:splitjoin_split_mapping = 'gj'
+let g:splitjoin_join_mapping = 'gk'
+
 if has('nvim-0.5')
     com! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
     com! RestartLsp call <sid>restartLsp()
@@ -825,4 +865,3 @@ let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)
     exe 'source' vimrc_local
 endif
-

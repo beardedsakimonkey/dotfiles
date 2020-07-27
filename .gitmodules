@@ -73,3 +73,9 @@
 [submodule "vim-lion"]
 	path = .vim/pack/third-party/start/vim-lion
 	url = https://github.com/tommcdo/vim-lion.git
+[submodule "goyo.vim"]
+	path = /Users/tim/.vim/pack/third-party/start/goyo.vim
+	url = https://github.com/junegunn/goyo.vim.git
+[submodule "splitjoin.vim"]
+	path = /Users/tim/.vim/pack/third-party/start/splitjoin.vim
+	url = https://github.com/AndrewRadev/splitjoin.vim.git

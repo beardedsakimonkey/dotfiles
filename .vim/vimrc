@@ -295,7 +295,7 @@ aug vimrc | au!
     no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
     no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
-    if executable('fasd')
+    if executable('fasd') && exists('*jobstart')
         au BufReadPost * call s:fasd_update()
         fu s:fasd_update() abort
             if empty(&buftype) || &ft is# 'dirvish'
@@ -313,9 +313,9 @@ if !exists('s:SID')
     delfu s:SID
 endif
 
-com! -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+com! -bar -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
-com! -nargs=* -complete=file_in_path Grep call <sid>grep(<f-args>)
+com! -bar -nargs=* -complete=file_in_path Grep call <sid>grep(<f-args>)
 
 fu s:grep(...) abort
     if a:0 == 0
@@ -329,7 +329,7 @@ fu s:grep(...) abort
     exe "lua require'my.isearch'.grep([[".cmd."]])"
 endfu
 
-com! -nargs=1 PackInstall call <sid>packInstall(<q-args>)
+com! -bar -nargs=1 PackInstall call <sid>packInstall(<q-args>)
 
 fu s:packInstall(url)
     let url = a:url
@@ -361,36 +361,59 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno <expr> p getreg('"') =~ "\n" ? "pmx=']`x" : "p"
-nno <expr> P getreg('"') =~ "\n" ? "Pmx=']`x" : "P"
+nno <silent> p :<c-u>call <sid>paste(0)<cr>
+nno <silent> P :<c-u>call <sid>paste(1)<cr>
+
+fu s:paste(cap)
+    const p = a:cap ? 'P' : 'p'
+    if getreg('"') =~ "\n"
+        exe "keepj norm! "..p.."mx=']`x"
+    else
+        exe "norm! "..p
+    endif
+endfu
 
 nno ; :
 xno ; :
 nno : ;
 xno : ;
 
-nno ' `
-
 nno Q @q
 no Y y$
 no H ^
 no L $
-no <silent> ( :<c-u>keepj norm! H<cr>
-no <silent> ) :<c-u>keepj norm! L<cr>
 nno <c-p> <c-i>
-nm <home> gg
-nm <end> G
-nno <pageup> <pageup>H
-nno <pagedown> <pagedown>L
+nno <silent> <home> :<c-u>keepj norm! gg<cr>
+nno <silent> <end> :<c-u>keepj norm! G<cr>
+nno <silent> <pageup> <pageup>:keepj norm! H<cr>
+nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
 
-" TODO: how to keepjumps in visual mode without breaking selection
+" TODO: keepjumps for /?`'
+no  <silent> (  :<c-u>keepj norm! H<cr>
+no  <silent> )  :<c-u>keepj norm! L<cr>
+nno <silent> M  :<c-u>keepj norm! M<cr>
+nno <silent> {  :<c-u>keepj norm! {<cr>
+nno <silent> }  :<c-u>keepj norm! }<cr>
 nno <silent> gg :<c-u>keepj norm! gg<cr>
-nno <silent> G :<c-u>keepj norm! G<cr>
-nno <silent> M :<c-u>keepj norm! M<cr>
-nno <silent> { :<c-u>keepj norm! {<cr>
-nno <silent> } :<c-u>keepj norm! }<cr>
-nno <silent> n :<c-u>keepj norm! nzzzv<cr>
-nno <silent> N :<c-u>keepj norm! Nzzzv<cr>
+nno <silent> G  :<c-u>keepj norm! G<cr>
+nno <silent> n  :<c-u>keepj norm! nzzzv<cr>
+nno <silent> N  :<c-u>keepj norm! Nzzzv<cr>
+
+nno <silent> * ms:keepj norm! *<cr>zzzv
+nno <silent> # ms:keepj norm! #<cr>zzzv
+xno <silent> * "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
+xno <silent> # "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
+nno <silent> c* ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgn
+nno <silent> c# ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgN
+
+nno <silent> g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
+nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
+
+" TODO: keepj
+nno g= ms'[=']`s
+nno <space>= H=L``
+nno g<c-v> `[v`]
+nno gV     '[V']
 
 no! <a-h> <left>
 no! <a-l> <right>
@@ -428,9 +451,9 @@ endfu
 " FIXME: v:count1 doesn't work if indenting
 fu s:move_line(_) abort
     let dir = s:move_line.dir
-    norm! m`
+    keepj norm! m`
     exe 'move' (dir is# 'up' ? '--' : '+') .. v:count1
-    norm! =``
+    keepj norm! =``
 endfu
 
 nno <silent> [a :<c-u>call <sid>jump_arg(0)<cr>
@@ -468,10 +491,8 @@ no <silent> <space>q :<c-u>b#<cr>
 no <silent> <space>gd :<c-u>Diffusion<cr>
 no <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
 
-no <silent> <expr> <space>l (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
-
 nno <space>a :<c-u>Grep<space>
-xno <space>a "sy:Grep <c-r>s
+xno <space>a "vy:Grep <c-r>v
 xno <space>m :<c-u>make<cr>
 
 no <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
@@ -493,33 +514,14 @@ nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 
-" TODO: any way to get inccommand to update?
-nno <space>s :<c-u>%s///<left>
+nno <space>s :<c-u>%s///<left>a<bs>
 
 nno 'e 2g;zz
 xm <expr> gd mode() is# 'V' ? 'ygvgcP' : 'gd'
 
-nno g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
-nno <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
-
-nno g= ms'[=']`s
-nno <space>= H=L``
-
-nno g<c-v> `[v`]
-nno gV     '[V']
-
-xno * "ayms/<c-r>a<cr>zzzv
-xno # "ayms?<c-r>a<cr>zzzv
-nno * ms*zzzv
-nno # ms#zzzv
-nno c* *``/<up><cr>``cgn
-nno c# #``/<up><cr>``cgN
-
 cnorea <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
 " TODO: immediately expand
 ca ~? ~/
-
-nno <silent> gy :<c-u>call colortemplate#syn#toggle()<cr>
 
 nno <silent> <space>v V:<c-u>call <sid>eval()<cr>
 xno <silent> <space>v :<c-u>call <sid>eval()<cr>
@@ -578,6 +580,7 @@ call s:map_change_option('n', 'number')
 call s:map_change_option('c', 'cursorline')
 call s:map_change_option('b', 'background', 'let &background = &background == "dark" ? "light" : "dark"<bar>redraw')
 call s:map_change_option('w', 'wrap')
+call s:map_change_option('l', 'hlsearch')
 
 "
 " adapted from justinmk's init.vim
@@ -785,8 +788,9 @@ packadd vim-colortemplate
 let g:colortemplate_no_mappings = 0
 let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
-au vimrc BufWritePost *.colortemplate set ei=FileType | Colortemplate! | set ei&vim | exe 'colo' g:colors_name
-com! -nargs=0 HiTest runtime syntax/hitest.vim
+au vimrc BufWritePost *.colortemplate Colortemplate! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
+com! -bar HiTest runtime syntax/hitest.vim
+com! -bar Syn call colortemplate#syn#toggle()
 
 " vim-qf
 nm <c-n> <Plug>(qf_qf_toggle)
@@ -844,9 +848,12 @@ nno <silent> _ :<c-u>Goyo<cr>
 let g:splitjoin_split_mapping = 'gj'
 let g:splitjoin_join_mapping = 'gk'
 
+" undotree
+nno <silent> U :<c-u>UndotreeToggle<cr>
+
 if has('nvim-0.5')
-    com! CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
-    com! RestartLsp call <sid>restartLsp()
+    com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+    com! -bar RestartLsp call <sid>restartLsp()
 
     fu s:restartLsp()
         lua vim.lsp.stop_client(vim.lsp.get_active_clients())

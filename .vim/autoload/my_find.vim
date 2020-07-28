@@ -1,7 +1,7 @@
 "
 " Commit
 "
-fu my_find#hg_commit()
+fu my_find#hg_commit() abort
     let l:source = "hg log "
                 \ ."--limit 20 "
                 \ ."--color always "
@@ -19,7 +19,7 @@ endfu
 " 
 " Files
 " 
-fu s:open_file(outfile, ...)
+fu s:open_file(outfile, ...) abort
     let results = filereadable(a:outfile) ? readfile(a:outfile) : []
     silent! call delete(a:outfile)
     wincmd p

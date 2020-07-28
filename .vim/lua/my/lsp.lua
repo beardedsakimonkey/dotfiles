@@ -25,10 +25,6 @@ if not vim.g.loaded_my_lsp then
         on_attach = on_attach,
     }
 
-    nvim_lsp.vimls.setup{
-        on_attach = on_attach,
-    }
-
     nvim_lsp.clangd.setup{
         on_attach = on_attach,
     }

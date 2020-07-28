@@ -1,4 +1,4 @@
-fu my_fb#copy_diffusion_url() range
+fu my_fb#copy_diffusion_url() range abort
     let f = expand( "%:p" )[len(system("hg root")):]
     let range = line('.')
     if a:lastline - a:firstline > 0
@@ -28,7 +28,7 @@ fu my_fb#grep(...) abort
     return res
 endfu
 
-fu my_fb#yank(text)
+fu my_fb#yank(text) abort
     let escape = system('yank', a:text)
     if v:shell_error
         echoerr escape

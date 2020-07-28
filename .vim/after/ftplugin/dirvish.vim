@@ -21,4 +21,4 @@ nno <buffer> <nowait> <silent> d :<c-u>call my_dirvish#delete()<cr>
 nno <buffer> <nowait> <silent> c :<c-u>call my_dirvish#copy()<cr>
 nno <buffer> <nowait> <silent> r :<c-u>call my_dirvish#rename()<cr>
 
-nno <buffer> <nowait> <silent> C :<c-u>lcd %<cr>
+nno <buffer> <nowait> <silent> C :<c-u>lcd %<bar>pwd<cr>

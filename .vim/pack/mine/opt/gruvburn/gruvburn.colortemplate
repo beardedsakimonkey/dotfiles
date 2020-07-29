@@ -68,7 +68,7 @@ Color: fg_dark_yellow  #5b5b26   214  Yellow
 Color: fg_yellow       #cec15c   214  Yellow
 Color: fg_dark_orange  #eab04b   214  Yellow
 
-Include: _common
+Include: _common.colortemplate
 
 Background: light
 
@@ -107,4 +107,4 @@ Color: fg_dark_yellow  #5b5b26   214  Yellow
 Color: fg_yellow       #cec15c   214  Yellow
 Color: fg_dark_orange  #eab04b   214  Yellow
 
-Include: _common
+Include: _common.colortemplate

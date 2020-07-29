@@ -160,8 +160,8 @@ if has('nvim-0.5')
     end
 .
     fu MyStatusLineNeovim() abort
-        return  MyStatusLine() . ' ' .
-                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*" .
+        return  MyStatusLine()..' '..
+                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*"..
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
     endfu
     set statusline=%!MyStatusLineNeovim()
@@ -172,7 +172,7 @@ endif
 fu MyStatusLine() abort
     return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
                 \%2*%{&modified?'  + ':''}
-                \%* %f"
+                \%* %f %5*%{session#status()}%*"
 endfu
 
 "
@@ -788,7 +788,7 @@ packadd vim-colortemplate
 let g:colortemplate_no_mappings = 0
 let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
-au vimrc BufWritePost *.colortemplate Colortemplate! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
+au vimrc BufWritePost *.colortemplate ColortemplateAll! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
 com! -bar HiTest runtime syntax/hitest.vim
 com! -bar Syn call colortemplate#syn#toggle()
 
@@ -802,7 +802,7 @@ let g:qf_mapping_ack_style = 1
 let g:dirvish_mode = ':sort ,^.*/,'
 au vimrc StdinReadPost * let s:has_stdin = 1
 au vimrc VimEnter *
-            \ if !argc() && !get(s:, 'has_stdin', 0) |
+            \ if !argc() && !has_key(s:, 'has_stdin') |
             \   silent! Dirvish |
             \ endif
 

@@ -94,7 +94,7 @@ isearchResults -> Normal
 isearchInput -> Normal
 isearchPreview -> Normal
 isearchMatch red none underline
-isearchPreviewLine none bg_green
+isearchPreviewLine none bg_dark_orange
 
 # nvim-lsp
 # NOTE: for sign column, use `bg_dark` for bg

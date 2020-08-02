@@ -51,6 +51,8 @@ zstyle ':completion:*:*:mpv:*' file-patterns \
 
 zstyle ':completion:*:warnings' format "%F{red}No match for:%f %d"
 
+fpath=( $HOME/.zsh/completions $fpath )
+
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
 compdef _vim v
@@ -244,6 +246,10 @@ zle -N zle-line-finish
 # NOTE: you should put exports that should exist for non-interactive shells in ~/.zshenv
 #
 
+export HISTSIZE=999999999
+export SAVEHIST=$HISTSIZE
+export HISTFILE=~/.zsh_history
+
 export KEYTIMEOUT=15
 export CORRECT_IGNORE=_*,.*
 
@@ -282,9 +288,9 @@ if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
     unalias a s sd sf d f z zz
     alias d='fasd_cd -d'
-    alias vf='fasd_cdv -f'
-    alias vd='fasd_cdv -d'
-    alias va='fasd_cdv -a'
+    alias vf='fasd_cdv -f -B shada'
+    alias vd='fasd_cdv -d -B shada'
+    alias va='fasd_cdv -a -B shada'
 
     function fasd_cdv() {
         if (( $# < 1 )); then
@@ -303,6 +309,7 @@ if [ -n "$(command -v fasd)" ]; then
     }
     compctl -U -K _fasd_zsh_cmd_complete -V fasd -x 'C[-1,-*e],s[-]n[1,e]' -c - 'c[-1,-A][-1,-D]' -f -- fasd_cdv
 fi
+
 
 # nvm
 if [ -d "$HOME/.nvm" ]; then
@@ -333,7 +340,7 @@ alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.pa
 
 function mv() {
     emulate -L zsh
-    if (( $# > 1 )); then
+    if (( $# > 1 )) && [[ "${@[-1]}" =~ / ]]; then
         local destdir=${@[-1]%/*}
         if [ ! -d "$destdir" ]; then
             printf 'making intermediate directories: %s\n' "$destdir"

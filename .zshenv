@@ -1,10 +1,6 @@
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/bin:$PATH"
 
-export HISTSIZE=999999999
-export SAVEHIST=$HISTSIZE
-export HISTFILE=~/.zsh_history
-
 export EDITOR=nvim
 export VISUAL=$EDITOR
 

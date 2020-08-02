@@ -1,5 +1,5 @@
 aug my_reason | au! * <buffer>
-  au BufWritePre <buffer> :ReasonPrettyPrint
+    au BufWritePre <buffer> :ReasonPrettyPrint
 aug END
 
 nno <nowait> <buffer> <silent> <cr>  :MerlinLocate<cr>

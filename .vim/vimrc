@@ -2,8 +2,8 @@ syntax enable
 filetype plugin indent on
 
 if has('nvim')
-    set rtp^=~/.vim
-    set rtp+=~/.vim/after
+    set runtimepath^=~/.vim
+    set runtimepath+=~/.vim/after
     let &packpath = &runtimepath
 endif
 
@@ -159,8 +159,8 @@ if has('nvim-0.5')
         return ''
     end
 .
-    fu MyStatusLineNeovim() abort
-        return  MyStatusLine()..' '..
+    fu! MyStatusLineNeovim() abort
+        return  MyStatusLine()..
                     \"%3*%{v:lua.lsp_statusline_no_errors()}%*"..
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
     endfu
@@ -169,7 +169,7 @@ else
     set statusline=%!MyStatusLine()
 endif
 
-fu MyStatusLine() abort
+fu! MyStatusLine() abort
     return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
                 \%2*%{&modified?'  + ':''}
                 \%* %f %5*%{session#status()}%*"
@@ -181,7 +181,7 @@ endfu
 set showtabline=1
 set tabline=%!MyTabLine()
 
-fu MyTabLine()
+fu! MyTabLine()
     let s = ''
     for i in range(1, tabpagenr('$'))
         let s .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
@@ -190,7 +190,7 @@ fu MyTabLine()
     return s.'%#TabLineFill#%T'
 endfu
 
-fu MyTabLabel(n)
+fu! MyTabLabel(n)
     let buflist = tabpagebuflist(a:n)
     let modified = ''
     for b in buflist
@@ -210,9 +210,9 @@ aug vimrc | au!
                 \   call <sid>large_buf(expand('<afile>:p')) |
                 \ endif
 
-    let g:LargeFile = 20*1024*1024 " 20MB
+    let g:LargeFile = 1024*1024 " 1MB
 
-    fu s:large_buf(name)
+    fu! s:large_buf(name)
         let b:my_large_file = 1
         syntax clear
         set ei=all
@@ -244,25 +244,25 @@ aug vimrc | au!
                 \   nno <buffer> T <c-]> |
                 \ endif
 
-    au FileType * setl fo-=cro
+    au FileType * setl formatoptions-=cro
 
     if exists('##TerminalWinOpen')
-        au TerminalWinOpen * setl stl=%f
+        au TerminalWinOpen * setl statusline=%f
     elseif exists('##TerminalOpen')
-        au TerminalOpen * setl stl=%f
+        au TerminalOpen * setl statusline=%f
     elseif exists('##TermOpen')
-        au TermOpen * setl stl=%f
+        au TermOpen * setl statusline=%f
     endif
 
     " Warning: any BufWritePost autocmd after this will not get run when
     " writing vimrc, because sourcing the vimrc will clear the augroup
-    au BufWritePost ~/.vim/vimrc so $MYVIMRC
-    au BufWritePost ~/.vim/lua/* luafile <afile>
-    au BufWritePost *tmux.conf   call system('tmux source-file '.expand('<afile>'))
+    au BufWritePost ~/.vim/vimrc     exe 'source' expand('<afile>:p')
+    au BufWritePost ~/.vim/lua/*     exe 'luafile' expand('<afile>:p')
+    au BufWritePost *tmux.conf       call system('tmux source-file '.expand('<afile>'))
 
-    au BufRead,BufNewFile *.metal    set ft=glsl
-    au BufRead,BufNewFile *.fnl      set ft=clojure
-    au BufRead,BufNewFile *tmux.conf set ft=tmux
+    au BufRead,BufNewFile *.metal    set filetype=glsl
+    au BufRead,BufNewFile *.fnl      set filetype=clojure
+    au BufRead,BufNewFile *tmux.conf set filetype=tmux
 
     if has('nvim-0.5')
         au TextYankPost * sil! lua require'vim.highlight'.on_yank('DiffAdd')
@@ -271,7 +271,7 @@ aug vimrc | au!
     au CursorMoved * call HlSearch()
     au InsertEnter * call StopHL()
 
-    fu HlSearch()
+    fu! HlSearch()
         " bail out if cursor is at top/bottom of window
         let wininfo = getwininfo(win_getid())[0]
         let lnum = getcurpos()[1]
@@ -285,7 +285,7 @@ aug vimrc | au!
         endif
     endfu
 
-    fu StopHL()
+    fu! StopHL()
         if !v:hlsearch || mode() !=# 'n'
             return
         endif
@@ -295,29 +295,49 @@ aug vimrc | au!
     no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
     no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
-    if executable('fasd') && exists('*jobstart')
-        au BufReadPost * call s:fasd_update()
-        fu s:fasd_update() abort
-            if empty(&buftype) || &ft is# 'dirvish'
-                call jobstart(['fasd', '-A', expand('%:p')])
-            endif
+    if has('nvim')
+        au vimrc VimEnter * call <sid>setup_global_marks()
+
+        fu! s:setup_global_marks()
+            call <sid>setup_global_mark("'V", '~/.vim/vimrc')
+            call <sid>setup_global_mark("'L", '~/.vim/lua/my')
+            call <sid>setup_global_mark("'Z", '~/.zshrc')
+            call <sid>setup_global_mark("'C", '~/.vim/pack/mine/opt/gruvburn/_common.colortemplate')
+            call <sid>setup_global_mark("'N", '~/notes/notes.md')
+            call <sid>setup_global_mark("'T", '~/.config/tmux/tmux.conf')
+            call <sid>setup_global_mark("'A", '~/.config/alacritty/alacritty.yml')
         endfu
+
+        fu! s:setup_global_mark(mark, file)
+            let has_mark = getpos(a:mark) != [0, 0, 0, 0]
+            if has_mark | return | endif
+            let file = fnamemodify(a:file, ':p')
+            if glob(file, 1) is# '' | return | endif
+            let buf = bufnr(file, 1)
+            " weirdly, setting the mark at column 2 saves as column 1 in shada
+            call setpos(a:mark, [buf, 1, 2, 0])
+        endfu
+
+        " jump to last cursor position for capital letter marks
+        for c in map(range(65, 90), 'nr2char(v:val)')
+            exe "nno '"..c.." '"..c..'g`"'
+        endfor
     endif
 aug END
 
 if !exists('s:SID')
-    fu s:SID() abort
+    fu! s:SID() abort
         return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
     endfu
     let s:SID = printf('<SNR>%d_', s:SID())
     delfu s:SID
 endif
 
-com! -bar -range Diffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
 com! -bar -nargs=* -complete=file_in_path Grep call <sid>grep(<f-args>)
 
-fu s:grep(...) abort
+fu! s:grep(...) abort
     if a:0 == 0
         return
     endif
@@ -329,9 +349,9 @@ fu s:grep(...) abort
     exe "lua require'my.isearch'.grep([[".cmd."]])"
 endfu
 
-com! -bar -nargs=1 PackInstall call <sid>packInstall(<q-args>)
+com! -bar -nargs=1 PackInstall call <sid>pack_install(<q-args>)
 
-fu s:packInstall(url)
+fu! s:pack_install(url)
     let url = a:url
     if url =~ '/$'
         let url = url[:-2]
@@ -361,17 +381,8 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno <silent> p :<c-u>call <sid>paste(0)<cr>
-nno <silent> P :<c-u>call <sid>paste(1)<cr>
-
-fu s:paste(cap)
-    const p = a:cap ? 'P' : 'p'
-    if getreg('"') =~ "\n"
-        exe "keepj norm! "..p.."mx=']`x"
-    else
-        exe "norm! "..p
-    endif
-endfu
+nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
+nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
 
 nno ; :
 xno ; :
@@ -388,7 +399,9 @@ nno <silent> <end> :<c-u>keepj norm! G<cr>
 nno <silent> <pageup> <pageup>:keepj norm! H<cr>
 nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
 
-" TODO: keepjumps for /?`'
+" TODO: keepjumps for /?
+nno ` g`
+nno ' g'
 no  <silent> (  :<c-u>keepj norm! H<cr>
 no  <silent> )  :<c-u>keepj norm! L<cr>
 nno <silent> M  :<c-u>keepj norm! M<cr>
@@ -409,11 +422,10 @@ nno <silent> c# ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgN
 nno <silent> g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 
-" TODO: keepj
-nno g= ms'[=']`s
-nno <space>= H=L``
-nno g<c-v> `[v`]
-nno gV     '[V']
+nno g= mvg'[=g']g`v
+nno <space>= :<c-u>keepj norm! mvH=L`v<cr>
+nno g<c-v> g`[vg`]
+nno gV     g'[Vg']
 
 no! <a-h> <left>
 no! <a-l> <right>
@@ -442,29 +454,29 @@ xno <silent> [n ?\v^[<\|=>]{7}<cr>
 nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
 
-fu s:move_line_setup(dir) abort
+fu! s:move_line_setup(dir) abort
     let s:move_line = {'dir': a:dir}
     let &opfunc = s:SID .. 'move_line'
     return 'g@l'
 endfu
 
 " FIXME: v:count1 doesn't work if indenting
-fu s:move_line(_) abort
+fu! s:move_line(_) abort
     let dir = s:move_line.dir
-    keepj norm! m`
+    keepj norm! mv
     exe 'move' (dir is# 'up' ? '--' : '+') .. v:count1
-    keepj norm! =``
+    keepj norm! =`v
 endfu
 
 nno <silent> [a :<c-u>call <sid>jump_arg(0)<cr>
 nno <silent> ]a :<c-u>call <sid>jump_arg(1)<cr>
 
-fu s:jump_arg(forward)
+fu! s:jump_arg(forward)
     let flags = (a:forward ? '' : 'b').'W'
     call searchpair('[({[]', ',', '[]})]', flags, 's:isCursorInStringOrComment()')
 endfu
 
-fu s:isCursorInStringOrComment()
+fu! s:isCursorInStringOrComment()
     let syn = synIDattr(synID(line('.'), col('.'), 0), 'name')
     return syn =~? 'string' || syn =~? 'comment'
 endfu
@@ -488,20 +500,13 @@ no <silent> <space>d :<c-u>BD<cr>
 no <silent> <space>D :<c-u>bd<cr>
 no <silent> <space>q :<c-u>b#<cr>
 
-no <silent> <space>gd :<c-u>Diffusion<cr>
+no <silent> <space>gd :<c-u>CopyDiffusion<cr>
+xno <silent> <space>gd :CopyDiffusion<cr>
 no <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
 
 nno <space>a :<c-u>Grep<space>
 xno <space>a "vy:Grep <c-r>v
 xno <space>m :<c-u>make<cr>
-
-no <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
-no <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
-no <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
-no <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/opt/gruvburn/gruvburn.colortemplate<cr>
-no <silent> <space>en :<c-u>edit ~/notes/notes.md<bar>set bh=wipe<cr>
-no <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
-no <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
 cno <c-p> <up>
 cno <c-n> <down>
@@ -512,21 +517,23 @@ cno <c-o> <c-r>=expand("%:t:r")<cr>
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
+nno <silent> <space>v :<c-u>vsplit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 
-nno <space>s :<c-u>%s///<left>a<bs>
+nno <space>s :<c-u>%s///g<left><left>a<bs>
 
 nno 'e 2g;zz
 xm <expr> gd mode() is# 'V' ? 'ygvgcP' : 'gd'
 
-cnorea <expr> man getcmdtype() == ":" && getcmdline() == 'man' ? 'Man' : 'man'
+cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
+cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
 " TODO: immediately expand
 ca ~? ~/
 
-nno <silent> <space>v V:<c-u>call <sid>eval()<cr>
-xno <silent> <space>v :<c-u>call <sid>eval()<cr>
+nno <silent> <space>e V:<c-u>call <sid>eval()<cr>
+xno <silent> <space>e :<c-u>call <sid>eval()<cr>
 
-fu s:eval() abort
+fu! s:eval() abort
     let [line_start, column_start] = getpos("'<")[1:2]
     let [line_end, column_end] = getpos("'>")[1:2]
     if line_start != line_end
@@ -544,6 +551,9 @@ fu s:eval() abort
         let res = luaeval('vim.inspect(' .. line .. ')')
     elseif &ft =~# 'z\?sh'
         let res = system(line)
+        if type(res) is 3 " List
+            let res = '['..join(res, ', ')..']'
+        endif
     elseif &ft =~# 'javascript'
         " TODO
         return
@@ -555,7 +565,7 @@ endfu
 
 ino <silent> <c-l> <c-r>=<sid>insert_log()<cr>
 
-fu s:insert_log()
+fu! s:insert_log()
     if &ft is# 'javascript'
         call feedkeys("console.log()\<left>")
         return ''
@@ -570,10 +580,10 @@ fu s:insert_log()
     endif
 endfu
 
-fu s:map_change_option(...)
-  let [key, opt] = a:000[0:1]
-  let op = get(a:, 3, 'set '.opt.'!')
-  exe 'nno <silent> co'.key.' :'.op.'<cr>'
+fu! s:map_change_option(...)
+    let [key, opt] = a:000[0:1]
+    let op = get(a:, 3, 'set '.opt.'!')
+    exe 'nno <silent> co'.key.' :'.op.'<cr>'
 endfu
 
 call s:map_change_option('n', 'number')
@@ -581,6 +591,20 @@ call s:map_change_option('c', 'cursorline')
 call s:map_change_option('b', 'background', 'let &background = &background == "dark" ? "light" : "dark"<bar>redraw')
 call s:map_change_option('w', 'wrap')
 call s:map_change_option('l', 'hlsearch')
+
+nno <silent> <space>z :<c-u>call <sid>zoom_toggle()<cr>
+
+fu! s:zoom_toggle() abort
+    if winnr('$') == 1 | return | endif
+    if exists('t:zoom_restore')
+        exe t:zoom_restore
+        unlet t:zoom_restore
+    else
+        let t:zoom_restore = winrestcmd()
+        wincmd |
+        wincmd _
+    endif
+endfu
 
 "
 " adapted from justinmk's init.vim
@@ -602,7 +626,7 @@ nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>
 "
 nno <expr> <space>. <sid>repeat_last_edit_on_last_changed_text()
 
-fu s:repeat_last_edit_on_last_changed_text() abort
+fu! s:repeat_last_edit_on_last_changed_text() abort
     " put the last changed text inside the search register, so that we can refer
     " to it with the text-object `gn`
     let changed = getreg('"', 1, 1)
@@ -616,7 +640,7 @@ fu s:repeat_last_edit_on_last_changed_text() abort
         let pat = changed->join('\n')
     endif
     call setreg('/', '\V'..pat, 'c')
-    set hls
+    set hlsearch
     return "cgn\<c-@>"
     "          ├────┘
     "          └ insert the previously inserted text and stop insert
@@ -629,7 +653,7 @@ ono <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
 xno <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
 ono <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
 
-fu s:textobj_number(around) abort
+fu! s:textobj_number(around) abort
     let stopline = line('.')
     let pat = '\%('..s:get_patnum()..'\)'..(a:around ? '\s*' : '')
     " move cursor to end of number
@@ -646,7 +670,7 @@ fu s:textobj_number(around) abort
     echo
 endfu
 
-fu s:get_patnum() abort
+fu! s:get_patnum() abort
     let sign = '[-+]\='
     let decimal = '\d\+\.\=\d*'
     let fraction = '\.\d\+'
@@ -667,7 +691,7 @@ ono <silent> il :<c-u>norm! _vg_<cr>
 " search only in visual selection
 xno <silent> / :<c-u>call <sid>visual_slash()<cr>
 
-fu s:visual_slash() abort
+fu! s:visual_slash() abort
     if line("'<") == line("'>")
         call feedkeys('gv/', 'in')
     else
@@ -687,7 +711,7 @@ xno <silent> . :norm! .<cr>
 
 com! -bar DiffOrig echo s:diff_orig()
 
-fu s:diff_orig() abort
+fu! s:diff_orig() abort
     let cole_save = &l:conceallevel
     setl conceallevel=0
 
@@ -713,7 +737,7 @@ fu s:diff_orig() abort
     return ''
 endfu
 
-fu s:diff_orig_restore_settings(conceallevel,_) abort
+fu! s:diff_orig_restore_settings(conceallevel,_) abort
     exe 'setl conceallevel='..a:conceallevel
     diffoff!
     norm! zvzz
@@ -802,7 +826,7 @@ let g:qf_mapping_ack_style = 1
 let g:dirvish_mode = ':sort ,^.*/,'
 au vimrc StdinReadPost * let s:has_stdin = 1
 au vimrc VimEnter *
-            \ if !argc() && !has_key(s:, 'has_stdin') |
+            \ if !argc() && !has_key(s:, 'has_stdin') && !empty(glob('*', 1, 1)) |
             \   silent! Dirvish |
             \ endif
 
@@ -832,7 +856,7 @@ for v in ['ds', 'cs']
     exe 'nmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
 
-fu IsCommentaryOpFunc()
+fu! IsCommentaryOpFunc()
     return &operatorfunc ==? matchstr(maparg('<Plug>Commentary', 'n'),
                 \ '\c<SNR>\w\+\ze()\|set op\%(erator\)\?func=\zs.\{-\}\ze<cr>')
 endfu
@@ -855,7 +879,7 @@ if has('nvim-0.5')
     com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
     com! -bar RestartLsp call <sid>restartLsp()
 
-    fu s:restartLsp()
+    fu! s:restartLsp()
         lua vim.lsp.stop_client(vim.lsp.get_active_clients())
         edit
     endfu

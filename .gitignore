@@ -5,6 +5,7 @@
 /.vim/*
 !/.vim/**
 /.vim/local.vim
+/.vim/undo/
 /.vim/session/
 
 !/.config

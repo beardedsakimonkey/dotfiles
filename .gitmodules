@@ -85,3 +85,6 @@
 [submodule "vim-lookup"]
 	path = .vim/pack/third-party/start/vim-lookup
 	url = https://github.com/mhinz/vim-lookup.git
+[submodule "tmux-fingers"]
+	path = .config/tmux/tmux-fingers
+	url = https://github.com/morantron/tmux-fingers

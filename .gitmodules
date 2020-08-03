@@ -61,9 +61,6 @@
 [submodule "vim-glsl"]
 	path = .vim/pack/third-party/start/vim-glsl.vim
 	url = https://github.com/tikhomirov/vim-glsl.git
-[submodule "tmux-copycat"]
-	path = .config/tmux/tmux-copycat
-	url = https://github.com/tmux-plugins/tmux-copycat.git
 [submodule "vim-sleuth"]
 	path = .vim/pack/third-party/start/vim-sleuth
 	url = https://github.com/tpope/vim-sleuth.git

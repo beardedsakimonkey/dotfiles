@@ -137,6 +137,9 @@ set grepformat=%f:%l:%c:%m
 "
 set laststatus=2
 set noshowmode
+let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
+let s:stl_sess = "%5*%{session#status()}%*"
+
 if has('nvim-0.5')
     lua <<
     _G.lsp_statusline_no_errors = function ()
@@ -163,9 +166,9 @@ if has('nvim-0.5')
     end
 .
     fu! MyStatusLineNeovim() abort
-        return  MyStatusLine()..
-                    \"%3*%{v:lua.lsp_statusline_no_errors()}%*"..
+        let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
+        return s:stl_info.."%f "..stl_lsp.."%="..s:stl_sess
     endfu
     set statusline=%!MyStatusLineNeovim()
 else
@@ -173,9 +176,7 @@ else
 endif
 
 fu! MyStatusLine() abort
-    return "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}
-                \%2*%{&modified?'  + ':''}
-                \%* %f %5*%{session#status()}%*"
+    return s:stl_info.."%f %="
 endfu
 
 "
@@ -261,7 +262,7 @@ aug vimrc | au!
     " writing vimrc, because sourcing the vimrc will clear the augroup
     au BufWritePost ~/.vim/vimrc     exe 'source' expand('<afile>:p')
     au BufWritePost ~/.vim/lua/*     exe 'luafile' expand('<afile>:p')
-    au BufWritePost *tmux.conf       call system('tmux source-file '.expand('<afile>'))
+    au BufWritePost *tmux.conf       call system('tmux source-file '.expand('<afile>:p'))
 
     au BufRead,BufNewFile *.metal    set filetype=glsl
     au BufRead,BufNewFile *.fnl      set filetype=clojure
@@ -336,8 +337,6 @@ if !exists('s:SID')
     let s:SID = printf('<SNR>%d_', s:SID())
     delfu s:SID
 endif
-
-com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
 com! -bar -nargs=* -complete=file_in_path Grep call <sid>grep(<f-args>)
 
@@ -504,9 +503,11 @@ no <silent> <space>d :<c-u>BD<cr>
 no <silent> <space>D :<c-u>bd<cr>
 no <silent> <space>q :<c-u>b#<cr>
 
-no <silent> <space>gd :<c-u>CopyDiffusion<cr>
+com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+
+nno <silent> <space>gd :<c-u>.CopyDiffusion<cr>
 xno <silent> <space>gd :CopyDiffusion<cr>
-no <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
+nno <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
 
 nno <space>a :<c-u>Grep<space>
 xno <space>a "vy:Grep <c-r>v
@@ -517,6 +518,8 @@ cno <c-n> <down>
 cno <c-j> <c-g>
 cno <c-k> <c-t>
 cno <c-o> <c-r>=expand("%:t:r")<cr>
+
+ino <c-o> <c-r>=expand("%:t:r")<cr>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>

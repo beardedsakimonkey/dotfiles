@@ -104,8 +104,7 @@ font:
     family: Triplicate T4
     style: Bold Italic
 
-  #size: 14.9
-  size: 14
+  size: 12
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
@@ -301,7 +300,7 @@ selection:
   #unfocused_hollow: true
 
 # Live config reload (changes require restart)
-#live_config_reload: true
+live_config_reload: true
 
 # Shell
 #

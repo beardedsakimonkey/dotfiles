@@ -76,10 +76,10 @@ Color: fg0        #5e5146   59  Black
 Color: fg1        #4f3829   223  White
 
 Color: bg0        #c1bbac     59           White
-Color: bg1        #eddeb5   237  DarkGrey
-Color: bg2        #ebdbb2   237  DarkGrey
-Color: bg3        #e6d5ae   239  DarkGrey
-Color: bg4        #e6d5ae   239  DarkGrey
+Color: bg1        #bcb6a7   237  DarkGrey
+Color: bg2        #bcb6a7   237  DarkGrey
+Color: bg3        #ccc5b5   239  DarkGrey
+Color: bg4        #ccc5b5   239  DarkGrey
 
 Color: bg_dark    #2e2c2a   ~    Black
 Color: bg_grey0   #7c6f64   243  DarkGrey
@@ -92,14 +92,14 @@ Color: bg_green   #6f8352   22   DarkGreen
 Color: bg_magenta #391f42   ~    DarkMagenta
 Color: bg_cyan    #1f3742   ~    DarkCyan
 Color: red        #c14a4a   167  Red
-Color: orange     #c35e0a   208  DarkYellow
-Color: yellow     #b47109   214  Yellow
-Color: green      #6c782e   142  Green
+Color: orange     #915a2d   208  DarkYellow
+Color: yellow     #8e5b0e   214  Yellow
+Color: green      #5e631c   142  Green
 Color: cyan       #4c7a5d   108  Cyan
-Color: blue       #45707a   109  Blue
-Color: magenta    #945e80   175  Magenta
+Color: blue       #43575b   109  Blue
+Color: magenta    #7f526f   175  Magenta
 Color: dark_green #98971a   106  DarkGreen
-Color: grey       #928374   245  LightGrey
+Color: grey       #827466   245  LightGrey
 # intentionally bright color for prominence
 Color: skyblue    #80a0ff   ~    Cyan
 

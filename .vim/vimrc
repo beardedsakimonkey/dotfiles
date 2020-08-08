@@ -364,11 +364,12 @@ fu! s:pack_install(url)
     endif
     let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
     if strlen(repo) is strlen(url)
-        echomsg 'regex failed'
+        echom 'regex failed'
         return
     endif
     " FIXME: git expands the tilde
     let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
+
     exe '!(cd ~ && '.cmd.')'
 endfu
 
@@ -386,6 +387,14 @@ nno Z zzzH
 xno Z zzzH
 nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
 nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
+
+nno i :<c-u>call <sid>insert()<cr>
+
+fu s:insert()
+    undojoin
+    " Note: 'cinkeys' needs to include !^F
+    call feedkeys("i\<c-f>", 'n')
+endfu
 
 nno ; :
 xno ; :

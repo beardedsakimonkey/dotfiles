@@ -286,6 +286,7 @@ local function search(source, _show_preview)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-t>', '<cmd>lua require"my.isearch".open_result("tabedit")<cr>', opts)
 
     api.nvim_win_set_option(results_win, 'cursorline', true)
+    api.nvim_win_set_option(results_win, 'fen', false)
 
     api.nvim_win_set_option(frame_win, 'winhighlight', 'NormalFloat:isearchResults')
     api.nvim_win_set_option(input_win, 'winhighlight', 'NormalFloat:isearchInput')

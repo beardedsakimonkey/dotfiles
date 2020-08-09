@@ -388,9 +388,13 @@ xno Z zzzH
 nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
 nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
 
-nno i :<c-u>call <sid>insert()<cr>
+nno <silent> i :<c-u>call <sid>insert()<cr>
 
 fu s:insert()
+    if !&cin
+        startinsert
+        return
+    endif
     undojoin
     " Note: 'cinkeys' needs to include !^F
     call feedkeys("i\<c-f>", 'n')
@@ -858,7 +862,9 @@ let g:matchup_surround_enabled = 1
 let g:matchup_transmute_enabled = 1
 let g:matchup_matchparen_offscreen = {}
 let g:matchup_motion_keepjumps = 1
-au vimrc FileType * let b:matchup_matchparen_enabled = 0
+let g:matchup_matchpref = { 'html': { 'nolists': 1 } }
+" Note: matchparen must be enabled for transmutation to work (useful for html)
+au vimrc FileType vim,lua,zsh,c,cpp let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 
 for v in ['g', ']', '[', 'z', 'a', 'i']

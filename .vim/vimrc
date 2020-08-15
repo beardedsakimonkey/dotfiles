@@ -122,7 +122,9 @@ set fillchars=fold:\
 
 set signcolumn=no
 set noshowcmd
-set background=dark
+if has('vim_starting')
+    set background=light
+endif
 
 if executable('rg')
     set grepprg=rg\ -i\ --vimgrep
@@ -537,8 +539,14 @@ ino <c-o> <c-r>=expand("%:t:r")<cr>
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
-nno <silent> <space>v :<c-u>vsplit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
+
+nno <silent> <space>l :<c-u>vsplit<cr>
+nno <silent> <space>j :<c-u>split<cr>
+nno <silent> <space>h :<c-u>vsplit<bar>wincmd p<cr>
+nno <silent> <space>k :<c-u>split<bar>wincmd p<cr>
+
+nno <silent> <c-q> :<c-u>q<cr>
 
 nno <space>s :<c-u>%s///g<left><left>a<bs>
 
@@ -835,6 +843,7 @@ let g:colortemplate_toolbar = 0
 au vimrc BufWritePost *.colortemplate ColortemplateAll! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
 com! -bar HiTest runtime syntax/hitest.vim
 com! -bar Syn call colortemplate#syn#toggle()
+nno <silent> cos :<c-u>call colortemplate#syn#toggle()<bar>echo<cr>
 
 " vim-qf
 nm <c-n> <Plug>(qf_qf_toggle)

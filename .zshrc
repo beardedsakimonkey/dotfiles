@@ -328,8 +328,18 @@ alias sudo='\sudo '
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='\ls -FG'
 alias a='ls -A'
+alias gj='git-jump'
+alias gs='git status'
+alias gsh='git show'
+alias gl='git log'
+alias gd='git diff'
+alias ga='git add'
+alias gc='git commit'
+
 # `compdef` doesn't seem to work on aliases
 function v() { $EDITOR "$@" }
+
+alias -s {lua,vim,js,jsx,re,c,rs}=v
 
 alias -s {avi,flv,mkv,mp4,mpeg,mpg,ogv,wmv,flac,mp3,ogg,wav}=mpv
 alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.part,flac.part,mp3.part,ogg.part,wav.part}=mpv

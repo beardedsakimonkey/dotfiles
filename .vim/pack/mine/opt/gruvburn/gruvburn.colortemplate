@@ -72,39 +72,41 @@ Include: _common.colortemplate
 
 Background: light
 
-Color: fg0        #5e5146   59  Black
+# colors adapted from https://github.com/lacygoill/config/blob/0fae106a3cc3efd4f4328e94960bfce7304b9ee8/.Xresources#L241-L278
+Color: fg0        #373b41   59  Black
 Color: fg1        #4f3829   223  White
 
-Color: bg0        #c1bbac     59           White
-Color: bg1        #bcb6a7   237  DarkGrey
-Color: bg2        #bcb6a7   237  DarkGrey
-Color: bg3        #ccc5b5   239  DarkGrey
-Color: bg4        #ccc5b5   239  DarkGrey
+Color: bg0        #ccc4bd     59           White
+# Color: bg0        #dbd6d1     59           White
+Color: bg1        #c6beb6   237  DarkGrey
+Color: bg2        #c6beb6   237  DarkGrey
+Color: bg3        #b5ad9b   239  DarkGrey
+Color: bg4        #b5ad9b   239  DarkGrey
 
 Color: bg_dark    #2e2c2a   ~    Black
 Color: bg_grey0   #7c6f64   243  DarkGrey
 Color: bg_grey1   #a89984   246  LightGrey
-Color: bg_red     #ae5858   52   DarkRed
-Color: bg_dark_orange  #6b4223   52   DarkRed
+Color: bg_red     #b27c7c   52   DarkRed
+Color: bg_dark_orange  #cea071   52   DarkRed
 Color: bg_orange  #fe8019   ~    DarkRed
 Color: bg_yellow  #a96b2c   214  Yellow
-Color: bg_green   #6f8352   22   DarkGreen
+Color: bg_green   #b8bfaf   22   DarkGreen
 Color: bg_magenta #391f42   ~    DarkMagenta
 Color: bg_cyan    #1f3742   ~    DarkCyan
-Color: red        #c14a4a   167  Red
-Color: orange     #915a2d   208  DarkYellow
-Color: yellow     #8e5b0e   214  Yellow
-Color: green      #5e631c   142  Green
-Color: cyan       #4c7a5d   108  Cyan
-Color: blue       #43575b   109  Blue
-Color: magenta    #7f526f   175  Magenta
+Color: red        #cc342b   167  Red
+Color: orange     #c15624   208  DarkYellow
+Color: yellow     #a06931   214  Yellow
+Color: green      #4e7719   142  Green
+Color: cyan       #336ae0   108  Cyan
+Color: blue       #336ae0   109  Blue
+Color: magenta    #925ab5   175  Magenta
+# Color: magenta    #644ea0   175  Magenta
 Color: dark_green #98971a   106  DarkGreen
 Color: grey       #827466   245  LightGrey
-# intentionally bright color for prominence
-Color: skyblue    #80a0ff   ~    Cyan
+Color: skyblue    #336ae0   ~    Cyan
 
-Color: fg_dark_yellow  #5b5b26   214  Yellow
-Color: fg_yellow       #cec15c   214  Yellow
-Color: fg_dark_orange  #eab04b   214  Yellow
+Color: fg_dark_yellow  #c6c579   214  Yellow
+Color: fg_yellow       #373b41   214  Yellow
+Color: fg_dark_orange  #373b41   214  Yellow
 
 Include: _common.colortemplate

@@ -330,11 +330,19 @@ alias ls='\ls -FG'
 alias a='ls -A'
 alias gj='git-jump'
 alias gs='git status'
-alias gsh='git show'
 alias gl='git log'
 alias gd='git diff'
 alias ga='git add'
 alias gc='git commit'
+
+function makenvim() {
+    pushd ~/code/neovim
+    rm -r build/  # clear the CMake cache
+    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim" CMAKE_BUILD_TYPE=RelWithDebInfo
+    make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install
+    popd
+    tput bel
+}
 
 # `compdef` doesn't seem to work on aliases
 function v() { $EDITOR "$@" }

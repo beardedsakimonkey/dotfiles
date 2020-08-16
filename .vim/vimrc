@@ -123,7 +123,7 @@ set fillchars=fold:\
 set signcolumn=no
 set noshowcmd
 if has('vim_starting')
-    set background=light
+    set background=dark
 endif
 
 if executable('rg')
@@ -149,8 +149,7 @@ if has('nvim-0.5')
             return ''
         end
         local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-        if errors == 0 and warnings == 0 then
+        if errors == 0 then
             return '✔'
         end
         return ''
@@ -160,8 +159,7 @@ if has('nvim-0.5')
             return ''
         end
         local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
-        local warnings = vim.lsp.util.buf_diagnostics_count('Warning') or 0
-        if errors > 0 or warnings > 0 then
+        if errors > 0 then
             return '✘'
         end
         return ''
@@ -266,12 +264,14 @@ aug vimrc | au!
     au BufWritePost ~/.vim/lua/*     exe 'luafile' expand('<afile>:p')
     au BufWritePost *tmux.conf       call system('tmux source-file '.expand('<afile>:p'))
 
+    au BufRead,BufNewFile *.flow     setf javascript
+    au BufRead,BufNewFile *.re,*.rei setf reason
     au BufRead,BufNewFile *.metal    set filetype=glsl
     au BufRead,BufNewFile *.fnl      set filetype=clojure
     au BufRead,BufNewFile *tmux.conf set filetype=tmux
 
     if has('nvim-0.5')
-        au TextYankPost * sil! lua require'vim.highlight'.on_yank('DiffText')
+        au TextYankPost * lua vim.highlight.on_yank {hlgroup="IncSearch", timeout=300, on_visual=false}
     endif
 
     au CursorMoved * call HlSearch()
@@ -346,12 +346,29 @@ fu! s:grep(...) abort
     if a:0 == 0
         return
     endif
-    let cmd = 'rg -i --vimgrep '.shellescape(a:1)
-    if a:0 > 1
-        let cmd .=  ' '.shellescape(expandcmd(a:2))
+    let cwd = getcwd()
+    let path = a:0 > 1 && a:000[-1] is# '%' ? expandcmd(a:000[-1]) : ''
+    if cwd =~# '^/data/users/'.$USER.'/www'
+        let cmd = 'tbgsw --color=off --limit=500 --stripdir --ignore-case '
+        if !empty(path)
+            if path[-1:] is# '/'
+                let path = path[:-2]
+            endif
+            let cmd .= '--forcedir '.shellescape(path).' '
+            let cmd .= shellescape(join(a:000[:-2], ' '))
+        else
+            let cmd .= shellescape(join(a:000, ' '))
+        endif
+    else
+        let cmd = 'rg -i --vimgrep '
+        if !empty(path)
+            let cmd .= shellescape(join(a:000[:-2], ' '))
+            let cmd .= ' ' .. shellescape(path)
+        else
+            let cmd .= shellescape(join(a:000, ' '))
+        endif
     endif
-    " could also populate the quickfix list, and hide it?
-    exe "lua require'my.isearch'.grep([[".cmd."]])"
+    call luaeval("require'my/isearch'.grep(_A)", cmd)
 endfu
 
 com! -bar -nargs=1 PackInstall call <sid>pack_install(<q-args>)
@@ -390,17 +407,18 @@ xno Z zzzH
 nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
 nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
 
-nno <silent> i :<c-u>call <sid>insert()<cr>
+" FIXME
+" nno <silent> i :<c-u>call <sid>insert()<cr>
 
-fu s:insert()
-    if !&cin
-        startinsert
-        return
-    endif
-    undojoin
-    " Note: 'cinkeys' needs to include !^F
-    call feedkeys("i\<c-f>", 'n')
-endfu
+" fu s:insert()
+"     if !&cin
+"         startinsert
+"         return
+"     endif
+"     undojoin
+"     " Note: 'cinkeys' needs to include !^F
+"     call feedkeys("i\<c-f>", 'n')
+" endfu
 
 nno ; :
 xno ; :
@@ -464,10 +482,10 @@ nno <silent> ]b :<c-u>bnext<cr>
 nno <silent> [b :<c-u>bprev<cr>
 nno <silent> [t :<c-u>tabprev<cr>
 nno <silent> ]t :<c-u>tabnext<cr>
-nno <silent> ]n /\v^[<\|=>]{7}<cr>
-nno <silent> [n ?\v^[<\|=>]{7}<cr>
-xno <silent> ]n /\v^[<\|=>]{7}<cr>
-xno <silent> [n ?\v^[<\|=>]{7}<cr>
+nno <silent> ]n /\v^[<\|=>]{7}<cr>zz
+nno <silent> [n ?\v^[<\|=>]{7}<cr>zz
+xno <silent> ]n /\v^[<\|=>]{7}<cr>zz
+xno <silent> [n ?\v^[<\|=>]{7}<cr>zz
 
 nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
@@ -619,6 +637,7 @@ call s:map_change_option('c', 'cursorline')
 call s:map_change_option('b', 'background', 'let &background = &background == "dark" ? "light" : "dark"<bar>redraw')
 call s:map_change_option('w', 'wrap')
 call s:map_change_option('l', 'hlsearch')
+call s:map_change_option('i', 'ignorecase')
 
 nno <silent> <space>z :<c-u>call <sid>zoom_toggle()<cr>
 
@@ -831,10 +850,6 @@ let g:flow#enable = 0
 let g:flow#timeout = 8
 let g:flow#errjmp = 0
 
-" vim-reasonml
-let g:merlin_disable_default_keybindings = 1
-let g:merlin_split_method = "never"
-
 " vim-colortemplate
 packadd vim-colortemplate
 let g:colortemplate_no_mappings = 0
@@ -842,7 +857,6 @@ let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
 au vimrc BufWritePost *.colortemplate ColortemplateAll! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
 com! -bar HiTest runtime syntax/hitest.vim
-com! -bar Syn call colortemplate#syn#toggle()
 nno <silent> cos :<c-u>call colortemplate#syn#toggle()<bar>echo<cr>
 
 " vim-qf
@@ -922,7 +936,6 @@ endif
 packadd! gruvburn
 sil! colo gruvburn
 
-" source local config
 let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)
     exe 'source' vimrc_local

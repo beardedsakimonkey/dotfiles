@@ -317,6 +317,7 @@ aug vimrc | au!
             " Note: when modifying these, run e.g. `:delm A-Z`
             call <sid>setup_global_mark("'V", '~/.vim/vimrc')
             call <sid>setup_global_mark("'L", '~/.vim/lua/my')
+            call <sid>setup_global_mark("'P", '~/.vim/pack/mine/start')
             call <sid>setup_global_mark("'Z", '~/.zshrc')
             call <sid>setup_global_mark("'C", '~/.vim/pack/mine/opt/gruvburn/_common.colortemplate')
             call <sid>setup_global_mark("'N", '~/notes/notes.md')

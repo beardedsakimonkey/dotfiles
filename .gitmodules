@@ -1,26 +1,26 @@
 [submodule "vim-commentary"]
-	path = .vim/pack/third-party/start/vim-commentary
+	path = .vim/pack/mine/start/vim-commentary
 	url = https://github.com/tpope/vim-commentary.git
 [submodule "vim-surround"]
-	path = .vim/pack/third-party/start/vim-surround
+	path = .vim/pack/mine/start/vim-surround
 	url = https://github.com/tpope/vim-surround.git
 [submodule "vim-repeat"]
-	path = .vim/pack/third-party/start/vim-repeat
+	path = .vim/pack/mine/start/vim-repeat
 	url = https://github.com/tpope/vim-repeat.git
 [submodule "VimCompletesMe"]
-	path = .vim/pack/third-party/start/VimCompletesMe
+	path = .vim/pack/mine/start/VimCompletesMe
 	url = https://github.com/ajh17/VimCompletesMe.git
 [submodule "vim-prettier"]
-	path = .vim/pack/third-party/opt/vim-prettier
+	path = .vim/pack/mine/start/vim-prettier
 	url = https://github.com/prettier/vim-prettier.git
 [submodule "vim-jsx-pretty"]
-	path = .vim/pack/third-party/start/vim-jsx-pretty
+	path = .vim/pack/mine/start/vim-jsx-pretty
 	url = https://github.com/MaxMEllon/vim-jsx-pretty.git
 [submodule "vim-hack"]
-	path = .vim/pack/third-party/start/vim-hack
+	path = .vim/pack/mine/start/vim-hack
 	url = https://github.com/hhvm/vim-hack.git
 [submodule "vim-colortemplate"]
-	path = .vim/pack/third-party/opt/vim-colortemplate
+	path = .vim/pack/mine/start/vim-colortemplate
 	url = https://github.com/lifepillar/vim-colortemplate.git
 [submodule "zsh-autosuggestions"]
 	path = .zsh/zsh-autosuggestions
@@ -29,62 +29,62 @@
 	path = .zsh/fast-syntax-highlighting
 	url = https://github.com/zdharma/fast-syntax-highlighting.git
 [submodule "nvim-lsp"]
-	path = .vim/pack/third-party/opt/nvim-lsp
+	path = .vim/pack/mine/start/nvim-lsp
 	url = https://github.com/neovim/nvim-lsp.git
 [submodule "vim-qf"]
-	path = .vim/pack/third-party/start/vim-qf
+	path = .vim/pack/mine/start/vim-qf
 	url = https://github.com/romainl/vim-qf.git
 [submodule "vim-bufkill"]
-	path = .vim/pack/third-party/start/vim-bufkill
+	path = .vim/pack/mine/start/vim-bufkill
 	url = https://github.com/qpkorr/vim-bufkill.git
 [submodule "vim-dirvish"]
 	path = .vim/pack/mine/start/vim-dirvish
 	url = https://github.com/beardedsakimonkey/vim-dirvish.git
 [submodule "vim-matchup"]
-	path = .vim/pack/third-party/start/vim-matchup
+	path = .vim/pack/mine/start/vim-matchup
 	url = https://github.com/andymass/vim-matchup
 [submodule "zsh-history-substring-search"]
 	path = .zsh/zsh-history-substring-search
 	url = https://github.com/zsh-users/zsh-history-substring-search.git
 [submodule "linediff.vim"]
-	path = .vim/pack/third-party/start/linediff.vim
+	path = .vim/pack/mine/start/linediff.vim
 	url = https://github.com/AndrewRadev/linediff.vim.git
 [submodule "vim-apathy"]
-	path = .vim/pack/third-party/start/vim-apathy
+	path = .vim/pack/mine/start/vim-apathy
 	url = https://github.com/tpope/vim-apathy.git
 [submodule "fasd"]
 	path = .zsh/fasd
 	url = https://github.com/clvv/fasd.git
 [submodule "rust.vim"]
-	path = .vim/pack/third-party/start/rust.vim
+	path = .vim/pack/mine/start/rust.vim
 	url = https://github.com/rust-lang/rust.vim
 [submodule "vim-glsl"]
-	path = .vim/pack/third-party/start/vim-glsl.vim
+	path = .vim/pack/mine/start/vim-glsl.vim
 	url = https://github.com/tikhomirov/vim-glsl.git
 [submodule "vim-sleuth"]
-	path = .vim/pack/third-party/start/vim-sleuth
+	path = .vim/pack/mine/start/vim-sleuth
 	url = https://github.com/tpope/vim-sleuth.git
 [submodule "vim-characterize"]
-	path = .vim/pack/third-party/start/vim-characterize
+	path = .vim/pack/mine/start/vim-characterize
 	url = https://github.com/tpope/vim-characterize.git
 [submodule "vim-lion"]
-	path = .vim/pack/third-party/start/vim-lion
+	path = .vim/pack/mine/start/vim-lion
 	url = https://github.com/tommcdo/vim-lion.git
 [submodule "goyo.vim"]
-	path = .vim/pack/third-party/start/goyo.vim
+	path = .vim/pack/mine/start/goyo.vim
 	url = https://github.com/junegunn/goyo.vim.git
 [submodule "splitjoin.vim"]
-	path = .vim/pack/third-party/start/splitjoin.vim
+	path = .vim/pack/mine/start/splitjoin.vim
 	url = https://github.com/AndrewRadev/splitjoin.vim.git
 [submodule "undotree"]
-	path = .vim/pack/third-party/start/undotree
+	path = .vim/pack/mine/start/undotree
 	url = https://github.com/mbbill/undotree.git
 [submodule "vim-lookup"]
-	path = .vim/pack/third-party/start/vim-lookup
+	path = .vim/pack/mine/start/vim-lookup
 	url = https://github.com/mhinz/vim-lookup.git
 [submodule "tmux-fingers"]
 	path = .config/tmux/tmux-fingers
 	url = https://github.com/morantron/tmux-fingers
 [submodule "snipmate.vim"]
-	path = .vim/pack/third-party/start/snipmate.vim
+	path = .vim/pack/mine/start/snipmate.vim
 	url = https://github.com/msanders/snipmate.vim.git

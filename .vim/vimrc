@@ -75,7 +75,6 @@ set splitbelow
 
 set backspace=indent,eol,start
 set nojoinspaces
-set formatoptions+=1j
 
 set autoindent
 set shiftround
@@ -140,7 +139,7 @@ set grepformat=%f:%l:%c:%m
 set laststatus=2
 set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
-let s:stl_sess = "%5*%{session#status()}%*"
+let s:stl_sess = "%1*%{session#status()}%*"
 
 if has('nvim-0.5')
     lua <<
@@ -168,7 +167,7 @@ if has('nvim-0.5')
     fu! MyStatusLineNeovim() abort
         let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
-        return s:stl_info.."%f "..stl_lsp.."%="..s:stl_sess
+        return s:stl_info.."%f "..stl_lsp.."%="..s:stl_sess..' '
     endfu
     set statusline=%!MyStatusLineNeovim()
 else
@@ -245,10 +244,13 @@ aug vimrc | au!
                 \ if &buftype is# 'help' |
                 \   setl scrolloff=0 |
                 \   nno <buffer> q :q<cr> |
-                \   nno <buffer> T <c-]> |
                 \ endif
 
-    au FileType * setl formatoptions-=cro
+    " r  - insert comment leader after hitting <enter>
+    " o  - insert comment leader after hitting 'o' or 'O'
+    " j  - remove comment leader when joining lines 
+    " c  - auto-wrap comments using textwidth
+    au FileType * setl formatoptions-=ro | setl formatoptions+=jc
 
     if exists('##TerminalWinOpen')
         au TerminalWinOpen * setl statusline=%f
@@ -260,9 +262,16 @@ aug vimrc | au!
 
     " Warning: any BufWritePost autocmd after this will not get run when
     " writing vimrc, because sourcing the vimrc will clear the augroup
-    au BufWritePost ~/.vim/vimrc     exe 'source' expand('<afile>:p')
-    au BufWritePost ~/.vim/lua/*     exe 'luafile' expand('<afile>:p')
-    au BufWritePost *tmux.conf       call system('tmux source-file '.expand('<afile>:p'))
+    au BufWritePost ~/.vim/vimrc       exe 'source' expand('<afile>:p')
+    au BufWritePost ~/.vim/lua/*       exe 'luafile' expand('<afile>:p')
+    au BufWritePost *tmux.conf         
+                \ call system('tmux source-file '.expand('<afile>:p')) |
+                \ if v:shell_error |
+                \     echohl ErrorMsg |
+                \     echo 'tmux source-file failed' |
+                \     echohl None |
+                \ endif
+    " au BufWritePost ~/.zsh/overlay.ini call system('fast-theme '.expand('<afile>:p'))
 
     au BufRead,BufNewFile *.flow     setf javascript
     au BufRead,BufNewFile *.re,*.rei setf reason
@@ -397,6 +406,8 @@ let maplocalleader = "\<s-f6>"
 
 no j gj
 no k gk
+no <down> gj
+no <up> gk
 nno <c-e> <c-e><c-e>
 nno <c-y> <c-y><c-y>
 xno < <gv
@@ -551,6 +562,7 @@ cno <c-n> <down>
 cno <c-j> <c-g>
 cno <c-k> <c-t>
 cno <c-o> <c-r>=expand("%:t:r")<cr>
+cno <c-a> <home>
 
 ino <c-o> <c-r>=expand("%:t:r")<cr>
 
@@ -594,36 +606,16 @@ fu! s:eval() abort
         let res = eval(line)
     elseif &ft is# 'lua'
         " FIXME: null characters
-        let res = luaeval('vim.inspect(' .. line .. ')')
+        let res = luaeval('vim.inspect(_A)', line)
     elseif &ft =~# 'z\?sh'
         let res = system(line)
         if type(res) is 3 " List
             let res = '['..join(res, ', ')..']'
         endif
-    elseif &ft =~# 'javascript'
-        " TODO
-        return
     else
         return
     endif
     call setline('.', getline('.')[0:column_end] .. ' = ' .. trim(res))
-endfu
-
-ino <silent> <c-l> <c-r>=<sid>insert_log()<cr>
-
-fu! s:insert_log()
-    if &ft is# 'javascript'
-        call feedkeys("console.log()\<left>")
-        return ''
-    elseif &ft is# 'lua'
-        call feedkeys("print(vim.inspect())\<left>\<left>")
-        return ''
-    elseif &ft is# 'reason'
-        call feedkeys('Js.log();\<left>\<left>')
-        return ''
-    elseif &ft is# 'vim'
-        return 'echom '
-    endif
 endfu
 
 fu! s:map_change_option(...)
@@ -634,7 +626,7 @@ endfu
 
 call s:map_change_option('n', 'number')
 call s:map_change_option('c', 'cursorline')
-call s:map_change_option('b', 'background', 'let &background = &background == "dark" ? "light" : "dark"<bar>redraw')
+call s:map_change_option('b', 'background', 'let &background = &background is# "dark" ? "light" : "dark"<bar>redraw')
 call s:map_change_option('w', 'wrap')
 call s:map_change_option('l', 'hlsearch')
 call s:map_change_option('i', 'ignorecase')

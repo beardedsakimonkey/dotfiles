@@ -27,7 +27,7 @@ com -bar -nargs=? -complete=custom,s:suggest_sessions SDelete exe s:delete(<q-ar
 com -bar -nargs=1 -complete=custom,s:suggest_sessions SRename exe s:rename(<q-args>)
 
 com -bar       -nargs=? -complete=custom,s:suggest_sessions SLoad  exe s:load(<q-args>)
-com -bar -bang -nargs=? -complete=file                      STrack exe s:handle_session(<bang>0, <q-args>)
+com -bar -bang -nargs=? -complete=custom,s:suggest_sessions STrack exe s:handle_session(<bang>0, <q-args>)
 
 fu s:close() abort
     if !exists('g:my_session') | return '' | endif
@@ -280,7 +280,7 @@ endfu
 
 fu session#status() abort
     let state = (v:this_session isnot# '') + exists('g:my_session')
-    return ['', '[untracked]', '[t]'][state]
+    return ['', '◯', '◉'][state]
 endfu
 
 fu s:suggest_sessions(arglead, _l, _p) abort

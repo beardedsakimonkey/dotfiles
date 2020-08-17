@@ -74,16 +74,16 @@ bindkey ' ' magic-space # expands history
 bindkey -a 'H' vi-beginning-of-line
 bindkey -a 'L' vi-end-of-line
 
-bindkey "\C-b" _cd_up
-function _cd_up() {
+bindkey "\C-b" __cd_up
+__cd_up() {
     emulate -L zsh
     BUFFER="cd .."
     zle .accept-line
 }
-zle -N _cd_up
+zle -N __cd_up
 
-bindkey "\C-h" _man_line
-function _man_line() {
+bindkey "\C-h" __man_line
+__man_line() {
     emulate -L zsh
     if [[ -z $BUFFER ]]; then
         return
@@ -96,19 +96,19 @@ function _man_line() {
     fi
     zle .accept-line
 }
-zle -N _man_line
+zle -N __man_line
 
-bindkey "\C-w" _backward_kill_to_slash
-function _backward_kill_to_slash() {
+bindkey "\C-w" __backward_kill_to_slash
+__backward_kill_to_slash() {
     emulate -L zsh
     local WORDCHARS="${WORDCHARS:s@/@}"
     zle .backward-kill-word
 }
-zle -N _backward_kill_to_slash
+zle -N __backward_kill_to_slash
 
 
-bindkey "?" _fix_tilde_questionmark
-function _fix_tilde_questionmark() {
+bindkey "?" __fix_tilde_questionmark
+__fix_tilde_questionmark() {
     emulate -L zsh
     if [[ $LBUFFER[-1] == \~ ]]; then
         zle -U '/'
@@ -116,11 +116,11 @@ function _fix_tilde_questionmark() {
         zle .self-insert
     fi
 }
-zle -N _fix_tilde_questionmark
+zle -N __fix_tilde_questionmark
 
 
-bindkey '^Z' _fg_bg
-function _fg_bg() {
+bindkey '^Z' __fg_bg
+__fg_bg() {
     emulate -L zsh
     if [[ $#BUFFER -eq 0 ]]; then
         fg
@@ -128,10 +128,10 @@ function _fg_bg() {
         zle push-input
     fi
 }
-zle -N _fg_bg
+zle -N __fg_bg
 
-bindkey '\t' _tab_or_list_dirs
-function _tab_or_list_dirs() {
+bindkey '\t' __tab_or_list_dirs
+__tab_or_list_dirs() {
     emulate -L zsh
     if [[ $#BUFFER == 0 ]]; then
         # NOTE: leaving `cd` in the prompt is suboptimal because it prevents
@@ -147,24 +147,24 @@ function _tab_or_list_dirs() {
         zle expand-or-complete
     fi
 }
-zle -N _tab_or_list_dirs
+zle -N __tab_or_list_dirs
 
-bindkey -a "m" _change_first_word
-function _change_first_word() {
+bindkey -a "m" __change_first_word
+__change_first_word() {
     emulate -L zsh
     zle .beginning-of-line
     zle .kill-word
     zle .vi-insert
 }
-zle -N _change_first_word
+zle -N __change_first_word
 
 # FIXME: zsh-autosuggestions messes this up
-bindkey -a ";" _insert_last_word
-function _insert_last_word() {
+bindkey -a ";" __insert_last_word
+__insert_last_word() {
     zle .vi-add-next
     zle .insert-last-word
 }
-zle -N _insert_last_word
+zle -N __insert_last_word
 
 
 #
@@ -224,7 +224,7 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
-function zle-keymap-select {
+zle-keymap-select() {
     if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
         echo -ne '\e[1 q'
     elif [[ ${KEYMAP} == main ]] ||
@@ -292,7 +292,7 @@ if [ -n "$(command -v fasd)" ]; then
     alias vd='fasd_cdv -d -B shada'
     alias va='fasd_cdv -a -B shada'
 
-    function fasd_cdv() {
+    fasd_cdv() {
         if (( $# < 1 )); then
             fasd "$@"
         else
@@ -335,7 +335,7 @@ alias gd='git diff'
 alias ga='git add'
 alias gc='git commit'
 
-function makenvim() {
+makenvim() {
     pushd ~/code/neovim
     rm -r build/  # clear the CMake cache
     make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim" CMAKE_BUILD_TYPE=RelWithDebInfo
@@ -345,7 +345,7 @@ function makenvim() {
 }
 
 # `compdef` doesn't seem to work on aliases
-function v() { $EDITOR "$@" }
+v() { $EDITOR "$@" }
 
 alias -s {lua,vim,js,jsx,re,c,rs}=v
 
@@ -356,7 +356,7 @@ alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.pa
 # Functions
 #
 
-function mv() {
+mv() {
     emulate -L zsh
     if (( $# > 1 )) && [[ "${@[-1]}" =~ / ]]; then
         local destdir=${@[-1]%/*}
@@ -368,7 +368,7 @@ function mv() {
     command mv "$@"
 }
 
-function cd() {
+cd() {
     emulate -L zsh
     if (( $# > 0 )) && [[ ! -d "$1" && -e "$1" ]]; then
         printf 'no such directory: %s\n' "$1"
@@ -378,7 +378,7 @@ function cd() {
     fi
 }
 
-function megadl() {
+megadl() {
     emulate -L zsh
     if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
         command megadl "$@"
@@ -400,7 +400,7 @@ function megadl() {
     fi
 }
 
-function subup() {
+subup() {
     git submodule foreach "
     git fetch;
     git log --date=relative --graph --format=\"%C(blue)%h %C(yellow)%>(12)%ad %Cgreen%<(7)%aN%C(auto)%d %Creset%s\" HEAD..origin/HEAD;

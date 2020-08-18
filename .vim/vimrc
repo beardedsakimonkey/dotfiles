@@ -1,3 +1,12 @@
+" Internalize:
+" ]m, [m   - jump to })] or keywordmatch
+" ]}, ])   - jump to next } or )
+" gv       - reselect previous selection
+" g<c-v>   - select previously changed or yanked text
+" gV       - select previously changed or yanked text (linewise)
+" gd (vis) - duplicate selection and comment it out
+" To repeat an edit, make the change, then `<space>.`. Only need `c*` when search anchors are needed.
+
 syntax enable
 filetype plugin indent on
 
@@ -250,7 +259,9 @@ aug vimrc | au!
     " o  - insert comment leader after hitting 'o' or 'O'
     " j  - remove comment leader when joining lines 
     " c  - auto-wrap comments using textwidth
-    au FileType * setl formatoptions-=ro | setl formatoptions+=jc
+    " n  - indent numbered lists specially
+    " TODO: should we set a default 'textwidth'?
+    au FileType * setl formatoptions-=ro | setl formatoptions+=jcn
 
     if exists('##TerminalWinOpen')
         au TerminalWinOpen * setl statusline=%f
@@ -462,6 +473,7 @@ nno <silent> N  :<c-u>keepj norm! Nzzzv<cr>
 
 nno <silent> * ms:keepj norm! *<cr>zzzv
 nno <silent> # ms:keepj norm! #<cr>zzzv
+" XXX: doesn't support multiline selection
 xno <silent> * "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
 xno <silent> # "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
 nno <silent> c* ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgn
@@ -568,7 +580,7 @@ cno <c-a> <home>
 ino <c-o> <c-r>=expand("%:t:r")<cr>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
-nno <space>w :<c-u>w !sudo tee % >/dev/null<cr>
+nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 
@@ -582,6 +594,7 @@ nno <silent> <c-q> :<c-u>q<cr>
 nno <space>s :<c-u>%s///g<left><left>a<bs>
 
 nno 'e 2g;zz
+" TODO: use register
 xm <expr> gd mode() is# 'V' ? 'ygvgcP' : 'gd'
 
 cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'

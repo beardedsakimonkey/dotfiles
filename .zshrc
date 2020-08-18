@@ -334,6 +334,7 @@ alias gl='git log'
 alias gd='git diff'
 alias ga='git add'
 alias gc='git commit'
+alias gp='git push'
 
 makenvim() {
     pushd ~/code/neovim

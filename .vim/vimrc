@@ -1,6 +1,7 @@
 " Internalize:
 " ]m, [m   - jump to })] or keywordmatch
 " ]}, ])   - jump to next } or )
+" ]*, [*   - jump to end of a C comment
 " gv       - reselect previous selection
 " g<c-v>   - select previously changed or yanked text
 " gV       - select previously changed or yanked text (linewise)
@@ -848,7 +849,6 @@ if has('nvim')
 endif
 
 " vim-prettier
-" packadd vim-prettier
 let g:prettier#autoformat = 1
 
 " vim-flow
@@ -857,7 +857,6 @@ let g:flow#timeout = 8
 let g:flow#errjmp = 0
 
 " vim-colortemplate
-packadd vim-colortemplate
 let g:colortemplate_no_mappings = 0
 let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
@@ -935,11 +934,9 @@ if has('nvim-0.5')
         edit
     endfu
 
-    packadd nvim-lsp
     luafile ~/.vim/lua/my/lsp.lua
 endif
 
-packadd! gruvburn
 sil! colo gruvburn
 
 let vimrc_local = expand('<sfile>:p:h')..'/local.vim'

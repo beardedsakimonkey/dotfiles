@@ -334,6 +334,7 @@ alias gl='git log'
 alias gd='git diff'
 alias ga='git add'
 alias gc='git commit'
+alias gco='git checkout'
 alias gp='git push'
 
 makenvim() {

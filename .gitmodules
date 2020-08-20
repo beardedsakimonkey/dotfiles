@@ -85,6 +85,6 @@
 [submodule "tmux-fingers"]
 	path = .config/tmux/tmux-fingers
 	url = https://github.com/morantron/tmux-fingers
-[submodule "snipmate.vim"]
-	path = .vim/pack/mine/start/snipmate.vim
-	url = https://github.com/msanders/snipmate.vim.git
+[submodule "snippets.nvim"]
+	path = .vim/pack/mine/start/snippets.nvim
+	url = https://github.com/norcalli/snippets.nvim.git

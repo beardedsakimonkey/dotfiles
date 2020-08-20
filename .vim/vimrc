@@ -580,8 +580,8 @@ cno <c-a> <home>
 
 ino <c-o> <c-r>=expand("%:t:r")<cr>
 ino <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
-ino <c-j> <c-n>
-ino <c-k> <c-p>
+" ino <c-j> <c-n>
+" ino <c-k> <c-p>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>
@@ -939,6 +939,11 @@ if has('nvim-0.5')
 
     packadd nvim-lsp
     luafile ~/.vim/lua/my/lsp.lua
+
+    packadd snippets.nvim
+    ino <c-k> <cmd>lua require'snippets'.expand_or_advance(1)<cr>
+    ino <c-j> <cmd>lua require'snippets'.expand_or_advance(-1)<cr>
+    luafile ~/.vim/lua/my/snippets.lua
 endif
 
 sil! colo gruvburn

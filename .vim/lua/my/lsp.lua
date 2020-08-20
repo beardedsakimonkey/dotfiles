@@ -20,7 +20,7 @@ local function on_attach()
     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
-if not vim.g.loaded_my_lsp then
+if vim.fn.has('vim_starting') == 0 then
     nvim_lsp.rls.setup{
         on_attach = on_attach,
     }
@@ -29,7 +29,6 @@ if not vim.g.loaded_my_lsp then
         on_attach = on_attach,
     }
 end
-vim.g.loaded_my_lsp = true
 
 -- vim.lsp.set_log_level('debug')
 

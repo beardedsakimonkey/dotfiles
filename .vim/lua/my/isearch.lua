@@ -270,10 +270,8 @@ local function search(source, _show_preview)
         col = col + 2,
     })
 
-    api.nvim_command('autocmd BufWipeout <buffer> lua require"my.isearch".quit()')
-
     local opts = { nowait = true, noremap = true, silent = true }
-    api.nvim_buf_set_keymap(input_buf, 'i', '<esc>', '<cmd>stopinsert<bar>bunload<cr>', opts)
+    api.nvim_buf_set_keymap(input_buf, 'i', '<esc>', '<cmd>lua require"my.isearch".quit()<cr>', opts)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-j>', '<cmd>lua require"my.isearch".next_result()<cr>', opts)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-k>', '<cmd>lua require"my.isearch".prev_result()<cr>', opts)
     api.nvim_buf_set_keymap(input_buf, 'i', '<c-d>', '<cmd>lua require"my.isearch".scroll_preview_down()<cr>', opts)
@@ -362,6 +360,27 @@ local function scroll_preview(direction)
     end
 end
 
+local function quit()
+    local cmd = 'silent bwipeout'
+    if frame_buf then cmd = cmd .. ' ' .. frame_buf end
+    if results_buf then cmd = cmd .. ' ' .. results_buf end
+    if input_buf then cmd = cmd .. ' ' .. input_buf end
+    if preview_buf then cmd = cmd .. ' ' .. preview_buf end
+    api.nvim_command(cmd)
+    -- XXX: what happens if window isn't around any longer?
+    api.nvim_set_current_win(prev_win)
+    frame_buf = nil
+    results_buf = nil
+    results_win = nil
+    preview_buf = nil
+    preview_win = nil
+    input_buf = nil
+    input_win = nil
+    prev_win = nil
+    show_preview = nil
+    api.nvim_command('stopinsert')
+end
+
 local function open_result(cmd)
     local pos = api.nvim_win_get_cursor(results_win)
     local row = pos[1]
@@ -372,11 +391,12 @@ local function open_result(cmd)
     if found_line_nr then
         filename = matched_filename
     end
-    cmd = 'stopinsert|close|' .. cmd .. ' ' .. filename
+    cmd = cmd .. ' ' .. filename
     if matched_line_nr then
         -- TODO: how to jump to a column number?
         cmd = cmd .. '|' .. matched_line_nr
     end
+    quit()
     api.nvim_command(cmd)
 end
 
@@ -412,25 +432,6 @@ end
 
 local function grep(cmd)
     search(cmd, true)
-end
-
-local function quit()
-    local cmd = 'silent bwipeout'
-    if frame_buf then cmd = cmd .. ' ' .. frame_buf end
-    if results_buf then cmd = cmd .. ' ' .. results_buf end
-    if preview_buf then cmd = cmd .. ' ' .. preview_buf end
-    api.nvim_command(cmd)
-    -- XXX: what happens if window isn't around any longer?
-    api.nvim_set_current_win(prev_win)
-    frame_buf = nil
-    results_buf = nil
-    results_win = nil
-    preview_buf = nil
-    preview_win = nil
-    input_buf = nil
-    input_win = nil
-    prev_win = nil
-    show_preview = nil
 end
 
 package.loaded['my.isearch'] = nil

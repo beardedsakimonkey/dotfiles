@@ -255,14 +255,20 @@ aug vimrc | au!
                 \   setl scrolloff=0 |
                 \   nno <buffer> q :q<cr> |
                 \ endif
+    au FileType * call <sid>filetype()
 
-    " r  - insert comment leader after hitting <enter>
-    " o  - insert comment leader after hitting 'o' or 'O'
-    " j  - remove comment leader when joining lines 
-    " c  - auto-wrap comments using textwidth
-    " n  - indent numbered lists specially
-    " TODO: should we set a default 'textwidth'?
-    au FileType * setl formatoptions-=ro | setl formatoptions+=jcn
+    fu s:filetype()
+        " r  - insert comment leader after hitting <enter>
+        " o  - insert comment leader after hitting 'o' or 'O'
+        " j  - remove comment leader when joining lines
+        " c  - auto-wrap comments using textwidth
+        " n  - indent numbered lists specially
+        setl formatoptions-=ro
+        setl formatoptions+=jcn
+        if &textwidth is 0
+            setl textwidth=80
+        endif
+    endfu
 
     if exists('##TerminalWinOpen')
         au TerminalWinOpen * setl statusline=%f
@@ -326,12 +332,11 @@ aug vimrc | au!
         au vimrc VimEnter * call <sid>setup_global_marks()
 
         fu! s:setup_global_marks()
-            " Note: when modifying these, run e.g. `:delm A-Z`
             call <sid>setup_global_mark("'V", '~/.vim/vimrc')
             call <sid>setup_global_mark("'L", '~/.vim/lua/my')
             call <sid>setup_global_mark("'P", '~/.vim/pack/mine/start')
             call <sid>setup_global_mark("'Z", '~/.zshrc')
-            call <sid>setup_global_mark("'C", '~/.vim/pack/mine/opt/gruvburn/_common.colortemplate')
+            call <sid>setup_global_mark("'C", '~/.vim/pack/mine/start/gruvburn/_common.colortemplate')
             call <sid>setup_global_mark("'N", '~/notes/notes.md')
             call <sid>setup_global_mark("'T", '~/.config/tmux/tmux.conf')
             call <sid>setup_global_mark("'A", '~/.config/alacritty/alacritty.yml')
@@ -339,6 +344,8 @@ aug vimrc | au!
 
         fu! s:setup_global_mark(mark, file)
             let has_mark = getpos(a:mark) != [0, 0, 0, 0]
+            " Note: when modifying global marks, startup vim with this line
+            " commented
             if has_mark | return | endif
             let file = fnamemodify(a:file, ':p')
             if glob(file, 1) is# '' | return | endif

@@ -250,11 +250,6 @@ aug vimrc | au!
                 \   call mkdir(expand('<afile>:p:h'), 'p') |
                 \ endif
 
-    au BufEnter *.txt
-                \ if &buftype is# 'help' |
-                \   setl scrolloff=0 |
-                \   nno <buffer> q :q<cr> |
-                \ endif
     au FileType * call <sid>filetype()
 
     fu s:filetype()
@@ -860,11 +855,6 @@ endif
 
 " vim-prettier
 let g:prettier#autoformat = 1
-
-" vim-flow
-let g:flow#enable = 0
-let g:flow#timeout = 8
-let g:flow#errjmp = 0
 
 " vim-colortemplate
 let g:colortemplate_no_mappings = 0

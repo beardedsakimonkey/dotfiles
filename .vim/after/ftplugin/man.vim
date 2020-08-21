@@ -1,4 +1,1 @@
-" " See: https://github.com/neovim/neovim/issues/7873
-" if 1 == bufnr('%')
-"       nnoremap <silent> <buffer> <nowait> q :lclose<CR>:q<CR>
-" endif
+nno <silent> <buffer> q :<c-u>lclose<bar>q<cr>

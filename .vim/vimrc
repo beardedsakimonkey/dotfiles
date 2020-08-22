@@ -1,3 +1,4 @@
+" Options {{{1
 " Internalize:
 " ]m, [m   - jump to })] or keywordmatch
 " ]}, ])   - jump to next } or )
@@ -7,6 +8,7 @@
 " gV       - select previously changed or yanked text (linewise)
 " gd (vis) - duplicate selection and comment it out
 " To repeat an edit, make the change, then `<space>.`. Only need `c*` when search anchors are needed.
+" Pasting in visual mode
 
 syntax enable
 filetype plugin indent on
@@ -141,17 +143,15 @@ else
     set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
 endif
 set grepformat=%f:%l:%c:%m
-
-"
-" Status line
-" TODO: why does buf_diagnostics_count() sometimes return nil??
-"
+" }}}1
+" Status Line {{{1
 set laststatus=2
 set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
 let s:stl_sess = "%1*%{session#status()}%*"
 
 if has('nvim-0.5')
+    " TODO: why does buf_diagnostics_count() sometimes return nil??
     lua <<
     _G.lsp_statusline_no_errors = function ()
         if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
@@ -215,13 +215,21 @@ fu! MyTabLabel(n)
     let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
     return modified.name.' '
 endfu
-
+" }}}1
+" Autocmds {{{1
 aug vimrc | au!
-    au BufReadPre *
-                \ let s = getfsize(expand('<afile>')) |
-                \ if s > g:LargeFile || s == -2 |
-                \   call <sid>large_buf(expand('<afile>:p')) |
-                \ endif
+    au BufRead,BufNewFile *.flow     setf javascript
+    au BufRead,BufNewFile *.re,*.rei setf reason
+    au BufRead,BufNewFile *tmux.conf setf tmux
+
+    au BufReadPre * call s:handle_large_buffer()
+
+    fu! s:handle_large_buffer() abort
+        let s = getfsize(expand('<afile>'))
+        if s > g:LargeFile || s == -2
+            call s:large_buf(expand('<afile>:p'))
+        endif
+    endfu
 
     let g:LargeFile = 1024*1024 " 1MB
 
@@ -239,20 +247,52 @@ aug vimrc | au!
         aug END
     endfu
 
+    au BufNewFile * call s:maybe_read_template()
+                \ | call s:maybe_make_executable()
+
+    fu! s:maybe_make_executable() abort
+        au BufWritePost <buffer> ++once call s:make_executable()
+    endfu
+
+    fu! s:make_executable() abort
+        let shebang = matchstr(getline(1), '^#!\S\+')
+        if !empty(shebang)
+            sil call system('chmod +x ' .. expand('<afile>:p:S'))
+            if v:shell_error
+                echohl ErrorMsg
+                echom 'Cannot make file executable: ' .. v:shell_error
+                echohl None
+            endif
+        endif
+    endfu
+
+    fu! s:maybe_read_template() abort
+        for file in glob('~/.vim/templates/*', 0, 1)
+            let filetype = fnamemodify(file, ':t:r')
+            if filetype is# &ft && filereadable(file)
+                exe 'keepalt read' fnameescape(file)
+                keepj 1d_
+                return
+            endif
+        endfor
+    endfu
+
+    au BufWritePre,FileWritePre * call s:maybe_create_directories()
+
+    fu! s:maybe_create_directories() abort
+        if @% !~# '\(://\)'
+            call mkdir(expand('<afile>:p:h'), 'p')
+        endif
+    endfu
+
     au BufReadPost *
                 \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
-                \   exe "norm! g`\"" |
+                \   exe 'norm! g`"zvzz' |
                 \ endif
 
-    " Auto-create parent directories. But not for URIs (paths containing "://").
-    au BufWritePre,FileWritePre *
-                \ if @% !~# '\(://\)' |
-                \   call mkdir(expand('<afile>:p:h'), 'p') |
-                \ endif
+    au FileType * call s:setup_formatting()
 
-    au FileType * call <sid>filetype()
-
-    fu s:filetype()
+    fu! s:setup_formatting()
         " r  - insert comment leader after hitting <enter>
         " o  - insert comment leader after hitting 'o' or 'O'
         " j  - remove comment leader when joining lines
@@ -275,8 +315,8 @@ aug vimrc | au!
 
     " Warning: any BufWritePost autocmd after this will not get run when
     " writing vimrc, because sourcing the vimrc will clear the augroup
-    au BufWritePost ~/.vim/vimrc       exe 'source' expand('<afile>:p')
-    au BufWritePost ~/.vim/lua/*       exe 'luafile' expand('<afile>:p')
+    au BufWritePost ~/.vim/vimrc exe 'source' expand('<afile>:p')
+    au BufWritePost ~/.vim/lua/* exe 'luafile' expand('<afile>:p')
     au BufWritePost *tmux.conf         
                 \ call system('tmux source-file '.expand('<afile>:p')) |
                 \ if v:shell_error |
@@ -285,12 +325,6 @@ aug vimrc | au!
                 \     echohl None |
                 \ endif
     " au BufWritePost ~/.zsh/overlay.ini call system('fast-theme '.expand('<afile>:p'))
-
-    au BufRead,BufNewFile *.flow     setf javascript
-    au BufRead,BufNewFile *.re,*.rei setf reason
-    au BufRead,BufNewFile *.metal    set filetype=glsl
-    au BufRead,BufNewFile *.fnl      set filetype=clojure
-    au BufRead,BufNewFile *tmux.conf set filetype=tmux
 
     if has('nvim-0.5')
         au TextYankPost * lua vim.highlight.on_yank {hlgroup="IncSearch", timeout=300, on_visual=false}
@@ -314,7 +348,7 @@ aug vimrc | au!
     endfu
 
     fu! StopHL()
-        if !v:hlsearch || mode() !=# 'n'
+        if !v:hlsearch || mode() isnot# 'n'
             return
         endif
         sil call feedkeys("\<Plug>(StopHL)", 'm')
@@ -324,17 +358,17 @@ aug vimrc | au!
     no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
     if has('nvim')
-        au vimrc VimEnter * call <sid>setup_global_marks()
+        au vimrc VimEnter * call s:setup_global_marks()
 
         fu! s:setup_global_marks()
-            call <sid>setup_global_mark("'V", '~/.vim/vimrc')
-            call <sid>setup_global_mark("'L", '~/.vim/lua/my')
-            call <sid>setup_global_mark("'P", '~/.vim/pack/mine/start')
-            call <sid>setup_global_mark("'Z", '~/.zshrc')
-            call <sid>setup_global_mark("'C", '~/.vim/pack/mine/start/gruvburn/_common.colortemplate')
-            call <sid>setup_global_mark("'N", '~/notes/notes.md')
-            call <sid>setup_global_mark("'T", '~/.config/tmux/tmux.conf')
-            call <sid>setup_global_mark("'A", '~/.config/alacritty/alacritty.yml')
+            call s:setup_global_mark("'V", '~/.vim/vimrc')
+            call s:setup_global_mark("'L", '~/.vim/lua/my')
+            call s:setup_global_mark("'P", '~/.vim/pack/mine/start')
+            call s:setup_global_mark("'Z", '~/.zshrc')
+            call s:setup_global_mark("'C", '~/.vim/pack/mine/start/gruvburn/_common.colortemplate')
+            call s:setup_global_mark("'N", '~/notes/notes.md')
+            call s:setup_global_mark("'T", '~/.config/tmux/tmux.conf')
+            call s:setup_global_mark("'A", '~/.config/alacritty/alacritty.yml')
         endfu
 
         fu! s:setup_global_mark(mark, file)
@@ -351,11 +385,12 @@ aug vimrc | au!
 
         " jump to last cursor position for capital letter marks
         for c in map(range(65, 90), 'nr2char(v:val)')
-            exe "nno '"..c.." '"..c..'g`"'
+            exe "nno '"..c.." '"..c..'g`"zvzz'
         endfor
     endif
 aug END
-
+" }}}1
+" Commands {{{1
 if !exists('s:SID')
     fu! s:SID() abort
         return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
@@ -416,6 +451,43 @@ fu! s:pack_install(url)
     exe '!(cd ~ && '.cmd.')'
 endfu
 
+com! -bar DiffOrig echo s:diff_orig()
+
+fu! s:diff_orig() abort
+    let cole_save = &l:conceallevel
+    setl conceallevel=0
+
+    let tempfile = tempname()..'/Original File'
+    exe 'vnew '..tempfile
+    setl buftype=nofile nobuflisted noswapfile nowrap
+
+    sil 0r ++edit #
+    keepj $d_
+    setl nomodifiable readonly
+
+    diffthis
+    nno <buffer><expr><nowait><silent> q reg_recording() isnot# '' ? 'q' : ':<c-u>q<cr>'
+    let &filetype = getbufvar('#', '&ft')
+
+    let s:tmp_partial = function('s:diff_orig_restore_settings', [cole_save])
+    aug diff_orig_restore_settings
+        au! * <buffer>
+        au BufWipeOut <buffer>  call timer_start(0, s:tmp_partial)
+    aug END
+
+    exe winnr('#')..'windo diffthis'
+    return ''
+endfu
+
+fu! s:diff_orig_restore_settings(conceallevel,_) abort
+    exe 'setl conceallevel='..a:conceallevel
+    diffoff!
+    norm! zvzz
+    aug! diff_orig_restore_settings
+    unlet s:tmp_partial
+endfu
+" }}}1
+" Mappings {{{1
 let mapleader = "\<s-f5>"
 let maplocalleader = "\<s-f6>"
 
@@ -436,7 +508,7 @@ nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
 " FIXME
 " nno <silent> i :<c-u>call <sid>insert()<cr>
 
-" fu s:insert()
+" fu! s:insert()
 "     if !&cin
 "         startinsert
 "         return
@@ -477,8 +549,10 @@ nno <silent> N  :<c-u>keepj norm! Nzzzv<cr>
 nno <silent> * ms:keepj norm! *<cr>zzzv
 nno <silent> # ms:keepj norm! #<cr>zzzv
 " XXX: doesn't support multiline selection
-xno <silent> * "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
-xno <silent> # "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
+xno <silent> *  "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
+xno <silent> #  "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
+xno <silent> g* "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! n<cr>zzzv
+xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
 nno <silent> c* ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgn
 nno <silent> c# ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgN
 
@@ -600,8 +674,7 @@ nno <silent> <c-q> :<c-u>q<cr>
 nno <space>s :<c-u>%s///g<left><left>a<bs>
 
 nno 'e 2g;zz
-" TODO: use register
-xm <expr> gd mode() is# 'V' ? 'ygvgcP' : 'gd'
+xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
 
 cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
 cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
@@ -705,6 +778,28 @@ fu! s:repeat_last_edit_on_last_changed_text() abort
     "          └ insert the previously inserted text and stop insert
 endfu
 
+" search only in visual selection
+xno <silent> / :<c-u>call <sid>visual_slash()<cr>
+
+fu! s:visual_slash() abort
+    if line("'<") == line("'>")
+        call feedkeys('gv/', 'in')
+    else
+        " Do not reselect the visual selection with `gv`.{{{
+        "
+        " It could make move the end of the selection when you type some pattern
+        " which matches inside.  That's not what we want.
+        " We want to search  in the last visual selection as  it was defined; we
+        " don't want to redefine it in the process.
+        "}}}
+        call feedkeys('/\%V', 'in')
+    endif
+endfu
+
+" repeat last edit on all the visually selected lines with dot
+xno <silent> . :norm! .<cr>
+
+" TextObjects {{{2
 xno <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
 ono <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
 
@@ -747,63 +842,6 @@ endfu
 " text-object: inner line
 ono <silent> il :<c-u>norm! _vg_<cr>
 
-" search only in visual selection
-xno <silent> / :<c-u>call <sid>visual_slash()<cr>
-
-fu! s:visual_slash() abort
-    if line("'<") == line("'>")
-        call feedkeys('gv/', 'in')
-    else
-        " Do not reselect the visual selection with `gv`.{{{
-        "
-        " It could make move the end of the selection when you type some pattern
-        " which matches inside.  That's not what we want.
-        " We want to search  in the last visual selection as  it was defined; we
-        " don't want to redefine it in the process.
-        "}}}
-        call feedkeys('/\%V', 'in')
-    endif
-endfu
-
-" repeat last edit on all the visually selected lines with dot
-xno <silent> . :norm! .<cr>
-
-com! -bar DiffOrig echo s:diff_orig()
-
-fu! s:diff_orig() abort
-    let cole_save = &l:conceallevel
-    setl conceallevel=0
-
-    let tempfile = tempname()..'/Original File'
-    exe 'vnew '..tempfile
-    setl buftype=nofile nobuflisted noswapfile nowrap
-
-    sil 0r ++edit #
-    keepj $d_
-    setl nomodifiable readonly
-
-    diffthis
-    nno <buffer><expr><nowait><silent> q reg_recording() isnot# '' ? 'q' : ':<c-u>q<cr>'
-    let &filetype = getbufvar('#', '&ft')
-
-    let s:tmp_partial = function('s:diff_orig_restore_settings', [cole_save])
-    aug diff_orig_restore_settings
-        au! * <buffer>
-        au BufWipeOut <buffer>  call timer_start(0, s:tmp_partial)
-    aug END
-
-    exe winnr('#')..'windo diffthis'
-    return ''
-endfu
-
-fu! s:diff_orig_restore_settings(conceallevel,_) abort
-    exe 'setl conceallevel='..a:conceallevel
-    diffoff!
-    norm! zvzz
-    aug! diff_orig_restore_settings
-    unlet s:tmp_partial
-endfu
-
 "
 " adapted from junegunn's vimrc
 "
@@ -832,8 +870,10 @@ function! s:inner_comment(vis)
 
     execute 'normal!' lines[0].'GV'.lines[1].'G'
 endfunction
-
-" Disabled Vim plugins
+" }}}2
+" }}}1
+" Plugins {{{1
+" Disabled Vim plugins {{{2
 let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat = 1
 let g:loaded_rrhelper = 1
@@ -852,6 +892,7 @@ if has('nvim')
     let g:loaded_ruby_provider = 0
     let g:loaded_node_provider = 0
 endif
+" }}}2
 
 " vim-prettier
 let g:prettier#autoformat = 1
@@ -917,6 +958,7 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 
 " goyo.vim
 nno <silent> _ :<c-u>Goyo<cr>
+let g:goyo_height = '100%'
 
 " splitjoin.vim
 let g:splitjoin_split_mapping = 'gj'

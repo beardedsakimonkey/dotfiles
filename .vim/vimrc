@@ -446,7 +446,7 @@ fu! s:pack_install(url)
         return
     endif
     " FIXME: git expands the tilde
-    let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/third-party/start/%s', repo, shellescape(url), repo)
+    let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/mine/start/%s', repo, shellescape(url), repo)
 
     exe '!(cd ~ && '.cmd.')'
 endfu

@@ -89,5 +89,5 @@
 	path = .vim/pack/mine/start/snippets.nvim
 	url = https://github.com/norcalli/snippets.nvim.git
 [submodule "vim-exchange"]
-	path = .vim/pack/third-party/start/vim-exchange
+	path = .vim/pack/mine/start/vim-exchange
 	url = https://github.com/tommcdo/vim-exchange.git

@@ -1,13 +1,11 @@
 aug my_reason | au! * <buffer>
-
-    au BufWritePre <buffer> sil! call <sid>format()
+    au BufWritePre <buffer> sil! call s:format()
 
     fu s:format() abort
         let view = winsaveview()
         lua vim.slp.buf.formatting_sync({}, 1000)
         winrestview(view)
     endfu
-
 aug END
 
 if exists("loaded_matchit")

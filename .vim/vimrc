@@ -10,14 +10,15 @@
 " To repeat an edit, make the change, then `<space>.`. Only need `c*` when search anchors are needed.
 " Pasting in visual mode
 
-syntax enable
-filetype plugin indent on
-
 if has('nvim')
+    " setup 'rtp' *before* `:filetype plugin` because it uses `:runtime`
     set runtimepath^=~/.vim
     set runtimepath+=~/.vim/after
     let &packpath = &runtimepath
 endif
+
+syntax enable
+filetype plugin indent on
 
 if has('nvim')
     " !    - Save and restore all-caps global variables
@@ -218,10 +219,6 @@ endfu
 " }}}1
 " Autocmds {{{1
 aug vimrc | au!
-    au BufRead,BufNewFile *.flow     setf javascript
-    au BufRead,BufNewFile *.re,*.rei setf reason
-    au BufRead,BufNewFile *tmux.conf setf tmux
-
     au BufReadPre * call s:handle_large_buffer()
 
     fu! s:handle_large_buffer() abort
@@ -341,10 +338,14 @@ aug vimrc | au!
             return
         endif
 
-        let pos = match(getline('.'), @/, col('.') - 1) + 1
-        if pos != col('.')
+        try
+            let pos = match(getline('.'), @/, col('.') - 1) + 1
+            if pos != col('.')
+                call StopHL()
+            endif
+        catch /^Vim\%((\a\+)\)\=:E54/
             call StopHL()
-        endif
+        endtry
     endfu
 
     fu! StopHL()
@@ -959,6 +960,7 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 " goyo.vim
 nno <silent> _ :<c-u>Goyo<cr>
 let g:goyo_height = '100%'
+let g:goyo_width = 100
 
 " splitjoin.vim
 let g:splitjoin_split_mapping = 'gj'
@@ -976,10 +978,10 @@ if has('nvim-0.5')
         edit
     endfu
 
-    packadd nvim-lsp
+    pa nvim-lsp
     luafile ~/.vim/lua/my/lsp.lua
 
-    packadd snippets.nvim
+    pa snippets.nvim
     ino <c-k> <cmd>lua require'snippets'.expand_or_advance(1)<cr>
     ino <c-j> <cmd>lua require'snippets'.expand_or_advance(-1)<cr>
     luafile ~/.vim/lua/my/snippets.lua

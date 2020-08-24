@@ -428,7 +428,7 @@ fu! s:grep(...) abort
             let cmd .= shellescape(join(a:000, ' '))
         endif
     endif
-    call luaeval("require'my/isearch'.grep(_A)", cmd)
+    call luaeval("require'my.isearch'.grep(_A)", cmd)
 endfu
 
 com! -bar -nargs=1 PackInstall call <sid>pack_install(<q-args>)
@@ -584,10 +584,10 @@ nno <silent> ]b :<c-u>bnext<cr>
 nno <silent> [b :<c-u>bprev<cr>
 nno <silent> [t :<c-u>tabprev<cr>
 nno <silent> ]t :<c-u>tabnext<cr>
-nno <silent> ]n /\v^[<\|=>]{7}<cr>zz
-nno <silent> [n ?\v^[<\|=>]{7}<cr>zz
-xno <silent> ]n /\v^[<\|=>]{7}<cr>zz
-xno <silent> [n ?\v^[<\|=>]{7}<cr>zz
+nno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
+nno <silent> [n ?\v^[<\|=>]{7}<cr>zvzz
+xno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
+xno <silent> [n ?\v^[<\|=>]{7}<cr>zvzz
 
 nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')

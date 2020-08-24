@@ -3,7 +3,7 @@ aug my_reason | au! * <buffer>
 
     fu s:format() abort
         let view = winsaveview()
-        lua vim.slp.buf.formatting_sync({}, 1000)
+        lua vim.lsp.buf.formatting_sync({}, 1000)
         winrestview(view)
     endfu
 aug END

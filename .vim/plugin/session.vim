@@ -121,11 +121,6 @@ fu s:load(session_file) abort
         return 'echoerr '..string(printf("%s doesn't exist, or it's not readable", fnamemodify(session_file, ':t')))
     elseif exists('g:my_session') && session_file is# g:my_session
         return 'echoerr '..string(printf('%s is already the current session', fnamemodify(session_file, ':t')))
-    else
-        let [loaded_elsewhere, file] = s:session_loaded_in_other_instance(session_file)
-        if loaded_elsewhere
-            return 'echoerr '..string(printf('%s is already loaded in another Vim instance', file))
-        endif
     endif
 
     call s:prepare_restoration(session_file)
@@ -151,16 +146,16 @@ fu s:load(session_file) abort
 endfu
 
 fu s:load_session_on_vimenter() abort
-    if v:servername isnot# 'VIM' | return | endif
+    " if v:servername isnot# 'VIM' | return | endif
 
     let file = $HOME..'/.vim/session/last'
     if filereadable(file)
         let g:MY_LAST_SESSION = get(readfile(file), 0, '')
     endif
 
-    if get(g:, 'MY_LAST_SESSION', '') =~# '/default.vim$\|^$'
-        return
-    endif
+    " if get(g:, 'MY_LAST_SESSION', '') =~# '/default.vim$\|^$'
+    "     return
+    " endif
 
     if s:safe_to_load_session()
         exe 'SLoad '..g:MY_LAST_SESSION
@@ -213,7 +208,6 @@ fu s:safe_to_load_session() abort
       \ && !get(s:, 'read_stdin', 0)
       \ && &errorfile is# 'errors.err'
       \ && filereadable(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))
-      \ && !s:session_loaded_in_other_instance(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))[0]
 
 endfu
 
@@ -228,28 +222,6 @@ fu s:save_options() abort
         \ 'winminwidth': &winminwidth,
         \ 'winwidth': &winwidth,
         \ }
-endfu
-
-fu s:session_loaded_in_other_instance(session_file) abort
-    let buffers = filter(readfile(a:session_file), {_,v -> v =~# '^badd '})
-
-    if buffers ==# [] | return [0, 0] | endif
-
-    call map(buffers, {_,v -> matchstr(v, '^badd +\d\+ \zs.*')})
-    call map(buffers, {_,v -> fnamemodify(v, ':p')})
-
-    let swapfiles = map(copy(buffers),
-        \    {_,v ->  expand('~/.vim/tmp/swap/')
-        \           ..substitute(v, '/', '%', 'g')
-        \           ..'.swp'})
-    call filter(map(swapfiles, {_,v -> glob(v, 1)}), {_,v -> v isnot# ''})
-
-    let a_file_is_currently_loaded = swapfiles !=# []
-    let it_is_not_in_this_session = index(map(buffers, {_,v -> buflisted(v)}), 1) == -1
-    let file = get(swapfiles, 0, '')
-    let file = fnamemodify(file, ':t:r')
-    let file = substitute(file, '%', '/', 'g')
-    return [a_file_is_currently_loaded && it_is_not_in_this_session, file]
 endfu
 
 fu s:session_delete() abort

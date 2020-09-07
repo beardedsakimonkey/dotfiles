@@ -129,9 +129,8 @@ fu my_dirvish#create() abort
     let path = s:interactive('Create file: ')
     if empty(path) | return | endif
     call s:make_needed_dirs(path)
-    call system('touch '.shellescape(path))
-    call dirvish#open(expand('%'))
-    call search('\V\^'.escape(path, '\').'\$', 'cw')
+    " use :edit instead of `touch` so we trigger BufNewFile
+    exe 'e' path
 endfu
 
 fu my_dirvish#copy() abort

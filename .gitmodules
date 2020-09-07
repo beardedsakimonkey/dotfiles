@@ -91,3 +91,6 @@
 [submodule "vim-exchange"]
 	path = .vim/pack/mine/start/vim-exchange
 	url = https://github.com/tommcdo/vim-exchange.git
+[submodule "targets.vim"]
+	path = .vim/pack/mine/start/targets.vim
+	url = https://github.com/wellle/targets.vim.git

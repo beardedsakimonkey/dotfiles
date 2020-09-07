@@ -3,12 +3,9 @@
 " ]m, [m   - jump to })] or keywordmatch
 " ]}, ])   - jump to next } or )
 " ]*, [*   - jump to end of a C comment
-" gv       - reselect previous selection
-" g<c-v>   - select previously changed or yanked text
+" gs       - reselect previous selection
+" gv       - select previously changed or yanked text
 " gV       - select previously changed or yanked text (linewise)
-" gd (vis) - duplicate selection and comment it out
-" To repeat an edit, make the change, then `<space>.`. Only need `c*` when search anchors are needed.
-" Pasting in visual mode
 
 if has('nvim')
     " setup 'rtp' *before* `:filetype plugin` because it uses `:runtime`
@@ -289,6 +286,9 @@ aug vimrc | au!
 
     au FileType * call s:setup_formatting()
 
+    " t  - auto-wrap text using textwidth
+    set formatoptions-=t
+
     fu! s:setup_formatting()
         " r  - insert comment leader after hitting <enter>
         " o  - insert comment leader after hitting 'o' or 'O'
@@ -362,14 +362,6 @@ aug vimrc | au!
         au vimrc VimEnter * call s:setup_global_marks()
 
         fu! s:setup_global_marks()
-            call s:setup_global_mark("'V", '~/.vim/vimrc')
-            call s:setup_global_mark("'L", '~/.vim/lua/my')
-            call s:setup_global_mark("'P", '~/.vim/pack/mine/start')
-            call s:setup_global_mark("'Z", '~/.zshrc')
-            call s:setup_global_mark("'C", '~/.vim/pack/mine/start/gruvburn/_common.colortemplate')
-            call s:setup_global_mark("'N", '~/notes/notes.md')
-            call s:setup_global_mark("'T", '~/.config/tmux/tmux.conf')
-            call s:setup_global_mark("'A", '~/.config/alacritty/alacritty.yml')
         endfu
 
         fu! s:setup_global_mark(mark, file)
@@ -505,6 +497,7 @@ nno Z zzzH
 xno Z zzzH
 nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
 nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
+xno p "0p
 
 " FIXME
 " nno <silent> i :<c-u>call <sid>insert()<cr>
@@ -547,23 +540,24 @@ nno <silent> G  :<c-u>keepj norm! G<cr>
 nno <silent> n  :<c-u>keepj norm! nzzzv<cr>
 nno <silent> N  :<c-u>keepj norm! Nzzzv<cr>
 
-nno <silent> * ms:keepj norm! *<cr>zzzv
-nno <silent> # ms:keepj norm! #<cr>zzzv
+nno <silent> *  ms:keepj norm! *<cr>zzzv
+nno <silent> #  ms:keepj norm! #<cr>zzzv
+nno <silent> g* ms:keepj norm! g*<cr>zzzv
+nno <silent> g# ms:keepj norm! g#<cr>zzzv
 " XXX: doesn't support multiline selection
 xno <silent> *  "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
 xno <silent> #  "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
 xno <silent> g* "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! n<cr>zzzv
 xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
-nno <silent> c* ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgn
-nno <silent> c# ms:let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>cgN
-
 nno <silent> g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 
 nno g= mvg'[=g']g`v
 nno <space>= :<c-u>keepj norm! mvH=L`v<cr>
-nno g<c-v> g`[vg`]
-nno gV     g'[Vg']
+
+nno gs gv
+nno gv g`[vg`]
+nno gV g'[Vg']
 
 no! <a-h> <left>
 no! <a-l> <right>
@@ -643,6 +637,15 @@ com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 nno <silent> <space>gd :<c-u>.CopyDiffusion<cr>
 xno <silent> <space>gd :CopyDiffusion<cr>
 nno <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
+
+nno <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
+nno <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
+nno <silent> <space>ep :<c-u>edit ~/.vim/pack/mine/start<cr>
+nno <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
+nno <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/start/gruvburn/_common.colortemplate<cr>
+nno <silent> <space>en :<c-u>edit ~/notes/notes.md<cr>
+nno <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
+nno <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
 nno <space>a :<c-u>Grep<space>
 xno <space>a "vy:Grep <c-r>v
@@ -801,51 +804,10 @@ endfu
 xno <silent> . :norm! .<cr>
 
 " TextObjects {{{2
-xno <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
-ono <silent> in :<c-u>call <sid>textobj_number(v:false)<cr>
-
-" same thing, but includes possible whitespace after the number
-xno <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
-ono <silent> an :<c-u>call <sid>textobj_number(v:true)<cr>
-
-fu! s:textobj_number(around) abort
-    let stopline = line('.')
-    let pat = '\%('..s:get_patnum()..'\)'..(a:around ? '\s*' : '')
-    " move cursor to end of number
-    if !search(pat, 'ceW', stopline)
-        return
-    endif
-
-    " start visual selection from end of number
-    norm! v
-
-    " select back to start of number
-    call search(pat, 'bcW', stopline)
-    " clear command-line when pressing `.` (e.g. `dan .`)
-    echo
-endfu
-
-fu! s:get_patnum() abort
-    let sign = '[-+]\='
-    let decimal = '\d\+\.\=\d*'
-    let fraction = '\.\d\+'
-    let exponent = '[eE]'..sign..'\d\+'
-    let number = printf('%s\%%(%s\|%s\)\%%(%s\)\=', sign, decimal, fraction, exponent)
-
-    let binary = '0b[01]\+'
-    let hex = '0x\x\+'
-
-    " the order matters; keep `number` at the end
-    let pat = binary..'\|'..hex..'\|'..number
-    return pat
-endfu
-
 " text-object: inner line
 ono <silent> il :<c-u>norm! _vg_<cr>
 
-"
-" adapted from junegunn's vimrc
-"
+" text-object: a comment (adapted from junegunn's vimrc)
 omap <silent> ac :<C-U>call <SID>inner_comment(0)<CR>
 
 function! s:inner_comment(vis)
@@ -920,6 +882,9 @@ au vimrc VimEnter *
             \   silent! Dirvish |
             \ endif
 
+" prelude
+let g:loaded_prelude = 1
+
 " vim-bufkill
 let g:BufKillCreateMappings = 0
 
@@ -954,9 +919,6 @@ fu! IsCommentaryOpFunc()
 endfu
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
-" rust.vim
-" let g:rustfmt_autosave = 1
-
 " goyo.vim
 nno <silent> _ :<c-u>Goyo<cr>
 let g:goyo_height = '100%'
@@ -966,8 +928,17 @@ let g:goyo_width = 100
 let g:splitjoin_split_mapping = 'gj'
 let g:splitjoin_join_mapping = 'gk'
 
-" undotree
-nno <silent> U :<c-u>UndotreeToggle<cr>
+" targets.vim
+let g:targets_jumpRanges = ''
+let g:targets_nl = 'nN'
+if has('vim_starting')
+    au User targets#mappings#user call targets#mappings#extend({
+                \ 's': { '': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
+                \             {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
+                \             {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
+                \ "'": {'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}]},
+                \ })
+endif
 
 if has('nvim-0.5')
     com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
@@ -986,10 +957,11 @@ if has('nvim-0.5')
     ino <c-j> <cmd>lua require'snippets'.expand_or_advance(-1)<cr>
     luafile ~/.vim/lua/my/snippets.lua
 endif
-
+" Init {{{2
 sil! colo gruvburn
 
 let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)
     exe 'source' vimrc_local
 endif
+"}}}2

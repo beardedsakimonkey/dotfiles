@@ -55,7 +55,6 @@ fpath=( $HOME/.zsh/completions $fpath )
 
 autoload -Uz compinit && compinit
 zmodload -i zsh/complist
-compdef _vim v
 
 _comp_options+=(globdots) # complete dotfiles without entering a .
 
@@ -224,6 +223,7 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
+# TODO: change color of cursor instead?
 zle-keymap-select() {
     if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
         echo -ne '\e[1 q'
@@ -348,6 +348,7 @@ makenvim() {
 
 # `compdef` doesn't seem to work on aliases
 v() { $EDITOR "$@" }
+compdef _vim v
 
 alias -s {lua,vim,js,jsx,re,c,rs}=v
 

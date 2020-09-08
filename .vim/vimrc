@@ -495,9 +495,9 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno <expr> <silent> p getreg('"') =~ "\n" ? "pmv=g']g`v" : 'p'
-nno <expr> <silent> P getreg('"') =~ "\n" ? "Pmv=g']g`v" : 'P'
-xno p "0p
+nno <expr> <silent> p getreg(v:register) =~ "\n" ? "pmv=g']g`v" : 'p'
+nno <expr> <silent> P getreg(v:register) =~ "\n" ? "Pmv=g']g`v" : 'P'
+xno <expr> p '"_c<c-r>'.v:register.'<esc>'
 
 " FIXME
 " nno <silent> i :<c-u>call <sid>insert()<cr>
@@ -530,8 +530,10 @@ nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
 " TODO: keepjumps for /?
 nno ` g`
 nno ' g'
-no  <silent> (  :<c-u>keepj norm! H<cr>
-no  <silent> )  :<c-u>keepj norm! L<cr>
+no  <silent> (  H
+no  <silent> )  L
+nno <silent> (  :<c-u>keepj norm! H<cr>
+nno <silent> )  :<c-u>keepj norm! L<cr>
 nno <silent> M  :<c-u>keepj norm! M<cr>
 nno <silent> {  :<c-u>keepj norm! {<cr>
 nno <silent> }  :<c-u>keepj norm! }<cr>
@@ -657,13 +659,16 @@ cno <c-p> <up>
 cno <c-n> <down>
 cno <c-j> <c-g>
 cno <c-k> <c-t>
-cno <c-o> <c-r>=expand("%:t:r")<cr>
 cno <c-a> <home>
 
-ino <c-o> <c-r>=expand("%:t:r")<cr>
 ino <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
 " ino <c-j> <c-n>
 " ino <c-k> <c-p>
+
+ino <c-o> <c-r>=expand("%:t:r:r:r")<cr>
+cno <c-o> <c-r>=expand("%:t:r:r:r")<cr>
+nno <silent> yo :<c-u>let @"='<c-r>=expand("%:t:r:r:r")<cr>'<cr>
+nno <silent> yO :<c-u>let @"='<c-r>=expand("%:p")<cr>'<cr>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>

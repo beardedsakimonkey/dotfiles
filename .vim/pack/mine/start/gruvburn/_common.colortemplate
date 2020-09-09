@@ -87,6 +87,8 @@ User2 bg0 bg_yellow
 User3 green bg4
 User4 red bg4
 User5 grey bg4
+# statusline
+User6 yellow bg4
 
 # isearch
 isearchCursorLine fg1 bg1

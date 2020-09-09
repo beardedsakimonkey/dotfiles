@@ -146,7 +146,7 @@ set grepformat=%f:%l:%c:%m
 set laststatus=2
 set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
-let s:stl_sess = "%1*%{session#status()}%*"
+let s:stl_sess = "%6*%{session#status()}%*"
 
 if has('nvim-0.5')
     " TODO: why does buf_diagnostics_count() sometimes return nil??
@@ -937,12 +937,17 @@ let g:targets_jumpRanges = ''
 if has('vim_starting') " https://github.com/wellle/targets.vim/issues/257
     let g:targets_nl = 'nN'
 endif
+" move `bb` before `ab` (prefer ranges starting and ending below the cursor
+" over ranges starting above and ending below the cursor).
+let g:targets_seekRanges = 'cc cr cb cB lc ac Ac lr rr ll lb ar bb ab lB Ar aB Ab AB rb al rB Al aa bB Aa BB AA'
 au vimrc User targets#mappings#user call targets#mappings#extend({
             \ 's': { '': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
             \             {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
             \             {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
             \ "'": {'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}]},
             \ })
+" transpose arg
+nm ta cxIa
 
 if has('nvim-0.5')
     com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))

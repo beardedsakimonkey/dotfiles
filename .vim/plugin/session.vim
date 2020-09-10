@@ -208,7 +208,7 @@ fu s:safe_to_load_session() abort
       \ && !get(s:, 'read_stdin', 0)
       \ && &errorfile is# 'errors.err'
       \ && filereadable(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))
-
+      \ && !s:session_loaded_in_other_instance(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))
 endfu
 
 fu s:save_options() abort
@@ -222,6 +222,18 @@ fu s:save_options() abort
         \ 'winminwidth': &winminwidth,
         \ 'winwidth': &winwidth,
         \ }
+endfu
+
+fu s:session_loaded_in_other_instance(session_file) abort
+    if !exists('$TMUX') | return 0 | endif
+
+    let new_title = fnamemodify(a:session_file, ':t:r')
+    for win in systemlist('tmux list-windows -F "#{window_name}"')
+        if win is# new_title
+            return 1
+        endif
+    endfor
+    return 0
 endfu
 
 fu s:session_delete() abort

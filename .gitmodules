@@ -7,9 +7,6 @@
 [submodule "vim-repeat"]
 	path = .vim/pack/mine/start/vim-repeat
 	url = https://github.com/tpope/vim-repeat.git
-[submodule "VimCompletesMe"]
-	path = .vim/pack/mine/start/VimCompletesMe
-	url = https://github.com/ajh17/VimCompletesMe.git
 [submodule "vim-prettier"]
 	path = .vim/pack/mine/start/vim-prettier
 	url = https://github.com/prettier/vim-prettier.git

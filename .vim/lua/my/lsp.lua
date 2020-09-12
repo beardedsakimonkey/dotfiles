@@ -1,4 +1,5 @@
 local nvim_lsp = require 'nvim_lsp'
+local completion = require 'completion'
 
 local M = {}
 
@@ -17,10 +18,11 @@ local function on_attach()
     for lhs,rhs in pairs(keymaps) do
         vim.api.nvim_buf_set_keymap(bufnr, 'n', lhs, rhs, { noremap = true, silent = true })
     end
-    vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+    completion.on_attach()
 end
 
-if vim.fn.has('vim_starting') == 0 then
+if vim.fn.has('vim_starting') == 1 then
     nvim_lsp.rls.setup{
         on_attach = on_attach,
     }

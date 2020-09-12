@@ -100,7 +100,7 @@ set infercase
 set smartcase
 
 set keywordprg=:help
-set completeopt=menu
+" set completeopt=menu
 set complete=.,i,w,b
 
 set wildmenu
@@ -661,8 +661,6 @@ cno <c-k> <c-t>
 cno <c-a> <home>
 
 ino <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
-" ino <c-j> <c-n>
-" ino <c-k> <c-p>
 
 ino <c-o> <c-r>=expand("%:t:r:r:r")<cr>
 cno <c-o> <c-r>=expand("%:t:r:r:r")<cr>
@@ -949,12 +947,23 @@ if has('nvim-0.5')
         edit
     endfu
 
+    pa completion-nvim
+    set completeopt=menuone,noinsert
+    let g:completion_chain_complete_list = [
+                \ {'complete_items': ['lsp']},
+                \ {'mode': '<c-p>'},
+                \ {'mode': '<c-n>'}
+                \ ]
+    let g:completion_auto_change_source = 1
+    let g:completion_trigger_keyword_length = 1
+    let g:completion_confirm_key = "\<tab>"
+    ino <expr> <c-j> pumvisible() ? "\<c-n>" : "\<cmd>lua require'snippets'.expand_or_advance(1)\<cr>"
+    ino <expr> <c-k> pumvisible() ? "\<c-p>" : "\<cmd>lua require'snippets'.expand_or_advance(-1)\<cr>"
+
     pa nvim-lsp
     luafile ~/.vim/lua/my/lsp.lua
 
     pa snippets.nvim
-    ino <c-k> <cmd>lua require'snippets'.expand_or_advance(1)<cr>
-    ino <c-j> <cmd>lua require'snippets'.expand_or_advance(-1)<cr>
     luafile ~/.vim/lua/my/snippets.lua
 endif
 " Init {{{2

@@ -94,3 +94,6 @@
 [submodule "targets.vim"]
 	path = .vim/pack/mine/start/targets.vim
 	url = https://github.com/wellle/targets.vim.git
+[submodule "completion-nvim"]
+	path = .vim/pack/mine/start/completion-nvim
+	url = https://github.com/nvim-lua/completion-nvim

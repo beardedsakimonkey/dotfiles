@@ -1,5 +1,6 @@
 local nvim_lsp = require 'nvim_lsp'
 local completion = require 'completion'
+local diagnostic = require 'diagnostic'
 
 local M = {}
 
@@ -20,6 +21,7 @@ local function on_attach()
     end
 
     completion.on_attach()
+    diagnostic.on_attach()
 end
 
 if vim.fn.has('vim_starting') == 1 then

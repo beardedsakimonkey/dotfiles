@@ -494,9 +494,12 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno <expr> <silent> p getreg(v:register) =~ "\n" ? "pmv=g']g`v" : 'p'
-nno <expr> <silent> P getreg(v:register) =~ "\n" ? "Pmv=g']g`v" : 'P'
+nno <expr> p getreg(v:register) =~ "\n" ? "pmv=g']g`v" : 'p'
+nno <expr> P getreg(v:register) =~ "\n" ? "Pmv=g']g`v" : 'P'
 xno <expr> p '"_c<c-r>'.v:register.'<esc>'
+
+xno K k
+xno J j
 
 " FIXME
 " nno <silent> i :<c-u>call <sid>insert()<cr>
@@ -946,6 +949,11 @@ if has('nvim-0.5')
         lua vim.lsp.stop_client(vim.lsp.get_active_clients())
         edit
     endfu
+
+    pa diagnostic-nvim
+    let g:diagnostic_insert_delay = 1
+    let g:diagnostic_virtual_text_prefix = '✘'
+    let g:diagnostic_enable_virtual_text = 1
 
     pa completion-nvim
     set completeopt=menuone,noinsert

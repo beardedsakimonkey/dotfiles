@@ -94,3 +94,6 @@
 [submodule "completion-nvim"]
 	path = .vim/pack/mine/start/completion-nvim
 	url = https://github.com/nvim-lua/completion-nvim
+[submodule "diagnostic-nvim"]
+	path = .vim/pack/mine/start/diagnostic-nvim
+	url = https://github.com/nvim-lua/diagnostic-nvim.git

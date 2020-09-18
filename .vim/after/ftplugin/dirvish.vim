@@ -22,3 +22,5 @@ nno <buffer> <nowait> <silent> c :<c-u>call my_dirvish#copy()<cr>
 nno <buffer> <nowait> <silent> r :<c-u>call my_dirvish#rename()<cr>
 
 nno <buffer> <nowait> <silent> C :<c-u>lcd %<bar>pwd<cr>
+
+nno <buffer> <nowait> <space>a :<c-u>Grep  %<left><left>

@@ -1,11 +1,4 @@
 " Options {{{1
-" Internalize:
-" ]m, [m   - jump to })] or keywordmatch
-" gs       - reselect previous selection
-" gv       - select previously changed or yanked text
-" ta       - transpose arg
-" S        - substitute word under cursor
-
 if has('nvim')
     " setup 'rtp' *before* `:filetype plugin` because it uses `:runtime`
     set runtimepath^=~/.vim
@@ -55,6 +48,7 @@ endif
 set lazyredraw
 set ttimeout
 set ttimeoutlen=0  " avoid confusing <esc>-key with <a-…>
+set timeoutlen=3000
 set mouse=a
 set synmaxcol=250
 
@@ -128,6 +122,7 @@ set nowrap
 set listchars=tab:›\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
 
+set number
 set signcolumn=no
 set noshowcmd
 if has('vim_starting')
@@ -278,10 +273,13 @@ aug vimrc | au!
         endif
     endfu
 
-    au BufReadPost *
-                \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
-                \   exe 'norm! g`"zvzz' |
-                \ endif
+    au BufReadPost * call s:maybe_restore_cursor_position()
+
+    fu! s:maybe_restore_cursor_position() abort
+        if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+            exe 'norm! g`"zvzz'
+        endif
+    endfu
 
     au FileType * call s:setup_formatting()
 
@@ -342,7 +340,7 @@ aug vimrc | au!
             if pos != col('.')
                 call StopHL()
             endif
-        catch /^Vim\%((\a\+)\)\=:E54/
+        catch
             call StopHL()
         endtry
     endfu
@@ -364,10 +362,6 @@ aug vimrc | au!
         endfu
 
         fu! s:setup_global_mark(mark, file)
-            let has_mark = getpos(a:mark) != [0, 0, 0, 0]
-            " Note: when modifying global marks, startup vim with this line
-            " commented
-            if has_mark | return | endif
             let file = fnamemodify(a:file, ':p')
             if glob(file, 1) is# '' | return | endif
             let buf = bufnr(file, 1)
@@ -494,25 +488,12 @@ xno > >gv
 nno s "_s
 nno Z zzzH
 xno Z zzzH
-nno <expr> p getreg(v:register) =~ "\n" ? "pmv=g']g`v" : 'p'
-nno <expr> P getreg(v:register) =~ "\n" ? "Pmv=g']g`v" : 'P'
+nno <expr> p getreg(v:register) =~# "\n" ? "pmv=g']g`v" : 'p'
+nno <expr> P getreg(v:register) =~# "\n" ? "Pmv=g']g`v" : 'P'
 xno <expr> p '"_c<c-r>'.v:register.'<esc>'
 
 xno K k
 xno J j
-
-" FIXME
-" nno <silent> i :<c-u>call <sid>insert()<cr>
-
-" fu! s:insert()
-"     if !&cin
-"         startinsert
-"         return
-"     endif
-"     undojoin
-"     " Note: 'cinkeys' needs to include !^F
-"     call feedkeys("i\<c-f>", 'n')
-" endfu
 
 nno ; :
 xno ; :
@@ -529,7 +510,8 @@ nno <silent> <end> :<c-u>keepj norm! G<cr>
 nno <silent> <pageup> <pageup>:keepj norm! H<cr>
 nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
 
-" TODO: keepjumps for /?
+nno / ms/
+nno ? ms?
 nno ` g`
 nno ' g'
 no  <silent> (  H
@@ -553,13 +535,12 @@ xno <silent> *  "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
 xno <silent> #  "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
 xno <silent> g* "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! n<cr>zzzv
 xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
-nno <silent> g/ :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
+nno <silent> g/ ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 
-nno <silent> S :<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>a<bs>
+nno <silent> S ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>a<bs>
 
-nno g= mvg'[=g']g`v
-nno <space>= :<c-u>keepj norm! mvH=L`v<cr>
+nno =v mvg'[=g']g`v
 
 nno gs gv
 nno gv g`[vg`]
@@ -584,6 +565,8 @@ nno <silent> ]b :<c-u>bnext<cr>
 nno <silent> [b :<c-u>bprev<cr>
 nno <silent> [t :<c-u>tabprev<cr>
 nno <silent> ]t :<c-u>tabnext<cr>
+nno <silent> ]T :<c-u>+tabmove<cr>
+nno <silent> [T :<c-u>-tabmove<cr>
 nno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
 nno <silent> [n ?\v^[<\|=>]{7}<cr>zvzz
 xno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
@@ -604,19 +587,6 @@ fu! s:move_line(_) abort
     keepj norm! mv
     exe 'move' (dir is# 'up' ? '--' : '+') .. v:count1
     keepj norm! =`v
-endfu
-
-nno <silent> [a :<c-u>call <sid>jump_arg(0)<cr>
-nno <silent> ]a :<c-u>call <sid>jump_arg(1)<cr>
-
-fu! s:jump_arg(forward)
-    let flags = (a:forward ? '' : 'b').'W'
-    call searchpair('[({[]', ',', '[]})]', flags, 's:isCursorInStringOrComment()')
-endfu
-
-fu! s:isCursorInStringOrComment()
-    let syn = synIDattr(synID(line('.'), col('.'), 0), 'name')
-    return syn =~? 'string' || syn =~? 'comment'
 endfu
 
 nno <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
@@ -684,43 +654,13 @@ nno <silent> <c-q> :<c-u>q<cr>
 
 nno <space>s :<c-u>%s///g<left><left>a<bs>
 
-nno 'e 2g;zz
+nno g; g;zvzz
 xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
 
 cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
 cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
 " TODO: immediately expand
 ca ~? ~/
-
-nno <silent> <space>e V:<c-u>call <sid>eval()<cr>
-xno <silent> <space>e :<c-u>call <sid>eval()<cr>
-
-fu! s:eval() abort
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    if line_start != line_end
-        echohl ErrorMsg | echo "can't do multiline selection" | echohl None
-        return
-    endif
-    let lines = getline(line_start, line_end)
-    if empty(lines) | return | endif
-    let line = lines[0][column_start-1:column_end-1]
-    if empty(line) | return | endif
-    if &ft is# 'vim'
-        let res = eval(line)
-    elseif &ft is# 'lua'
-        " FIXME: null characters
-        let res = luaeval('vim.inspect(_A)', line)
-    elseif &ft =~# 'z\?sh'
-        let res = system(line)
-        if type(res) is 3 " List
-            let res = '['..join(res, ', ')..']'
-        endif
-    else
-        return
-    endif
-    call setline('.', getline('.')[0:column_end] .. ' = ' .. trim(res))
-endfu
 
 fu! s:map_change_option(...)
     let [key, opt] = a:000[0:1]
@@ -759,8 +699,6 @@ nno gqax :%!tidy -q -i -xml -utf8<cr>
 nno gqah :%!tidy -q -i -ashtml -utf8<cr>
 nno gqaj :%!python -m json.tool<cr>
 nno gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg:%!python -m json.tool<cr>
-
-nno / ms/
 
 nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
 
@@ -918,7 +856,7 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 " goyo.vim
 nno <silent> _ :<c-u>Goyo<cr>
 let g:goyo_height = '100%'
-let g:goyo_width = 100
+let g:goyo_width = 160
 
 " splitjoin.vim
 let g:splitjoin_split_mapping = 'gj'
@@ -927,8 +865,8 @@ let g:splitjoin_join_mapping = 'gk'
 " vim-exchange
 nmap t <Plug>(Exchange)
 xmap t <Plug>(Exchange)
-nmap tc <Plug>(ExchangeClear)
-nmap tx <Plug>(ExchangeLine)
+nmap tu <Plug>(ExchangeClear)
+nmap T <Plug>(ExchangeLine)
 
 " targets.vim
 let g:targets_jumpRanges = ''
@@ -938,8 +876,6 @@ au vimrc User targets#mappings#user call targets#mappings#extend({
             \             {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
             \ "'": {'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}]},
             \ })
-" transpose arg
-nm ta cxIa
 
 if has('nvim-0.5')
     com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
@@ -964,9 +900,10 @@ if has('nvim-0.5')
                 \ ]
     let g:completion_auto_change_source = 1
     let g:completion_trigger_keyword_length = 1
-    let g:completion_confirm_key = "\<tab>"
-    ino <expr> <c-j> pumvisible() ? "\<c-n>" : "\<cmd>lua require'snippets'.expand_or_advance(1)\<cr>"
-    ino <expr> <c-k> pumvisible() ? "\<c-p>" : "\<cmd>lua require'snippets'.expand_or_advance(-1)\<cr>"
+    let g:completion_confirm_key = "\<c-i>"
+    ino <c-j> <c-n>
+    ino <c-k> <c-p>
+    ino <c-l> <cmd>lua require'snippets'.expand_at_cursor()<cr>
 
     pa nvim-lsp
     luafile ~/.vim/lua/my/lsp.lua

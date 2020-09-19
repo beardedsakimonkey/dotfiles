@@ -45,6 +45,7 @@ Color: bg4             #504945   239  DarkGrey
 Color: bg_dark         #2e2c2a   ~    Black
 Color: bg_grey0        #7c6f64   243  DarkGrey
 Color: bg_grey1        #a89984   246  LightGrey
+Color: bg_grey2        #59514a   243  DarkGrey
 Color: bg_red          #472322   52   DarkRed
 Color: bg_dark_orange  #6b4223   52   DarkRed
 Color: bg_orange       #fe8019   ~    DarkRed
@@ -68,45 +69,153 @@ Color: fg_dark_yellow  #5b5b26   214  Yellow
 Color: fg_yellow       #cec15c   214  Yellow
 Color: fg_dark_orange  #eab04b   214  Yellow
 
-Include: _common.colortemplate
+Term colors: bg0 red green yellow blue magenta cyan fg0 bg0 red green yellow blue magenta cyan fg0
 
-Background: light
+Normal          fg0            bg0
+Terminal        fg0            bg0
+EndOfBuffer     bg0            bg0
+FoldColumn      grey           bg2
+Folded          grey           bg2
+SignColumn      fg0            bg_dark
+IncSearch       fg_dark_orange bg_dark_orange
+Search          fg_yellow      fg_dark_yellow
+ColorColumn     none           bg2
+Conceal         grey           none
+Cursor          none           none reverse
+CursorColumn    none           bg1
+CursorLine      none           bg1
+LineNr          bg_grey2       none
+CursorLineNr    yellow         bg0
+DiffAdd         none           bg_green
+DiffDelete      none           bg_red
+DiffChange      none           bg0
+DiffText        none           bg_dark_orange
+Directory       green          none
+ErrorMsg        red            none underline
+WarningMsg      yellow         none bold
+ModeMsg         fg0            none bold
+MoreMsg         yellow         none bold
+MatchParen      none           bg4
+NonText         grey           none
+Pmenu           fg1            bg3
+PmenuSbar       none           bg3
+PmenuSel        bg3            bg_grey1
+WildMenu        bg3            bg_grey1
+PmenuThumb      none           bg_grey0
+Question        yellow         none
+StatusLine      fg0            bg4
+StatusLineNC    grey           bg2
+TabLine         grey           bg1
+TabLineFill     fg0            bg1
+TabLineSel      fg0            bg4
+VertSplit       bg4            none
+Visual          none           bg3
+VisualNOS       none           bg3
+QuickFixLine    magenta        none bold
+Debug           orange         none
+debugPC         bg0            green
+debugBreakpoint bg0            red
+Boolean         magenta        none
+Number          magenta        none
+Float           magenta        none
+PreProc         magenta        none
+PreCondit       magenta        none
+Include         blue           none
+Define          magenta        none
+Conditional     magenta        none
+Repeat          magenta        none
+Keyword         magenta        none
+Typedef         magenta        none
+Exception       magenta        none
+Statement       blue           none
+Error           magenta        none
+StorageClass    orange         none
+Tag             orange         none
+Label           orange         none
+Structure       orange         none
+Operator        orange         none
+Title           orange         none bold
+Special         yellow         none
+SpecialChar     yellow         none
+Type            yellow         none
+Function        orange         none
+String          green          none
+Character       green          none
+Constant        cyan           none
+Macro           cyan           none
+Identifier      fg0            none
+SpecialKey      blue           none
+Comment         grey           none
+SpecialComment  grey           none 
+Todo            fg1            none
+Delimiter       fg0            none
+Ignore          grey           none
+Underlined      blue           none underline
 
-# colors adapted from https://github.com/lacygoill/config/blob/0fae106a3cc3efd4f4328e94960bfce7304b9ee8/.Xresources#L241-L278
-Color: fg0        #373b41   59  Black
-Color: fg1        #4f3829   223  White
+# status line
+User1 red bg4 bold
+User2 bg0 bg_yellow
+User3 green bg4
+User4 red bg4
+User5 grey bg4
+# statusline
+User6 yellow bg4
 
-Color: bg0        #ccc4bd     59           White
-# Color: bg0        #dbd6d1     59           White
-Color: bg1        #c6beb6   237  DarkGrey
-Color: bg2        #c6beb6   237  DarkGrey
-Color: bg3        #b5ad9b   239  DarkGrey
-Color: bg4        #b5ad9b   239  DarkGrey
+# isearch
+isearchCursorLine fg1 bg1
+isearchResults -> Normal
+isearchInput -> Normal
+isearchPreview -> Normal
+isearchMatch red none underline
+isearchPreviewLine none bg_dark_orange
 
-Color: bg_dark    #2e2c2a   ~    Black
-Color: bg_grey0   #7c6f64   243  DarkGrey
-Color: bg_grey1   #a89984   246  LightGrey
-Color: bg_red     #b27c7c   52   DarkRed
-Color: bg_dark_orange  #cea071   52   DarkRed
-Color: bg_orange  #fe8019   ~    DarkRed
-Color: bg_yellow  #a96b2c   214  Yellow
-Color: bg_green   #b8bfaf   22   DarkGreen
-Color: bg_magenta #391f42   ~    DarkMagenta
-Color: bg_cyan    #1f3742   ~    DarkCyan
-Color: red        #cc342b   167  Red
-Color: orange     #c15624   208  DarkYellow
-Color: yellow     #a06931   214  Yellow
-Color: green      #4e7719   142  Green
-Color: cyan       #336ae0   108  Cyan
-Color: blue       #336ae0   109  Blue
-Color: magenta    #925ab5   175  Magenta
-# Color: magenta    #644ea0   175  Magenta
-Color: dark_green #98971a   106  DarkGreen
-Color: grey       #827466   245  LightGrey
-Color: skyblue    #336ae0   ~    Cyan
+# nvim-lsp
+# NOTE: for sign column, use `bg_dark` for bg
+LspDiagnosticsError red none
+LspDiagnosticsWarning orange none
+LspDiagnosticsInformation skyblue none
+LspDiagnosticsHint skyblue none
 
-Color: fg_dark_yellow  #c6c579   214  Yellow
-Color: fg_yellow       #373b41   214  Yellow
-Color: fg_dark_orange  #373b41   214  Yellow
+LspDiagnosticsUnderlineError none bg_red
+LspDiagnosticsUnderlineWarning none bg_dark_orange
+LspDiagnosticsUnderlineInformation none bg_cyan
+LspDiagnosticsUnderlineHint none bg_cyan
 
-Include: _common.colortemplate
+# vim
+vimCommentString -> Comment
+
+# Help
+helpNote magenta none bold
+helpHeadline red none bold
+helpHeader orange none bold
+helpURL green none underline
+helpHyperTextEntry yellow none bold
+helpHyperTextJump yellow none
+helpCommand cyan none
+helpExample green none
+helpSpecial blue none
+helpSectionDelim grey none
+
+# HTML
+htmlArg yellow none
+
+# javascript
+javascriptFunction orange none
+javascriptReserved blue none
+javascriptValue magenta none
+
+# jsx
+jsxComponentName yellow none bold
+jsxTagName yellow none bold
+jsxAttrib yellow none
+
+# reason
+reasonStorage orange none
+reasonModPath blue none
+
+# rust
+rustFuncCall fg0 none
+rustQuestionMark orange none
+
+# lua
+luaFunction red none

@@ -125,9 +125,6 @@ set fillchars=fold:\
 set number
 set signcolumn=no
 set noshowcmd
-if has('vim_starting')
-    set background=dark
-endif
 
 if executable('rg')
     set grepprg=rg\ -i\ --vimgrep
@@ -311,6 +308,7 @@ aug vimrc | au!
     " writing vimrc, because sourcing the vimrc will clear the augroup
     au BufWritePost ~/.vim/vimrc exe 'source' expand('<afile>:p')
     au BufWritePost ~/.vim/lua/* exe 'luafile' expand('<afile>:p')
+    au BufWritePost */colors/*.vim exe 'so' expand('<afile>:p') | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
     au BufWritePost *tmux.conf         
                 \ call system('tmux source-file '.expand('<afile>:p')) |
                 \ if v:shell_error |
@@ -618,7 +616,7 @@ nno <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
 nno <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
 nno <silent> <space>ep :<c-u>edit ~/.vim/pack/mine/start<cr>
 nno <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
-nno <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/start/gruvburn/_common.colortemplate<cr>
+nno <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/start/gruvburn/gruvburn.colortemplate<cr>
 nno <silent> <space>en :<c-u>edit ~/notes/notes.md<cr>
 nno <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
 nno <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
@@ -659,6 +657,8 @@ xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
 
 cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
 cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
+cnorea <expr>  ht getcmdtype() is# ':' && getcmdpos() == 3 ? 'helptags' : 'ht'
+cnorea <expr>  cs getcmdtype() is# ':' && getcmdpos() == 3 ? 'colorscheme' : 'cs'
 " TODO: immediately expand
 ca ~? ~/
 
@@ -853,6 +853,9 @@ fu! IsCommentaryOpFunc()
 endfu
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
+" lion.vim
+let g:lion_squeeze_spaces = 1
+
 " goyo.vim
 nno <silent> _ :<c-u>Goyo<cr>
 let g:goyo_height = '100%'
@@ -900,6 +903,8 @@ if has('nvim-0.5')
                 \ ]
     let g:completion_auto_change_source = 1
     let g:completion_trigger_keyword_length = 1
+    let g:completion_enable_auto_signature = 0
+    let g:completion_enable_auto_hover = 0
     let g:completion_confirm_key = "\<c-i>"
     ino <c-j> <c-n>
     ino <c-k> <c-p>
@@ -912,7 +917,10 @@ if has('nvim-0.5')
     luafile ~/.vim/lua/my/snippets.lua
 endif
 " Init {{{2
-sil! colo gruvburn
+sil! colo dune
+if has('vim_starting')
+    set background=light
+endif
 
 let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)

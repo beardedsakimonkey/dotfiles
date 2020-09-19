@@ -264,7 +264,8 @@ endfu
 
 fu session#status() abort
     let state = (v:this_session isnot# '') + exists('g:my_session')
-    return ['', '◯', '◉'][state]
+    let name = '['.fnamemodify(g:my_session, ':t:r').']'
+    return ['', '[]', name][state]
 endfu
 
 fu s:suggest_sessions(arglead, _l, _p) abort

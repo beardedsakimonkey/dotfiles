@@ -166,7 +166,8 @@ if has('nvim-0.5')
     fu! MyStatusLineNeovim() abort
         let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
                     \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
-        return s:stl_info.."%f "..stl_lsp.."%="..s:stl_sess..' '
+        let post = g:statusline_winid is# win_getid() ? s:stl_sess : ''
+        return s:stl_info.."%f "..stl_lsp.."%="..post..' '
     endfu
     set statusline=%!MyStatusLineNeovim()
 else

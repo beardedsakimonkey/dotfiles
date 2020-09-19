@@ -89,22 +89,22 @@ window:
 
 font:
   normal:
-    family: Triplicate T4
+    family: Menlo
     style: Regular
 
   bold:
-    family: Triplicate T4
+    family: Menlo
     style: Bold
 
   italic:
-    family: Triplicate T4
+    family: Menlo
     style: Italic
 
   bold_italic:
-    family: Triplicate T4
+    family: Menlo
     style: Bold Italic
 
-  size: 13
+  size: 15
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
@@ -218,63 +218,63 @@ font:
 
 colors:
 
-  cursor:
-    text: '#000000'
-    cursor: '#ff00ff'
+  # cursor:
+  #   text: '#000000'
+  #   cursor: '#ff00ff'
 
-  primary:
-    background: '#3a3837'
-    foreground: '#bfa472'
+  # primary:
+  #   background: '#3a3837'
+  #   foreground: '#bfa472'
 
-  normal:
-    black:   '#665c54'
-    red:     '#ea6962'
-    green:   '#a8a920'
-    yellow:  '#d8a657'
-    blue:    '#83a598'
-    magenta: '#d3869b'
-    cyan:    '#8bba7f'
-    white:   '#dfbf8e'
+  # normal:
+  #   black:   '#665c54'
+  #   red:     '#ea6962'
+  #   green:   '#a8a920'
+  #   yellow:  '#d8a657'
+  #   blue:    '#83a598'
+  #   magenta: '#d3869b'
+  #   cyan:    '#8bba7f'
+  #   white:   '#dfbf8e'
 
-  bright:
-    black:   '#928374'
-    red:     '#ea6962'
-    green:   '#98971a'
-    yellow:  '#e78a4e'
-    blue:    '#7daea3'
-    magenta: '#d3869b'
-    cyan:    '#89b482'
-    white:   '#dfbf8e'
+  # bright:
+  #   black:   '#928374'
+  #   red:     '#ea6962'
+  #   green:   '#98971a'
+  #   yellow:  '#e78a4e'
+  #   blue:    '#7daea3'
+  #   magenta: '#d3869b'
+  #   cyan:    '#89b482'
+  #   white:   '#dfbf8e'
 
   # Light
 
-  # cursor:
-  #   text: '#dadada'
-  #   cursor: '#373b41'
+  cursor:
+    text: '#dadada'
+    cursor: '#000000'
 
-  # primary:
-  #   background: '#ccc4bd'
-  #   foreground: '#373b41'
+  primary:
+    background: '#CDCABD'
+    foreground: '#000000'
 
-  # normal:
-  #   black:   '#1d1f21'
-  #   red:     '#cc342b'
-  #   green:   '#4e7719'
-  #   yellow:  '#a06931'
-  #   blue:    '#336ae0'
-  #   magenta: '#925ab5'
-  #   cyan:    '#336ae0'
-  #   white:   '#373b41'
+  normal:
+    black:   '#1d1f21'
+    red:     '#8B0A50'
+    green:   '#006400'
+    yellow:  '#8B4500'
+    blue:    '#0000CD'
+    magenta: '#BD00BD'
+    cyan:    '#104E8B'
+    white:   '#373b41'
 
-  # bright:
-  #   black:   '#969896'
-  #   red:     '#cc342b'
-  #   green:   '#4e7719'
-  #   yellow:  '#d8865f'
-  #   blue:    '#336ae0'
-  #   magenta: '#925ab5'
-  #   cyan:    '#336ae0'
-  #   white:   '#ffffff'
+  bright:
+    black:   '#969896'
+    red:     '#8B0A50'
+    green:   '#006400'
+    yellow:  '#8B4500'
+    blue:    '#0000CD'
+    magenta: '#925ab5'
+    cyan:    '#104E8B'
+    white:   '#ffffff'
 
 # Visual Bell
 #

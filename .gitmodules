@@ -97,3 +97,12 @@
 [submodule "diagnostic-nvim"]
 	path = .vim/pack/mine/start/diagnostic-nvim
 	url = https://github.com/nvim-lua/diagnostic-nvim.git
+[submodule "vim-signify"]
+	path = .vim/pack/mine/start/vim-signify
+	url = https://github.com/mhinz/vim-signify.git
+[submodule "nvim-filetree"]
+	path = .vim/pack/mine/start/nvim-filetree
+	url = https://github.com/beardedsakimonkey/nvim-filetree.git
+[submodule "vim-rescript"]
+	path = .vim/pack/mine/start/vim-rescript
+	url = https://github.com/amiralies/vim-rescript.git

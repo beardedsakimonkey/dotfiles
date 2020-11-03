@@ -1,4 +1,5 @@
-" Options {{{1
+" much of this was adapted from justinmk, lacygoill, and lifepillar's vimrc's
+
 if has('nvim')
     " setup 'rtp' *before* `:filetype plugin` because it uses `:runtime`
     set runtimepath^=~/.vim
@@ -57,6 +58,7 @@ if exists('+termguicolors')
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
 endif
+
 " Show block cursor in Normal mode and line cursor in Insert mode
 let &t_ti.="\<Esc>[2 q"
 let &t_SI.="\<Esc>[6 q"
@@ -75,6 +77,9 @@ endif
 
 set splitright
 set splitbelow
+
+set winminheight=0
+set winminwidth=0
 
 set backspace=indent,eol,start
 set nojoinspaces
@@ -102,10 +107,15 @@ set wildignorecase
 set wildignore&vim
 set wildignore+=build/*,*/node_modules/*
 
-set foldtext=v:folddashes.getline(v:foldstart)
-set foldmethod=marker
-set foldlevelstart=0
+" set foldtext=v:folddashes.getline(v:foldstart)
+set foldtext=MyFoldtext()
+set foldmethod=indent
+set foldlevelstart=99
 set foldopen-=block
+
+fu! MyFoldtext()
+    return v:folddashes .. ' ' .. (v:foldend - v:foldstart + 1) .. 'ℓ' 
+endfu
 
 set nomodeline
 set modelines=0
@@ -123,8 +133,10 @@ set listchars=tab:›\ ,trail:-,nbsp:∅
 set fillchars=fold:\ 
 
 set number
-set signcolumn=no
+set signcolumn=auto
 set noshowcmd
+
+set sessionoptions=help,tabpages,winsize,curdir,folds
 
 if executable('rg')
     set grepprg=rg\ -i\ --vimgrep
@@ -132,8 +144,8 @@ else
     set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
 endif
 set grepformat=%f:%l:%c:%m
-" }}}1
-" Status Line {{{1
+
+" Status Line
 set laststatus=2
 set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
@@ -178,9 +190,7 @@ fu! MyStatusLine() abort
     return s:stl_info.."%f %="
 endfu
 
-"
 " Tab line
-"
 set showtabline=1
 set tabline=%!MyTabLine()
 
@@ -205,8 +215,8 @@ fu! MyTabLabel(n)
     let name = fnamemodify(bufname(buflist[tabpagewinnr(a:n) - 1]), ':t:s/^$/[No Name]/')
     return modified.name.' '
 endfu
-" }}}1
-" Autocmds {{{1
+
+" Autocmds
 aug vimrc | au!
     au BufReadPre * call s:handle_large_buffer()
 
@@ -320,7 +330,7 @@ aug vimrc | au!
     " au BufWritePost ~/.zsh/overlay.ini call system('fast-theme '.expand('<afile>:p'))
 
     if has('nvim-0.5')
-        au TextYankPost * lua vim.highlight.on_yank {hlgroup="IncSearch", timeout=300, on_visual=false}
+        au TextYankPost * lua vim.highlight.on_yank {higroup="Search", timeout=300, on_visual=false}
     endif
 
     au CursorMoved * call HlSearch()
@@ -373,9 +383,36 @@ aug vimrc | au!
             exe "nno '"..c.." '"..c..'g`"zvzz'
         endfor
     endif
+
+    au BufWinLeave * if !s:is_special() | call s:save_view() | endif
+    au BufWinEnter * if !s:is_special() | call s:restore_view() | endif
+
+    fu s:is_special() abort
+        return &ft is# 'gitcommit' || &bt =~# '^\%(quickfix\|terminal\)$'
+    endfu
+
+    fu s:save_view() abort
+        if !exists('w:saved_views')
+            let w:saved_views = {}
+        endif
+        let w:saved_views[bufnr('%')] = winsaveview()
+    endfu 
+
+    fu s:restore_view() abort
+        let n = bufnr('%')
+        if exists('w:saved_views') && has_key(w:saved_views, n)
+            if !&l:diff
+                call winrestview(w:saved_views[n])
+            endif
+            unlet! w:saved_views[n]
+        else
+            if line("'\"") >= 1 && line("'\"") <= line('$') && &ft !~# 'commit'
+                norm! g`"
+            endif
+        endif
+    endfu
 aug END
-" }}}1
-" Commands {{{1
+
 if !exists('s:SID')
     fu! s:SID() abort
         return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
@@ -471,8 +508,8 @@ fu! s:diff_orig_restore_settings(conceallevel,_) abort
     aug! diff_orig_restore_settings
     unlet s:tmp_partial
 endfu
-" }}}1
-" Mappings {{{1
+
+" Mappings
 let mapleader = "\<s-f5>"
 let maplocalleader = "\<s-f6>"
 
@@ -537,7 +574,7 @@ xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
 nno <silent> g/ ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 
-nno <silent> S ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>a<bs>
+nno <silent> S ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>
 
 nno =v mvg'[=g']g`v
 
@@ -550,10 +587,39 @@ no! <a-l> <right>
 no! <a-j> <c-left>
 no! <a-k> <c-right>
 
-nno <c-l> <c-w>l
-nno <c-h> <c-w>h
-nno <c-j> <c-w>j
-nno <c-k> <c-w>k
+nno <silent> <c-l> :<c-u>call <sid>navigate('l')<cr>
+nno <silent> <c-h> :<c-u>call <sid>navigate('h')<cr>
+nno <silent> <c-j> :<c-u>call <sid>navigate('j')<cr>
+nno <silent> <c-k> :<c-u>call <sid>navigate('k')<cr>
+
+fu s:navigate(dir) abort
+    if s:previous_window_is_in_same_direction(a:dir)
+        try | wincmd p | catch | endtry
+    else
+        try | exe 'wincmd ' .. a:dir | catch | endtry
+    endif
+endfu
+
+fu s:previous_window_is_in_same_direction(dir) abort
+    let [cnr, pnr] = [winnr(), winnr('#')]
+    if a:dir is# 'h'
+        let leftedge_current_window = win_screenpos(cnr)[1]
+        let rightedge_previous_window = win_screenpos(pnr)[1] + winwidth(pnr) - 1
+        return leftedge_current_window - 1 == rightedge_previous_window + 1
+    elseif a:dir is# 'l'
+        let rightedge_current_window = win_screenpos(cnr)[1] + winwidth(cnr) - 1
+        let leftedge_previous_window = win_screenpos(pnr)[1]
+        return rightedge_current_window + 1 == leftedge_previous_window - 1
+    elseif a:dir is# 'j'
+        let bottomedge_current_window = win_screenpos(cnr)[0] + winheight(cnr) - 1
+        let topedge_previous_window = win_screenpos(pnr)[0]
+        return bottomedge_current_window + 1 == topedge_previous_window - 1
+    elseif a:dir is# 'k'
+        let topedge_current_window = win_screenpos(cnr)[0]
+        let bottomedge_previous_window = win_screenpos(pnr)[0] + winheight(pnr) - 1
+        return topedge_current_window - 1 == bottomedge_previous_window + 1
+    endif
+endfu
 
 nno <a-l> <c-w>L
 nno <a-h> <c-w>H
@@ -575,16 +641,16 @@ nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
 
 fu! s:move_line_setup(dir) abort
-    let s:move_line = {'dir': a:dir}
+    let s:move_line = {'dir': a:dir, 'count': v:count1}
     let &opfunc = s:SID .. 'move_line'
     return 'g@l'
 endfu
 
-" FIXME: v:count1 doesn't work if indenting
 fu! s:move_line(_) abort
     let dir = s:move_line.dir
+    let count = s:move_line.count
     keepj norm! mv
-    exe 'move' (dir is# 'up' ? '--' : '+') .. v:count1
+    exe 'move' (dir is# 'up' ? '--' : '+') .. count
     keepj norm! =`v
 endfu
 
@@ -643,6 +709,8 @@ nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>
 nno <silent> <space>t :<c-u>tabedit<cr>
 no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
+nno <silent> \ za
+nno <silent> cn cgn
 
 nno <silent> <space>l :<c-u>vsplit<cr>
 nno <silent> <space>j :<c-u>split<cr>
@@ -651,7 +719,7 @@ nno <silent> <space>k :<c-u>split<bar>wincmd p<cr>
 
 nno <silent> <c-q> :<c-u>q<cr>
 
-nno <space>s :<c-u>%s///g<left><left>a<bs>
+nno <space>s :<c-u>%s///g<left><left>
 
 nno g; g;zvzz
 xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
@@ -660,7 +728,6 @@ cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
 cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
 cnorea <expr>  ht getcmdtype() is# ':' && getcmdpos() == 3 ? 'helptags' : 'ht'
 cnorea <expr>  cs getcmdtype() is# ':' && getcmdpos() == 3 ? 'colorscheme' : 'cs'
-" TODO: immediately expand
 ca ~? ~/
 
 fu! s:map_change_option(...)
@@ -690,9 +757,6 @@ fu! s:zoom_toggle() abort
     endif
 endfu
 
-"
-" adapted from justinmk's init.vim
-"
 xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
 xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
 
@@ -703,9 +767,6 @@ nno gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg
 
 nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
 
-"
-" adapted from lacygoill's vimrc
-"
 nno <expr> <space>. <sid>repeat_last_edit_on_last_changed_text()
 
 fu! s:repeat_last_edit_on_last_changed_text() abort
@@ -735,13 +796,12 @@ fu! s:visual_slash() abort
     if line("'<") == line("'>")
         call feedkeys('gv/', 'in')
     else
-        " Do not reselect the visual selection with `gv`.{{{
+        " Do not reselect the visual selection with `gv`.
         "
         " It could make move the end of the selection when you type some pattern
         " which matches inside.  That's not what we want.
         " We want to search  in the last visual selection as  it was defined; we
         " don't want to redefine it in the process.
-        "}}}
         call feedkeys('/\%V', 'in')
     endif
 endfu
@@ -749,9 +809,8 @@ endfu
 " repeat last edit on all the visually selected lines with dot
 xno <silent> . :norm! .<cr>
 
-" TextObjects {{{2
-" text-object: a comment (adapted from junegunn's vimrc)
-omap <silent> ac :<C-U>call <SID>inner_comment(0)<CR>
+" text-object comment
+omap <silent> a/ :<C-U>call <SID>inner_comment(0)<CR>
 
 function! s:inner_comment(vis)
     if synIDattr(synID(line('.'), col('.'), 0), 'name') !~? 'comment'
@@ -776,10 +835,11 @@ function! s:inner_comment(vis)
 
     execute 'normal!' lines[0].'GV'.lines[1].'G'
 endfunction
-" }}}2
-" }}}1
-" Plugins {{{1
-" Disabled Vim plugins {{{2
+
+" text-object line
+ono <silent> il :<c-u>norm! _vg_<cr>
+ono <silent> al _
+
 let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat = 1
 let g:loaded_rrhelper = 1
@@ -798,7 +858,6 @@ if has('nvim')
     let g:loaded_ruby_provider = 0
     let g:loaded_node_provider = 0
 endif
-" }}}2
 
 " vim-prettier
 let g:prettier#autoformat = 1
@@ -807,6 +866,7 @@ let g:prettier#autoformat = 1
 let g:colortemplate_no_mappings = 0
 let g:colortemplate_source_comment = 0
 let g:colortemplate_toolbar = 0
+let g:colortemplate_higroup_balloon = 0
 au vimrc BufWritePost *.colortemplate ColortemplateAll! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
 com! -bar HiTest runtime syntax/hitest.vim
 nno <silent> cos :<c-u>call colortemplate#syn#toggle()<bar>echo<cr>
@@ -818,7 +878,11 @@ let g:qf_auto_resize = 0
 let g:qf_mapping_ack_style = 1
 
 " vim-dirvish
+let g:loaded_dirvish = 1
 let g:dirvish_mode = ':sort ,^.*/,'
+
+" filetree
+nno - :<c-u>Filetree<cr>
 
 " vim-bufkill
 let g:BufKillCreateMappings = 0
@@ -837,10 +901,10 @@ let g:matchup_matchpref = { 'html': { 'nolists': 1 } }
 au vimrc FileType vim,lua,zsh,c,cpp let b:matchup_matchparen_enabled = 0
 map <tab> <plug>(matchup-%)
 
-for v in ['g', ']', '[', 'z', 'a', 'i']
+for v in ['g', ']', '[', 'a', 'i']
     exe 'omap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
-for v in ['g', ']', '[', 'z']
+for v in ['g', ']', '[']
     exe 'nmap '.v.'m <plug>(matchup-'.v.'%)'
     exe 'vmap '.v.'m <plug>(matchup-'.v.'%)'
 endfor
@@ -874,12 +938,23 @@ nmap T <Plug>(ExchangeLine)
 
 " targets.vim
 let g:targets_jumpRanges = ''
+if has('vim_starting')
+    let g:targets_aiAI = 'aIAi'
+endif
+let g:targets_nl = 'nN'
 au vimrc User targets#mappings#user call targets#mappings#extend({
             \ 's': { '': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
             \             {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
             \             {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
-            \ "'": {'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}]},
+            \ "'": {'quote': [{'d':"'"}, {'d':'"'}]},
+            \ 'b': {'pair': [{'o':'(', 'c':')'}]},
             \ })
+
+" vim-signify
+au vimrc User SignifyAutocmds au! signify CursorHold,CursorHoldI
+nno <silent> <space>cd :<c-u>SignifyDiff<cr>
+nno <silent> <space>cp :<c-u>SignifyHunkDiff<cr>
+nno <silent> <space>cu :<c-u>SignifyHunkUndo<cr>
 
 if has('nvim-0.5')
     com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
@@ -917,7 +992,7 @@ if has('nvim-0.5')
     pa snippets.nvim
     luafile ~/.vim/lua/my/snippets.lua
 endif
-" Init {{{2
+
 sil! colo dune
 if has('vim_starting')
     set background=light
@@ -927,4 +1002,3 @@ let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
 if filereadable(vimrc_local)
     exe 'source' vimrc_local
 endif
-"}}}2

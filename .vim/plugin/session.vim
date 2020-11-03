@@ -124,7 +124,6 @@ fu s:load(session_file) abort
     endif
 
     call s:prepare_restoration(session_file)
-    let options_save = s:save_options()
 
     if exists('g:my_session')
         let g:MY_PENULTIMATE_SESSION = g:my_session
@@ -137,7 +136,6 @@ fu s:load(session_file) abort
         let g:MY_LAST_SESSION = g:my_session
     endif
 
-    call s:restore_options(options_save)
     call s:rename_tmux_window(session_file)
 
     do <nomodeline> WinEnter
@@ -146,17 +144,10 @@ fu s:load(session_file) abort
 endfu
 
 fu s:load_session_on_vimenter() abort
-    " if v:servername isnot# 'VIM' | return | endif
-
     let file = $HOME..'/.vim/session/last'
     if filereadable(file)
         let g:MY_LAST_SESSION = get(readfile(file), 0, '')
     endif
-
-    " if get(g:, 'MY_LAST_SESSION', '') =~# '/default.vim$\|^$'
-    "     return
-    " endif
-
     if s:safe_to_load_session()
         exe 'SLoad '..g:MY_LAST_SESSION
     endif
@@ -164,14 +155,12 @@ endfu
 
 fu s:prepare_restoration(file) abort
     exe s:track(0)
-
     sil tabonly | sil only
 endfu
 
 fu s:rename(new_name) abort
     let src = g:my_session
     let dst = expand(s:SESSION_DIR..'/'..a:new_name..'.vim')
-
     if rename(src, dst)
         return 'echoerr '..string('Failed to rename '..src..' to '..dst)
     else
@@ -183,24 +172,11 @@ endfu
 
 fu s:rename_tmux_window(file) abort
     if !exists('$TMUX') | return | endif
-
     let window_title = fnamemodify(a:file, ':t:r')
     sil call system('tmux rename-window -t '..$TMUX_PANE..' '..shellescape(window_title))
-
     augroup my_tmux_window_title | au!
         au VimLeavePre * sil call system('tmux set-option -w -t '..$TMUX_PANE..' automatic-rename on')
     augroup END
-endfu
-
-fu s:restore_these() abort
-    let &l:isk = '!-~,^*,^|,^",192-255,-'
-    setl bt=help nobl nofen noma
-endfu
-
-fu s:restore_options(dict) abort
-    for [op, val] in items(a:dict)
-        exe 'let &'..op..' = '..(type(val) == v:t_string ? string(val) : val)
-    endfor
 endfu
 
 fu s:safe_to_load_session() abort
@@ -209,19 +185,6 @@ fu s:safe_to_load_session() abort
       \ && &errorfile is# 'errors.err'
       \ && filereadable(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))
       \ && !s:session_loaded_in_other_instance(get(g:, 'MY_LAST_SESSION', s:SESSION_DIR..'/default.vim'))
-endfu
-
-fu s:save_options() abort
-    return {
-        \ 'shortmess': &shortmess,
-        \ 'splitbelow':  &splitbelow,
-        \ 'splitright': &splitright,
-        \ 'showtabline': &showtabline,
-        \ 'winheight': &winheight,
-        \ 'winminheight': &winminheight,
-        \ 'winminwidth': &winminwidth,
-        \ 'winwidth': &winwidth,
-        \ }
 endfu
 
 fu s:session_loaded_in_other_instance(session_file) abort
@@ -238,11 +201,8 @@ endfu
 
 fu s:session_delete() abort
     call delete(s:last_used_session)
-
     unlet! g:my_session
-
     echo 'Deleted session in '..fnamemodify(s:last_used_session, ':~:.')
-
     let v:this_session = ''
     return ''
 endfu
@@ -263,9 +223,13 @@ fu s:should_pause_session() abort
 endfu
 
 fu session#status() abort
-    let state = (v:this_session isnot# '') + exists('g:my_session')
-    let name = '['.fnamemodify(g:my_session, ':t:r').']'
-    return ['', '[]', name][state]
+    if v:this_session is# '' && !exists('g:my_session')
+        return ''
+    elseif v:this_session isnot# '' && exists('g:my_session')
+        return '['.fnamemodify(g:my_session, ':t:r').']'
+    else
+        return '[]'
+    endif
 endfu
 
 fu s:suggest_sessions(arglead, _l, _p) abort
@@ -274,17 +238,13 @@ fu s:suggest_sessions(arglead, _l, _p) abort
 endfu
 
 fu s:track(on_vimleavepre) abort
-
     if exists('g:SessionLoad')
         return ''
     endif
-
     if exists('g:my_session')
         try
             exe 'mksession! '..fnameescape(g:my_session)
-
             let g:MY_LAST_SESSION = g:my_session
-
         catch /^Vim\%((\a\+)\)\=:E\%(788\|11\):/
         catch
             unlet! g:my_session
@@ -298,20 +258,9 @@ endfu
 
 fu s:tweak_session_file(file) abort
     let body = readfile(a:file)
-
     call insert(body, 'let g:my_session = v:this_session', -3)
     call insert(body, 'let g:my_session = v:this_session', -3)
     call writefile(body, a:file)
-endfu
-
-fu s:vim_quit_and_restart() abort
-    if has('gui_running') | echo 'not available in GUI' | return | endif
-    sil! update
-
-    let shell_parent_pid = '$(ps -p '..getpid()..' -o ppid=)'
-    sil call system('kill -USR1 '..shell_parent_pid)
-
-    qa!
 endfu
 
 fu s:where_do_we_save() abort
@@ -324,23 +273,16 @@ fu s:where_do_we_save() abort
         else
             return s:last_used_session
         endif
-
     elseif isdirectory(s:file)
         echohl ErrorMsg
         echo 'provide the name of a session file; not a directory'
         echohl NONE
         return ''
-
     else
         return s:file =~# '/'
            \ ?     fnamemodify(s:file, ':p')
            \ :     s:SESSION_DIR..'/'..s:file..'.vim'
     endif
 endfu
-
-nno <silent><unique> <space>R :<c-u>call <sid>vim_quit_and_restart()<cr>
-
-
-set ssop=help,tabpages,winsize
 
 const s:SESSION_DIR = $HOME..'/.vim/session'

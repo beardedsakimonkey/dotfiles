@@ -1,5 +1,6 @@
 #
 # General
+# functions: /usr/local/opt/zsh/share/zsh/functions/
 #
 
 stty start undef # disable C-s
@@ -212,9 +213,9 @@ autoload -Uz zcalc
 #
 
 PROMPT="%F{black}${SSH_TTY:+ssh:}"
-PROMPT+="%F{white}%B%50<..<%~%<<"
+PROMPT+="%F{black}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
-PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
+PROMPT+=" %(?.%F{white}.%F{red})❯%b%f "
 
 # region: vi-mode visual select
 zle_highlight=(region:bg=#504945)
@@ -223,23 +224,21 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
-# TODO: change color of cursor instead?
-zle-keymap-select() {
-    if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-        echo -ne '\e[1 q'
-    elif [[ ${KEYMAP} == main ]] ||
-        [[ ${KEYMAP} == viins ]] ||
-        [[ ${KEYMAP} = '' ]] ||
-        [[ $1 = 'beam' ]]; then
-            echo -ne '\e[5 q'
-    fi
-}
-zle -N zle-keymap-select
+# zle-keymap-select() {
+#     if [[ ${KEYMAP} == vicmd ]]; then
+#         echo -ne "\033]12;#ff6565\007"
+#     elif [[ ${KEYMAP} == main ]] ||
+#         [[ ${KEYMAP} == viins ]] ||
+#         [[ ${KEYMAP} = '' ]]; then
+#             echo -ne "\033]12;#000000\007"
+#     fi
+# }
+# zle -N zle-keymap-select
 
-zle-line-init() { echo -ne '\e[5 q' }
-zle -N zle-line-init
-zle-line-finish() { echo -ne '\e[1 q' }
-zle -N zle-line-finish
+# zle-line-init() { echo -ne "\033]12;#000000\007" }
+# zle -N zle-line-init
+# zle-line-finish() { echo -ne "\033]12;#000000\007" }
+# zle -N zle-line-finish
 
 #
 # Exports
@@ -353,8 +352,6 @@ makenvim() {
 # `compdef` doesn't seem to work on aliases
 v() { $EDITOR "$@" }
 compdef _vim v
-
-alias -s {lua,vim,js,jsx,re,c,rs}=v
 
 alias -s {avi,flv,mkv,mp4,mpeg,mpg,ogv,wmv,flac,mp3,ogg,wav}=mpv
 alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.part,flac.part,mp3.part,ogg.part,wav.part}=mpv

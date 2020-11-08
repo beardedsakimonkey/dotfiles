@@ -991,6 +991,11 @@ if has('nvim-0.5')
 
     pa snippets.nvim
     luafile ~/.vim/lua/my/snippets.lua
+
+    pa nvim-treesitter
+    pa nvim-treesitter-refactor
+    pa nvim-treesitter-textobjects
+    luafile ~/.vim/lua/my/treesitter.lua
 endif
 
 sil! colo dune

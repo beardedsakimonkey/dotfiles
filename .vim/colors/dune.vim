@@ -61,5 +61,3 @@ hi User6 guifg=IndianRed2 guibg=black
 " hi User4 ctermfg=Red   ctermbg=Black
 " hi User5 ctermfg=grey  ctermbg=Black
 " hi User6 ctermfg=Red   ctermbg=Black
-
-hi luaFunction     gui=none           guifg=DeepPink4  gui=bold

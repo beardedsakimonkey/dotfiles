@@ -106,3 +106,12 @@
 [submodule "vim-rescript"]
 	path = .vim/pack/mine/start/vim-rescript
 	url = https://github.com/amiralies/vim-rescript.git
+[submodule "nvim-treesitter"]
+	path = .vim/pack/mine/start/nvim-treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter.git
+[submodule "nvim-treesitter-textobjects"]
+	path = .vim/pack/mine/start/nvim-treesitter-textobjects
+	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
+[submodule "nvim-treesitter-refactor"]
+	path = .vim/pack/mine/start/nvim-treesitter-refactor
+	url = https://github.com/nvim-treesitter/nvim-treesitter-refactor.git

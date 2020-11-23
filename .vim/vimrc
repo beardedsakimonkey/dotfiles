@@ -12,13 +12,13 @@ filetype plugin indent on
 
 if has('nvim')
     " !    - Save and restore all-caps global variables
-    " '200 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
+    " '100 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
     " <50  - Contents of registers (up to 50 lines each) will be remembered
     " s10  - Items with contents occupying more then 10 KiB are skipped
     " h    - Disable the effect of 'hlsearch' when loading the shada file
-    set shada=!,'200,<50,s10,h 
+    set shada=!,'100,<50,s10,h 
 else
-    set viminfo=!,'200,<50,s10,h
+    set viminfo=!,'100,<50,s10,h
     set viminfofile=~/.viminfo
 endif
 
@@ -69,6 +69,7 @@ let &t_te.="\<Esc>[0 q"
 set hidden
 set confirm
 set noswapfile nobackup
+" set nowritebackup
 set undofile
 set undodir=~/.vim/undo
 if !isdirectory(&undodir)
@@ -574,7 +575,9 @@ xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
 nno <silent> g/ ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
 
+" TODO: combine these
 nno <silent> S ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>
+nno <space>s :<c-u>%s///g<left><left>
 
 nno =v mvg'[=g']g`v
 
@@ -719,8 +722,6 @@ nno <silent> <space>k :<c-u>split<bar>wincmd p<cr>
 
 nno <silent> <c-q> :<c-u>q<cr>
 
-nno <space>s :<c-u>%s///g<left><left>
-
 nno g; g;zvzz
 xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
 
@@ -810,7 +811,7 @@ endfu
 xno <silent> . :norm! .<cr>
 
 " text-object comment
-omap <silent> a/ :<C-U>call <SID>inner_comment(0)<CR>
+" omap <silent> a/ :<C-U>call <SID>inner_comment(0)<CR>
 
 function! s:inner_comment(vis)
     if synIDattr(synID(line('.'), col('.'), 0), 'name') !~? 'comment'
@@ -837,8 +838,8 @@ function! s:inner_comment(vis)
 endfunction
 
 " text-object line
-ono <silent> il :<c-u>norm! _vg_<cr>
-ono <silent> al _
+ono <silent> iL :<c-u>norm! _vg_<cr>
+ono <silent> aL _
 
 let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat = 1
@@ -881,8 +882,15 @@ let g:qf_mapping_ack_style = 1
 let g:loaded_dirvish = 1
 let g:dirvish_mode = ':sort ,^.*/,'
 
-" filetree
+" nvim-filetree
+pa nvim-filetree
+lua require'filetree'.init()
 nno - :<c-u>Filetree<cr>
+au vimrc StdinReadPost * let s:has_stdin = 1
+au vimrc VimEnter *
+            \ if !argc() && !has_key(s:, 'has_stdin') && !empty(glob('*', 1, 1)) |
+            \   silent! Filetree |
+            \ endif
 
 " vim-bufkill
 let g:BufKillCreateMappings = 0
@@ -937,18 +945,18 @@ nmap tu <Plug>(ExchangeClear)
 nmap T <Plug>(ExchangeLine)
 
 " targets.vim
-let g:targets_jumpRanges = ''
 if has('vim_starting')
+    let g:targets_jumpRanges = ''
     let g:targets_aiAI = 'aIAi'
-endif
-let g:targets_nl = 'nN'
-au vimrc User targets#mappings#user call targets#mappings#extend({
+    let g:targets_nl = 'nN'
+    au vimrc User targets#mappings#user call targets#mappings#extend({
             \ 's': { '': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
             \             {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
             \             {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
             \ "'": {'quote': [{'d':"'"}, {'d':'"'}]},
             \ 'b': {'pair': [{'o':'(', 'c':')'}]},
             \ })
+endif
 
 " vim-signify
 au vimrc User SignifyAutocmds au! signify CursorHold,CursorHoldI

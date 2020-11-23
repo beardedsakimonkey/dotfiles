@@ -10,7 +10,7 @@ let g:loaded_session = 1
 augroup my_session | au!
     au StdInReadPost * let s:read_stdin = 1
 
-    au VimEnter * ++nested call s:load_session_on_vimenter()
+    " au VimEnter * ++nested call s:load_session_on_vimenter()
 
     au BufWinEnter * exe s:track(0)
 

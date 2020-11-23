@@ -68,7 +68,17 @@ hi! link SpecialKey Directory
 
 hi User1 guifg=red        guibg=black gui=bold
 hi User2 guifg=black      guibg=palegreen3
-hi User3 guifg=green      guibg=black
+hi User3 guifg=lawngreen  guibg=black
 hi User4 guifg=red        guibg=black
 hi User5 guifg=grey       guibg=black
 hi User6 guifg=IndianRed2 guibg=black
+
+hi LspDiagnosticsVirtualTextError       guifg=red3
+hi LspDiagnosticsVirtualTextWarning     guifg=orange3
+hi LspDiagnosticsVirtualTextInformation guifg=orchid
+hi LspDiagnosticsVirtualTextHint        guifg=orchid
+
+hi LspDiagnosticsUnderlineError       guibg=#ffd7ff
+hi LspDiagnosticsUnderlineWarning     guibg=#ffd787
+hi LspDiagnosticsUnderlineInformation guibg=#ffd787
+hi LspDiagnosticsUnderlineHint        guibg=#ffd787

@@ -153,13 +153,12 @@ let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':
 let s:stl_sess = "%6*%{session#status()}%*"
 
 if has('nvim-0.5')
-    " TODO: why does buf_diagnostics_count() sometimes return nil??
     lua <<
     _G.lsp_statusline_no_errors = function ()
         if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
             return ''
         end
-        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local errors = vim.lsp.diagnostic.get_count('Error') or 0
         if errors == 0 then
             return '✔'
         end
@@ -169,7 +168,7 @@ if has('nvim-0.5')
         if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
             return ''
         end
-        local errors = vim.lsp.util.buf_diagnostics_count('Error') or 0
+        local errors = vim.lsp.diagnostic.get_count('Error') or 0
         if errors > 0 then
             return '✘'
         end
@@ -959,6 +958,8 @@ if has('vim_starting')
 endif
 
 " vim-signify
+let g:signify_sign_change = '~'
+let g:signify_sign_delete = '-'
 au vimrc User SignifyAutocmds au! signify CursorHold,CursorHoldI
 nno <silent> <space>cd :<c-u>SignifyDiff<cr>
 nno <silent> <space>cp :<c-u>SignifyHunkDiff<cr>
@@ -972,11 +973,6 @@ if has('nvim-0.5')
         lua vim.lsp.stop_client(vim.lsp.get_active_clients())
         edit
     endfu
-
-    pa diagnostic-nvim
-    let g:diagnostic_insert_delay = 1
-    let g:diagnostic_virtual_text_prefix = '✘'
-    let g:diagnostic_enable_virtual_text = 1
 
     pa completion-nvim
     set completeopt=menuone,noinsert
@@ -994,7 +990,7 @@ if has('nvim-0.5')
     ino <c-k> <c-p>
     ino <c-l> <cmd>lua require'snippets'.expand_at_cursor()<cr>
 
-    pa nvim-lsp
+    pa nvim-lspconfig
     luafile ~/.vim/lua/my/lsp.lua
 
     pa snippets.nvim

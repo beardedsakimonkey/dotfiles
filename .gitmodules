@@ -112,3 +112,6 @@
 [submodule "nvim-lspconfig"]
 	path = .vim/pack/mine/start/nvim-lspconfig
 	url = https://github.com/neovim/nvim-lspconfig.git
+[submodule "playground"]
+	path = .vim/pack/mine/start/playground
+	url = https://github.com/nvim-treesitter/playground.git

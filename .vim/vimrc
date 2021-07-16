@@ -822,15 +822,6 @@ let g:loaded_perl_provider = 0
 let g:loaded_ruby_provider = 0
 let g:loaded_node_provider = 0
 
-" vim-colortemplate
-let g:colortemplate_no_mappings = 0
-let g:colortemplate_source_comment = 0
-let g:colortemplate_toolbar = 0
-let g:colortemplate_higroup_balloon = 0
-au vimrc BufWritePost *.colortemplate ColortemplateAll! | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
-com! -bar HiTest runtime syntax/hitest.vim
-nno <silent> cos :<c-u>call colortemplate#syn#toggle()<bar>echo<cr>
-
 " vim-qf
 nm <c-n> <Plug>(qf_qf_toggle)
 let g:qf_auto_quit = 0

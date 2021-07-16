@@ -16,9 +16,6 @@
 [submodule "vim-hack"]
 	path = .vim/pack/mine/start/vim-hack
 	url = https://github.com/hhvm/vim-hack.git
-[submodule "vim-colortemplate"]
-	path = .vim/pack/mine/start/vim-colortemplate
-	url = https://github.com/lifepillar/vim-colortemplate.git
 [submodule "zsh-autosuggestions"]
 	path = .zsh/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
@@ -112,3 +109,6 @@
 [submodule "snap"]
 	path = .vim/pack/mine/start/snap
 	url = https://github.com/camspiers/snap.git
+[submodule "nvim-compe"]
+	path = /Users/tim/.vim/pack/mine/start/nvim-compe
+	url = https://github.com/hrsh7th/nvim-compe.git

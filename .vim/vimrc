@@ -10,41 +10,15 @@ endif
 syntax enable
 filetype plugin indent on
 
-if has('nvim')
-    " !    - Save and restore all-caps global variables
-    " '100 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
-    " <50  - Contents of registers (up to 50 lines each) will be remembered
-    " s10  - Items with contents occupying more then 10 KiB are skipped
-    " h    - Disable the effect of 'hlsearch' when loading the shada file
-    set shada=!,'100,<50,s10,h 
-else
-    set viminfo=!,'100,<50,s10,h
-    set viminfofile=~/.viminfo
-endif
+" !    - Save and restore all-caps global variables
+" '100 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
+" <50  - Contents of registers (up to 50 lines each) will be remembered
+" s10  - Items with contents occupying more then 10 KiB are skipped
+" h    - Disable the effect of 'hlsearch' when loading the shada file
+set shada=!,'100,<50,s10,h 
 
-if !has('nvim')
-    " See :set termcap, :h t_ku, :h :set-termcap, and http://vim.wikia.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
-    set <a-h>=h
-    set <a-j>=j
-    set <a-k>=k
-    set <a-l>=l
-    if $TERM =~# '^\%(tmux\|screen\)'
-        set ttymouse=xterm2
-        " Make bracketed paste mode work inside tmux
-        let &t_BE = "\033[?2004h"
-        let &t_BD = "\033[?2004l"
-        let &t_PS = "\033[200~"
-        let &t_PE = "\033[201~"
-    endif
-    set ttyfast
-endif
-
-if has('nvim')
-    set display=msgsep
-    set inccommand=nosplit
-else
-    set display=lastline
-endif
+set display=msgsep
+set inccommand=nosplit
 
 set lazyredraw
 set ttimeout
@@ -152,43 +126,37 @@ set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
 let s:stl_sess = "%6*%{session#status()}%*"
 
-if has('nvim-0.5')
-    lua <<
-    _G.lsp_statusline_no_errors = function ()
-        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-            return ''
-        end
-        local errors = vim.lsp.diagnostic.get_count('Error') or 0
-        if errors == 0 then
-            return '✔'
-        end
+lua << END
+_G.lsp_statusline_no_errors = function ()
+    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
         return ''
     end
-    _G.lsp_statusline_has_errors = function ()
-        if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
-            return ''
-        end
-        local errors = vim.lsp.diagnostic.get_count('Error') or 0
-        if errors > 0 then
-            return '✘'
-        end
+    local errors = vim.lsp.diagnostic.get_count('Error') or 0
+    if errors == 0 then
+        return '✔'
+    end
+    return ''
+end
+_G.lsp_statusline_has_errors = function ()
+    if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
         return ''
     end
-.
-    fu! MyStatusLineNeovim() abort
-        let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
-                    \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
-        let post = g:statusline_winid is# win_getid() ? s:stl_sess : ''
-        return s:stl_info.."%f "..stl_lsp.."%="..post..' '
-    endfu
-    set statusline=%!MyStatusLineNeovim()
-else
-    set statusline=%!MyStatusLine()
-endif
+    local errors = vim.lsp.diagnostic.get_count('Error') or 0
+    if errors > 0 then
+        return '✘'
+    end
+    return ''
+end
+END
 
-fu! MyStatusLine() abort
-    return s:stl_info.."%f %="
+fu! MyStatusLineNeovim() abort
+    let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
+                \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
+    let post = g:statusline_winid is# win_getid() ? s:stl_sess : ''
+    return s:stl_info.."%f "..stl_lsp.."%="..post..' '
 endfu
+
+set statusline=%!MyStatusLineNeovim()
 
 " Tab line
 set showtabline=1
@@ -329,9 +297,7 @@ aug vimrc | au!
                 \ endif
     " au BufWritePost ~/.zsh/overlay.ini call system('fast-theme '.expand('<afile>:p'))
 
-    if has('nvim-0.5')
-        au TextYankPost * lua vim.highlight.on_yank {higroup="Search", timeout=300, on_visual=false}
-    endif
+    au TextYankPost * lua vim.highlight.on_yank {higroup="Search", timeout=300, on_visual=false}
 
     au CursorMoved * call HlSearch()
     au InsertEnter * call StopHL()
@@ -364,25 +330,23 @@ aug vimrc | au!
     no <silent> <Plug>(StopHL) :<C-U>nohlsearch<cr>
     no! <expr> <Plug>(StopHL) execute('nohlsearch')[-1]
 
-    if has('nvim')
-        au vimrc VimEnter * call s:setup_global_marks()
+    au vimrc VimEnter * call s:setup_global_marks()
 
-        fu! s:setup_global_marks()
-        endfu
+    fu! s:setup_global_marks()
+    endfu
 
-        fu! s:setup_global_mark(mark, file)
-            let file = fnamemodify(a:file, ':p')
-            if glob(file, 1) is# '' | return | endif
-            let buf = bufnr(file, 1)
-            " weirdly, setting the mark at column 2 saves as column 1 in shada
-            call setpos(a:mark, [buf, 1, 2, 0])
-        endfu
+    fu! s:setup_global_mark(mark, file)
+        let file = fnamemodify(a:file, ':p')
+        if glob(file, 1) is# '' | return | endif
+        let buf = bufnr(file, 1)
+        " weirdly, setting the mark at column 2 saves as column 1 in shada
+        call setpos(a:mark, [buf, 1, 2, 0])
+    endfu
 
-        " jump to last cursor position for capital letter marks
-        for c in map(range(65, 90), 'nr2char(v:val)')
-            exe "nno '"..c.." '"..c..'g`"zvzz'
-        endfor
-    endif
+    " jump to last cursor position for capital letter marks
+    for c in map(range(65, 90), 'nr2char(v:val)')
+        exe "nno '"..c.." '"..c..'g`"zvzz'
+    endfor
 
     au BufWinLeave * if !s:is_special() | call s:save_view() | endif
     au BufWinEnter * if !s:is_special() | call s:restore_view() | endif
@@ -468,6 +432,7 @@ fu! s:pack_install(url)
         return
     endif
     " FIXME: git expands the tilde
+    " NOTE: you may need to pass --force
     let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/mine/start/%s', repo, shellescape(url), repo)
 
     exe '!(cd ~ && '.cmd.')'
@@ -545,6 +510,7 @@ nno <silent> <home> :<c-u>keepj norm! gg<cr>
 nno <silent> <end> :<c-u>keepj norm! G<cr>
 nno <silent> <pageup> <pageup>:keepj norm! H<cr>
 nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
+nno <silent> <cr> :<c-u>w<cr>
 
 nno / ms/
 nno ? ms?
@@ -665,17 +631,16 @@ nno <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
 nno <silent> ]L :<c-u>lnfile<cr>zz
 nno <silent> [L :<c-u>lpfile<cr>zz
 
-if has('nvim-0.5')
-    no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-    no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
-    no <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
-endif
+no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+" no <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
 
 no <silent> <space>d :<c-u>BD<cr>
 no <silent> <space>D :<c-u>bd<cr>
 no <silent> <space>q :<c-u>b#<cr>
 
 com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
+
 
 nno <silent> <space>gd :<c-u>.CopyDiffusion<cr>
 xno <silent> <space>gd :CopyDiffusion<cr>
@@ -852,15 +817,10 @@ let g:loaded_matchit = 1
 
 let g:did_install_default_menus = 1 " $VIMRUNTIME/menu.vim
 
-if has('nvim')
-    let g:loaded_python_provider = 0
-    let g:loaded_perl_provider = 0
-    let g:loaded_ruby_provider = 0
-    let g:loaded_node_provider = 0
-endif
-
-" vim-prettier
-let g:prettier#autoformat = 1
+let g:loaded_python_provider = 0
+let g:loaded_perl_provider = 0
+let g:loaded_ruby_provider = 0
+let g:loaded_node_provider = 0
 
 " vim-colortemplate
 let g:colortemplate_no_mappings = 0
@@ -928,11 +888,6 @@ let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentar
 " lion.vim
 let g:lion_squeeze_spaces = 1
 
-" goyo.vim
-nno <silent> _ :<c-u>Goyo<cr>
-let g:goyo_height = '100%'
-let g:goyo_width = 160
-
 " splitjoin.vim
 let g:splitjoin_split_mapping = 'gj'
 let g:splitjoin_join_mapping = 'gk'
@@ -957,50 +912,47 @@ if has('vim_starting')
             \ })
 endif
 
-" vim-signify
-let g:signify_sign_change = '~'
-let g:signify_sign_delete = '-'
-au vimrc User SignifyAutocmds au! signify CursorHold,CursorHoldI
-nno <silent> <space>cd :<c-u>SignifyDiff<cr>
-nno <silent> <space>cp :<c-u>SignifyHunkDiff<cr>
-nno <silent> <space>cu :<c-u>SignifyHunkUndo<cr>
+com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+com! -bar RestartLsp call <sid>restartLsp()
 
-if has('nvim-0.5')
-    com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
-    com! -bar RestartLsp call <sid>restartLsp()
+fu! s:restartLsp()
+    lua vim.lsp.stop_client(vim.lsp.get_active_clients())
+    edit
+endfu
 
-    fu! s:restartLsp()
-        lua vim.lsp.stop_client(vim.lsp.get_active_clients())
-        edit
-    endfu
+pa completion-nvim
+" set completeopt=menuone,noinsert
+set completeopt=menuone,noselect
+luafile ~/.vim/lua/my/compe.lua
 
-    pa completion-nvim
-    set completeopt=menuone,noinsert
-    let g:completion_chain_complete_list = [
-                \ {'complete_items': ['lsp']},
-                \ {'mode': '<c-p>'},
-                \ {'mode': '<c-n>'}
-                \ ]
-    let g:completion_auto_change_source = 1
-    let g:completion_trigger_keyword_length = 1
-    let g:completion_enable_auto_signature = 0
-    let g:completion_enable_auto_hover = 0
-    let g:completion_confirm_key = "\<c-i>"
-    ino <c-j> <c-n>
-    ino <c-k> <c-p>
-    ino <c-l> <cmd>lua require'snippets'.expand_at_cursor()<cr>
+let g:completion_chain_complete_list = [
+            \ {'complete_items': ['lsp']},
+            \ {'mode': '<c-p>'},
+            \ {'mode': '<c-n>'}
+            \ ]
+let g:completion_auto_change_source = 1
+let g:completion_trigger_keyword_length = 1
+let g:completion_enable_auto_signature = 0
+let g:completion_enable_auto_hover = 0
+let g:completion_confirm_key = "\<c-i>"
+ino <c-j> <c-n>
+ino <c-k> <c-p>
+ino <c-l> <cmd>lua require'snippets'.expand_at_cursor()<cr>
+ino <expr> <tab> compe#confirm('<tab>')
 
-    pa nvim-lspconfig
-    luafile ~/.vim/lua/my/lsp.lua
+pa nvim-lspconfig
+luafile ~/.vim/lua/my/lsp.lua
 
-    pa snippets.nvim
-    luafile ~/.vim/lua/my/snippets.lua
+pa snippets.nvim
+luafile ~/.vim/lua/my/snippets.lua
 
-    pa nvim-treesitter
-    pa nvim-treesitter-refactor
-    pa nvim-treesitter-textobjects
-    luafile ~/.vim/lua/my/treesitter.lua
-endif
+" pa nvim-treesitter
+" pa nvim-treesitter-refactor
+" pa nvim-treesitter-textobjects
+" luafile ~/.vim/lua/my/treesitter.lua
+
+pa snap
+luafile ~/.vim/lua/my/snap.lua
 
 sil! colo dune
 if has('vim_starting')

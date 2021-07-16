@@ -64,9 +64,6 @@
 [submodule "vim-lion"]
 	path = .vim/pack/mine/start/vim-lion
 	url = https://github.com/tommcdo/vim-lion.git
-[submodule "goyo.vim"]
-	path = .vim/pack/mine/start/goyo.vim
-	url = https://github.com/junegunn/goyo.vim.git
 [submodule "splitjoin.vim"]
 	path = .vim/pack/mine/start/splitjoin.vim
 	url = https://github.com/AndrewRadev/splitjoin.vim.git
@@ -91,9 +88,6 @@
 [submodule "completion-nvim"]
 	path = .vim/pack/mine/start/completion-nvim
 	url = https://github.com/nvim-lua/completion-nvim
-[submodule "vim-signify"]
-	path = .vim/pack/mine/start/vim-signify
-	url = https://github.com/mhinz/vim-signify.git
 [submodule "nvim-filetree"]
 	path = .vim/pack/mine/start/nvim-filetree
 	url = https://github.com/beardedsakimonkey/nvim-filetree.git
@@ -112,3 +106,9 @@
 [submodule "playground"]
 	path = .vim/pack/mine/start/playground
 	url = https://github.com/nvim-treesitter/playground.git
+[submodule "vim-rescript"]
+	path = .vim/pack/mine/start/vim-rescript
+	url = https://github.com/rescript-lang/vim-rescript.git
+[submodule "snap"]
+	path = .vim/pack/mine/start/snap
+	url = https://github.com/camspiers/snap.git

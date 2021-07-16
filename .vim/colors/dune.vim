@@ -51,7 +51,7 @@ hi Special      guifg=DodgerBlue4  guibg=none       gui=none
 hi String       guifg=DarkGreen    guibg=none       gui=none
 hi StatusLine   guifg=#CDCABD      guibg=black      gui=none
 hi StatusLineNC guifg=#CDCABD      guibg=gray       gui=none
-hi Directory    guifg=blue3        guibg=none       gui=bold
+hi Directory    guifg=blue3        guibg=none       gui=none
 hi SignColumn   guifg=none         guibg=#c9c5b5
 hi Todo         guifg=burlywood4   guibg=none       gui=bold
 

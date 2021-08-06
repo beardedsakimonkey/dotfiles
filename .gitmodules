@@ -1,114 +1,12 @@
-[submodule "vim-commentary"]
-	path = .vim/pack/mine/start/vim-commentary
-	url = https://github.com/tpope/vim-commentary.git
-[submodule "vim-surround"]
-	path = .vim/pack/mine/start/vim-surround
-	url = https://github.com/tpope/vim-surround.git
-[submodule "vim-repeat"]
-	path = .vim/pack/mine/start/vim-repeat
-	url = https://github.com/tpope/vim-repeat.git
-[submodule "vim-prettier"]
-	path = .vim/pack/mine/start/vim-prettier
-	url = https://github.com/prettier/vim-prettier.git
-[submodule "vim-jsx-pretty"]
-	path = .vim/pack/mine/start/vim-jsx-pretty
-	url = https://github.com/MaxMEllon/vim-jsx-pretty.git
-[submodule "vim-hack"]
-	path = .vim/pack/mine/start/vim-hack
-	url = https://github.com/hhvm/vim-hack.git
 [submodule "zsh-autosuggestions"]
 	path = .zsh/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
 [submodule "fast-syntax-highlighting"]
 	path = .zsh/fast-syntax-highlighting
 	url = https://github.com/zdharma/fast-syntax-highlighting.git
-[submodule "vim-qf"]
-	path = .vim/pack/mine/start/vim-qf
-	url = https://github.com/romainl/vim-qf.git
-[submodule "vim-bufkill"]
-	path = .vim/pack/mine/start/vim-bufkill
-	url = https://github.com/qpkorr/vim-bufkill.git
-[submodule "vim-dirvish"]
-	path = .vim/pack/mine/start/vim-dirvish
-	url = https://github.com/beardedsakimonkey/vim-dirvish.git
-[submodule "vim-matchup"]
-	path = .vim/pack/mine/start/vim-matchup
-	url = https://github.com/andymass/vim-matchup
 [submodule "zsh-history-substring-search"]
 	path = .zsh/zsh-history-substring-search
 	url = https://github.com/zsh-users/zsh-history-substring-search.git
-[submodule "linediff.vim"]
-	path = .vim/pack/mine/start/linediff.vim
-	url = https://github.com/AndrewRadev/linediff.vim.git
-[submodule "vim-apathy"]
-	path = .vim/pack/mine/start/vim-apathy
-	url = https://github.com/tpope/vim-apathy.git
-[submodule "fasd"]
-	path = .zsh/fasd
-	url = https://github.com/clvv/fasd.git
-[submodule "rust.vim"]
-	path = .vim/pack/mine/start/rust.vim
-	url = https://github.com/rust-lang/rust.vim
-[submodule "vim-glsl"]
-	path = .vim/pack/mine/start/vim-glsl.vim
-	url = https://github.com/tikhomirov/vim-glsl.git
-[submodule "vim-sleuth"]
-	path = .vim/pack/mine/start/vim-sleuth
-	url = https://github.com/tpope/vim-sleuth.git
-[submodule "vim-characterize"]
-	path = .vim/pack/mine/start/vim-characterize
-	url = https://github.com/tpope/vim-characterize.git
-[submodule "vim-lion"]
-	path = .vim/pack/mine/start/vim-lion
-	url = https://github.com/tommcdo/vim-lion.git
-[submodule "splitjoin.vim"]
-	path = .vim/pack/mine/start/splitjoin.vim
-	url = https://github.com/AndrewRadev/splitjoin.vim.git
-[submodule "undotree"]
-	path = .vim/pack/mine/start/undotree
-	url = https://github.com/mbbill/undotree.git
-[submodule "vim-lookup"]
-	path = .vim/pack/mine/start/vim-lookup
-	url = https://github.com/mhinz/vim-lookup.git
 [submodule "tmux-fingers"]
 	path = .config/tmux/tmux-fingers
 	url = https://github.com/morantron/tmux-fingers
-[submodule "snippets.nvim"]
-	path = .vim/pack/mine/start/snippets.nvim
-	url = https://github.com/norcalli/snippets.nvim.git
-[submodule "vim-exchange"]
-	path = .vim/pack/mine/start/vim-exchange
-	url = https://github.com/tommcdo/vim-exchange.git
-[submodule "targets.vim"]
-	path = .vim/pack/mine/start/targets.vim
-	url = https://github.com/wellle/targets.vim.git
-[submodule "completion-nvim"]
-	path = .vim/pack/mine/start/completion-nvim
-	url = https://github.com/nvim-lua/completion-nvim
-[submodule "nvim-filetree"]
-	path = .vim/pack/mine/start/nvim-filetree
-	url = https://github.com/beardedsakimonkey/nvim-filetree.git
-[submodule "nvim-treesitter"]
-	path = .vim/pack/mine/start/nvim-treesitter
-	url = https://github.com/nvim-treesitter/nvim-treesitter.git
-[submodule "nvim-treesitter-textobjects"]
-	path = .vim/pack/mine/start/nvim-treesitter-textobjects
-	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
-[submodule "nvim-treesitter-refactor"]
-	path = .vim/pack/mine/start/nvim-treesitter-refactor
-	url = https://github.com/nvim-treesitter/nvim-treesitter-refactor.git
-[submodule "nvim-lspconfig"]
-	path = .vim/pack/mine/start/nvim-lspconfig
-	url = https://github.com/neovim/nvim-lspconfig.git
-[submodule "playground"]
-	path = .vim/pack/mine/start/playground
-	url = https://github.com/nvim-treesitter/playground.git
-[submodule "vim-rescript"]
-	path = .vim/pack/mine/start/vim-rescript
-	url = https://github.com/rescript-lang/vim-rescript.git
-[submodule "snap"]
-	path = .vim/pack/mine/start/snap
-	url = https://github.com/camspiers/snap.git
-[submodule "nvim-compe"]
-	path = /Users/tim/.vim/pack/mine/start/nvim-compe
-	url = https://github.com/hrsh7th/nvim-compe.git

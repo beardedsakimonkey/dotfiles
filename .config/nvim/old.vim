@@ -1,37 +1,11 @@
-" much of this was adapted from justinmk, lacygoill, and lifepillar's vimrc's
-
-if has('nvim')
-    " setup 'rtp' *before* `:filetype plugin` because it uses `:runtime`
-    set runtimepath^=~/.vim
-    set runtimepath+=~/.vim/after
-    let &packpath = &runtimepath
-endif
-
 syntax enable
 filetype plugin indent on
 
-" !    - Save and restore all-caps global variables
-" '100 - Marks will be remembered for the last 200 files edited (also the number of `v:oldfiles` stored)
-" <50  - Contents of registers (up to 50 lines each) will be remembered
-" s10  - Items with contents occupying more then 10 KiB are skipped
-" h    - Disable the effect of 'hlsearch' when loading the shada file
-set shada=!,'100,<50,s10,h 
-
-set display=msgsep
-set inccommand=nosplit
-
-set lazyredraw
-set ttimeout
-set ttimeoutlen=0  " avoid confusing <esc>-key with <a-…>
-set timeoutlen=3000
-set mouse=a
-set synmaxcol=250
-
-if exists('+termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-endif
+" if exists('+termguicolors')
+"     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+"     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"     set termguicolors
+" endif
 
 " Show block cursor in Normal mode and line cursor in Insert mode
 let &t_ti.="\<Esc>[2 q"
@@ -40,41 +14,8 @@ let &t_SR.="\<Esc>[4 q"
 let &t_EI.="\<Esc>[2 q"
 let &t_te.="\<Esc>[0 q"
 
-set hidden
-set confirm
-set noswapfile nobackup
-" set nowritebackup
-set undofile
-set undodir=~/.vim/undo
-if !isdirectory(&undodir)
-    call mkdir(&undodir, 'p', 0700)
-endif
-
-set splitright
-set splitbelow
-
-set winminheight=0
-set winminwidth=0
-
-set backspace=indent,eol,start
-set nojoinspaces
-
-set autoindent
-set shiftround
-set smarttab
-set expandtab
-set shiftwidth=4
-set tabstop=4
-set softtabstop=-1
-
-set hlsearch
-set incsearch
-set ignorecase
-set infercase
-set smartcase
-
 set keywordprg=:help
-" set completeopt=menu
+set completeopt=menuone,noselect
 set complete=.,i,w,b
 
 set wildmenu
@@ -385,30 +326,6 @@ if !exists('s:SID')
     delfu s:SID
 endif
 
-com! -nargs=* -complete=file_in_path Grep call v:lua.my_grep(<q-args>)
-
-com! -bar -nargs=1 PackInstall call <sid>pack_install(<q-args>)
-
-fu! s:pack_install(url)
-    let url = a:url
-    if url =~ '/$'
-        let url = url[:-2]
-    endif
-    if url !~ '.git$'
-        let url .= '.git'
-    endif
-    let repo = substitute(url, '^.*/\([^/]\+\)/\?\.git$', '\1', '')
-    if strlen(repo) is strlen(url)
-        echom 'regex failed'
-        return
-    endif
-    " FIXME: git expands the tilde
-    " NOTE: you may need to pass --force
-    let cmd = printf('git submodule add --depth 1 --name "%s" -- %s ~/.vim/pack/mine/start/%s', repo, shellescape(url), repo)
-
-    exe '!(cd ~ && '.cmd.')'
-endfu
-
 com! -bar DiffOrig echo s:diff_orig()
 
 fu! s:diff_orig() abort
@@ -446,86 +363,6 @@ fu! s:diff_orig_restore_settings(conceallevel,_) abort
 endfu
 
 " Mappings
-let mapleader = "\<s-f5>"
-let maplocalleader = "\<s-f6>"
-
-no j gj
-no k gk
-no <down> gj
-no <up> gk
-nno <c-e> <c-e><c-e>
-nno <c-y> <c-y><c-y>
-xno < <gv
-xno > >gv
-nno s "_s
-nno Z zzzH
-xno Z zzzH
-nno <expr> p getreg(v:register) =~# "\n" ? "pmv=g']g`v" : 'p'
-nno <expr> P getreg(v:register) =~# "\n" ? "Pmv=g']g`v" : 'P'
-xno <expr> p '"_c<c-r>'.v:register.'<esc>'
-
-xno K k
-xno J j
-
-nno ; :
-xno ; :
-nno : ;
-xno : ;
-
-nno Q @q
-no Y y$
-no H ^
-no L $
-nno <c-p> <c-i>
-nno <silent> <home> :<c-u>keepj norm! gg<cr>
-nno <silent> <end> :<c-u>keepj norm! G<cr>
-nno <silent> <pageup> <pageup>:keepj norm! H<cr>
-nno <silent> <pagedown> <pagedown>:keepj norm! L<cr>
-nno <silent> <cr> :<c-u>w<cr>
-
-nno / ms/
-nno ? ms?
-nno ` g`
-nno ' g'
-no  <silent> (  H
-no  <silent> )  L
-nno <silent> (  :<c-u>keepj norm! H<cr>
-nno <silent> )  :<c-u>keepj norm! L<cr>
-nno <silent> M  :<c-u>keepj norm! M<cr>
-nno <silent> {  :<c-u>keepj norm! {<cr>
-nno <silent> }  :<c-u>keepj norm! }<cr>
-nno <silent> gg :<c-u>keepj norm! gg<cr>
-nno <silent> G  :<c-u>keepj norm! G<cr>
-nno <silent> n  :<c-u>keepj norm! nzzzv<cr>
-nno <silent> N  :<c-u>keepj norm! Nzzzv<cr>
-
-nno <silent> *  ms:keepj norm! *<cr>zzzv
-nno <silent> #  ms:keepj norm! #<cr>zzzv
-nno <silent> g* ms:keepj norm! g*<cr>zzzv
-nno <silent> g# ms:keepj norm! g#<cr>zzzv
-" XXX: doesn't support multiline selection
-xno <silent> *  "vyms:let @/='<c-r>v'<bar>keepj norm! n<cr>zzzv
-xno <silent> #  "vyms:let @/='<c-r>v'<bar>keepj norm! N<cr>zzzv
-xno <silent> g* "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! n<cr>zzzv
-xno <silent> g# "vyms:let @/='\<<c-r>v\>'<bar>keepj norm! N<cr>zzzv
-nno <silent> g/ ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
-nno <silent> <rightmouse> <leftmouse>:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:set hls<cr>
-
-" TODO: combine these
-nno <silent> S ms:<c-u>let @/='\<<c-r>=expand("<cword>")<cr>\>'<cr>:%s///g<left><left>
-nno <space>s :<c-u>%s///g<left><left>
-
-nno =v mvg'[=g']g`v
-
-nno gs gv
-nno gv g`[vg`]
-nno gV g'[Vg']
-
-no! <a-h> <left>
-no! <a-l> <right>
-no! <a-j> <c-left>
-no! <a-k> <c-right>
-
 nno <silent> <c-l> :<c-u>call <sid>navigate('l')<cr>
 nno <silent> <c-h> :<c-u>call <sid>navigate('h')<cr>
 nno <silent> <c-j> :<c-u>call <sid>navigate('j')<cr>
@@ -560,22 +397,6 @@ fu s:previous_window_is_in_same_direction(dir) abort
     endif
 endfu
 
-nno <a-l> <c-w>L
-nno <a-h> <c-w>H
-nno <a-j> <c-w>J
-nno <a-k> <c-w>K
-
-nno <silent> ]b :<c-u>bnext<cr>
-nno <silent> [b :<c-u>bprev<cr>
-nno <silent> [t :<c-u>tabprev<cr>
-nno <silent> ]t :<c-u>tabnext<cr>
-nno <silent> ]T :<c-u>+tabmove<cr>
-nno <silent> [T :<c-u>-tabmove<cr>
-nno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
-nno <silent> [n ?\v^[<\|=>]{7}<cr>zvzz
-xno <silent> ]n /\v^[<\|=>]{7}<cr>zvzz
-xno <silent> [n ?\v^[<\|=>]{7}<cr>zvzz
-
 nno <expr> [e <sid>move_line_setup('up')
 nno <expr> ]e <sid>move_line_setup('down')
 
@@ -593,55 +414,24 @@ fu! s:move_line(_) abort
     keepj norm! =`v
 endfu
 
-nno <silent> ]q :<c-u><c-r>=v:count1<cr>cnext<cr>zz
-nno <silent> [q :<c-u><c-r>=v:count1<cr>cprevious<cr>zz
-nno <silent> ]Q :<c-u>cnfile<cr>zz
-nno <silent> [Q :<c-u>cpfile<cr>zz
-nno <silent> ]l :<c-u><c-r>=v:count1<cr>lnext<cr>zz
-nno <silent> [l :<c-u><c-r>=v:count1<cr>lprevious<cr>zz
-nno <silent> ]L :<c-u>lnfile<cr>zz
-nno <silent> [L :<c-u>lpfile<cr>zz
-
-no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
+" no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
+" no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
 " no <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
-
-no <silent> <space>d :<c-u>BD<cr>
-no <silent> <space>D :<c-u>bd<cr>
-no <silent> <space>q :<c-u>b#<cr>
 
 com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
 
-
-nno <silent> <space>gd :<c-u>.CopyDiffusion<cr>
-xno <silent> <space>gd :CopyDiffusion<cr>
-nno <silent> <space>gl :<c-u>call my_find#hg_commit()<cr>
-
-nno <silent> <space>ev :<c-u>edit ~/.vim/vimrc<cr>
-nno <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
-nno <silent> <space>ep :<c-u>edit ~/.vim/pack/mine/start<cr>
+nno <silent> <space>ev :<c-u>edit ~/.config/nvim/init.lua<cr>
+" nno <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
+nno <silent> <space>ep :<c-u>edit ~/.local/share/nvim/site/pack/packer/start<cr>
 nno <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
-nno <silent> <space>ec :<c-u>edit ~/.vim/pack/mine/start/gruvburn/gruvburn.colortemplate<cr>
 nno <silent> <space>en :<c-u>edit ~/notes/notes.md<cr>
 nno <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
 nno <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
 
-nno <space>a :<c-u>Grep<space>
-xno <space>a "vy:Grep <c-r>v
-xno <space>m :<c-u>make<cr>
-
-cno <c-p> <up>
-cno <c-n> <down>
-cno <c-j> <c-g>
-cno <c-k> <c-t>
-cno <c-a> <home>
+" nno <space>a :<c-u>Grep<space>
+" xno <space>a "vy:Grep <c-r>v
 
 ino <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
-
-ino <c-o> <c-r>=expand("%:t:r:r:r")<cr>
-cno <c-o> <c-r>=expand("%:t:r:r:r")<cr>
-nno <silent> yo :<c-u>let @"='<c-r>=expand("%:t:r:r:r")<cr>'<cr>
-nno <silent> yO :<c-u>let @"='<c-r>=expand("%:p")<cr>'<cr>
 
 nno <silent> cd :<c-u>cd %:h \| pwd<cr>
 nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>
@@ -650,20 +440,6 @@ no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
 nno <silent> \ za
 nno <silent> cn cgn
 
-nno <silent> <space>l :<c-u>vsplit<cr>
-nno <silent> <space>j :<c-u>split<cr>
-nno <silent> <space>h :<c-u>vsplit<bar>wincmd p<cr>
-nno <silent> <space>k :<c-u>split<bar>wincmd p<cr>
-
-nno <silent> <c-q> :<c-u>q<cr>
-
-nno g; g;zvzz
-xm <expr> gd mode() is# 'V' ? '"vygvgc"vP' : 'gd'
-
-cnorea <expr> man getcmdtype() is# ":" && getcmdpos() == 4 ? 'Man' : 'man'
-cnorea <expr>  hg getcmdtype() is# ':' && getcmdpos() == 3 ? 'helpgrep' : 'hg'
-cnorea <expr>  ht getcmdtype() is# ':' && getcmdpos() == 3 ? 'helptags' : 'ht'
-cnorea <expr>  cs getcmdtype() is# ':' && getcmdpos() == 3 ? 'colorscheme' : 'cs'
 ca ~? ~/
 
 fu! s:map_change_option(...)
@@ -793,29 +569,16 @@ let g:loaded_perl_provider = 0
 let g:loaded_ruby_provider = 0
 let g:loaded_node_provider = 0
 
-" vim-qf
-nm <c-n> <Plug>(qf_qf_toggle)
-let g:qf_auto_quit = 0
-let g:qf_auto_resize = 0
-let g:qf_mapping_ack_style = 1
-
-" vim-dirvish
-let g:loaded_dirvish = 1
-let g:dirvish_mode = ':sort ,^.*/,'
-
-" nvim-filetree
-pa nvim-filetree
-lua require'filetree'.init()
-nno - :<c-u>Filetree<cr>
-au vimrc StdinReadPost * let s:has_stdin = 1
-au vimrc VimEnter *
-            \ if !argc() && !has_key(s:, 'has_stdin') && !empty(glob('*', 1, 1)) |
-            \   silent! Filetree |
-            \ endif
-
-" vim-bufkill
-let g:BufKillCreateMappings = 0
-
+" " nvim-filetree
+" pa nvim-filetree
+" lua require'filetree'.init()
+" nno - :<c-u>Dirvish<cr>
+" au vimrc StdinReadPost * let s:has_stdin = 1
+" au vimrc VimEnter *
+"             \ if !argc() && !has_key(s:, 'has_stdin') && !empty(glob('*', 1, 1)) |
+"             \   silent! Filetree |
+"             \ endif
+" 
 " vim-linediff
 let g:linediff_buffer_type = 'scratch'
 xno <expr> D mode() is# 'V' ? ':Linediff<cr>' : 'D'
@@ -847,13 +610,6 @@ fu! IsCommentaryOpFunc()
 endfu
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
-" lion.vim
-let g:lion_squeeze_spaces = 1
-
-" splitjoin.vim
-let g:splitjoin_split_mapping = 'gj'
-let g:splitjoin_join_mapping = 'gk'
-
 " vim-exchange
 nmap t <Plug>(Exchange)
 xmap t <Plug>(Exchange)
@@ -873,55 +629,36 @@ if has('vim_starting')
             \ 'b': {'pair': [{'o':'(', 'c':')'}]},
             \ })
 endif
+" 
+" com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
+" com! -bar RestartLsp call <sid>restartLsp()
+" 
+" fu! s:restartLsp()
+"     lua vim.lsp.stop_client(vim.lsp.get_active_clients())
+"     edit
+" endfu
+" 
+" pa completion-nvim
+" " set completeopt=menuone,noinsert
+" set completeopt=menuone,noselect
+" luafile ~/.vim/lua/my/compe.lua
+" 
 
-com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
-com! -bar RestartLsp call <sid>restartLsp()
+" 
+" pa nvim-lspconfig
+" luafile ~/.vim/lua/my/lsp.lua
+" 
+" pa snippets.nvim
+" luafile ~/.vim/lua/my/snippets.lua
+" 
+" " pa nvim-treesitter
+" " pa nvim-treesitter-refactor
+" " pa nvim-treesitter-textobjects
+" " luafile ~/.vim/lua/my/treesitter.lua
+" 
+" pa snap
+" luafile ~/.vim/lua/my/snap.lua
 
-fu! s:restartLsp()
-    lua vim.lsp.stop_client(vim.lsp.get_active_clients())
-    edit
-endfu
+" sil! colo dune
 
-pa completion-nvim
-" set completeopt=menuone,noinsert
-set completeopt=menuone,noselect
-luafile ~/.vim/lua/my/compe.lua
-
-let g:completion_chain_complete_list = [
-            \ {'complete_items': ['lsp']},
-            \ {'mode': '<c-p>'},
-            \ {'mode': '<c-n>'}
-            \ ]
-let g:completion_auto_change_source = 1
-let g:completion_trigger_keyword_length = 1
-let g:completion_enable_auto_signature = 0
-let g:completion_enable_auto_hover = 0
-let g:completion_confirm_key = "\<c-i>"
-ino <c-j> <c-n>
-ino <c-k> <c-p>
-ino <c-l> <cmd>lua require'snippets'.expand_at_cursor()<cr>
-ino <expr> <tab> compe#confirm('<tab>')
-
-pa nvim-lspconfig
-luafile ~/.vim/lua/my/lsp.lua
-
-pa snippets.nvim
-luafile ~/.vim/lua/my/snippets.lua
-
-" pa nvim-treesitter
-" pa nvim-treesitter-refactor
-" pa nvim-treesitter-textobjects
-" luafile ~/.vim/lua/my/treesitter.lua
-
-pa snap
-luafile ~/.vim/lua/my/snap.lua
-
-sil! colo dune
-if has('vim_starting')
-    set background=light
-endif
-
-let vimrc_local = expand('<sfile>:p:h')..'/local.vim'
-if filereadable(vimrc_local)
-    exe 'source' vimrc_local
-endif
+no <silent> <space>d :<C-u>call Kwbd(1)<CR>

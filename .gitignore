@@ -1,17 +1,11 @@
 /*
 !/.gitignore
 
-!/.vim
-/.vim/*
-!/.vim/**
-/.vim/local.vim
-/.vim/undo/
-/.vim/session/
-
 !/.config
 /.config/*
 !/.config/alacritty
 !/.config/tmux
+!/.config/nvim
 
 !/.zsh
 !/.zshenv

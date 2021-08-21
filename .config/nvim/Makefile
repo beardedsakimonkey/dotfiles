@@ -1,11 +1,9 @@
 .PHONY: compile
 .SILENT: compile
 
-SRC_FILES := $(basename $(shell find fnl -type f -name "*.fnl" | cut -d'/' -f2-))
+SRC_FILES := $(basename $(shell find lua -type f -name "*.fnl" | cut -d'/' -f2-))
 
 compile:
-	rm -rf lua
 	for f in $(SRC_FILES); do \
-		mkdir -p lua/$$(dirname $$f); \
-		fennel --no-compiler-sandbox --compile fnl/$$f.fnl > lua/$$f.lua; \
+		fennel --compile lua/$$f.fnl > lua/$$f.lua; \
 	done

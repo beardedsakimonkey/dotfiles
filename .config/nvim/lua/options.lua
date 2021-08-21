@@ -1,84 +1,68 @@
-local _2afile_2a = ".config/nvim/fnl/options.fnl"
-local _0_
-do
-  local name_0_ = "options"
-  local module_0_
-  do
-    local x_0_ = package.loaded[name_0_]
-    if ("table" == type(x_0_)) then
-      module_0_ = x_0_
-    else
-      module_0_ = {}
-    end
-  end
-  module_0_["aniseed/module"] = name_0_
-  module_0_["aniseed/locals"] = ((module_0_)["aniseed/locals"] or {})
-  do end (module_0_)["aniseed/local-fns"] = ((module_0_)["aniseed/local-fns"] or {})
-  do end (package.loaded)[name_0_] = module_0_
-  _0_ = module_0_
-end
-local autoload
-local function _1_(...)
-  return (require("aniseed.autoload")).autoload(...)
-end
-autoload = _1_
-local function _2_(...)
-  local ok_3f_0_, val_0_ = nil, nil
-  local function _2_()
-    return {}
-  end
-  ok_3f_0_, val_0_ = pcall(_2_)
-  if ok_3f_0_ then
-    _0_["aniseed/local-fns"] = {}
-    return val_0_
-  else
-    return print(val_0_)
-  end
-end
-local _local_0_ = _2_(...)
-local _2amodule_2a = _0_
-local _2amodule_name_2a = "options"
-do local _ = ({nil, _0_, nil, {{}, nil, nil, nil}})[2] end
-vim.go.shada = "!,'1000,<50,s10,h"
-vim.go.display = "msgsep"
-vim.go.inccommand = "nosplit"
-vim.go.lazyredraw = true
-vim.go.ttimeout = true
-vim.go.ttimeoutlen = 0
-vim.go.timeoutlen = 3000
-vim.go.mouse = "a"
-vim.go.synmaxcol = 500
+vim.opt["shada"] = "!,'4096,<50,s10,h"
+vim.opt["display"] = "msgsep"
+vim.opt["inccommand"] = "nosplit"
+vim.opt["lazyredraw"] = true
+vim.opt["ttimeout"] = true
+vim.opt["ttimeoutlen"] = 0
+vim.opt["timeoutlen"] = 3000
+vim.opt["mouse"] = "a"
+vim.opt["synmaxcol"] = 500
 vim.cmd("let &t_8f = \"\\<Esc>[38;2;%lu;%lu;%lum\"")
 vim.cmd("let &t_8b = \"\\<Esc>[48;2;%lu;%lu;%lum\"")
-vim.go.termguicolors = true
+do end (vim.opt)["termguicolors"] = true
 vim.cmd("let &t_ti.=\"\\<Esc>[2 q\"")
 vim.cmd("let &t_SI.=\"\\<Esc>[6 q\"")
 vim.cmd("let &t_SR.=\"\\<Esc>[4 q\"")
 vim.cmd("let &t_EI.=\"\\<Esc>[2 q\"")
 vim.cmd("let &t_te.=\"\\<Esc>[0 q\"")
-vim.go.hidden = true
-vim.go.confirm = true
-vim.go.swapfile = false
-vim.go.backup = false
-vim.go.undofile = true
+do end (vim.opt)["hidden"] = true
+vim.opt["confirm"] = true
+vim.opt["swapfile"] = false
+vim.opt["backup"] = false
+vim.opt["undofile"] = true
 if not vim.fn.isdirectory(vim.go.undodir) then
-  vim.cmd("call mkdir(&undodir, 'p', 0700)")
+  vim.fn.mkdir(vim.go.undodir)
 end
-vim.go.splitright = true
-vim.go.splitbelow = true
-vim.go.winminheight = 0
-vim.go.winminwidth = 0
-vim.go.joinspaces = false
-vim.bo.autoindent = true
-vim.go.shiftround = true
-vim.go.smarttab = true
-vim.bo.expandtab = true
-vim.bo.shiftwidth = 4
-vim.bo.tabstop = 4
-vim.bo.softtabstop = -1
-vim.go.hlsearch = true
-vim.go.incsearch = true
-vim.go.ignorecase = true
-vim.bo.infercase = true
-vim.go.smartcase = true
+vim.opt["splitright"] = true
+vim.opt["splitbelow"] = true
+vim.opt["winminheight"] = 0
+vim.opt["winminwidth"] = 0
+vim.opt["joinspaces"] = false
+vim.opt["autoindent"] = true
+vim.opt["shiftround"] = true
+vim.opt["smarttab"] = true
+vim.opt["expandtab"] = true
+vim.opt["shiftwidth"] = 4
+vim.opt["tabstop"] = 4
+vim.opt["softtabstop"] = -1
+vim.opt["hlsearch"] = true
+vim.opt["incsearch"] = true
+vim.opt["ignorecase"] = true
+vim.opt["infercase"] = true
+vim.opt["smartcase"] = true
+vim.opt["keywordprg"] = ":help"
+vim.opt["completeopt"] = {"menuone", "noselect"}
+vim.opt["complete"] = {".", "i", "w", "b"}
+vim.opt["wildmenu"] = true
+vim.opt["wildignorecase"] = true
+vim.opt["wildignore"] = {"build/*", "*/node_modules/*"}
+vim.opt["foldtext"] = "v:folddashes.getline(v:foldstart)"
+vim.opt["foldmethod"] = "indent"
+vim.opt["foldlevelstart"] = 99
+do end (vim.opt.foldopen):remove("block")
+do end (vim.opt)["modeline"] = false
+vim.opt["modelines"] = 0
+vim.opt["shortmess"] = "filnxtToOfaTWIcFS"
+vim.opt["fillchars"] = {eob = " ", vert = " "}
+vim.opt["scrolloff"] = 2
+vim.opt["sidescrolloff"] = 2
+vim.opt["virtualedit"] = "block"
+vim.opt["wrap"] = false
+vim.opt["number"] = true
+vim.opt["signcolumn"] = "auto"
+vim.opt["showcmd"] = false
+vim.opt["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
+vim.opt["laststatus"] = 2
+vim.opt["showmode"] = false
+vim.opt["showtabline"] = 1
 return nil

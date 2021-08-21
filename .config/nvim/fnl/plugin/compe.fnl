@@ -1,4 +1,5 @@
-(module plugin.compe {autoload {compe compe}})
+(local compe (require :compe))
+(import-macros {: no} :macros)
 
 (compe.setup {:enabled true
               :autocomplete true
@@ -18,8 +19,7 @@
 (set vim.g.completion_enable_auto_hover 0)
 (set vim.g.completion_confirm_key "\\<c-i>")
 
-(vim.api.nvim_set_keymap :i :<C-j> :<C-n> {:noremap true})
-(vim.api.nvim_set_keymap :i :<C-k> :<C-p> {:noremap true})
-(vim.api.nvim_set_keymap :i :<Tab> "compe#confirm('<tab>')"
-                         {:noremap true :expr true})
+(no i :<C-j> :<C-n>)
+(no i :<C-k> :<C-p>)
+(no i :<Tab> "compe#confirm('<tab>')" :expr)
 

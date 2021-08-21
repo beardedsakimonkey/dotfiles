@@ -1,14 +1,15 @@
-(module plugin.snap {autoload {snap snap}})
+(local snap (require :snap))
 
-(local mappings {
-                :enter-split [:<C-s>]
-                :enter-vsplit [:<C-l>]
-                })
+(let [mappings {:enter-split [:<C-s>] :enter-vsplit [:<C-l>]}
+      file (snap.config.file:with {: mappings :reverse true})]
+  (snap.maps [[:<space>b (file {:producer :vim.buffer})]
+              [:<space>o (file {:producer :vim.oldfile})]
+              [:<space>f (file {:producer :ripgrep.file})]
+              [:<space>a
+               #(snap.run {:producer ((snap.get :consumer.limit) 10000
+                                                                 (snap.get :producer.ripgrep.vimgrep))
+                           :select (. (snap.get :select.vimgrep) :select)
+                           :multiselect (. (snap.get :select.vimgrep)
+                                           :multiselect)
+                           :views [(snap.get :preview.vimgrep)]})]]))
 
-(local file (snap.config.file:with { :mappings mappings }))
-
-(snap.maps [
-                [:<space>b (file {:producer :vim.buffer})]
-                [:<space>o (file {:producer :vim.oldfile})]
-            ])
-  

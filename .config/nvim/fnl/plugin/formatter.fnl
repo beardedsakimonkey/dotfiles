@@ -1,18 +1,13 @@
-(module plugin.formatter {autoload {formatter formatter}})
+(local formatter (require :formatter))
+(import-macros {: autocmd} :macros)
 
-;; Register formatters into a table
-(local formatters {})
-
-(fn formatters.fnlfmt []
-  "The fennel formatter"
+(fn fnlfmt []
   {:exe :fnlfmt :args [(vim.api.nvim_buf_get_name 0)] :stdin true})
 
 ;; Set up file formatting 
-(formatter.setup {:filetype {:fennel [formatters.fnlfmt]}})
+(formatter.setup {:filetype {:fennel [fnlfmt]}})
 
-;; Register autocommands for file formatting on save
-(vim.cmd "augroup FormatAutogroup
-  autocmd!
-  autocmd BufWritePost *.fnl FormatWrite
-augroup END" true)
+(fn format-write [] (vim.cmd ":silent FormatWrite"))
+
+(autocmd BufWritePost *.fnl format-write)
 

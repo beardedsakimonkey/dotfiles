@@ -1,69 +1,3 @@
-syntax enable
-filetype plugin indent on
-
-" if exists('+termguicolors')
-"     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-"     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-"     set termguicolors
-" endif
-
-" Show block cursor in Normal mode and line cursor in Insert mode
-let &t_ti.="\<Esc>[2 q"
-let &t_SI.="\<Esc>[6 q"
-let &t_SR.="\<Esc>[4 q"
-let &t_EI.="\<Esc>[2 q"
-let &t_te.="\<Esc>[0 q"
-
-set keywordprg=:help
-set completeopt=menuone,noselect
-set complete=.,i,w,b
-
-set wildmenu
-set wildignorecase
-set wildignore&vim
-set wildignore+=build/*,*/node_modules/*
-
-" set foldtext=v:folddashes.getline(v:foldstart)
-set foldtext=MyFoldtext()
-set foldmethod=indent
-set foldlevelstart=99
-set foldopen-=block
-
-fu! MyFoldtext()
-    return v:folddashes .. ' ' .. (v:foldend - v:foldstart + 1) .. 'ℓ' 
-endfu
-
-set nomodeline
-set modelines=0
-
-set shortmess&vim
-set shortmess+=aTWIcFS
-set shortmess-=s
-
-set scrolloff=2
-set sidescrolloff=2
-set virtualedit=block
-set nowrap
-
-set listchars=tab:›\ ,trail:-,nbsp:∅
-set fillchars=fold:\ 
-
-set number
-set signcolumn=auto
-set noshowcmd
-
-set sessionoptions=help,tabpages,winsize,curdir,folds
-
-if executable('rg')
-    set grepprg=rg\ -i\ --vimgrep
-else
-    set grepprg=grep\ --line-number\ --with-filename\ --recursive\ -I\ $*\ /dev/null
-endif
-set grepformat=%f:%l:%c:%m
-
-" Status Line
-set laststatus=2
-set noshowmode
 let s:stl_info = "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* "
 let s:stl_sess = "%6*%{session#status()}%*"
 
@@ -90,17 +24,16 @@ _G.lsp_statusline_has_errors = function ()
 end
 END
 
-fu! MyStatusLineNeovim() abort
+fu! MyStatusLine() abort
     let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
                 \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
     let post = g:statusline_winid is# win_getid() ? s:stl_sess : ''
-    return s:stl_info.."%f "..stl_lsp.."%="..post..' '
+    return s:stl_info.."%7*%f%* "..stl_lsp.."%="..post..' '
 endfu
 
-set statusline=%!MyStatusLineNeovim()
+set statusline=%!MyStatusLine()
 
 " Tab line
-set showtabline=1
 set tabline=%!MyTabLine()
 
 fu! MyTabLine()
@@ -127,74 +60,11 @@ endfu
 
 " Autocmds
 aug vimrc | au!
-    au BufReadPre * call s:handle_large_buffer()
-
-    fu! s:handle_large_buffer() abort
-        let s = getfsize(expand('<afile>'))
-        if s > g:LargeFile || s == -2
-            call s:large_buf(expand('<afile>:p'))
-        endif
-    endfu
-
-    let g:LargeFile = 1024*1024 " 1MB
-
-    fu! s:large_buf(name)
-        let b:my_large_file = 1
-        syntax clear
-        set ei=all
-        let &backupskip .= ',' . a:name
-        setl foldmethod=manual nofoldenable noswapfile noundofile
-        aug large_buffer | au!
-            au BufWinEnter <buffer> 
-                        \ set ei&vim |
-                        \ au! large_buffer |
-                        \ aug! large_buffer
-        aug END
-    endfu
-
-    au BufNewFile * call s:maybe_read_template()
-                \ | call s:maybe_make_executable()
-
-    fu! s:maybe_make_executable() abort
-        au BufWritePost <buffer> ++once call s:make_executable()
-    endfu
-
-    fu! s:make_executable() abort
-        let shebang = matchstr(getline(1), '^#!\S\+')
-        if !empty(shebang)
-            sil call system('chmod +x ' .. expand('<afile>:p:S'))
-            if v:shell_error
-                echohl ErrorMsg
-                echom 'Cannot make file executable: ' .. v:shell_error
-                echohl None
-            endif
-        endif
-    endfu
-
-    fu! s:maybe_read_template() abort
-        for file in glob('~/.vim/templates/*', 0, 1)
-            let filetype = fnamemodify(file, ':t:r')
-            if filetype is# &ft && filereadable(file)
-                exe 'keepalt read' fnameescape(file)
-                keepj 1d_
-                return
-            endif
-        endfor
-    endfu
-
     au BufWritePre,FileWritePre * call s:maybe_create_directories()
 
     fu! s:maybe_create_directories() abort
         if @% !~# '\(://\)'
             call mkdir(expand('<afile>:p:h'), 'p')
-        endif
-    endfu
-
-    au BufReadPost * call s:maybe_restore_cursor_position()
-
-    fu! s:maybe_restore_cursor_position() abort
-        if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit'
-            exe 'norm! g`"zvzz'
         endif
     endfu
 
@@ -223,22 +93,6 @@ aug vimrc | au!
     elseif exists('##TermOpen')
         au TermOpen * setl statusline=%f
     endif
-
-    " Warning: any BufWritePost autocmd after this will not get run when
-    " writing vimrc, because sourcing the vimrc will clear the augroup
-    au BufWritePost ~/.vim/vimrc exe 'source' expand('<afile>:p')
-    au BufWritePost ~/.vim/lua/* exe 'luafile' expand('<afile>:p')
-    au BufWritePost */colors/*.vim exe 'so' expand('<afile>:p') | exe (has_key(g:, 'colors_name') ? 'colo ' .. g:colors_name : '')
-    au BufWritePost *tmux.conf         
-                \ call system('tmux source-file '.expand('<afile>:p')) |
-                \ if v:shell_error |
-                \     echohl ErrorMsg |
-                \     echo 'tmux source-file failed' |
-                \     echohl None |
-                \ endif
-    " au BufWritePost ~/.zsh/overlay.ini call system('fast-theme '.expand('<afile>:p'))
-
-    au TextYankPost * lua vim.highlight.on_yank {higroup="Search", timeout=300, on_visual=false}
 
     au CursorMoved * call HlSearch()
     au InsertEnter * call StopHL()
@@ -288,34 +142,6 @@ aug vimrc | au!
     for c in map(range(65, 90), 'nr2char(v:val)')
         exe "nno '"..c.." '"..c..'g`"zvzz'
     endfor
-
-    au BufWinLeave * if !s:is_special() | call s:save_view() | endif
-    au BufWinEnter * if !s:is_special() | call s:restore_view() | endif
-
-    fu s:is_special() abort
-        return &ft is# 'gitcommit' || &bt =~# '^\%(quickfix\|terminal\)$'
-    endfu
-
-    fu s:save_view() abort
-        if !exists('w:saved_views')
-            let w:saved_views = {}
-        endif
-        let w:saved_views[bufnr('%')] = winsaveview()
-    endfu 
-
-    fu s:restore_view() abort
-        let n = bufnr('%')
-        if exists('w:saved_views') && has_key(w:saved_views, n)
-            if !&l:diff
-                call winrestview(w:saved_views[n])
-            endif
-            unlet! w:saved_views[n]
-        else
-            if line("'\"") >= 1 && line("'\"") <= line('$') && &ft !~# 'commit'
-                norm! g`"
-            endif
-        endif
-    endfu
 aug END
 
 if !exists('s:SID')
@@ -363,6 +189,7 @@ fu! s:diff_orig_restore_settings(conceallevel,_) abort
 endfu
 
 " Mappings
+
 nno <silent> <c-l> :<c-u>call <sid>navigate('l')<cr>
 nno <silent> <c-h> :<c-u>call <sid>navigate('h')<cr>
 nno <silent> <c-j> :<c-u>call <sid>navigate('j')<cr>
@@ -414,47 +241,6 @@ fu! s:move_line(_) abort
     keepj norm! =`v
 endfu
 
-" no <silent> <space>o <cmd>lua require'my.isearch'.search_oldfiles()<cr>
-" no <silent> <space>b <cmd>lua require'my.isearch'.search_buffers()<cr>
-" no <silent> <space>f <cmd>lua require'my.isearch'.search_files()<cr>
-
-com! -bar -range CopyDiffusion <line1>,<line2> call my_fb#copy_diffusion_url()
-
-nno <silent> <space>ev :<c-u>edit ~/.config/nvim/init.lua<cr>
-" nno <silent> <space>el :<c-u>edit ~/.vim/lua/my<cr>
-nno <silent> <space>ep :<c-u>edit ~/.local/share/nvim/site/pack/packer/start<cr>
-nno <silent> <space>ez :<c-u>edit ~/.zshrc<cr>
-nno <silent> <space>en :<c-u>edit ~/notes/notes.md<cr>
-nno <silent> <space>et :<c-u>edit ~/.config/tmux/tmux.conf<cr>
-nno <silent> <space>ea :<c-u>edit ~/.config/alacritty/alacritty.yml<cr>
-
-" nno <space>a :<c-u>Grep<space>
-" xno <space>a "vy:Grep <c-r>v
-
-ino <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
-
-nno <silent> cd :<c-u>cd %:h \| pwd<cr>
-nno <space>W :<c-u>w !sudo tee % >/dev/null<cr>
-nno <silent> <space>t :<c-u>tabedit<cr>
-no  <silent> <space>y y:<c-u>call my_fb#yank(@0)<cr>
-nno <silent> \ za
-nno <silent> cn cgn
-
-ca ~? ~/
-
-fu! s:map_change_option(...)
-    let [key, opt] = a:000[0:1]
-    let op = get(a:, 3, 'set '.opt.'!')
-    exe 'nno <silent> co'.key.' :'.op.'<cr>'
-endfu
-
-call s:map_change_option('n', 'number')
-call s:map_change_option('c', 'cursorline')
-call s:map_change_option('b', 'background', 'let &background = &background is# "dark" ? "light" : "dark"<bar>redraw')
-call s:map_change_option('w', 'wrap')
-call s:map_change_option('l', 'hlsearch')
-call s:map_change_option('i', 'ignorecase')
-
 nno <silent> <space>z :<c-u>call <sid>zoom_toggle()<cr>
 
 fu! s:zoom_toggle() abort
@@ -468,16 +254,6 @@ fu! s:zoom_toggle() abort
         wincmd _
     endif
 endfu
-
-xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')
-xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')
-
-nno gqax :%!tidy -q -i -xml -utf8<cr>
-nno gqah :%!tidy -q -i -ashtml -utf8<cr>
-nno gqaj :%!python -m json.tool<cr>
-nno gwaj :call append('$', json_encode(eval(join(getline(1,'$')))))<cr>'[k"_dVgg:%!python -m json.tool<cr>
-
-nno <silent> g> :set nomore<bar>echo repeat("\n",&cmdheight)<bar>40messages<bar>set more<CR>
 
 nno <expr> <space>. <sid>repeat_last_edit_on_last_changed_text()
 
@@ -518,11 +294,8 @@ fu! s:visual_slash() abort
     endif
 endfu
 
-" repeat last edit on all the visually selected lines with dot
-xno <silent> . :norm! .<cr>
-
 " text-object comment
-" omap <silent> a/ :<C-U>call <SID>inner_comment(0)<CR>
+omap <silent> ac :<C-U>call <SID>inner_comment(0)<CR>
 
 function! s:inner_comment(vis)
     if synIDattr(synID(line('.'), col('.'), 0), 'name') !~? 'comment'
@@ -547,41 +320,6 @@ function! s:inner_comment(vis)
 
     execute 'normal!' lines[0].'GV'.lines[1].'G'
 endfunction
-
-" text-object line
-ono <silent> iL :<c-u>norm! _vg_<cr>
-ono <silent> aL _
-
-let g:loaded_getscriptPlugin = 1
-let g:loaded_logiPat = 1
-let g:loaded_rrhelper = 1
-let g:loaded_tarPlugin = 1
-let g:loaded_vimballPlugin = 1
-let g:loaded_vimball = 1
-let g:loaded_zipPlugin = 1
-let g:loaded_netrwPlugin = 1
-let g:loaded_matchit = 1
-
-let g:did_install_default_menus = 1 " $VIMRUNTIME/menu.vim
-
-let g:loaded_python_provider = 0
-let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider = 0
-let g:loaded_node_provider = 0
-
-" " nvim-filetree
-" pa nvim-filetree
-" lua require'filetree'.init()
-" nno - :<c-u>Dirvish<cr>
-" au vimrc StdinReadPost * let s:has_stdin = 1
-" au vimrc VimEnter *
-"             \ if !argc() && !has_key(s:, 'has_stdin') && !empty(glob('*', 1, 1)) |
-"             \   silent! Filetree |
-"             \ endif
-" 
-" vim-linediff
-let g:linediff_buffer_type = 'scratch'
-xno <expr> D mode() is# 'V' ? ':Linediff<cr>' : 'D'
 
 " vim-matchup
 let g:matchup_surround_enabled = 1
@@ -610,12 +348,6 @@ fu! IsCommentaryOpFunc()
 endfu
 let g:matchup_text_obj_linewise_operators = ['d', 'y', 'c', 'v', 'g@,IsCommentaryOpFunc()']
 
-" vim-exchange
-nmap t <Plug>(Exchange)
-xmap t <Plug>(Exchange)
-nmap tu <Plug>(ExchangeClear)
-nmap T <Plug>(ExchangeLine)
-
 " targets.vim
 if has('vim_starting')
     let g:targets_jumpRanges = ''
@@ -629,36 +361,3 @@ if has('vim_starting')
             \ 'b': {'pair': [{'o':'(', 'c':')'}]},
             \ })
 endif
-" 
-" com! -bar CheckLsp lua print(vim.inspect(vim.lsp.buf_get_clients()))
-" com! -bar RestartLsp call <sid>restartLsp()
-" 
-" fu! s:restartLsp()
-"     lua vim.lsp.stop_client(vim.lsp.get_active_clients())
-"     edit
-" endfu
-" 
-" pa completion-nvim
-" " set completeopt=menuone,noinsert
-" set completeopt=menuone,noselect
-" luafile ~/.vim/lua/my/compe.lua
-" 
-
-" 
-" pa nvim-lspconfig
-" luafile ~/.vim/lua/my/lsp.lua
-" 
-" pa snippets.nvim
-" luafile ~/.vim/lua/my/snippets.lua
-" 
-" " pa nvim-treesitter
-" " pa nvim-treesitter-refactor
-" " pa nvim-treesitter-textobjects
-" " luafile ~/.vim/lua/my/treesitter.lua
-" 
-" pa snap
-" luafile ~/.vim/lua/my/snap.lua
-
-" sil! colo dune
-
-no <silent> <space>d :<C-u>call Kwbd(1)<CR>

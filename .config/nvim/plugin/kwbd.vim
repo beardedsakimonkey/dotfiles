@@ -1,3 +1,5 @@
+" Taken from: https://vim.fandom.com/wiki/Deleting_a_buffer_without_closing_the_window
+
 "delete the buffer; keep windows; create a scratch buffer if no buffers left
 function Kwbd(kwbdStage)
     if(a:kwbdStage == 1)

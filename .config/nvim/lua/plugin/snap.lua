@@ -1,45 +1,7 @@
-local _2afile_2a = ".config/nvim/fnl/plugin/snap.fnl"
-local _0_
-do
-  local name_0_ = "plugin.snap"
-  local module_0_
-  do
-    local x_0_ = package.loaded[name_0_]
-    if ("table" == type(x_0_)) then
-      module_0_ = x_0_
-    else
-      module_0_ = {}
-    end
-  end
-  module_0_["aniseed/module"] = name_0_
-  module_0_["aniseed/locals"] = ((module_0_)["aniseed/locals"] or {})
-  do end (module_0_)["aniseed/local-fns"] = ((module_0_)["aniseed/local-fns"] or {})
-  do end (package.loaded)[name_0_] = module_0_
-  _0_ = module_0_
-end
-local autoload
-local function _1_(...)
-  return (require("aniseed.autoload")).autoload(...)
-end
-autoload = _1_
-local function _2_(...)
-  local ok_3f_0_, val_0_ = nil, nil
-  local function _2_()
-    return {autoload("snap")}
-  end
-  ok_3f_0_, val_0_ = pcall(_2_)
-  if ok_3f_0_ then
-    _0_["aniseed/local-fns"] = {autoload = {snap = "snap"}}
-    return val_0_
-  else
-    return print(val_0_)
-  end
-end
-local _local_0_ = _2_(...)
-local snap = _local_0_[1]
-local _2amodule_2a = _0_
-local _2amodule_name_2a = "plugin.snap"
-do local _ = ({nil, _0_, nil, {{}, nil, nil, nil}})[2] end
+local snap = require("snap")
 local mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}}
-local file = (snap.config.file):with({mappings = mappings})
-return snap.maps({{"<space>b", file({producer = "vim.buffer"})}, {"<space>o", file({producer = "vim.oldfile"})}})
+local file = (snap.config.file):with({mappings = mappings, reverse = true})
+local function _1_()
+  return snap.run({multiselect = (snap.get("select.vimgrep")).multiselect, producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, views = {snap.get("preview.vimgrep")}})
+end
+return snap.maps({{"<space>b", file({producer = "vim.buffer"})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", _1_}})

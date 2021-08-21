@@ -1,48 +1,47 @@
-(module plugins {autoload {packer packer core aniseed.core}})
+(local packer (require :packer))
 
 (fn safe-require-plugin-config [name]
   (let [(ok? val-or-err) (pcall require (.. :plugin. name))]
     (when (not ok?)
-      (print (.. "dotfiles error: " val-or-err)))))
+      (print (.. "plugin config error: " val-or-err)))))
 
-(fn use [...]
-  "Iterates through the arguments as pairs and calls packer's use function for
-  each of them. Works around Fennel not liking mixed associative and sequential
-  tables as well."
-  (let [pkgs [...]]
-    (packer.startup (fn [use use-rocks]
-                      (for [i 1 (core.count pkgs) 2]
-                        (let [name (. pkgs i)
-                              opts (. pkgs (+ i 1))]
-                          (-?> (. opts :mod) (safe-require-plugin-config))
-                          (if (. opts :rock)
-                              (use-rocks name)
-                              (use (core.assoc opts 1 name)))))))))
+(fn use [pkgs]
+  (packer.startup (fn [use use-rocks]
+                    (each [name opts (pairs pkgs)]
+                      (do
+                        (-?> (. opts :require) (safe-require-plugin-config))
+                        (if (. opts :rock)
+                            (use-rocks name)
+                            (do
+                              (tset opts 1 name)
+                              (use opts))))))))
 
-;; REMEMBER TO QUIT AND RUN :PackerCompile WHEN MAKING CHANGES
+;; QUIT AND RUN :PackerInstall AFTER MAKING CHANGES!!!!!
 
 ;; fnlfmt: skip
-(use
+(use {
   :wbthomason/packer.nvim {}
-  :Olical/aniseed {}
-  :Olical/conjure {}
-  :mhartington/formatter.nvim {:mod :formatter}
-  :hrsh7th/nvim-compe {:mod :compe}
-  :tami5/compe-conjure {}
-  :camspiers/snap {:mod :snap}
-  :fzy {:rock true}
+  :mhartington/formatter.nvim {:require :formatter}
+  :hrsh7th/nvim-compe {:require :compe}
+  :ggandor/lightspeed.nvim {:require :lightspeed}
 
-  "~/code/nvim-filetree" {:mod :filetree}
+  :camspiers/snap {:require :snap}
+  :fzy {:rock true}
 
   :mbbill/undotree {}
   :tommcdo/vim-exchange {}
   :wellle/targets.vim {}
   :andymass/vim-matchup {}
-  :AndrewRadev/linediff.vim {}
-  :AndrewRadev/undoquit.vim {:mod :undoquit}
+  :AndrewRadev/linediff.vim {:require :linediff}
+  :AndrewRadev/undoquit.vim {:require :undoquit}
+  :romgrk/equal.operator {}
+
+  :bakpakin/fennel.vim {}
+
+  "~/code/nvim-filetree" {:require :filetree}
 
   :tpope/vim-commentary {}
   :tpope/vim-surround {}
   :tpope/vim-sleuth {}
-  :tpope/vim-repeat {})
+  :tpope/vim-repeat {}})
 

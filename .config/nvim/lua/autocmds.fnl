@@ -3,10 +3,16 @@
 
 ;; Recompile fennel on write
 (fn recompile-fennel []
-  ;; TODO: check if <afile> is in config dir
-  (vim.cmd (.. "lcd " (vim.fn.stdpath :config)))
-  (vim.cmd :make)
-  (vim.cmd "lcd -"))
+  (let [config-dir (vim.fn.stdpath :config)
+        afile (vim.fn.expand "<afile>:p")
+        out (pick-values 1 (afile:gsub :.fnl$ :.lua))
+        in-config-dir? (vim.startswith afile config-dir)]
+    ;; Change dir so macros.fnl gets read
+    (if in-config-dir? (vim.cmd (.. "lcd " config-dir)))
+    (local err (vim.fn.system (string.format "fennel --compile %s > %s" afile
+                                             out)))
+    (if vim.v.shell_error (print err))
+    (if in-config-dir? (vim.cmd "lcd -"))))
 
 (autocmd BufWritePost *.fnl recompile-fennel)
 
@@ -32,8 +38,7 @@
           (if error (print "Cannot make file '" name "' executable"))))))
 
 (fn setup-make-executable []
-  (autocmd BufWritePost <buffer> maybe-make-executable
-           :++once))
+  (autocmd BufWritePost <buffer> maybe-make-executable :++once))
 
 (autocmd BufNewFile * setup-make-executable)
 
@@ -71,7 +76,7 @@
   (do
     (vim.cmd (.. "source " (vim.fn.expand "<afile>:p")))
     (if vim.g.colors_name
-      (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
+        (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
 
 (autocmd BufWritePost */colors/*.vim source-colorscheme)
 
@@ -85,7 +90,7 @@
 (fn restore-cursor-position []
   (let [last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\"")]
     (if (not (vim.endswith vim.bo.filetype :commit))
-      (vim.api.nvim_win_set_cursor 0 last-cursor-pos))))
+        (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos))))
 
 (autocmd BufReadPost * restore-cursor-position)
 

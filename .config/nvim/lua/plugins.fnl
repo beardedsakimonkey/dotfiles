@@ -37,8 +37,14 @@
   :romgrk/equal.operator {}
 
   :bakpakin/fennel.vim {}
+  :rescript-lang/vim-rescript {}
+
+  :nvim-treesitter/nvim-treesitter {:branch "0.5-compat" :require :nvim_treesitter}
+  :nvim-treesitter/playground {}
+  :nkrkv/nvim-treesitter-rescript {}
 
   "~/code/nvim-filetree" {:require :filetree}
+  "~/code/edir" {:require :edir}
 
   :tpope/vim-commentary {}
   :tpope/vim-surround {}

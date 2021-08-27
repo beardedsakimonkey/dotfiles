@@ -1,8 +1,23 @@
 local uv = vim.loop
 local function recompile_fennel()
-  vim.cmd(("lcd " .. vim.fn.stdpath("config")))
-  vim.cmd("make")
-  return vim.cmd("lcd -")
+  local config_dir = vim.fn.stdpath("config")
+  local afile = vim.fn.expand("<afile>:p")
+  local out
+  do
+    local _1_ = afile:gsub(".fnl$", ".lua")
+    out = _1_
+  end
+  local in_config_dir_3f = vim.startswith(afile, config_dir)
+  if in_config_dir_3f then
+    vim.cmd(("lcd " .. config_dir))
+  end
+  local err = vim.fn.system(string.format("fennel --compile %s > %s", afile, out))
+  if vim.v.shell_error then
+    print(err)
+  end
+  if in_config_dir_3f then
+    return vim.cmd("lcd -")
+  end
 end
 do
   _G["my__au__recompile_fennel"] = recompile_fennel
@@ -63,7 +78,7 @@ local function maybe_read_template()
             return error(..., 0)
           end
         end
-        local function _5_()
+        local function _9_()
           local lines
           do
             local tbl_12_auto = {}
@@ -77,7 +92,7 @@ local function maybe_read_template()
           end
           return vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
         end
-        close_handlers_7_auto(xpcall(_5_, (package.loaded.fennel or debug).traceback))
+        close_handlers_7_auto(xpcall(_9_, (package.loaded.fennel or debug).traceback))
       end
     end
   end
@@ -110,7 +125,7 @@ end
 local function restore_cursor_position()
   local last_cursor_pos = vim.api.nvim_buf_get_mark(0, "\"")
   if not vim.endswith(vim.bo.filetype, "commit") then
-    return vim.api.nvim_win_set_cursor(0, last_cursor_pos)
+    return pcall(vim.api.nvim_win_set_cursor, 0, last_cursor_pos)
   end
 end
 do

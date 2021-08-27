@@ -53,7 +53,7 @@ do end (vim.opt.foldopen):remove("block")
 do end (vim.opt)["modeline"] = false
 vim.opt["modelines"] = 0
 vim.opt["shortmess"] = "filnxtToOfaTWIcFS"
-vim.opt["fillchars"] = {eob = " ", vert = " "}
+vim.opt["fillchars"] = {eob = " "}
 vim.opt["scrolloff"] = 2
 vim.opt["sidescrolloff"] = 2
 vim.opt["virtualedit"] = "block"

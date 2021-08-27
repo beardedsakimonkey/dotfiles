@@ -77,7 +77,7 @@
 (set! modelines 0)
 
 (set! shortmess :filnxtToOfaTWIcFS)
-(set! fillchars {:eob " " :vert " "})
+(set! fillchars {:eob " "})
 
 (set! scrolloff 2)
 (set! sidescrolloff 2)

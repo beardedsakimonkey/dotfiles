@@ -1,27 +1,28 @@
 local uv = vim.loop
-local function recompile_fennel()
+vim.cmd("augroup mine | au!")
+local function recompile_config_fennel()
   local config_dir = vim.fn.stdpath("config")
-  local afile = vim.fn.expand("<afile>:p")
-  local out
+  local src = vim.fn.expand("<afile>:p")
+  local dest
   do
-    local _1_ = afile:gsub(".fnl$", ".lua")
-    out = _1_
+    local _1_ = src:gsub(".fnl$", ".lua")
+    dest = _1_
   end
-  local in_config_dir_3f = vim.startswith(afile, config_dir)
-  if in_config_dir_3f then
+  local compile_3f = (vim.startswith(src, config_dir) and not vim.endswith(src, "macros.fnl"))
+  if compile_3f then
+    local cmd = string.format("fennel --compile %s > %s", vim.fn.fnameescape(src), vim.fn.fnameescape(dest))
+    local output = vim.fn.system(cmd)
     vim.cmd(("lcd " .. config_dir))
-  end
-  local err = vim.fn.system(string.format("fennel --compile %s > %s", afile, out))
-  if vim.v.shell_error then
-    print(err)
-  end
-  if in_config_dir_3f then
-    return vim.cmd("lcd -")
+    if vim.v.shell_error then
+      print(output)
+    end
+    vim.cmd("lcd -")
+    return vim.cmd(("luafile " .. dest))
   end
 end
 do
-  _G["my__au__recompile_fennel"] = recompile_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__recompile_fennel()")
+  _G["my__au__recompile_config_fennel"] = recompile_config_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__recompile_config_fennel()")
 end
 local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))
@@ -78,7 +79,7 @@ local function maybe_read_template()
             return error(..., 0)
           end
         end
-        local function _9_()
+        local function _8_()
           local lines
           do
             local tbl_12_auto = {}
@@ -92,7 +93,7 @@ local function maybe_read_template()
           end
           return vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
         end
-        close_handlers_7_auto(xpcall(_9_, (package.loaded.fennel or debug).traceback))
+        close_handlers_7_auto(xpcall(_8_, (package.loaded.fennel or debug).traceback))
       end
     end
   end
@@ -135,5 +136,8 @@ end
 local function resize_splits()
   return vim.cmd("wincmd =")
 end
-_G["my__au__resize_splits"] = resize_splits
-return vim.cmd("autocmd VimResized *  lua my__au__resize_splits()")
+do
+  _G["my__au__resize_splits"] = resize_splits
+  vim.cmd("autocmd VimResized *  lua my__au__resize_splits()")
+end
+return vim.cmd("augroup END")

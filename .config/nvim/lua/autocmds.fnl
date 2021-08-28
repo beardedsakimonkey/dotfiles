@@ -1,20 +1,28 @@
 (import-macros {: autocmd : setlocal!} :macros)
 (local uv vim.loop)
 
-;; Recompile fennel on write
-(fn recompile-fennel []
-  (let [config-dir (vim.fn.stdpath :config)
-        afile (vim.fn.expand "<afile>:p")
-        out (pick-values 1 (afile:gsub :.fnl$ :.lua))
-        in-config-dir? (vim.startswith afile config-dir)]
-    ;; Change dir so macros.fnl gets read
-    (if in-config-dir? (vim.cmd (.. "lcd " config-dir)))
-    (local err (vim.fn.system (string.format "fennel --compile %s > %s" afile
-                                             out)))
-    (if vim.v.shell_error (print err))
-    (if in-config-dir? (vim.cmd "lcd -"))))
+;; Only use this augroup in this file.
+(vim.cmd "augroup mine | au!")
 
-(autocmd BufWritePost *.fnl recompile-fennel)
+;; In .nvim/config, recompile fennel on write
+(fn recompile-config-fennel []
+  (let [config-dir (vim.fn.stdpath :config)
+        src (vim.fn.expand "<afile>:p")
+        dest (pick-values 1 (src:gsub :.fnl$ :.lua))
+        compile? (and (vim.startswith src config-dir)
+                      (not (vim.endswith src :macros.fnl)))]
+    (if compile?
+        (let [cmd (string.format "fennel --compile %s > %s"
+                                 (vim.fn.fnameescape src)
+                                 (vim.fn.fnameescape dest))
+              output (vim.fn.system cmd)]
+          ;; Change dir so macros.fnl gets read
+          (vim.cmd (.. "lcd " config-dir))
+          (if vim.v.shell_error (print output))
+          (vim.cmd "lcd -")
+          (vim.cmd (.. "luafile " dest))))))
+
+(autocmd BufWritePost *.fnl recompile-config-fennel)
 
 ;; Handler large buffers
 (fn handle-large-buffers []
@@ -99,4 +107,6 @@
   (vim.cmd "wincmd ="))
 
 (autocmd VimResized * resize-splits)
+
+(vim.cmd "augroup END")
 

@@ -26,8 +26,9 @@
 (set vim.g.loaded_node_provider 0)
 
 (vim.cmd "colorscheme dune")
-;; See :h syntax-loading
 (vim.cmd "syntax enable")
+
+;; See :h syntax-loading
 (vim.cmd "filetype plugin indent on")
 
 (require :mappings)

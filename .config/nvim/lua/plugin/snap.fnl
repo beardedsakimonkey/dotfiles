@@ -11,5 +11,10 @@
                            :select (. (snap.get :select.vimgrep) :select)
                            :multiselect (. (snap.get :select.vimgrep)
                                            :multiselect)
-                           :views [(snap.get :preview.vimgrep)]})]]))
+                           :views [(snap.get :preview.vimgrep)]})]
+              [:<space>g
+               #(snap.run {:prompt :Help>
+                           :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
+                           :select (. (snap.get :select.help) :select)
+                           :views [(snap.get :preview.help)]})]]))
 

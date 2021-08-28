@@ -7,7 +7,13 @@
 ;; Set up file formatting 
 (formatter.setup {:filetype {:fennel [fnlfmt]}})
 
-(fn format-write [] (vim.cmd ":silent FormatWrite"))
+;; Need a new augroup here otherwise writing autocmds.fnl would wipe this.
+(vim.cmd "augroup my-formatter | au!")
+
+(fn format-write []
+  (vim.cmd ":silent FormatWrite"))
 
 (autocmd BufWritePost *.fnl format-write)
+
+(vim.cmd "augroup END")
 

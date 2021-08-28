@@ -69,21 +69,25 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
-  aniseed = {
+  edir = {
     loaded = true,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/aniseed"
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/edir"
   },
-  ["compe-conjure"] = {
+  ["equal.operator"] = {
     loaded = true,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/compe-conjure"
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/equal.operator"
   },
-  conjure = {
+  ["fennel.vim"] = {
     loaded = true,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/conjure"
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/fennel.vim"
   },
   ["formatter.nvim"] = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/formatter.nvim"
+  },
+  ["lightspeed.nvim"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/lightspeed.nvim"
   },
   ["linediff.vim"] = {
     loaded = true,
@@ -97,9 +101,25 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/nvim-filetree"
   },
+  ["nvim-tree.lua"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/nvim-tree.lua"
+  },
+  ["nvim-treesitter"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/nvim-treesitter"
+  },
+  ["nvim-treesitter-rescript"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/nvim-treesitter-rescript"
+  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/packer.nvim"
+  },
+  playground = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/playground"
   },
   snap = {
     loaded = true,
@@ -132,6 +152,10 @@ _G.packer_plugins = {
   ["vim-repeat"] = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/vim-repeat"
+  },
+  ["vim-rescript"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/vim-rescript"
   },
   ["vim-sleuth"] = {
     loaded = true,

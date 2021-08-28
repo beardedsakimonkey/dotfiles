@@ -1,22 +1,22 @@
 (fn to-lua-string [sym]
-  (let [str (.. "my__au__" (tostring sym))]
+  (let [str (.. :my__au__ (tostring sym))]
     (pick-values 1 (str:gsub "-" "_"))))
 
 (fn autocmd [event pattern handler ...]
   (assert (sym? handler))
   (let [fn-name (to-lua-string handler)
         event (if (sequence? event)
-                (table.concat (icollect [_ v (ipairs event)]
-                                        (tostring v))
-                              ",")
-                :else
-                (tostring event))
-        pattern (if (sequence? pattern)
-                  (table.concat (icollect [_ v (ipairs pattern)]
-                                          (tostring v))
+                  (table.concat (icollect [_ v (ipairs event)]
+                                  (tostring v))
                                 ",")
                   :else
-                  (tostring pattern))
+                  (tostring event))
+        pattern (if (sequence? pattern)
+                    (table.concat (icollect [_ v (ipairs pattern)]
+                                    (tostring v))
+                                  ",")
+                    :else
+                    (tostring pattern))
         opts (table.concat [...] " ")
         command (.. "lua " fn-name "()")]
     `(do

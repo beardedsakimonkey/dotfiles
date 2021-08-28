@@ -15,15 +15,11 @@ local function use(pkgs)
         else
         end
       end
-      if opts.rock then
-        use_rocks(name)
-      else
-        opts[1] = name
-        use0(opts)
-      end
+      opts[1] = name
+      use0(opts)
     end
     return nil
   end
   return packer.startup(_2_)
 end
-return use({["AndrewRadev/linediff.vim"] = {require = "linediff"}, ["AndrewRadev/undoquit.vim"] = {require = "undoquit"}, ["andymass/vim-matchup"] = {}, ["bakpakin/fennel.vim"] = {}, ["camspiers/snap"] = {require = "snap"}, ["ggandor/lightspeed.nvim"] = {require = "lightspeed"}, ["hrsh7th/nvim-compe"] = {require = "compe"}, ["mbbill/undotree"] = {}, ["mhartington/formatter.nvim"] = {require = "formatter"}, ["nkrkv/nvim-treesitter-rescript"] = {}, ["nvim-treesitter/nvim-treesitter"] = {branch = "0.5-compat", require = "nvim_treesitter"}, ["nvim-treesitter/playground"] = {}, ["rescript-lang/vim-rescript"] = {}, ["romgrk/equal.operator"] = {}, ["tommcdo/vim-exchange"] = {}, ["tpope/vim-commentary"] = {}, ["tpope/vim-repeat"] = {}, ["tpope/vim-sleuth"] = {}, ["tpope/vim-surround"] = {}, ["wbthomason/packer.nvim"] = {}, ["wellle/targets.vim"] = {}, ["~/code/edir"] = {require = "edir"}, ["~/code/nvim-filetree"] = {require = "filetree"}, fzy = {rock = true}})
+return use({["AndrewRadev/linediff.vim"] = {require = "linediff"}, ["AndrewRadev/undoquit.vim"] = {require = "undoquit"}, ["andymass/vim-matchup"] = {}, ["bakpakin/fennel.vim"] = {}, ["camspiers/snap"] = {require = "snap", rocks = "fzy"}, ["ggandor/lightspeed.nvim"] = {require = "lightspeed"}, ["hrsh7th/nvim-compe"] = {require = "compe"}, ["mbbill/undotree"] = {}, ["mhartington/formatter.nvim"] = {require = "formatter"}, ["nkrkv/nvim-treesitter-rescript"] = {}, ["nvim-treesitter/nvim-treesitter"] = {branch = "0.5-compat", require = "nvim_treesitter"}, ["nvim-treesitter/playground"] = {}, ["rescript-lang/vim-rescript"] = {}, ["tommcdo/vim-exchange"] = {}, ["tpope/vim-commentary"] = {}, ["tpope/vim-repeat"] = {}, ["tpope/vim-sleuth"] = {}, ["tpope/vim-surround"] = {}, ["wbthomason/packer.nvim"] = {}, ["wellle/targets.vim"] = {}, ["~/code/nvim-filetree"] = {require = "filetree"}})

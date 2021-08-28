@@ -224,21 +224,21 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
-# zle-keymap-select() {
-#     if [[ ${KEYMAP} == vicmd ]]; then
-#         echo -ne "\033]12;#ff6565\007"
-#     elif [[ ${KEYMAP} == main ]] ||
-#         [[ ${KEYMAP} == viins ]] ||
-#         [[ ${KEYMAP} = '' ]]; then
-#             echo -ne "\033]12;#000000\007"
-#     fi
-# }
-# zle -N zle-keymap-select
+zle-keymap-select() {
+    if [[ ${KEYMAP} == vicmd ]]; then
+        echo -ne '\e[5 q' # beam
+    elif [[ ${KEYMAP} == main ]] ||
+        [[ ${KEYMAP} == viins ]] ||
+        [[ ${KEYMAP} = '' ]]; then
+            echo -ne '\e[1 q' # block
+    fi
+}
+zle -N zle-keymap-select
 
-# zle-line-init() { echo -ne "\033]12;#000000\007" }
-# zle -N zle-line-init
-# zle-line-finish() { echo -ne "\033]12;#000000\007" }
-# zle -N zle-line-finish
+zle-line-init() { echo -ne "\e[1q" }
+zle -N zle-line-init
+zle-line-finish() { echo -ne "\e[1q" }
+zle -N zle-line-finish
 
 #
 # Exports
@@ -353,8 +353,8 @@ makenvim() {
 v() { $EDITOR "$@" }
 compdef _vim v
 
-alias -s {avi,flv,mkv,mp4,mpeg,mpg,ogv,wmv,flac,mp3,ogg,wav}=mpv
-alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.part,flac.part,mp3.part,ogg.part,wav.part}=mpv
+# alias -s {avi,flv,mkv,mp4,mpeg,mpg,ogv,wmv,flac,mp3,ogg,wav}=mpv
+# alias -s {avi.part,flv.part,mkv.part,mp4.part,mpeg.part,mpg.part,ogv.part,wmv.part,flac.part,mp3.part,ogg.part,wav.part}=mpv
 
 #
 # Functions

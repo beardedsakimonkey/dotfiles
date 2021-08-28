@@ -10,13 +10,8 @@
                     (each [name opts (pairs pkgs)]
                       (do
                         (-?> (. opts :require) (safe-require-plugin-config))
-                        (if (. opts :rock)
-                            (use-rocks name)
-                            (do
-                              (tset opts 1 name)
-                              (use opts))))))))
-
-;; QUIT AND RUN :PackerInstall AFTER MAKING CHANGES!!!!!
+                        (tset opts 1 name)
+                        (use opts))))))
 
 ;; fnlfmt: skip
 (use {
@@ -24,9 +19,7 @@
   :mhartington/formatter.nvim {:require :formatter}
   :hrsh7th/nvim-compe {:require :compe}
   :ggandor/lightspeed.nvim {:require :lightspeed}
-
-  :camspiers/snap {:require :snap}
-  :fzy {:rock true}
+  :camspiers/snap {:require :snap :rocks :fzy}
 
   :mbbill/undotree {}
   :tommcdo/vim-exchange {}
@@ -34,17 +27,15 @@
   :andymass/vim-matchup {}
   :AndrewRadev/linediff.vim {:require :linediff}
   :AndrewRadev/undoquit.vim {:require :undoquit}
-  :romgrk/equal.operator {}
 
   :bakpakin/fennel.vim {}
   :rescript-lang/vim-rescript {}
 
-  :nvim-treesitter/nvim-treesitter {:branch "0.5-compat" :require :nvim_treesitter}
+  :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim_treesitter}
   :nvim-treesitter/playground {}
   :nkrkv/nvim-treesitter-rescript {}
 
   "~/code/nvim-filetree" {:require :filetree}
-  "~/code/edir" {:require :edir}
 
   :tpope/vim-commentary {}
   :tpope/vim-surround {}

@@ -1,7 +1,7 @@
 (import-macros {: set!} :macros)
 
 ;; !     - Save and restore all-caps global variables
-;; '4096 - Marks will be remembered for the last 1000 files edited (also the number of `v:oldfiles` stored)
+;; '4096 - Marks will be remembered for the last 4096 files edited (also the number of `v:oldfiles` stored)
 ;; <50   - Contents of registers (up to 50 lines each) will be remembered
 ;; s10   - Items with contents occupying more then 10 KiB are skipped
 ;; h     - Disable the effect of 'hlsearch' when loading the shada file

@@ -224,21 +224,21 @@ zle_highlight=(region:bg=#504945)
 # Cursor
 #
 
-zle-keymap-select() {
-    if [[ ${KEYMAP} == vicmd ]]; then
-        echo -ne '\e[5 q' # beam
-    elif [[ ${KEYMAP} == main ]] ||
-        [[ ${KEYMAP} == viins ]] ||
-        [[ ${KEYMAP} = '' ]]; then
-            echo -ne '\e[1 q' # block
-    fi
-}
-zle -N zle-keymap-select
+# zle-keymap-select() {
+#     if [[ ${KEYMAP} == vicmd ]]; then
+#         echo -ne '\e[5 q' # beam
+#     elif [[ ${KEYMAP} == main ]] ||
+#         [[ ${KEYMAP} == viins ]] ||
+#         [[ ${KEYMAP} = '' ]]; then
+#             echo -ne '\e[1 q' # block
+#     fi
+# }
+# zle -N zle-keymap-select
 
-zle-line-init() { echo -ne "\e[1q" }
-zle -N zle-line-init
-zle-line-finish() { echo -ne "\e[1q" }
-zle -N zle-line-finish
+# zle-line-init() { echo -ne "\e[1q" }
+# zle -N zle-line-init
+# zle-line-finish() { echo -ne "\e[1q" }
+# zle -N zle-line-finish
 
 #
 # Exports

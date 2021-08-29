@@ -6,6 +6,10 @@ vim.g.completion_trigger_keyword_length = 1
 vim.g.completion_enable_auto_signature = 0
 vim.g.completion_enable_auto_hover = 0
 vim.g.completion_confirm_key = "\\<c-i>"
-vim.api.nvim_set_keymap("i", "<C-j>", "<C-n>", {noremap = true})
-vim.api.nvim_set_keymap("i", "<C-k>", "<C-p>", {noremap = true})
+do
+  vim.api.nvim_set_keymap("i", "<C-j>", "<C-n>", {noremap = true})
+end
+do
+  vim.api.nvim_set_keymap("i", "<C-k>", "<C-p>", {noremap = true})
+end
 return vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<tab>')", {expr = true, noremap = true})

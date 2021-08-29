@@ -60,40 +60,6 @@ endfu
 
 " Autocmds
 aug vimrc | au!
-    au BufWritePre,FileWritePre * call s:maybe_create_directories()
-
-    fu! s:maybe_create_directories() abort
-        if @% !~# '\(://\)'
-            call mkdir(expand('<afile>:p:h'), 'p')
-        endif
-    endfu
-
-    au FileType * call s:setup_formatting()
-
-    " t  - auto-wrap text using textwidth
-    set formatoptions-=t
-
-    fu! s:setup_formatting()
-        " r  - insert comment leader after hitting <enter>
-        " o  - insert comment leader after hitting 'o' or 'O'
-        " j  - remove comment leader when joining lines
-        " c  - auto-wrap comments using textwidth
-        " n  - indent numbered lists specially
-        setl formatoptions-=ro
-        setl formatoptions+=jcn
-        if &textwidth is 0
-            setl textwidth=80
-        endif
-    endfu
-
-    if exists('##TerminalWinOpen')
-        au TerminalWinOpen * setl statusline=%f
-    elseif exists('##TerminalOpen')
-        au TerminalOpen * setl statusline=%f
-    elseif exists('##TermOpen')
-        au TermOpen * setl statusline=%f
-    endif
-
     au CursorMoved * call HlSearch()
     au InsertEnter * call StopHL()
 
@@ -144,13 +110,13 @@ aug vimrc | au!
     endfor
 aug END
 
-if !exists('s:SID')
-    fu! s:SID() abort
-        return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
-    endfu
-    let s:SID = printf('<SNR>%d_', s:SID())
-    delfu s:SID
-endif
+" if !exists('s:SID')
+"     fu! s:SID() abort
+"         return str2nr(matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$'))
+"     endfu
+"     let s:SID = printf('<SNR>%d_', s:SID())
+"     delfu s:SID
+" endif
 
 com! -bar DiffOrig echo s:diff_orig()
 
@@ -224,37 +190,6 @@ fu s:previous_window_is_in_same_direction(dir) abort
     endif
 endfu
 
-nno <expr> [e <sid>move_line_setup('up')
-nno <expr> ]e <sid>move_line_setup('down')
-
-fu! s:move_line_setup(dir) abort
-    let s:move_line = {'dir': a:dir, 'count': v:count1}
-    let &opfunc = s:SID .. 'move_line'
-    return 'g@l'
-endfu
-
-fu! s:move_line(_) abort
-    let dir = s:move_line.dir
-    let count = s:move_line.count
-    keepj norm! mv
-    exe 'move' (dir is# 'up' ? '--' : '+') .. count
-    keepj norm! =`v
-endfu
-
-nno <silent> <space>z :<c-u>call <sid>zoom_toggle()<cr>
-
-fu! s:zoom_toggle() abort
-    if winnr('$') == 1 | return | endif
-    if exists('t:zoom_restore')
-        exe t:zoom_restore
-        unlet t:zoom_restore
-    else
-        let t:zoom_restore = winrestcmd()
-        wincmd |
-        wincmd _
-    endif
-endfu
-
 nno <expr> <space>. <sid>repeat_last_edit_on_last_changed_text()
 
 fu! s:repeat_last_edit_on_last_changed_text() abort
@@ -278,21 +213,21 @@ fu! s:repeat_last_edit_on_last_changed_text() abort
 endfu
 
 " search only in visual selection
-xno <silent> / :<c-u>call <sid>visual_slash()<cr>
+"xno <silent> / :<c-u>call <sid>visual_slash()<cr>
 
-fu! s:visual_slash() abort
-    if line("'<") == line("'>")
-        call feedkeys('gv/', 'in')
-    else
-        " Do not reselect the visual selection with `gv`.
-        "
-        " It could make move the end of the selection when you type some pattern
-        " which matches inside.  That's not what we want.
-        " We want to search  in the last visual selection as  it was defined; we
-        " don't want to redefine it in the process.
-        call feedkeys('/\%V', 'in')
-    endif
-endfu
+"fu! s:visual_slash() abort
+"    if line("'<") == line("'>")
+"        call feedkeys('gv/', 'in')
+"    else
+"        " Do not reselect the visual selection with `gv`.
+"        "
+"        " It could make move the end of the selection when you type some pattern
+"        " which matches inside.  That's not what we want.
+"        " We want to search  in the last visual selection as  it was defined; we
+"        " don't want to redefine it in the process.
+"        call feedkeys('/\%V', 'in')
+"    endif
+"endfu
 
 " text-object comment
 omap <silent> ac :<C-U>call <SID>inner_comment(0)<CR>
@@ -361,3 +296,5 @@ if has('vim_starting')
             \ 'b': {'pair': [{'o':'(', 'c':')'}]},
             \ })
 endif
+
+nmap gz <Cmd>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')<CR>

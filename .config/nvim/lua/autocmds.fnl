@@ -1,4 +1,4 @@
-(import-macros {: autocmd : setlocal!} :macros)
+(import-macros {: au : setlocal!} :macros)
 (local uv vim.loop)
 
 ;; Only use this augroup in this file.
@@ -22,7 +22,7 @@
           (vim.cmd "lcd -")
           (vim.cmd (.. "luafile " dest))))))
 
-(autocmd BufWritePost *.fnl recompile-config-fennel)
+(au BufWritePost *.fnl recompile-config-fennel)
 
 ;; Handler large buffers
 (fn handle-large-buffers []
@@ -34,7 +34,7 @@
       (setlocal! swapfile false)
       (setlocal! undofile false))))
 
-(autocmd BufReadPre * handle-large-buffers)
+(au BufReadPre * handle-large-buffers)
 
 ;; Make files with a shebang executable on first write
 (fn maybe-make-executable []
@@ -46,9 +46,9 @@
           (if error (print "Cannot make file '" name "' executable"))))))
 
 (fn setup-make-executable []
-  (autocmd BufWritePost <buffer> maybe-make-executable :++once))
+  (au BufWritePost <buffer> maybe-make-executable :++once))
 
-(autocmd BufNewFile * setup-make-executable)
+(au BufNewFile * setup-make-executable)
 
 ;; Maybe read template
 (fn maybe-read-template []
@@ -70,6 +70,15 @@
                             (table.remove lines))
                         (vim.api.nvim_buf_set_lines 0 0 -1 true lines)))))))))))
 
+;; Maybe create missing directories
+(fn maybe-create-directories []
+  (let [afile (vim.fn.expand :<afile>)
+        create? (not (afile:match "://"))
+        new (vim.fn.expand "<afile>:p:h")]
+    (if create? (vim.fn.mkdir new :p))))
+
+(au [BufWritePre FileWritePre] * maybe-create-directories)
+
 ;; Highlight text on yank
 (fn highlight-text []
   (vim.highlight.on_yank {:higroup :IncSearch
@@ -77,7 +86,7 @@
                           :on_visual false
                           :on_macro true}))
 
-(autocmd TextYankPost * highlight-text)
+(au TextYankPost * highlight-text)
 
 ;; Source colorscheme on write
 (fn source-colorscheme []
@@ -86,13 +95,13 @@
     (if vim.g.colors_name
         (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
 
-(autocmd BufWritePost */colors/*.vim source-colorscheme)
+(au BufWritePost */colors/*.vim source-colorscheme)
 
 ;; Source tmux config on write
 (fn source-tmux-cfg []
   (vim.fn.system (.. "tmux source-file " (vim.fn.expand "<afile>:p"))))
 
-(autocmd BufWritePost *tmux.conf source-tmux-cfg)
+(au BufWritePost *tmux.conf source-tmux-cfg)
 
 ;; Restore cursor position
 (fn restore-cursor-position []
@@ -100,13 +109,17 @@
     (if (not (vim.endswith vim.bo.filetype :commit))
         (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos))))
 
-(autocmd BufReadPost * restore-cursor-position)
+(au BufReadPost * restore-cursor-position)
 
 ;; Resize splits when vim is resized
-(fn resize-splits []
-  (vim.cmd "wincmd ="))
+(au VimResized * "wincmd =")
 
-(autocmd VimResized * resize-splits)
+(fn setup-formatting []
+  (vim.opt_local.formatoptions:remove :ro)
+  (vim.opt_local.formatoptions:append :jcn)
+  (if (= vim.opt.textwidth 0) (setlocal! textwidth 80)))
+
+(au FileType * setup-formatting)
 
 (vim.cmd "augroup END")
 

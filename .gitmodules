@@ -10,3 +10,6 @@
 [submodule "tmux-fingers"]
 	path = .config/tmux/tmux-fingers
 	url = https://github.com/morantron/tmux-fingers
+[submodule "fasd"]
+	path = .zsh/fasd
+	url = https://github.com/clvv/fasd.git

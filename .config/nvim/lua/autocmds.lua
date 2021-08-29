@@ -99,6 +99,18 @@ local function maybe_read_template()
   end
   return nil
 end
+local function maybe_create_directories()
+  local afile = vim.fn.expand("<afile>")
+  local create_3f = not afile:match("://")
+  local new = vim.fn.expand("<afile>:p:h")
+  if create_3f then
+    return vim.fn.mkdir(new, "p")
+  end
+end
+do
+  _G["my__au__maybe_create_directories"] = maybe_create_directories
+  vim.cmd("autocmd BufWritePre,FileWritePre *  lua my__au__maybe_create_directories()")
+end
 local function highlight_text()
   return vim.highlight.on_yank({higroup = "IncSearch", on_macro = true, on_visual = false, timeout = 150})
 end
@@ -133,11 +145,19 @@ do
   _G["my__au__restore_cursor_position"] = restore_cursor_position
   vim.cmd("autocmd BufReadPost *  lua my__au__restore_cursor_position()")
 end
-local function resize_splits()
-  return vim.cmd("wincmd =")
+do
+  vim.cmd("autocmd VimResized *  wincmd =")
+end
+local function setup_formatting()
+  do end (vim.opt_local.formatoptions):remove("ro")
+  do end (vim.opt_local.formatoptions):append("jcn")
+  if (vim.opt.textwidth == 0) then
+    vim.opt_local["textwidth"] = 80
+    return nil
+  end
 end
 do
-  _G["my__au__resize_splits"] = resize_splits
-  vim.cmd("autocmd VimResized *  lua my__au__resize_splits()")
+  _G["my__au__setup_formatting"] = setup_formatting
+  vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
 end
 return vim.cmd("augroup END")

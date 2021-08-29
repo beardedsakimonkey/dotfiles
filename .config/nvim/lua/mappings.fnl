@@ -3,7 +3,8 @@
 (set vim.g.mapleader :<s-f5>)
 (set vim.g.maplocalleader ",")
 
-(vim.cmd "cabbrev ~? ~/")
+(vim.cmd "cnoreabbrev ~? ~/")
+(vim.cmd "cnoreabbrev <expr> man getcmdtype() is# \":\" && getcmdpos() == 4 ? 'Man' : 'man'")
 
 (no n :<Down> :gj)
 (no n :<Up> :gk)
@@ -155,10 +156,47 @@
 (no n :col "<CMD>set hlsearch!<CR>" :silent)
 (no n :coi "<CMD>set ignorecase!<CR>" :silent)
 
-(no n :g>
+(no n :g.
     ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>"
     :silent)
 
-;; Repeat last edit on all the visually selected lines with dot
 (no x "." ":norm! .<CR>" :silent)
+
+;; Paste from insert mode
+(no i :<C-p> :<C-o>p)
+
+(fn move-line [dir]
+  (vim.cmd "keepj norm! mv")
+  (vim.cmd (.. "move " (if (= dir :up) "--" "+") vim.v.count1))
+  (vim.cmd "keepj norm! =`v"))
+
+(fn move-line-up []
+  (move-line :up))
+
+(fn move-line-down []
+  (move-line :down))
+
+(no n "[e" move-line-up)
+(no n "]e" move-line-down)
+
+(fn zoom-toggle []
+  (when (not= (vim.fn.winnr "$") 1)
+    (if vim.t.zoom_restore
+        (do
+          (vim.cmd "exe t:zoom_restore")
+          (vim.cmd "unlet t:zoom_restore"))
+        (do
+          (set vim.t.zoom_restore (vim.fn.winrestcmd))
+          (vim.cmd "wincmd |")
+          (vim.cmd "wincmd _")))))
+
+(no n :<space>z zoom-toggle :silent)
+
+;; Search only in visual selection
+(fn visual-slash []
+  (vim.api.nvim_input "/\\%V"))
+
+(no x "/" visual-slash)
+
+;; Maybe <space>r to quit and reopen vim?
 

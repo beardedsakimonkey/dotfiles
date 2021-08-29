@@ -20,6 +20,7 @@
   :hrsh7th/nvim-compe {:require :compe}
   :ggandor/lightspeed.nvim {:require :lightspeed}
   :camspiers/snap {:require :snap :rocks :fzy}
+  :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
 
   :mbbill/undotree {}
   :tommcdo/vim-exchange {}

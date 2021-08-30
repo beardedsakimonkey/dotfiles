@@ -54,6 +54,7 @@
 (no n :g* "<CMD>keepj norm! g*<CR>zzzv" :silent)
 (no n "g#" "<CMD>keepj norm! g#<CR>zzzv" :silent)
 ;; XXX: doesn't support multiline selection
+;; Adapted from lacygoill's vimrc.
 (no x "*" "\"vyms:let @/='<c-r>v'<bar>keepj norm! n<CR>zzzv" :silent)
 (no x "#" "\"vyms:let @/='<c-r>v'<bar>keepj norm! N<CR>zzzv" :silent)
 (no x :g* "\"vyms:let @/='\\<<c-r>v\\>'<bar>keepj norm! n<CR>zzzv" :silent)
@@ -67,6 +68,7 @@
     "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
     :silent)
 
+;; Adapted from lacygoill's vimrc.
 (no n :S
     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>"
     :silent)
@@ -95,6 +97,7 @@
 (no n "]t" :<CMD>tabnext<CR> :silent)
 (no n "]T" :<CMD>+tabmove<CR> :silent)
 (no n "[T" :<CMD>-tabmove<CR> :silent)
+;; Adapted from lacygoill's vimrc.
 (no n "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (no n "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (no x "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
@@ -146,6 +149,7 @@
 (no n :<CR> :<CMD>w<CR> :silent)
 ;; (no n "g;" "g;zvzz")
 
+;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 
@@ -156,6 +160,7 @@
 (no n :col "<CMD>set hlsearch!<CR>" :silent)
 (no n :coi "<CMD>set ignorecase!<CR>" :silent)
 
+;; Adapted from justinmk's vimrc
 (no n :g.
     ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>"
     :silent)
@@ -199,9 +204,6 @@
 (no x "/" visual-slash)
 
 (map o :ac "<Cmd>call my#inner_comment(0)<CR>" :silent)
-
-(map :n :gz
-     "<Cmd>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, \"name\")')<CR>")
 
 ;; Repeat last edit on last changed text. Adapted from lacygoill's vimrc.
 (fn repeat-last-edit-on-last-changed-text []

@@ -400,9 +400,6 @@ end
 do
   vim.api.nvim_set_keymap("o", "ac", "<Cmd>call my#inner_comment(0)<CR>", {silent = true})
 end
-do
-  vim.api.nvim_set_keymap("n", "gz", "<Cmd>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, \"name\")')<CR>", {})
-end
 local function repeat_last_edit_on_last_changed_text()
   local changed = vim.fn.getreg("\"", 1, 1)
   if changed then

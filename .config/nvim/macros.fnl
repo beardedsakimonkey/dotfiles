@@ -33,6 +33,7 @@
               _ value)]
     `(tset vim.opt_local ,opt ,val)))
 
+;; TODO: Support list of modes
 (fn map [mode lhs rhs ...]
   (let [fn-name (if (sym? rhs) (to-lua-string rhs :my__map__) nil)
         opts (collect [_ v (ipairs [...])]

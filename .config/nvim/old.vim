@@ -27,8 +27,8 @@ END
 fu! MyStatusLine() abort
     let stl_lsp = "%3*%{v:lua.lsp_statusline_no_errors()}"..
                 \"%4*%{v:lua.lsp_statusline_has_errors()}%*"
-    let post = g:statusline_winid is# win_getid() ? s:stl_sess : ''
-    return s:stl_info.."%7*%f%* "..stl_lsp.."%="..post..' '
+    let rhs = g:statusline_winid is# win_getid() ? s:stl_sess : ''
+    return s:stl_info.."%7*%f%* "..stl_lsp.."%="..rhs..' '
 endfu
 
 set statusline=%!MyStatusLine()
@@ -60,7 +60,6 @@ endfu
 
 " Autocmds
 aug vimrc | au!
-    " TODO: Maybe replace with romainl/vim-cool
     au CursorMoved * call HlSearch()
     au InsertEnter * call StopHL()
 

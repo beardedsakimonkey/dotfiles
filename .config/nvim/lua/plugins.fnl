@@ -17,10 +17,15 @@
 (use {
   :wbthomason/packer.nvim {}
   :mhartington/formatter.nvim {:require :formatter}
-  :hrsh7th/nvim-compe {:require :compe}
   :ggandor/lightspeed.nvim {:require :lightspeed}
   :camspiers/snap {:require :snap :rocks :fzy}
   :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
+
+  :hrsh7th/nvim-cmp {:require :cmp}
+  :hrsh7th/cmp-buffer {}
+  :hrsh7th/cmp-nvim-lua {}
+  :hrsh7th/cmp-path {}
+  :hrsh7th/cmp-nvim-lsp {}
 
   :mbbill/undotree {}
   :tommcdo/vim-exchange {}
@@ -32,7 +37,7 @@
   :bakpakin/fennel.vim {}
   :rescript-lang/vim-rescript {}
 
-  :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim_treesitter}
+  :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim-treesitter}
   :nvim-treesitter/playground {}
   :nkrkv/nvim-treesitter-rescript {}
 

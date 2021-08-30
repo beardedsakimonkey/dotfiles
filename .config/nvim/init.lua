@@ -1,5 +1,6 @@
 local pack_path = vim.fn.stdpath("data") .. "/site/pack"
 
+-- Adapted from Olical's init.lua
 function ensure(user, repo)
   -- Ensures a given github.com/USER/REPO is cloned in the pack/packer/start directory.
   local install_path = string.format("%s/packer/start/%s", pack_path, repo, repo)
@@ -12,5 +13,3 @@ end
 ensure("wbthomason", "packer.nvim")
 
 require('main')
-
-vim.cmd "source ~/.config/nvim/old.vim"

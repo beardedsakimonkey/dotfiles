@@ -1,4 +1,4 @@
-(import-macros {: no} :macros)
+(import-macros {: no : map} :macros)
 
 (set vim.g.mapleader :<s-f5>)
 (set vim.g.maplocalleader ",")
@@ -198,5 +198,70 @@
 
 (no x "/" visual-slash)
 
-;; Maybe <space>r to quit and reopen vim?
+(map o :ac "<Cmd>call my#inner_comment(0)<CR>" :silent)
+
+(map :n :gz
+     "<Cmd>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, \"name\")')<CR>")
+
+;; Repeat last edit on last changed text. Adapted from lacygoill's vimrc.
+(fn repeat-last-edit-on-last-changed-text []
+  (let [changed (vim.fn.getreg "\"" 1 1)]
+    (when changed
+      (let [;; Escape backslashes
+            changed (vim.tbl_map #(vim.fn.escape $1 "\\") changed)
+            pat (table.concat changed "\\n")]
+        ;; Put the last changed text inside the search register, so that we can refer
+        ;; to it with the text-object `gn`
+        (vim.fn.setreg "/" (.. "\\V" pat) :c)
+        (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))
+
+(no :n :<space>. repeat-last-edit-on-last-changed-text)
+
+;; Adapted form lacygoill's vimrc.
+(fn previous-window-in-same-direction [dir]
+  (let [cnr (vim.fn.winnr)
+        pnr (vim.fn.winnr "#")]
+    (match dir
+      :h (let [leftedge-current-window (. (vim.fn.win_screenpos cnr) 2)
+               rightedge-previous-window (- (+ (. (vim.fn.win_screenpos pnr) 2)
+                                               (vim.fn.winwidth pnr))
+                                            1)]
+           (= (- leftedge-current-window 1) (+ rightedge-previous-window 1)))
+      :l (let [leftedge-previous-window (. (vim.fn.win_screenpos pnr) 2)
+               rightedge-current-window (- (+ (. (vim.fn.win_screenpos cnr) 2)
+                                              (vim.fn.winwidth cnr))
+                                           1)]
+           (= (- leftedge-previous-window 1) (+ rightedge-current-window 1)))
+      :j (let [topedge-previous-window (. (vim.fn.win_screenpos pnr) 1)
+               bottomedge-current-window (- (+ (. (vim.fn.win_screenpos cnr) 1)
+                                               (vim.fn.winheight cnr))
+                                            1)]
+           (= (- topedge-previous-window 1) (+ bottomedge-current-window 1)))
+      :k (let [topedge-current-window (. (vim.fn.win_screenpos cnr) 1)
+               bottomedge-previous-window (- (+ (. (vim.fn.win_screenpos pnr) 1)
+                                                (vim.fn.winheight pnr))
+                                             1)]
+           (= (- topedge-current-window 1) (+ bottomedge-previous-window 1))))))
+
+(fn navigate [dir]
+  (if (previous-window-in-same-direction dir)
+      (vim.cmd "try | wincmd p | catch | entry")
+      (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
+
+(fn navigate-l []
+  (navigate :l))
+
+(fn navigate-h []
+  (navigate :h))
+
+(fn navigate-j []
+  (navigate :j))
+
+(fn navigate-k []
+  (navigate :k))
+
+(no n :<C-l> navigate-l :silent)
+(no n :<C-h> navigate-h :silent)
+(no n :<C-j> navigate-j :silent)
+(no n :<C-k> navigate-k :silent)
 

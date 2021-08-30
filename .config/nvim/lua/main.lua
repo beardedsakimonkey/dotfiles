@@ -19,6 +19,7 @@ vim.g.loaded_node_provider = 0
 vim.cmd("colorscheme dune")
 vim.cmd("syntax enable")
 vim.cmd("filetype plugin indent on")
+vim.cmd("com! DiffOrig echo my#diff_orig()")
 require("mappings")
 require("options")
 require("plugins")

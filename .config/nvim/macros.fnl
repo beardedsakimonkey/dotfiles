@@ -37,7 +37,11 @@
   (let [fn-name (if (sym? rhs) (to-lua-string rhs :my__map__) nil)
         opts (collect [_ v (ipairs [...])]
                (values v true))
-        command (if fn-name (.. "<Cmd>lua " fn-name "()<CR>") rhs)]
+        command (if fn-name
+                    (if opts.expr
+                        (.. "v:lua." fn-name "()")
+                        (.. "<Cmd>lua " fn-name "()<CR>"))
+                    rhs)]
     `(do
        ,(if fn-name `(tset _G ,fn-name ,rhs))
        (vim.api.nvim_set_keymap ,(tostring mode) ,lhs ,command ,opts))))

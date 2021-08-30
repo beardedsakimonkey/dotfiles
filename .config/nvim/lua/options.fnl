@@ -94,6 +94,5 @@
 (set! showmode false)
 (set! showtabline 1)
 
-;; t  - auto-wrap text using 'textwidth'
-(vim.opt.formatoptions:remove :t)
+(set! textwidth 80)
 

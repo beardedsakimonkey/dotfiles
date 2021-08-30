@@ -65,4 +65,5 @@ vim.opt["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
 vim.opt["laststatus"] = 2
 vim.opt["showmode"] = false
 vim.opt["showtabline"] = 1
-return (vim.opt.formatoptions):remove("t")
+vim.opt["textwidth"] = 80
+return nil

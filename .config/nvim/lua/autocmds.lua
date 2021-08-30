@@ -149,12 +149,10 @@ do
   vim.cmd("autocmd VimResized *  wincmd =")
 end
 local function setup_formatting()
-  do end (vim.opt_local.formatoptions):remove("ro")
   do end (vim.opt_local.formatoptions):append("jcn")
-  if (vim.opt.textwidth == 0) then
-    vim.opt_local["textwidth"] = 80
-    return nil
-  end
+  do end (vim.opt_local.formatoptions):remove("r")
+  do end (vim.opt_local.formatoptions):remove("o")
+  return (vim.opt_local.formatoptions):remove("t")
 end
 do
   _G["my__au__setup_formatting"] = setup_formatting

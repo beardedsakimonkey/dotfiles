@@ -384,23 +384,17 @@ cd() {
 
 megadl() {
     emulate -L zsh
-    if (( $# < 1 )) || [[ "$1" =~ "mega.nz" ]]; then
-        command megadl "$@"
+    local url="$1"
+    for i in {1..10}; do
+        if [[ "$url" =~ "mega.nz" ]]; then
+            break
+        fi
+        url=$(base64 -d <<<"$url" 2> /dev/null)
+    done
+    if [[ "$url" =~ "mega.nz" ]]; then
+        command megadl --choose-files "$url"
     else
-        # TODO: just loop, don't pass a count
-        local count=1
-        if (( $# > 1 )) && [[ ${@[-1]} =~ [0-9] ]]; then
-            count="${@[-1]}"
-        fi
-        local url="$1"
-        for i in {1..$count}; do
-            url=$(base64 -d <<<"$url")
-        done
-        if [[ "$url" =~ "mega.nz" ]];then
-            megadl "$url"
-        else
-            printf "bad url: %s\n" "$url"
-        fi
+        printf "bad url: %s\n" "$url"
     fi
 }
 

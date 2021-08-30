@@ -31,6 +31,8 @@
 ;; See :h syntax-loading
 (vim.cmd "filetype plugin indent on")
 
+(vim.cmd "com! DiffOrig echo my#diff_orig()")
+
 (require :mappings)
 (require :options)
 (require :plugins)

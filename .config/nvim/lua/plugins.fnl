@@ -24,8 +24,8 @@
 
   :mbbill/undotree {}
   :tommcdo/vim-exchange {}
-  :wellle/targets.vim {}
-  :andymass/vim-matchup {}
+  :wellle/targets.vim {:require :targets}
+  :andymass/vim-matchup {:require :matchup}
   :AndrewRadev/linediff.vim {:require :linediff}
   :AndrewRadev/undoquit.vim {:require :undoquit}
 

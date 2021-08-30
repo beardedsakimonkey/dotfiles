@@ -115,9 +115,11 @@
 (au VimResized * "wincmd =")
 
 (fn setup-formatting []
-  (vim.opt_local.formatoptions:remove :ro)
   (vim.opt_local.formatoptions:append :jcn)
-  (if (= vim.opt.textwidth 0) (setlocal! textwidth 80)))
+  ;; Remove options one-by-one to avoid issues (see :h set-=)
+  (vim.opt_local.formatoptions:remove :r)
+  (vim.opt_local.formatoptions:remove :o)
+  (vim.opt_local.formatoptions:remove :t))
 
 (au FileType * setup-formatting)
 

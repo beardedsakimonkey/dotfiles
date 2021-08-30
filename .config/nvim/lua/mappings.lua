@@ -393,5 +393,85 @@ end
 local function visual_slash()
   return vim.api.nvim_input("/\\%V")
 end
-_G["my__map__visual_slash"] = visual_slash
-return vim.api.nvim_set_keymap("x", "/", "<Cmd>lua my__map__visual_slash()<CR>", {noremap = true})
+do
+  _G["my__map__visual_slash"] = visual_slash
+  vim.api.nvim_set_keymap("x", "/", "<Cmd>lua my__map__visual_slash()<CR>", {noremap = true})
+end
+do
+  vim.api.nvim_set_keymap("o", "ac", "<Cmd>call my#inner_comment(0)<CR>", {silent = true})
+end
+do
+  vim.api.nvim_set_keymap("n", "gz", "<Cmd>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, \"name\")')<CR>", {})
+end
+local function repeat_last_edit_on_last_changed_text()
+  local changed = vim.fn.getreg("\"", 1, 1)
+  if changed then
+    local changed0
+    local function _5_(_241)
+      return vim.fn.escape(_241, "\\")
+    end
+    changed0 = vim.tbl_map(_5_, changed)
+    local pat = table.concat(changed0, "\\n")
+    vim.fn.setreg("/", ("\\V" .. pat), "c")
+    return vim.cmd("exe \"norm! cgn\\<c-@>\"")
+  end
+end
+do
+  _G["my__map__repeat_last_edit_on_last_changed_text"] = repeat_last_edit_on_last_changed_text
+  vim.api.nvim_set_keymap("n", "<space>.", "<Cmd>lua my__map__repeat_last_edit_on_last_changed_text()<CR>", {noremap = true})
+end
+local function previous_window_in_same_direction(dir)
+  local cnr = vim.fn.winnr()
+  local pnr = vim.fn.winnr("#")
+  local _7_ = dir
+  if (_7_ == "h") then
+    local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
+    local rightedge_previous_window = ((vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr)) - 1)
+    return ((leftedge_current_window - 1) == (rightedge_previous_window + 1))
+  elseif (_7_ == "l") then
+    local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
+    local rightedge_current_window = ((vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr)) - 1)
+    return ((leftedge_previous_window - 1) == (rightedge_current_window + 1))
+  elseif (_7_ == "j") then
+    local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
+    local bottomedge_current_window = ((vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr)) - 1)
+    return ((topedge_previous_window - 1) == (bottomedge_current_window + 1))
+  elseif (_7_ == "k") then
+    local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
+    local bottomedge_previous_window = ((vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr)) - 1)
+    return ((topedge_current_window - 1) == (bottomedge_previous_window + 1))
+  end
+end
+local function navigate(dir)
+  if previous_window_in_same_direction(dir) then
+    return vim.cmd("try | wincmd p | catch | entry")
+  else
+    return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
+  end
+end
+local function navigate_l()
+  return navigate("l")
+end
+local function navigate_h()
+  return navigate("h")
+end
+local function navigate_j()
+  return navigate("j")
+end
+local function navigate_k()
+  return navigate("k")
+end
+do
+  _G["my__map__navigate_l"] = navigate_l
+  vim.api.nvim_set_keymap("n", "<C-l>", "<Cmd>lua my__map__navigate_l()<CR>", {noremap = true, silent = true})
+end
+do
+  _G["my__map__navigate_h"] = navigate_h
+  vim.api.nvim_set_keymap("n", "<C-h>", "<Cmd>lua my__map__navigate_h()<CR>", {noremap = true, silent = true})
+end
+do
+  _G["my__map__navigate_j"] = navigate_j
+  vim.api.nvim_set_keymap("n", "<C-j>", "<Cmd>lua my__map__navigate_j()<CR>", {noremap = true, silent = true})
+end
+_G["my__map__navigate_k"] = navigate_k
+return vim.api.nvim_set_keymap("n", "<C-k>", "<Cmd>lua my__map__navigate_k()<CR>", {noremap = true, silent = true})

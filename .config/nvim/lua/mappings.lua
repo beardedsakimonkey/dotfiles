@@ -216,28 +216,28 @@ do
   vim.api.nvim_set_keymap("x", "[n", "[n ?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "]q", "<CMD><C-r>=v:count1<CR>cnext<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "]q", "<C-u><C-r>=v:count1<CR>cnext<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "[q", "<CMD><C-r>=v:count1<CR>cprev<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "[q", "<C-u><C-r>=v:count1<CR>cprev<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "]Q", "<CMD>cnfile<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "]Q", "<C-u>cnfile<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "[Q", "<CMD>cpfile<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "[Q", "<C-u>cpfile<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "]l", "<CMD><c-r>=v:count1<CR>lnext<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "]l", "<C-u><c-r>=v:count1<CR>lnext<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "[l", "<CMD><c-r>=v:count1<CR>lprev<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "[l", "<C-u><c-r>=v:count1<CR>lprev<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "]L", "<CMD>lnfile<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "]L", "<C-u>lnfile<CR>zz", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "[L", "<CMD>lpfile<CR>zz", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "[L", "<C-u>lpfile<CR>zz", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("", "<Space>d", "<CMD>call Kwbd(1)<CR>", {noremap = true, silent = true})

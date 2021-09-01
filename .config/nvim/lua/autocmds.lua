@@ -11,8 +11,8 @@ local function recompile_config_fennel()
   local compile_3f = (vim.startswith(src, config_dir) and not vim.endswith(src, "macros.fnl"))
   if compile_3f then
     local cmd = string.format("fennel --compile %s > %s", vim.fn.fnameescape(src), vim.fn.fnameescape(dest))
-    local output = vim.fn.system(cmd)
     vim.cmd(("lcd " .. config_dir))
+    local output = vim.fn.system(cmd)
     if vim.v.shell_error then
       print(output)
     end

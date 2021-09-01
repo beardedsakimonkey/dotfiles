@@ -14,10 +14,10 @@
     (if compile?
         (let [cmd (string.format "fennel --compile %s > %s"
                                  (vim.fn.fnameescape src)
-                                 (vim.fn.fnameescape dest))
-              output (vim.fn.system cmd)]
+                                 (vim.fn.fnameescape dest))]
           ;; Change dir so macros.fnl gets read
           (vim.cmd (.. "lcd " config-dir))
+          (local output (vim.fn.system cmd))
           (if vim.v.shell_error (print output))
           (vim.cmd "lcd -")
           (vim.cmd (.. "luafile " dest))))))

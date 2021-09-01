@@ -67,6 +67,7 @@
 (set! wildmenu)
 (set! wildignorecase)
 (set! wildignore [:build/* :*/node_modules/*])
+(set! fileignorecase false)
 
 (set! foldtext "v:folddashes.getline(v:foldstart)")
 (set! foldmethod :indent)

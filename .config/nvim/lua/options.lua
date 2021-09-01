@@ -46,6 +46,7 @@ vim.opt["complete"] = {".", "i", "w", "b"}
 vim.opt["wildmenu"] = true
 vim.opt["wildignorecase"] = true
 vim.opt["wildignore"] = {"build/*", "*/node_modules/*"}
+vim.opt["fileignorecase"] = false
 vim.opt["foldtext"] = "v:folddashes.getline(v:foldstart)"
 vim.opt["foldmethod"] = "indent"
 vim.opt["foldlevelstart"] = 99

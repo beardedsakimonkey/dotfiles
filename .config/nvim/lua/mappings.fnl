@@ -6,6 +6,8 @@
 (vim.cmd "cnoreabbrev ~? ~/")
 (vim.cmd "cnoreabbrev <expr> man getcmdtype() is# \":\" && getcmdpos() == 4 ? 'Man' : 'man'")
 
+;; NOTE: Don't use <Cmd> if the mapping contains <C-r>
+
 (no n :<Down> :gj)
 (no n :<Up> :gk)
 (no n :<c-e> :<c-e><c-e>)
@@ -103,14 +105,14 @@
 (no x "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (no x "[n" "[n ?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 
-(no n "]q" "<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
-(no n "[q" "<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
-(no n "]Q" :<C-u>cnfile<CR>zz :silent)
-(no n "[Q" :<C-u>cpfile<CR>zz :silent)
-(no n "]l" "<C-u><c-r>=v:count1<CR>lnext<CR>zz" :silent)
-(no n "[l" "<C-u><c-r>=v:count1<CR>lprev<CR>zz" :silent)
-(no n "]L" :<C-u>lnfile<CR>zz :silent)
-(no n "[L" :<C-u>lpfile<CR>zz :silent)
+(no n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
+(no n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
+(no n "]Q" :<Cmd>cnfile<CR>zz :silent)
+(no n "[Q" :<Cmd>cpfile<CR>zz :silent)
+(no n "]l" ":<C-u><c-r>=v:count1<CR>lnext<CR>zz" :silent)
+(no n "[l" ":<C-u><c-r>=v:count1<CR>lprev<CR>zz" :silent)
+(no n "]L" :<Cmd>lnfile<CR>zz :silent)
+(no n "[L" :<Cmd>lpfile<CR>zz :silent)
 
 (no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
 (no "" :<Space>q "<CMD>b#<CR>" :silent)

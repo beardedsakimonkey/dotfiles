@@ -2,18 +2,21 @@
 
 ;; Based off of
 ;; https://github.com/camspiers/snap/blob/main/fnl/snap/producer/vim/buffer.fnl
-(fn get-sorted-buffers []
-  (let [bufs (vim.tbl_filter #(and (not= (vim.fn.bufname $1) "")
-                                   (= (vim.fn.buflisted $1) 1)
-                                   (= (vim.fn.bufexists $1) 1))
-                             (vim.api.nvim_list_bufs))]
-    (table.sort bufs
-                #(> (. (vim.fn.getbufinfo $1) 1 :lastused)
-                    (. (vim.fn.getbufinfo $2) 1 :lastused)))
-    (vim.tbl_map #(vim.fn.bufname $1) bufs)))
+(fn get-sorted-buffers [request]
+  (fn []
+    (let [original-buf (vim.api.nvim_win_get_buf (. request :winnr))
+          bufs (vim.tbl_filter #(and (not= (vim.fn.bufname $1) "")
+                                     (= (vim.fn.buflisted $1) 1)
+                                     (= (vim.fn.bufexists $1) 1)
+                                     (not= $1 original-buf))
+                               (vim.api.nvim_list_bufs))]
+      (table.sort bufs
+                  #(> (. (vim.fn.getbufinfo $1) 1 :lastused)
+                      (. (vim.fn.getbufinfo $2) 1 :lastused)))
+      (vim.tbl_map #(vim.fn.bufname $1) bufs))))
 
-(fn sorted-buffers []
-  (snap.sync get-sorted-buffers))
+(fn sorted-buffers [request]
+  (snap.sync (get-sorted-buffers request)))
 
 (let [mappings {:enter-split [:<C-s>] :enter-vsplit [:<C-l>]}
       file (snap.config.file:with {: mappings :reverse true})]

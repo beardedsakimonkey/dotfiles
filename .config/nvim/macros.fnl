@@ -8,6 +8,10 @@
                       (tostring v)) ",")
       (tostring syms)))
 
+;; TODO: what about something like
+;; (augroup :mine 
+;;   [BufWritePost *.fnl blah]
+;;   [BufWritePost *.fnl blah])
 (fn au [event pattern handler ...]
   (let [fn-name (if (sym? handler) (to-lua-string handler :my__au__) nil)
         event (join-syms event)
@@ -34,6 +38,10 @@
     `(tset vim.opt_local ,opt ,val)))
 
 ;; TODO: Support list of modes
+;; TODO: We don't need to require a symbol for a function.  We can serialize
+;; mode + lhs and use that in `_G["n<C-l"] = function () end`. Then, if we ever
+;; create a mapping that would clobber another, we can fail at compile time.
+;; (Note that this means repeating the function definition for mode lists)
 (fn map [mode lhs rhs ...]
   (let [fn-name (if (sym? rhs) (to-lua-string rhs :my__map__) nil)
         opts (collect [_ v (ipairs [...])]

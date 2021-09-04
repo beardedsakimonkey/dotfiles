@@ -13,7 +13,7 @@
 (fn format-write []
   (vim.cmd ":silent FormatWrite"))
 
-(au BufWritePost *.fnl format-write)
+;; (au BufWritePost *.fnl format-write)
 
 (vim.cmd "augroup END")
 

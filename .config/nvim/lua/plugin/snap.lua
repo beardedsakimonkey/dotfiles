@@ -21,7 +21,7 @@ end
 local function sorted_buffers(request)
   return snap.sync(get_sorted_buffers(request))
 end
-local mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}}
+local mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}
 local file = (snap.config.file):with({mappings = mappings, reverse = true})
 local function _5_()
   return snap.run({multiselect = (snap.get("select.vimgrep")).multiselect, producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, views = {snap.get("preview.vimgrep")}})

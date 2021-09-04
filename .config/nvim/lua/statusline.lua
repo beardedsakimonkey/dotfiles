@@ -32,7 +32,7 @@ local function my__statusline()
     rhs = ""
   end
   local lsp = "%3*%{v:lua.my__lsp_statusline_no_errors()}%4*%{v:lua.my__lsp_statusline_has_errors()}%*"
-  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%*%7*%f%*" .. lsp .. " %=" .. rhs .. " ")
+  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%f%*" .. lsp .. " %=" .. rhs .. " ")
 end
 _G["my__statusline"] = my__statusline
 vim.opt["statusline"] = "%!v:lua.my__statusline()"

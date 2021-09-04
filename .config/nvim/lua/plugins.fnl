@@ -15,36 +15,37 @@
 
 ;; fnlfmt: skip
 (use {
-  :wbthomason/packer.nvim {}
-  :mhartington/formatter.nvim {:require :formatter}
-  :ggandor/lightspeed.nvim {:require :lightspeed}
-  :camspiers/snap {:require :snap :rocks :fzy}
-  :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
+      :wbthomason/packer.nvim {}
+      :mhartington/formatter.nvim {:require :formatter}
+      :ggandor/lightspeed.nvim {:require :lightspeed}
+      :camspiers/snap {:require :snap :rocks :fzy}
+      :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
 
-  :hrsh7th/nvim-cmp {:require :cmp}
-  :hrsh7th/cmp-buffer {}
-  :hrsh7th/cmp-nvim-lua {}
-  :hrsh7th/cmp-path {}
-  :hrsh7th/cmp-nvim-lsp {}
+      :hrsh7th/nvim-cmp {:require :cmp}
+      :hrsh7th/cmp-buffer {}
+      :hrsh7th/cmp-nvim-lua {}
+      :hrsh7th/cmp-path {}
+      :hrsh7th/cmp-nvim-lsp {}
 
-  :mbbill/undotree {}
-  :tommcdo/vim-exchange {}
-  :wellle/targets.vim {:require :targets}
-  :andymass/vim-matchup {:require :matchup}
-  :AndrewRadev/linediff.vim {:require :linediff}
-  :AndrewRadev/undoquit.vim {:require :undoquit}
+      :mbbill/undotree {}
+      :tommcdo/vim-exchange {}
+      :wellle/targets.vim {:require :targets}
+      :andymass/vim-matchup {:require :matchup}
+      :AndrewRadev/linediff.vim {:require :linediff}
+      :AndrewRadev/undoquit.vim {:require :undoquit}
 
-  :bakpakin/fennel.vim {}
-  :rescript-lang/vim-rescript {}
+      :bakpakin/fennel.vim {}
+      :rescript-lang/vim-rescript {}
+      :gpanders/nvim-parinfer {}
 
-  :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim-treesitter}
-  :nvim-treesitter/playground {}
-  :nkrkv/nvim-treesitter-rescript {}
+      :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim-treesitter}
+      :nvim-treesitter/playground {}
+      :nkrkv/nvim-treesitter-rescript {}
 
-  "~/code/nvim-filetree" {:require :filetree}
+      "~/code/nvim-filetree" {:require :filetree}
 
-  :tpope/vim-commentary {}
-  :tpope/vim-surround {}
-  :tpope/vim-sleuth {}
-  :tpope/vim-repeat {}})
+      :tpope/vim-commentary {}
+      :tpope/vim-surround {}
+      :tpope/vim-sleuth {}
+      :tpope/vim-repeat {}})
 

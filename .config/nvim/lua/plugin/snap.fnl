@@ -18,7 +18,7 @@
 (fn sorted-buffers [request]
   (snap.sync (get-sorted-buffers request)))
 
-(let [mappings {:enter-split [:<C-s>] :enter-vsplit [:<C-l>]}
+(let [mappings {:enter-split [:<C-s>] :enter-vsplit [:<C-l>] :next [:<C-v>]}
       file (snap.config.file:with {: mappings :reverse true})]
   (snap.maps [[:<space>b (file {:producer sorted-buffers})]
               [:<space>o (file {:producer :vim.oldfile})]

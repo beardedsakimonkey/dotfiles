@@ -32,14 +32,21 @@ hi Directory    guifg=blue3        guibg=none       gui=none
 hi SignColumn   guifg=none         guibg=#c9c5b5
 hi Todo         guifg=burlywood4   guibg=none       gui=bold
 
-hi DiffAdd    guifg=DarkGreen guibg=none
-hi DiffChange guifg=DeepPink4 guibg=none
-hi DiffDelete guifg=red3      guibg=none
+hi DiffAdd    guifg=none guibg=#c6ddb1
+hi DiffChange guifg=none guibg=#dbd09d
+hi DiffText   guifg=none guibg=#f4dc6e
+hi DiffDelete guifg=none guibg=#dda296
 
-hi SignifySignAdd             guifg=DarkGreen guibg=#c9c5b5
-hi SignifySignChange          guifg=DeepPink4 guibg=#c9c5b5
-hi SignifySignDelete          guifg=red3      guibg=#c9c5b5
-hi SignifySignDeleteFirstLine guifg=red3      guibg=#c9c5b5
+hi DiffviewFilePanelCounter    guifg=DodgerBlue4 gui=bold
+hi DiffviewFilePanelFileName   guifg=black       gui=bold
+hi DiffviewFilePanelInsertions guifg=green       gui=bold
+hi DiffviewFilePanelDeletions  guifg=IndianRed3  gui=bold
+hi DiffviewStatusModified      guifg=burlywood4
+
+" hi SignifySignAdd             guifg=DarkGreen guibg=#c9c5b5
+" hi SignifySignChange          guifg=DeepPink4 guibg=#c9c5b5
+" hi SignifySignDelete          guifg=red3      guibg=#c9c5b5
+" hi SignifySignDeleteFirstLine guifg=red3      guibg=#c9c5b5
 
 hi! link SpecialKey Directory
 

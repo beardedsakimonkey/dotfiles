@@ -115,7 +115,7 @@
 (no n "[L" :<Cmd>lpfile<CR>zz :silent)
 
 (no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
-(no "" :<Space>q "<CMD>b#<CR>" :silent)
+(no "" :<Space>w "<CMD>b#<CR>" :silent)
 
 (no n :<Space>ev "<CMD>e ~/.config/nvim/init.lua<CR>" :silent)
 (no n :<Space>el "<CMD>e ~/.config/nvim/fnl/<CR>" :silent)
@@ -147,6 +147,7 @@
 (no n :<space>k "<CMD>split<Bar>wincmd p<CR>" :silent)
 
 (no "" :<C-q> :<CMD>q<CR> :silent)
+(no "" :<space>q :<CMD>tabclose<CR> :silent)
 (no n :<C-s> :<C-a> :silent)
 (no n :<CR> :<CMD>w<CR> :silent)
 ;; (no n "g;" "g;zvzz")

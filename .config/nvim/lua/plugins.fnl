@@ -20,6 +20,7 @@
       :ggandor/lightspeed.nvim {:require :lightspeed}
       :camspiers/snap {:require :snap :rocks :fzy}
       :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
+      :sindrets/diffview.nvim {}
 
       :hrsh7th/nvim-cmp {:require :cmp}
       :hrsh7th/cmp-buffer {}

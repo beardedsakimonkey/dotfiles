@@ -243,7 +243,7 @@ do
   vim.api.nvim_set_keymap("", "<Space>d", "<CMD>call Kwbd(1)<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("", "<Space>q", "<CMD>b#<CR>", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("", "<Space>w", "<CMD>b#<CR>", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "<Space>ev", "<CMD>e ~/.config/nvim/init.lua<CR>", {noremap = true, silent = true})
@@ -313,6 +313,9 @@ do
 end
 do
   vim.api.nvim_set_keymap("", "<C-q>", "<CMD>q<CR>", {noremap = true, silent = true})
+end
+do
+  vim.api.nvim_set_keymap("", "<space>q", "<CMD>tabclose<CR>", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "<C-s>", "<C-a>", {noremap = true, silent = true})

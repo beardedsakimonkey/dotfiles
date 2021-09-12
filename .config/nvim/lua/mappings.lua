@@ -306,12 +306,6 @@ do
   vim.api.nvim_set_keymap("n", "<space>j", "<CMD>split<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "<space>h", "<CMD>vsplit<Bar>wincmd p<CR>", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("n", "<space>k", "<CMD>split<Bar>wincmd p<CR>", {noremap = true, silent = true})
-end
-do
   vim.api.nvim_set_keymap("", "<C-q>", "<CMD>q<CR>", {noremap = true, silent = true})
 end
 do

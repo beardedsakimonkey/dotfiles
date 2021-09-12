@@ -143,8 +143,6 @@
 
 (no n :<space>l :<CMD>vsplit<CR> :silent)
 (no n :<space>j :<CMD>split<CR> :silent)
-(no n :<space>h "<CMD>vsplit<Bar>wincmd p<CR>" :silent)
-(no n :<space>k "<CMD>split<Bar>wincmd p<CR>" :silent)
 
 (no "" :<C-q> :<CMD>q<CR> :silent)
 (no "" :<space>q :<CMD>tabclose<CR> :silent)

@@ -21,6 +21,7 @@
       :camspiers/snap {:require :snap :rocks :fzy}
       :jose-elias-alvarez/minsnip.nvim {:require :minsnip}
       :sindrets/diffview.nvim {}
+      :norcalli/nvim-colorizer.lua {:require :colorizer}
 
       :hrsh7th/nvim-cmp {:require :cmp}
       :hrsh7th/cmp-buffer {}
@@ -41,7 +42,7 @@
 
       :nvim-treesitter/nvim-treesitter {:branch :0.5-compat :require :nvim-treesitter}
       :nvim-treesitter/playground {}
-      :nkrkv/nvim-treesitter-rescript {}
+      :nkrkv/nvim-treesitter-rescript {:run ":TSUpdate rescript"}
 
       "~/code/nvim-filetree" {:require :filetree}
 

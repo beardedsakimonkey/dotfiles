@@ -29,4 +29,4 @@ end
 local function _6_()
   return snap.run({producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), prompt = "Help>", select = (snap.get("select.help")).select, views = {snap.get("preview.help")}})
 end
-return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", _5_}, {"<space>g", _6_}})
+return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", _5_}, {"<space>h", _6_}})

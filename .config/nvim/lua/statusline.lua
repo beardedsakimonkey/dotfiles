@@ -25,27 +25,34 @@ local function my__lsp_statusline_has_errors()
 end
 _G["my__lsp_statusline_has_errors"] = my__lsp_statusline_has_errors
 local function my__statusline()
+  local current_win_3f = (vim.g.statusline_winid == vim.fn.win_getid())
   local rhs
-  if (vim.g.statusline_winid == vim.fn.win_getid()) then
+  if current_win_3f then
     rhs = "%6*%{session#status()}%*"
   else
     rhs = ""
   end
   local lsp = "%3*%{v:lua.my__lsp_statusline_no_errors()}%4*%{v:lua.my__lsp_statusline_has_errors()}%*"
-  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%f%*" .. lsp .. " %=" .. rhs .. " ")
+  local _6_
+  if current_win_3f then
+    _6_ = "%8*"
+  else
+    _6_ = ""
+  end
+  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%{expand('%:h')}/" .. _6_ .. "%{expand('%:t')}%*" .. lsp .. " %=" .. rhs .. " ")
 end
 _G["my__statusline"] = my__statusline
 vim.opt["statusline"] = "%!v:lua.my__statusline()"
 local function my__tabline()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
-    local _6_
+    local _8_
     if (i == vim.fn.tabpagenr()) then
-      _6_ = "%#TabLineSel#"
+      _8_ = "%#TabLineSel#"
     else
-      _6_ = "%#TabLine#"
+      _8_ = "%#TabLine#"
     end
-    s = (s .. _6_ .. "%" .. i .. "T %{v:lua.my__tab_label(" .. i .. ")}")
+    s = (s .. _8_ .. "%" .. i .. "T %{v:lua.my__tab_label(" .. i .. ")}")
   end
   return (s .. "%#TabLineFill#%T")
 end

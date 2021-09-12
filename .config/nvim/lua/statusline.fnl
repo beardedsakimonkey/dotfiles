@@ -15,16 +15,18 @@
 (tset _G :my__lsp_statusline_has_errors my__lsp_statusline_has_errors)
 
 (fn my__statusline []
-  (let [rhs (if (= vim.g.statusline_winid (vim.fn.win_getid))
-                "%6*%{session#status()}%*" "")
+  (let [current-win? (= vim.g.statusline_winid (vim.fn.win_getid)) 
+        rhs (if current-win? "%6*%{session#status()}%*" "")
         lsp "%3*%{v:lua.my__lsp_statusline_no_errors()}%4*%{v:lua.my__lsp_statusline_has_errors()}%*"]
-    (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%f%*"
+    (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%{expand('%:h')}/"
+        (if current-win? "%8*" "")
+        "%{expand('%:t')}%*"
         lsp " %=" rhs " ")))
 
 (tset _G :my__statusline my__statusline)
 (set! statusline "%!v:lua.my__statusline()")
 
-;; Tabline
+;; Tabline ------------------------
 
 (fn my__tabline []
   (var s "")

@@ -1,4 +1,8 @@
 (local cb (. (require :diffview.config) :diffview_callback))
+(import-macros {: no } :macros)
+
+(no "" :<space>gh "<Cmd>DiffviewFileHistory<CR>")
+(no "" :<space>gd "<Cmd>DiffviewOpen<CR>")
 
 ((. (require :diffview) :setup) {:diff_binaries false
                                  :use_icons false

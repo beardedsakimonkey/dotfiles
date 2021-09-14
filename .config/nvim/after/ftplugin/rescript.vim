@@ -8,6 +8,8 @@ aug my_rescript | au! * <buffer>
     endfu
 aug END
 
+nno <silent> <buffer> K <Cmd>RescriptJumpToDefinition<CR>
+
 setl cms=//%s
 
 if exists("loaded_matchit")

@@ -158,4 +158,10 @@ do
   _G["my__au__setup_formatting"] = setup_formatting
   vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
 end
+do
+  vim.cmd("autocmd VimEnter,WinEnter,BufWinEnter *  setlocal cursorline")
+end
+do
+  vim.cmd("autocmd WinLeave *  setlocal nocursorline")
+end
 return vim.cmd("augroup END")

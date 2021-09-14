@@ -123,5 +123,8 @@
 
 (au FileType * setup-formatting)
 
+(au [VimEnter WinEnter BufWinEnter] * "setlocal cursorline")
+(au WinLeave * "setlocal nocursorline")
+
 (vim.cmd "augroup END")
 

@@ -16,7 +16,8 @@
                                            :unfocus_language :F
                                            :update :R
                                            :goto_node :<cr>
-                                           :show_help "?"}}})
+                                           :show_help "?"}}
+                "rescript-auto-rename" {:enable true}})
 
 ;; From nvim-treesitter/playground
 (no n :gz :<Cmd>TSHighlightCapturesUnderCursor<CR>)

@@ -30,6 +30,9 @@ hi Directory    guifg=blue3        guibg=none       gui=none
 hi SignColumn   guifg=none         guibg=#c9c5b5
 hi Todo         guifg=burlywood4   guibg=none       gui=bold
 
+hi CursorLine   guibg=AntiqueWhite3
+hi! link CursorLineNr LineNr
+
 hi StatusLine   guifg=#CDCABD      guibg=MistyRose4   gui=none
 hi StatusLineNC guifg=#CDCABD      guibg=gray64       gui=none
 hi TabLineFill                     guibg=MistyRose4   gui=none
@@ -73,6 +76,6 @@ hi LspDiagnosticsUnderlineInformation guibg=#ffd787
 hi LspDiagnosticsUnderlineHint        guibg=#ffd787
 
 hi! link FennelParen  Comment
-hi! link FennelSymbol Normal
+hi FennelSymbol guifg=black
 
 " hi! link TSProperty String

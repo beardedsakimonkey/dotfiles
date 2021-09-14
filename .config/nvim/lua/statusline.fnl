@@ -1,11 +1,10 @@
 (import-macros {: set!} :macros)
 
-(fn my__lsp_statusline_no_errors []
-  (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
-      (let [errors (or (vim.lsp.diagnostic.get_count :Error) 0)]
-        (if (= errors 0) "✔" ""))))
-
-(tset _G :my__lsp_statusline_no_errors my__lsp_statusline_no_errors)
+(tset _G :my__lsp_statusline_no_errors
+      (fn []
+        (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
+          (let [errors (or (vim.lsp.diagnostic.get_count :Error) 0)]
+            (if (= errors 0) "✔" "")))))
 
 (fn my__lsp_statusline_has_errors []
   (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""

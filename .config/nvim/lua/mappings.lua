@@ -87,6 +87,12 @@ do
   vim.api.nvim_set_keymap("n", "'", "g'", {noremap = true})
 end
 do
+  vim.api.nvim_set_keymap("n", "gi", "g`^", {noremap = true})
+end
+do
+  vim.api.nvim_set_keymap("n", "g.", "g`.", {noremap = true})
+end
+do
   vim.api.nvim_set_keymap("", "(", "H", {noremap = true, silent = true})
 end
 do
@@ -246,10 +252,10 @@ do
   vim.api.nvim_set_keymap("", "<Space>w", "<CMD>b#<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "<Space>ev", "<CMD>e ~/.config/nvim/init.lua<CR>", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "<Space>ev", "<CMD>e ~/.config/nvim/<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "<Space>el", "<CMD>e ~/.config/nvim/fnl/<CR>", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "<Space>el", "<CMD>e ~/.config/nvim/lua<CR>", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "<Space>ep", "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {noremap = true, silent = true})
@@ -323,7 +329,7 @@ do
   vim.api.nvim_set_keymap("n", "con", "<CMD>set number!<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "coc", "<CMD>set cursorline<CR>", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "coc", "<CMD>set cursorline!<CR>", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "cow", "<CMD>set wrap!<CR>", {noremap = true, silent = true})
@@ -338,7 +344,7 @@ do
   vim.api.nvim_set_keymap("n", "coi", "<CMD>set ignorecase!<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "g.", ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "g>", ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("x", ".", ":norm! .<CR>", {noremap = true, silent = true})

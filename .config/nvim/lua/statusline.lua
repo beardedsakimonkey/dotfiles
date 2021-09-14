@@ -1,4 +1,4 @@
-local function my__lsp_statusline_no_errors()
+local function _1_()
   if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
     return ""
   else
@@ -10,7 +10,7 @@ local function my__lsp_statusline_no_errors()
     end
   end
 end
-_G["my__lsp_statusline_no_errors"] = my__lsp_statusline_no_errors
+_G["my__lsp_statusline_no_errors"] = _1_
 local function my__lsp_statusline_has_errors()
   if vim.tbl_isempty(vim.lsp.buf_get_clients(0)) then
     return ""
@@ -33,26 +33,26 @@ local function my__statusline()
     rhs = ""
   end
   local lsp = "%3*%{v:lua.my__lsp_statusline_no_errors()}%4*%{v:lua.my__lsp_statusline_has_errors()}%*"
-  local _6_
+  local _7_
   if current_win_3f then
-    _6_ = "%8*"
+    _7_ = "%8*"
   else
-    _6_ = ""
+    _7_ = ""
   end
-  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%{expand('%:h')}/" .. _6_ .. "%{expand('%:t')}%*" .. lsp .. " %=" .. rhs .. " ")
+  return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%{expand('%:h')}/" .. _7_ .. "%{expand('%:t')}%*" .. lsp .. " %=" .. rhs .. " ")
 end
 _G["my__statusline"] = my__statusline
 vim.opt["statusline"] = "%!v:lua.my__statusline()"
 local function my__tabline()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
-    local _8_
+    local _9_
     if (i == vim.fn.tabpagenr()) then
-      _8_ = "%#TabLineSel#"
+      _9_ = "%#TabLineSel#"
     else
-      _8_ = "%#TabLine#"
+      _9_ = "%#TabLine#"
     end
-    s = (s .. _8_ .. "%" .. i .. "T %{v:lua.my__tab_label(" .. i .. ")}")
+    s = (s .. _9_ .. "%" .. i .. "T %{v:lua.my__tab_label(" .. i .. ")}")
   end
   return (s .. "%#TabLineFill#%T")
 end

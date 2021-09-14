@@ -41,6 +41,8 @@
 
 (no n "`" "g`")
 (no n "'" "g'")
+(no n "gi" "g`^") ;; Jump to where insert mode was last exited
+(no n "g." "g`.") ;; Jump to last change
 (no "" "(" :H :silent)
 (no "" ")" :L :silent)
 (no n :M "<CMD>keepj norm! M<CR>" :silent)
@@ -117,8 +119,8 @@
 (no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
 (no "" :<Space>w "<CMD>b#<CR>" :silent)
 
-(no n :<Space>ev "<CMD>e ~/.config/nvim/init.lua<CR>" :silent)
-(no n :<Space>el "<CMD>e ~/.config/nvim/fnl/<CR>" :silent)
+(no n :<Space>ev "<CMD>e ~/.config/nvim/<CR>" :silent)
+(no n :<Space>el "<CMD>e ~/.config/nvim/lua<CR>" :silent)
 (no n :<Space>ep "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>"
     :silent)
 
@@ -155,14 +157,14 @@
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 
 (no n :con "<CMD>set number!<CR>" :silent)
-(no n :coc "<CMD>set cursorline<CR>" :silent)
+(no n :coc "<CMD>set cursorline!<CR>" :silent)
 (no n :cow "<CMD>set wrap!<CR>" :silent)
 (no n :cow "<CMD>set wrap!<CR>" :silent)
 (no n :col "<CMD>set hlsearch!<CR>" :silent)
 (no n :coi "<CMD>set ignorecase!<CR>" :silent)
 
 ;; Adapted from justinmk's vimrc
-(no n :g.
+(no n :g>
     ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>"
     :silent)
 

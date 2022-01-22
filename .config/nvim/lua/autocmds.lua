@@ -1,6 +1,6 @@
 local uv = vim.loop
 vim.cmd("augroup mine | au!")
-local function recompile_config_fennel()
+local function compile_config_fennel()
   local config_dir = vim.fn.stdpath("config")
   local src = vim.fn.expand("<afile>:p")
   local dest
@@ -21,8 +21,38 @@ local function recompile_config_fennel()
   end
 end
 do
-  _G["my__au__recompile_config_fennel"] = recompile_config_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__recompile_config_fennel()")
+  _G["my__au__compile_config_fennel"] = compile_config_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_config_fennel()")
+end
+local function compile_qdir_fennel()
+  local dir = "/Users/tim/code/qdir/"
+  local src = vim.fn.expand("<afile>:p")
+  local src2
+  do
+    local _4_ = src:gsub(("^" .. dir), "")
+    src2 = _4_
+  end
+  local dest
+  do
+    local _5_ = src2:gsub(".fnl$", ".lua")
+    dest = _5_
+  end
+  local compile_3f = vim.startswith(src, dir)
+  if compile_3f then
+    vim.cmd(("lcd " .. dir))
+    do
+      local cmd = string.format("fennel --compile %s > %s", vim.fn.fnameescape(src2), vim.fn.fnameescape(dest))
+      local output = vim.fn.system(cmd)
+      if vim.v.shell_error then
+        print(output)
+      end
+    end
+    return vim.cmd("lcd -")
+  end
+end
+do
+  _G["my__au__compile_qdir_fennel"] = compile_qdir_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_qdir_fennel()")
 end
 local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))
@@ -79,7 +109,7 @@ local function maybe_read_template()
             return error(..., 0)
           end
         end
-        local function _8_()
+        local function _12_()
           local lines
           do
             local tbl_12_auto = {}
@@ -93,7 +123,7 @@ local function maybe_read_template()
           end
           return vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
         end
-        close_handlers_7_auto(xpcall(_8_, (package.loaded.fennel or debug).traceback))
+        close_handlers_7_auto(xpcall(_12_, (package.loaded.fennel or debug).traceback))
       end
     end
   end
@@ -159,9 +189,6 @@ do
   vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
 end
 do
-  vim.cmd("autocmd VimEnter,WinEnter,BufWinEnter *  setlocal cursorline")
-end
-do
-  vim.cmd("autocmd WinLeave *  setlocal nocursorline")
+  vim.cmd("autocmd FocusGained,BufEnter *  checktime")
 end
 return vim.cmd("augroup END")

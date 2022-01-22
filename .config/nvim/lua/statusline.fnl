@@ -1,40 +1,38 @@
 (import-macros {: set!} :macros)
 
-(tset _G :my__lsp_statusline_no_errors
-      (fn []
-        (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
-          (let [errors (or (vim.lsp.diagnostic.get_count :Error) 0)]
-            (if (= errors 0) "✔" "")))))
+(local M {})
 
-(fn my__lsp_statusline_has_errors []
+(local {: ERROR : WARN} vim.diagnostic.severity)
+
+(fn M.lsp_errors []
   (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
-      (let [errors (or (vim.lsp.diagnostic.get_count :Error) 0)]
-        (if (> errors 0) "✘" ""))))
+      (let [count (vim.tbl_count (vim.diagnostic.get 0 {:severity ERROR}))]
+        (if (> count 0) (.. " ● " count) ""))))
 
-(tset _G :my__lsp_statusline_has_errors my__lsp_statusline_has_errors)
+(fn M.lsp_warns []
+  (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
+      (let [count (vim.tbl_count (vim.diagnostic.get 0 {:severity WARN}))]
+        (if (> count 0) (.. " ● " count) ""))))
 
-(fn my__statusline []
-  (let [current-win? (= vim.g.statusline_winid (vim.fn.win_getid)) 
+(fn M.show []
+  (let [current-win? (= vim.g.statusline_winid (vim.fn.win_getid))
         rhs (if current-win? "%6*%{session#status()}%*" "")
-        lsp "%3*%{v:lua.my__lsp_statusline_no_errors()}%4*%{v:lua.my__lsp_statusline_has_errors()}%*"]
-    (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*%{expand('%:h')}/"
-        (if current-win? "%8*" "")
-        "%{expand('%:t')}%*"
-        lsp " %=" rhs " ")))
+        lsp "%3*%{v:lua.require'statusline'.lsp_errors()} %4*%{v:lua.require'statusline'.lsp_warns()}%*"]
+    (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*"
+        "%{expand('%:t')}%* " lsp " %=" rhs " ")))
 
-(tset _G :my__statusline my__statusline)
-(set! statusline "%!v:lua.my__statusline()")
+(set! statusline "%!v:lua.require'statusline'.show()")
 
 ;; Tabline ------------------------
 
-(fn my__tabline []
+(fn M.tabline []
   (var s "")
   (for [i 1 (vim.fn.tabpagenr "$")]
     (set s (.. s (if (= i (vim.fn.tabpagenr)) "%#TabLineSel#" "%#TabLine#") "%"
-               i "T %{v:lua.my__tab_label(" i ")}")))
+               i "T %{v:lua.require'statusline'.tablabel(" i ")}")))
   (.. s "%#TabLineFill#%T"))
 
-(fn my__tab_label [n]
+(fn M.tablabel [n]
   (let [buflist (vim.fn.tabpagebuflist n)]
     (var modified "")
     (each [_ b (ipairs buflist) :until (not= modified "")]
@@ -45,8 +43,7 @@
                                    ":t:s/^$/[No Name]/")]
       (.. modified name " "))))
 
-(tset _G :my__tab_label my__tab_label)
+(set! tabline "%!v:lua.require'statusline'.tabline()")
 
-(tset _G :my__tabline my__tabline)
-(set! tabline "%!v:lua.my__tabline()")
+M
 

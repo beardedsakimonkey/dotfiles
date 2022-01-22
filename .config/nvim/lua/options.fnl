@@ -60,8 +60,7 @@
 (set! infercase)
 (set! smartcase)
 
-(set! keywordprg ":help")
-(set! completeopt [:menuone :noselect])
+(set! completeopt [:menu :menuone :noselect])
 (set! complete ["." :i :w :b])
 
 (set! wildmenu)
@@ -96,4 +95,5 @@
 (set! showtabline 1)
 
 (set! textwidth 80)
+(set! cursorline)
 

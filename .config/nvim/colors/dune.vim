@@ -30,11 +30,12 @@ hi Directory    guifg=blue3        guibg=none       gui=none
 hi SignColumn   guifg=none         guibg=#c9c5b5
 hi Todo         guifg=burlywood4   guibg=none       gui=bold
 
-hi CursorLine   guibg=AntiqueWhite3
+" hi CursorLine   guibg=AntiqueWhite3
+hi CursorLine   guibg=#ccc5b5
 hi! link CursorLineNr LineNr
 
 hi StatusLine   guifg=#CDCABD      guibg=MistyRose4   gui=none
-hi StatusLineNC guifg=#CDCABD      guibg=gray64       gui=none
+hi StatusLineNC guifg=#CDCABD      guibg=#b2a99d       gui=none
 hi TabLineFill                     guibg=MistyRose4   gui=none
 hi VertSplit    guifg=#CDCABD      guibg=MistyRose4   gui=none
 
@@ -43,39 +44,30 @@ hi DiffChange guifg=none guibg=#dbd09d
 hi DiffText   guifg=none guibg=#f4dc6e
 hi DiffDelete guifg=none guibg=#dda296
 
-hi DiffviewFilePanelCounter    guifg=DodgerBlue4 gui=bold
-hi DiffviewFilePanelFileName   guifg=black       gui=bold
-hi DiffviewFilePanelInsertions guifg=green       gui=bold
-hi DiffviewFilePanelDeletions  guifg=IndianRed3  gui=bold
-hi DiffviewStatusModified      guifg=burlywood4
-
-" hi SignifySignAdd             guifg=DarkGreen guibg=#c9c5b5
-" hi SignifySignChange          guifg=DeepPink4 guibg=#c9c5b5
-" hi SignifySignDelete          guifg=red3      guibg=#c9c5b5
-" hi SignifySignDeleteFirstLine guifg=red3      guibg=#c9c5b5
-
 hi! link SpecialKey Directory
 
 hi User1 guifg=AntiqueWhite2  guibg=MistyRose4 gui=bold
 hi User2 guifg=black          guibg=OliveDrab2
-hi User3 guifg=lawngreen      guibg=MistyRose4
-hi User4 guifg=AntiqueWhite2  guibg=MistyRose4
+hi User3 guifg=red3      guibg=MistyRose4
+hi User4 guifg=orange3  guibg=MistyRose4
 hi User5 guifg=grey           guibg=MistyRose4
 hi User6 guifg=#CDCABD        guibg=MistyRose4 gui=bold
-hi User7 guifg=#CDCABD        guibg=MistyRose4 gui=bold
+hi User7 guifg=#CDCABD        guibg=MistyRose4
 hi User8 guifg=AntiqueWhite2  guibg=MistyRose4 gui=bold
 
-hi LspDiagnosticsVirtualTextError       guifg=red3
-hi LspDiagnosticsVirtualTextWarning     guifg=orange3
-hi LspDiagnosticsVirtualTextInformation guifg=orchid
-hi LspDiagnosticsVirtualTextHint        guifg=orchid
+hi DiagnosticError  guifg=red3
+hi DiagnosticWarn   guifg=orange3
+hi DiagnosticInfo   guifg=orchid
+hi DiagnosticHint   guifg=orchid
 
-hi LspDiagnosticsUnderlineError       guibg=#ffd7ff
-hi LspDiagnosticsUnderlineWarning     guibg=#ffd787
-hi LspDiagnosticsUnderlineInformation guibg=#ffd787
-hi LspDiagnosticsUnderlineHint        guibg=#ffd787
+hi DiagnosticUnderlineError       guibg=#ffd7ff
+hi DiagnosticUnderlineWarning     guibg=#ffd787
+hi DiagnosticUnderlineInformation guibg=#ffd787
+hi DiagnosticUnderlineHint        guibg=#ffd787
 
 hi! link FennelParen  Comment
 hi FennelSymbol guifg=black
+
+hi! link javaScriptNumber Constant
 
 " hi! link TSProperty String

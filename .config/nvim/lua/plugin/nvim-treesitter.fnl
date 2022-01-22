@@ -20,5 +20,5 @@
                 "rescript-auto-rename" {:enable true}})
 
 ;; From nvim-treesitter/playground
-(no n :gz :<Cmd>TSHighlightCapturesUnderCursor<CR>)
+(no n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)
 

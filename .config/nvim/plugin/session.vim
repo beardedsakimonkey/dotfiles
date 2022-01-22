@@ -22,7 +22,7 @@ augroup my_session | au!
         \ | endif
 augroup END
 
-com -bar          -complete=custom,s:suggest_sessions SClose  exe s:close()
+com -bar -nargs=? -complete=custom,s:suggest_sessions SClose  exe s:close()
 com -bar -nargs=? -complete=custom,s:suggest_sessions SDelete exe s:delete(<q-args>)
 com -bar -nargs=1 -complete=custom,s:suggest_sessions SRename exe s:rename(<q-args>)
 

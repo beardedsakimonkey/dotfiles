@@ -5,7 +5,7 @@
 (vim.cmd "augroup mine | au!")
 
 ;; In .nvim/config, recompile fennel on write
-(fn recompile-config-fennel []
+(fn compile-config-fennel []
   (let [config-dir (vim.fn.stdpath :config)
         src (vim.fn.expand "<afile>:p")
         dest (pick-values 1 (src:gsub :.fnl$ :.lua))
@@ -22,9 +22,27 @@
           (vim.cmd "lcd -")
           (vim.cmd (.. "luafile " dest))))))
 
-(au BufWritePost *.fnl recompile-config-fennel)
+(au BufWritePost *.fnl compile-config-fennel)
 
-;; Handler large buffers
+(fn compile-qdir-fennel []
+  (let [dir :/Users/tim/code/qdir/
+        src (vim.fn.expand "<afile>:p")
+        ;; Don't use abs path because it appears in output of `lambda`
+        src2 (pick-values 1 (src:gsub (.. "^" dir) ""))
+        dest (pick-values 1 (src2:gsub :.fnl$ :.lua))
+        compile? (vim.startswith src dir)]
+    (when compile?
+      (vim.cmd (.. "lcd " dir))
+      (let [cmd (string.format "fennel --compile %s > %s"
+                               (vim.fn.fnameescape src2)
+                               (vim.fn.fnameescape dest))]
+        (local output (vim.fn.system cmd))
+        (if vim.v.shell_error (print output)))
+      (vim.cmd "lcd -"))))
+
+(au BufWritePost *.fnl compile-qdir-fennel)
+
+;; Handle large buffers
 (fn handle-large-buffers []
   (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
     (when (or (> size (* 1024 1024)) (= size -2))
@@ -123,8 +141,8 @@
 
 (au FileType * setup-formatting)
 
-(au [VimEnter WinEnter BufWinEnter] * "setlocal cursorline")
-(au WinLeave * "setlocal nocursorline")
+;; Reload file if changed on disk
+(au [FocusGained BufEnter] * :checktime)
 
 (vim.cmd "augroup END")
 

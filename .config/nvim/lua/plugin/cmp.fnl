@@ -5,9 +5,12 @@
                       {:name :path}
                       {:name :nvim_lua}
                       {:name :nvim_lsp}]
-            :mapping {:<Tab> (cmp.mapping.confirm {:behavior cmp.ConfirmBehavior.Replace
-                                                   :select true})}})
+            :mapping {:<Tab> (cmp.mapping.confirm {:select true})
+                      :<C-j> (cmp.mapping.select_next_item)
+                      :<C-k> (cmp.mapping.select_prev_item)}
+            :experimental {:ghost_text true}})
 
-(no i :<C-j> :<C-n>)
-(no i :<C-k> :<C-p>)
+(cmp.setup.cmdline "/" {:sources [{:name :buffer}]})
+
+;; (cmp.setup.cmdline ":" {:sources (cmp.config.sources [{:name :path}])})
 

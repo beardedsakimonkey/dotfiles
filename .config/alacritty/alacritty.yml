@@ -104,7 +104,7 @@ font:
     family: Triplicate T4
     style: Bold Italic
 
-  size: 16
+  size: 18
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
@@ -217,37 +217,6 @@ font:
   #indexed_colors: []
 
 colors:
-
-  # cursor:
-  #   text: '#000000'
-  #   cursor: '#ff00ff'
-
-  # primary:
-  #   background: '#3a3837'
-  #   foreground: '#bfa472'
-
-  # normal:
-  #   black:   '#665c54'
-  #   red:     '#ea6962'
-  #   green:   '#a8a920'
-  #   yellow:  '#d8a657'
-  #   blue:    '#83a598'
-  #   magenta: '#d3869b'
-  #   cyan:    '#8bba7f'
-  #   white:   '#dfbf8e'
-
-  # bright:
-  #   black:   '#928374'
-  #   red:     '#ea6962'
-  #   green:   '#98971a'
-  #   yellow:  '#e78a4e'
-  #   blue:    '#7daea3'
-  #   magenta: '#d3869b'
-  #   cyan:    '#89b482'
-  #   white:   '#dfbf8e'
-
-  # Light
-
   cursor:
     text: '#dadada'
     cursor: '#000000'

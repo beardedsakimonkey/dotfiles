@@ -1,7 +1,6 @@
 setl grepprg&
 setl iskeyword-=#
-
-nno <buffer> <silent> gd :<c-u>call lookup#lookup()<cr>
+setl keywordprg=:help
 
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
-    \ ..'| setl grepprg< iskeyword<'
+    \ ..'| setl grepprg< iskeyword< keywordprg<'

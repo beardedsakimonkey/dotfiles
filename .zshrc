@@ -212,10 +212,12 @@ autoload -Uz zcalc
 # Prompt
 #
 
+autoload -U colors && colors
+
 PROMPT="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{black}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
-PROMPT+=" %(?.%F{white}.%F{red})❯%b%f "
+PROMPT+=" %(?.%F{8}.%F{red})❯%b%f "
 
 # region: vi-mode visual select
 zle_highlight=(region:bg=#504945)
@@ -337,11 +339,16 @@ alias gco='git checkout'
 alias gp='git push'
 
 makenvim() {
-    pushd ~/code/neovim
-    rm -r build/  # clear the CMake cache
-    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim" CMAKE_BUILD_TYPE=RelWithDebInfo
-    make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install
-    popd
+    local EXTRA_FLAGS
+    [[ "${1}" = "debug" ]] && EXTRA_FLAGS="-DMIN_LOG_LEVEL=1"
+    local BUILD_TYPE="RelWithDebInfo"
+    [[ "${1}" = "debug" ]] && BUILD_TYPE="Debug"
+    pushd ~/code/neovim && {
+        rm -r build/;
+        make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim ${EXTRA_FLAGS}" CMAKE_BUILD_TYPE=${BUILD_TYPE};
+        make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install;
+        popd;
+    }
     tput bel
 }
 
@@ -382,7 +389,7 @@ megadl() {
     emulate -L zsh
     local url="$1"
     for i in {1..10}; do
-        if [[ "$url" =~ "mega.nz" ]]; then
+        if [[ "$url" =~ "mega.nz" ]] ||  [[ "$url" =~ "^https" ]]; then
             break
         fi
         url=$(base64 -d <<<"$url" 2> /dev/null)
@@ -416,3 +423,7 @@ subup() {
 if [ -f ~/zshrc_local.zsh ]; then
     source ~/zshrc_local.zsh
 fi
+
+export WASMTIME_HOME="$HOME/.wasmtime"
+
+export PATH="$WASMTIME_HOME/bin:$PATH"

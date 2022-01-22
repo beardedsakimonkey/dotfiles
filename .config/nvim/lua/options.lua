@@ -40,8 +40,7 @@ vim.opt["incsearch"] = true
 vim.opt["ignorecase"] = true
 vim.opt["infercase"] = true
 vim.opt["smartcase"] = true
-vim.opt["keywordprg"] = ":help"
-vim.opt["completeopt"] = {"menuone", "noselect"}
+vim.opt["completeopt"] = {"menu", "menuone", "noselect"}
 vim.opt["complete"] = {".", "i", "w", "b"}
 vim.opt["wildmenu"] = true
 vim.opt["wildignorecase"] = true
@@ -67,4 +66,5 @@ vim.opt["laststatus"] = 2
 vim.opt["showmode"] = false
 vim.opt["showtabline"] = 1
 vim.opt["textwidth"] = 80
+vim.opt["cursorline"] = true
 return nil

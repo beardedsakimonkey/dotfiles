@@ -30,7 +30,6 @@
 (no x ":" ";")
 
 (no n :Q "@q")
-(no "" :Y :y$)
 (no "" :H "^")
 (no "" :L "$")
 (no n :<C-p> :<C-i>)
@@ -41,8 +40,12 @@
 
 (no n "`" "g`")
 (no n "'" "g'")
-(no n "gi" "g`^") ;; Jump to where insert mode was last exited
-(no n "g." "g`.") ;; Jump to last change
+
+;; Jump to where last change was made
+(no n :g. "g`.")
+;; Jump to where insert mode was last exited
+(no n :gi "g`^")
+
 (no "" "(" :H :silent)
 (no "" ")" :L :silent)
 (no n :M "<CMD>keepj norm! M<CR>" :silent)
@@ -117,10 +120,9 @@
 (no n "[L" :<Cmd>lpfile<CR>zz :silent)
 
 (no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
-(no "" :<Space>w "<CMD>b#<CR>" :silent)
+(no "" :<Space>q "<CMD>b#<CR>" :silent)
 
-(no n :<Space>ev "<CMD>e ~/.config/nvim/<CR>" :silent)
-(no n :<Space>el "<CMD>e ~/.config/nvim/lua<CR>" :silent)
+(no n :<Space>ev "<CMD>e ~/.config/nvim/lua<CR>" :silent)
 (no n :<Space>ep "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>"
     :silent)
 
@@ -147,10 +149,8 @@
 (no n :<space>j :<CMD>split<CR> :silent)
 
 (no "" :<C-q> :<CMD>q<CR> :silent)
-(no "" :<space>q :<CMD>tabclose<CR> :silent)
 (no n :<C-s> :<C-a> :silent)
 (no n :<CR> :<CMD>w<CR> :silent)
-;; (no n "g;" "g;zvzz")
 
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
@@ -158,7 +158,6 @@
 
 (no n :con "<CMD>set number!<CR>" :silent)
 (no n :coc "<CMD>set cursorline!<CR>" :silent)
-(no n :cow "<CMD>set wrap!<CR>" :silent)
 (no n :cow "<CMD>set wrap!<CR>" :silent)
 (no n :col "<CMD>set hlsearch!<CR>" :silent)
 (no n :coi "<CMD>set ignorecase!<CR>" :silent)
@@ -187,6 +186,7 @@
 (no n "[e" move-line-up)
 (no n "]e" move-line-down)
 
+;; Adapted from lacygoill's vimrc
 (fn zoom-toggle []
   (when (not= (vim.fn.winnr "$") 1)
     (if vim.t.zoom_restore

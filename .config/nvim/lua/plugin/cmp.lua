@@ -1,6 +1,3 @@
 local cmp = require("cmp")
-cmp.setup({mapping = {["<Tab>"] = cmp.mapping.confirm({behavior = cmp.ConfirmBehavior.Replace, select = true})}, sources = {{name = "buffer"}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}})
-do
-  vim.api.nvim_set_keymap("i", "<C-j>", "<C-n>", {noremap = true})
-end
-return vim.api.nvim_set_keymap("i", "<C-k>", "<C-p>", {noremap = true})
+cmp.setup({experimental = {ghost_text = true}, mapping = {["<C-j>"] = cmp.mapping.select_next_item(), ["<C-k>"] = cmp.mapping.select_prev_item(), ["<Tab>"] = cmp.mapping.confirm({select = true})}, sources = {{name = "buffer"}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}})
+return cmp.setup.cmdline("/", {sources = {{name = "buffer"}}})

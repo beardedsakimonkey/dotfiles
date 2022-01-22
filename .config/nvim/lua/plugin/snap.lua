@@ -1,4 +1,8 @@
 local snap = require("snap")
+local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, reverse = true}
+local function with_defaults(tbl)
+  return vim.tbl_extend("force", {}, defaults, tbl)
+end
 local function get_sorted_buffers(request)
   local function _1_()
     local original_buf = vim.api.nvim_win_get_buf(request.winnr)
@@ -21,12 +25,39 @@ end
 local function sorted_buffers(request)
   return snap.sync(get_sorted_buffers(request))
 end
-local mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}
-local file = (snap.config.file):with({mappings = mappings, reverse = true})
-local function _5_()
-  return snap.run({multiselect = (snap.get("select.vimgrep")).multiselect, producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, views = {snap.get("preview.vimgrep")}})
+local function get_selected_text()
+  local reg = vim.fn.getreg("\"")
+  vim.cmd("normal! y")
+  local text = vim.fn.trim(vim.fn.getreg("@"))
+  vim.fn.setreg("\"", reg)
+  return text
 end
-local function _6_()
-  return snap.run({producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), prompt = "Help>", select = (snap.get("select.help")).select, views = {snap.get("preview.help")}})
+local grep = {multiselect = (snap.get("select.vimgrep")).multiselect, producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), prompt = "Grep>", select = (snap.get("select.vimgrep")).select, views = {snap.get("preview.vimgrep")}}
+local function visual_grep()
+  return snap.run(with_defaults(vim.tbl_extend("force", {}, grep, {initial_filter = get_selected_text()})))
 end
-return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", _5_}, {"<space>h", _6_}})
+local function normal_grep()
+  return snap.run(with_defaults(grep))
+end
+local function help_grep()
+  local function help_select(selection, winnr, type)
+    local cmd
+    do
+      local _5_ = type
+      if (_5_ == "vsplit") then
+        cmd = "vert "
+      elseif (_5_ == "split") then
+        cmd = "belowright "
+      elseif (_5_ == "tab") then
+        cmd = "tab "
+      else
+        local _ = _5_
+        cmd = ""
+      end
+    end
+    return vim.api.nvim_command((cmd .. "help " .. tostring(selection)))
+  end
+  return snap.run(with_defaults({producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), prompt = "Help>", select = help_select, views = {snap.get("preview.help")}}))
+end
+local file = (snap.config.file):with(defaults)
+return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})

@@ -18,14 +18,15 @@
           ;; Change dir so macros.fnl gets read
           (vim.cmd (.. "lcd " config-dir))
           (local output (vim.fn.system cmd))
+          ;; TODO: pcall this so that the subsequent lcd runs even if it fails
           (if vim.v.shell_error (print output))
           (vim.cmd "lcd -")
           (vim.cmd (.. "luafile " dest))))))
 
 (au BufWritePost *.fnl compile-config-fennel)
 
-(fn compile-qdir-fennel []
-  (let [dir :/Users/tim/code/qdir/
+(fn compile-udir-fennel []
+  (let [dir :/Users/tim/code/udir/
         src (vim.fn.expand "<afile>:p")
         ;; Don't use abs path because it appears in output of `lambda`
         src2 (pick-values 1 (src:gsub (.. "^" dir) ""))
@@ -40,7 +41,7 @@
         (if vim.v.shell_error (print output)))
       (vim.cmd "lcd -"))))
 
-(au BufWritePost *.fnl compile-qdir-fennel)
+(au BufWritePost *.fnl compile-udir-fennel)
 
 ;; Handle large buffers
 (fn handle-large-buffers []

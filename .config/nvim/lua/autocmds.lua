@@ -24,8 +24,8 @@ do
   _G["my__au__compile_config_fennel"] = compile_config_fennel
   vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_config_fennel()")
 end
-local function compile_qdir_fennel()
-  local dir = "/Users/tim/code/qdir/"
+local function compile_udir_fennel()
+  local dir = "/Users/tim/code/udir/"
   local src = vim.fn.expand("<afile>:p")
   local src2
   do
@@ -51,8 +51,8 @@ local function compile_qdir_fennel()
   end
 end
 do
-  _G["my__au__compile_qdir_fennel"] = compile_qdir_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_qdir_fennel()")
+  _G["my__au__compile_udir_fennel"] = compile_udir_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_udir_fennel()")
 end
 local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))

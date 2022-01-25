@@ -1,4 +1,4 @@
-(local qdir (require :qdir))
+(local udir (require :udir))
 (import-macros {: no} :macros)
 
 (fn endswith-any [str suffixes]
@@ -8,7 +8,7 @@
       (set hidden true)))
   hidden)
 
-(qdir.setup {:auto-open true
+(udir.setup {:auto-open true
              :show-hidden-files false
              :is-file-hidden (fn [file cwd]
                                (let [suffixes [:.bs.js :.o]]
@@ -17,5 +17,5 @@
                                    (table.insert suffixes :.lua))
                                  (endswith-any file.name suffixes)))})
 
-(no n "-" :<Cmd>Qdir<CR>)
+(no n "-" :<Cmd>Udir<CR>)
 

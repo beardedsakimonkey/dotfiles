@@ -7,7 +7,7 @@
 (fn gofmt []
   {:exe :gofmt :args [(vim.api.nvim_buf_get_name 0)] :stdin true})
 
-;; Set up file formatting 
+;; NOTE: YOU MUST UPDATE plugins.fnl WHEN ADDING NEW FILETYPES.
 (formatter.setup {:filetype {:fennel [fnlfmt]
                              :go [gofmt]}})
 

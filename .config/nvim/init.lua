@@ -1,3 +1,4 @@
+require('impatient')
 local pack_path = vim.fn.stdpath("data") .. "/site/pack"
 
 -- Adapted from Olical's init.lua

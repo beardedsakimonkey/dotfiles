@@ -1,4 +1,4 @@
-local qdir = require("qdir")
+local udir = require("udir")
 local function endswith_any(str, suffixes)
   local hidden = false
   for _, suf in ipairs(suffixes) do
@@ -16,5 +16,5 @@ local function _2_(file, cwd)
   end
   return endswith_any(file.name, suffixes)
 end
-qdir.setup({["auto-open"] = true, ["is-file-hidden"] = _2_, ["show-hidden-files"] = false})
-return vim.api.nvim_set_keymap("n", "-", "<Cmd>Qdir<CR>", {noremap = true})
+udir.setup({["auto-open"] = true, ["is-file-hidden"] = _2_, ["show-hidden-files"] = false})
+return vim.api.nvim_set_keymap("n", "-", "<Cmd>Udir<CR>", {noremap = true})

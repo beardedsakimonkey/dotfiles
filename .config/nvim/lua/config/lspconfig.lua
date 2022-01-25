@@ -5,7 +5,7 @@ local function on_attach(client, bufnr)
     return vim.api.nvim_buf_set_keymap(bufnr, "n", lhs, rhs, {noremap = true, silent = true})
   end
   buf_keymap("gD", "<Cmd>lua vim.lsp.buf.declaration()<CR>")
-  buf_keymap("gd", "<Cmd>lua vim.lsp.buf.definition()<CR>")
+  buf_keymap("gd", "<Cmd>lua vim.lsp.buf.definition()<CR>zz")
   buf_keymap("gh", "<Cmd>lua vim.lsp.buf.hover()<CR>")
   buf_keymap("gm", "<Cmd>lua vim.lsp.buf.implementation()<CR>")
   buf_keymap("gs", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")

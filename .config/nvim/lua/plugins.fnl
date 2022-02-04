@@ -9,13 +9,7 @@
 
 ;; To profile, run :PackerCompile profile=true, restart nvim, :PackerProfile
 (use {;; Neovim
-      :wbthomason/packer.nvim {:opt true
-                               :cmd [:PackerClean
-                                     :PackerCompile
-                                     :PackerInstall
-                                     :PackerUpdate
-                                     :PackerSync
-                                     :PackerLoad]}
+      :wbthomason/packer.nvim {}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
@@ -26,8 +20,7 @@
                                     :opt true
                                     :cmd :ColorizerAttachToBuffer}
       ;; Treesitter
-      :nvim-treesitter/nvim-treesitter {:branch :0.5-compat
-                                        :config "require'config.treesitter'"
+      :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
                                         :run ":TSUpdate"}
       :nvim-treesitter/playground {:opt true
                                    :cmd [:TSPlaygroundToggle
@@ -64,7 +57,6 @@
       :bakpakin/fennel.vim {}
       :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl}
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      :tikhomirov/vim-glsl {}
       ;; Local
       "~/code/udir" {:config "require'config.udir'"}})
 

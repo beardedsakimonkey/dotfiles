@@ -2,6 +2,7 @@
 
 (setlocal! cms ";; %s")
 (setlocal! keywordprg ":help")
+(setlocal! lisp true)
 
-(undo_ftplugin "setl cms< keywordprg<")
+(undo_ftplugin "setl cms< keywordprg< lisp<")
 

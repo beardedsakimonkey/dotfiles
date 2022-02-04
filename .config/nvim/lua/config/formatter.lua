@@ -1,9 +1,9 @@
 local formatter = require("formatter")
 local function fnlfmt()
-  return {args = {vim.api.nvim_buf_get_name(0)}, exe = "fnlfmt", stdin = true}
+  return {exe = "fnlfmt", args = {vim.api.nvim_buf_get_name(0)}, stdin = true}
 end
 local function gofmt()
-  return {args = {vim.api.nvim_buf_get_name(0)}, exe = "gofmt", stdin = true}
+  return {exe = "gofmt", args = {vim.api.nvim_buf_get_name(0)}, stdin = true}
 end
 formatter.setup({filetype = {fennel = {fnlfmt}, go = {gofmt}}})
 vim.cmd("augroup my-formatter | au!")

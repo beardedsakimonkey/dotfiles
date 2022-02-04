@@ -11,12 +11,16 @@ local function _1_()
     return "console.log($0)"
   elseif (_2_ == "rescript") then
     return "Js.log($0)"
+  else
+    return nil
   end
 end
 minsnip.setup({cl = _1_})
 local function expand_snippet()
   if not minsnip.jump() then
     return vim.api.nvim_input("<C-l>")
+  else
+    return nil
   end
 end
 _G["my__map__expand_snippet"] = expand_snippet

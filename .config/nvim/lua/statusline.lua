@@ -41,13 +41,14 @@ vim.opt["statusline"] = "%!v:lua.require'statusline'.show()"
 M.tabline = function()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
-    local _7_
-    if (i == vim.fn.tabpagenr()) then
-      _7_ = "%#TabLineSel#"
-    else
-      _7_ = "%#TabLine#"
+    local function _7_()
+      if (i == vim.fn.tabpagenr()) then
+        return "%#TabLineSel#"
+      else
+        return "%#TabLine#"
+      end
     end
-    s = (s .. _7_ .. "%" .. i .. "T %{v:lua.require'statusline'.tablabel(" .. i .. ")}")
+    s = (s .. _7_() .. "%" .. i .. "T %{v:lua.require'statusline'.tablabel(" .. i .. ")}")
   end
   return (s .. "%#TabLineFill#%T")
 end
@@ -58,6 +59,7 @@ M.tablabel = function(n)
     if (modified ~= "") then break end
     if vim.api.nvim_buf_get_option(b, "modified") then
       modified = "+ "
+    else
     end
   end
   local name = vim.fn.fnamemodify(vim.fn.bufname(buflist[vim.fn.tabpagewinnr(n)]), ":t:s/^$/[No Name]/")

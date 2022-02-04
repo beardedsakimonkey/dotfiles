@@ -14,7 +14,7 @@
 (no n :<c-y> :<c-y><c-y>)
 (no x "<" :<gv)
 (no x ">" :>gv)
-;; (no n :s "\"_s")
+(no n :s "\"_s")
 (no n :Z :zzzH)
 (no x :Z :zzzH)
 (no n :p "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'" :expr)
@@ -37,6 +37,7 @@
 (no n :<End> "<CMD>keepj norm! G<CR>" :silent)
 (no n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
 (no n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
+(map "" :<tab> "<CMD>keepj norm! %<CR>" :silent)
 
 (no n "`" "g`")
 (no n "'" "g'")
@@ -80,7 +81,7 @@
     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>"
     :silent)
 
-(no n :<Space>s ":<C-u>%s///g<left><left>")
+(no n :<Space>s "ms:<C-u>%s///g<left><left>")
 
 (no n :=v "mvg'[=g']g`v")
 

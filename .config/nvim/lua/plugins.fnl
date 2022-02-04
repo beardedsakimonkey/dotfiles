@@ -1,16 +1,21 @@
 (local packer (require :packer))
 
 (fn use [pkgs]
-  (packer.startup (fn [use use-rocks]
+  (packer.startup (fn []
                     (each [name opts (pairs pkgs)]
                       (do
                         (tset opts 1 name)
-                        (use opts))))))
+                        (packer.use opts))))))
 
 ;; To profile, run :PackerCompile profile=true, restart nvim, :PackerProfile
 (use {;; Neovim
-      :wbthomason/packer.nvim {}
-      :lewis6991/impatient.nvim {}
+      :wbthomason/packer.nvim {:opt true
+                               :cmd [:PackerClean
+                                     :PackerCompile
+                                     :PackerInstall
+                                     :PackerUpdate
+                                     :PackerSync
+                                     :PackerLoad]}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
@@ -22,33 +27,43 @@
                                     :cmd :ColorizerAttachToBuffer}
       ;; Treesitter
       :nvim-treesitter/nvim-treesitter {:branch :0.5-compat
-                                        :config "require'config.nvim-treesitter'"
+                                        :config "require'config.treesitter'"
                                         :run ":TSUpdate"}
-      :nvim-treesitter/playground {:opt true :cmd :TSPlaygroundToggle}
-      :nkrkv/nvim-treesitter-rescript {:opt true :ft :rescript}
+      :nvim-treesitter/playground {:opt true
+                                   :cmd [:TSPlaygroundToggle
+                                         :TSHighlightCapturesUnderCursor]
+                                   :after :nvim-treesitter}
+      :nkrkv/nvim-treesitter-rescript {:opt true
+                                       :ft :rescript
+                                       :after :nvim-treesitter}
+      :windwp/nvim-ts-autotag {:config "require'nvim-ts-autotag'.setup()"
+                               :after :nvim-treesitter}
       ;; LSP
-      :neovim/nvim-lspconfig {:config "require'config.lspconfig'"}
+      :neovim/nvim-lspconfig {:config "require'config.lsp'"}
+      :j-hui/fidget.nvim {:config "require'fidget'.setup{}"}
       ;; Completion
       :hrsh7th/nvim-cmp {:config "require'config.cmp'"}
       :hrsh7th/cmp-buffer {:after :nvim-cmp}
       :hrsh7th/cmp-nvim-lua {:after :nvim-cmp}
       :hrsh7th/cmp-path {:after :nvim-cmp}
       :hrsh7th/cmp-nvim-lsp {}
-      :hrsh7th/cmp-cmdline {:after :nvim-cmp}
       ;; Vimscript
-      :mbbill/undotree {:opt true :cmd [:UndotreeToggle]}
-      :tommcdo/vim-exchange {}
+      :mbbill/undotree {:opt true :cmd :UndotreeToggle}
+      :tommcdo/vim-exchange {:keys :cx}
       :wellle/targets.vim {:config "require'config.targets'"}
-      :andymass/vim-matchup {:config "require'config.matchup'"}
-      :AndrewRadev/linediff.vim {:config "require'config.linediff'"}
+      :AndrewRadev/linediff.vim {:config "require'config.linediff'"
+                                 :opt true
+                                 :keys [[:v :D]]}
+      ;; Can't lazy load this since it needs to track windows
       :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
-      :tpope/vim-commentary {}
+      :tpope/vim-commentary {:opt true :keys :gc}
       :tpope/vim-surround {}
       :tpope/vim-sleuth {}
       :tpope/vim-repeat {}
       ;; Languages
       :bakpakin/fennel.vim {}
-      :rescript-lang/vim-rescript {}
+      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl}
+      :rescript-lang/vim-rescript {:opt true :ft :rescript}
       :tikhomirov/vim-glsl {}
       ;; Local
       "~/code/udir" {:config "require'config.udir'"}})

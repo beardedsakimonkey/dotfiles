@@ -32,7 +32,7 @@ local function get_selected_text()
   vim.fn.setreg("\"", reg)
   return text
 end
-local grep = {multiselect = (snap.get("select.vimgrep")).multiselect, producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), prompt = "Grep>", select = (snap.get("select.vimgrep")).select, views = {snap.get("preview.vimgrep")}}
+local grep = {producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, multiselect = (snap.get("select.vimgrep")).multiselect, views = {snap.get("preview.vimgrep")}, prompt = "Grep>"}
 local function visual_grep()
   return snap.run(with_defaults(vim.tbl_extend("force", {}, grep, {initial_filter = get_selected_text()})))
 end
@@ -50,14 +50,16 @@ local function help_grep()
         cmd = "belowright "
       elseif (_5_ == "tab") then
         cmd = "tab "
-      else
+      elseif true then
         local _ = _5_
         cmd = ""
+      else
+        cmd = nil
       end
     end
     return vim.api.nvim_command((cmd .. "help " .. tostring(selection)))
   end
-  return snap.run(with_defaults({producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), prompt = "Help>", select = help_select, views = {snap.get("preview.help")}}))
+  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = help_select, views = {snap.get("preview.help")}}))
 end
 local file = (snap.config.file):with(defaults)
 return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})

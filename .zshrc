@@ -254,6 +254,9 @@ export HISTFILE=~/.zsh_history
 export KEYTIMEOUT=15
 export CORRECT_IGNORE=_*,.*
 
+export WASMTIME_HOME="$HOME/.wasmtime"
+export PATH="$WASMTIME_HOME/bin:$PATH"
+
 #
 # Third-party
 #
@@ -289,7 +292,7 @@ if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
     unalias a s sd sf d f z zz
     alias d='fasd_cd -d'
-    alias vf='fasd_cdv -f -B shada'
+    alias vs='fasd_cdv -f -B shada'
     alias vd='fasd_cdv -d -B shada'
     alias va='fasd_cdv -a -B shada'
 
@@ -303,7 +306,7 @@ if [ -n "$(command -v fasd)" ]; then
                 builtin cd "$_fasd_ret"
                 $EDITOR
             elif [ -e "$_fasd_ret" ]; then
-                builtin cd $(dirname "$_fasd_ret")
+                builtin cd "$(dirname "$_fasd_ret")"
                 $EDITOR $(basename "$_fasd_ret")
             fi
         fi
@@ -329,6 +332,7 @@ alias sudo='\sudo '
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='\ls -FG'
 alias a='ls -A'
+
 alias gj='git-jump'
 alias gs='git status'
 alias gl='git log'
@@ -337,6 +341,8 @@ alias ga='git add'
 alias gc='git commit'
 alias gco='git checkout'
 alias gp='git push'
+
+alias ytl='youtube-dl'
 
 makenvim() {
     local EXTRA_FLAGS
@@ -423,7 +429,3 @@ subup() {
 if [ -f ~/zshrc_local.zsh ]; then
     source ~/zshrc_local.zsh
 fi
-
-export WASMTIME_HOME="$HOME/.wasmtime"
-
-export PATH="$WASMTIME_HOME/bin:$PATH"

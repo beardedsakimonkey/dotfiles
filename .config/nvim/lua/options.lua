@@ -1,4 +1,4 @@
-vim.opt["shada"] = "!,'4096,<50,s10,h"
+vim.opt["shada"] = "!,'8192,<50,s10,h"
 vim.opt["display"] = "msgsep"
 vim.opt["inccommand"] = "nosplit"
 vim.opt["lazyredraw"] = true
@@ -22,6 +22,7 @@ vim.opt["backup"] = false
 vim.opt["undofile"] = true
 if not vim.fn.isdirectory(vim.go.undodir) then
   vim.fn.mkdir(vim.go.undodir)
+else
 end
 vim.opt["splitright"] = true
 vim.opt["splitbelow"] = true

@@ -21,6 +21,9 @@ do
   vim.api.nvim_set_keymap("x", ">", ">gv", {noremap = true})
 end
 do
+  vim.api.nvim_set_keymap("n", "s", "\"_s", {noremap = true})
+end
+do
   vim.api.nvim_set_keymap("n", "Z", "zzzH", {noremap = true})
 end
 do
@@ -76,6 +79,9 @@ do
 end
 do
   vim.api.nvim_set_keymap("n", "<PageDown>", "<PageDown>:keepj norm! L<CR>", {noremap = true, silent = true})
+end
+do
+  vim.api.nvim_set_keymap("", "<tab>", "<CMD>keepj norm! %<CR>", {silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "`", "g`", {noremap = true})
@@ -150,7 +156,7 @@ do
   vim.api.nvim_set_keymap("n", "S", "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "<Space>s", ":<C-u>%s///g<left><left>", {noremap = true})
+  vim.api.nvim_set_keymap("n", "<Space>s", "ms:<C-u>%s///g<left><left>", {noremap = true})
 end
 do
   vim.api.nvim_set_keymap("n", "=v", "mvg'[=g']g`v", {noremap = true})
@@ -342,13 +348,14 @@ do
 end
 local function move_line(dir)
   vim.cmd("keepj norm! mv")
-  local _1_
-  if (dir == "up") then
-    _1_ = "--"
-  else
-    _1_ = "+"
+  local function _1_()
+    if (dir == "up") then
+      return "--"
+    else
+      return "+"
+    end
   end
-  vim.cmd(("move " .. _1_ .. vim.v.count1))
+  vim.cmd(("move " .. _1_() .. vim.v.count1))
   return vim.cmd("keepj norm! =`v")
 end
 local function move_line_up()
@@ -375,6 +382,8 @@ local function zoom_toggle()
       vim.cmd("wincmd |")
       return vim.cmd("wincmd _")
     end
+  else
+    return nil
   end
 end
 do
@@ -395,13 +404,15 @@ local function repeat_last_edit_on_last_changed_text()
   local changed = vim.fn.getreg("\"", 1, 1)
   if changed then
     local changed0
-    local function _5_(_241)
+    local function _4_(_241)
       return vim.fn.escape(_241, "\\")
     end
-    changed0 = vim.tbl_map(_5_, changed)
+    changed0 = vim.tbl_map(_4_, changed)
     local pat = table.concat(changed0, "\\n")
     vim.fn.setreg("/", ("\\V" .. pat), "c")
     return vim.cmd("exe \"norm! cgn\\<c-@>\"")
+  else
+    return nil
   end
 end
 do
@@ -411,23 +422,25 @@ end
 local function previous_window_in_same_direction(dir)
   local cnr = vim.fn.winnr()
   local pnr = vim.fn.winnr("#")
-  local _7_ = dir
-  if (_7_ == "h") then
+  local _6_ = dir
+  if (_6_ == "h") then
     local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
     local rightedge_previous_window = ((vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr)) - 1)
     return ((leftedge_current_window - 1) == (rightedge_previous_window + 1))
-  elseif (_7_ == "l") then
+  elseif (_6_ == "l") then
     local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
     local rightedge_current_window = ((vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr)) - 1)
     return ((leftedge_previous_window - 1) == (rightedge_current_window + 1))
-  elseif (_7_ == "j") then
+  elseif (_6_ == "j") then
     local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
     local bottomedge_current_window = ((vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr)) - 1)
     return ((topedge_previous_window - 1) == (bottomedge_current_window + 1))
-  elseif (_7_ == "k") then
+  elseif (_6_ == "k") then
     local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
     local bottomedge_previous_window = ((vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr)) - 1)
     return ((topedge_current_window - 1) == (bottomedge_previous_window + 1))
+  else
+    return nil
   end
 end
 local function navigate(dir)

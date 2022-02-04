@@ -18,7 +18,6 @@ local function on_attach(client, bufnr)
   buf_keymap("gl", "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   return buf_keymap("<space>w", "<Cmd>lua vim.lsp.buf.formatting()<CR>")
 end
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-local capabilities0 = cmp_nvim_lsp.update_capabilities(capabilities)
-do end (lspconfig.util)["default_config"] = vim.tbl_extend("force", lspconfig.util.default_config, {capabilities = capabilities0, on_attach = on_attach})
+local cfg = {on_attach = on_attach, capabilities = cmp_nvim_lsp.update_capabilities(vim.lsp.protocol.make_client_capabilities()), flags = {debounce_text_changes = 150}, handlers = {["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {signs = false})}}
+lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, cfg)
 return lspconfig.clangd.setup({})

@@ -1,9 +1,9 @@
 .PHONY: compile
 .SILENT: compile
 
-SRC_FILES := $(basename $(shell find lua -type f -name "*.fnl" | cut -d'/' -f2-))
+SRC_FILES := $(basename $(shell find . -type f -name "*.fnl" -not -name "macros.fnl" | cut -d'/' -f2-))
 
 compile:
 	for f in $(SRC_FILES); do \
-		fennel --compile lua/$$f.fnl > lua/$$f.lua; \
+		fennel --compile $$f.fnl > $$f.lua; \
 	done

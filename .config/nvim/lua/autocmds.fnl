@@ -1,27 +1,45 @@
 (import-macros {: au : setlocal!} :macros)
 (local uv vim.loop)
 
-;; Only use this augroup in this file.
+;; NOTE: Only use this augroup in this file.
 (vim.cmd "augroup mine | au!")
+
+(local efm
+       "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#")
+
+(local ns (vim.api.nvim_create_namespace :my/autocmds))
+
+;; Adapted from gpanders' config
+(fn on-fnl-err [output]
+  (let [lines (vim.split output "\n")
+        {: items} (vim.fn.getqflist {: efm : lines})]
+    (each [_ v (ipairs items)]
+      (set v.text (v.text:gsub "^\n" "")))
+    (local results (vim.diagnostic.fromqflist items))
+    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)))
 
 ;; In .nvim/config, recompile fennel on write
 (fn compile-config-fennel []
   (let [config-dir (vim.fn.stdpath :config)
         src (vim.fn.expand "<afile>:p")
-        dest (pick-values 1 (src:gsub :.fnl$ :.lua))
+        dest (src:gsub :.fnl$ :.lua)
         compile? (and (vim.startswith src config-dir)
                       (not (vim.endswith src :macros.fnl)))]
     (if compile?
-        (let [cmd (string.format "fennel --compile %s > %s"
+        (let [cmd (string.format "fennel --globals 'vim' --compile %s > %s"
                                  (vim.fn.fnameescape src)
                                  (vim.fn.fnameescape dest))]
           ;; Change dir so macros.fnl gets read
           (vim.cmd (.. "lcd " config-dir))
-          (local output (vim.fn.system cmd))
           ;; TODO: pcall this so that the subsequent lcd runs even if it fails
-          (if vim.v.shell_error (print output))
+          (local output (vim.fn.system cmd))
+          (if vim.v.shell_error (on-fnl-err output))
           (vim.cmd "lcd -")
-          (vim.cmd (.. "luafile " dest))))))
+          (when (not (vim.startswith src (.. config-dir :/after/ftplugin)))
+            (vim.cmd (.. "luafile " dest)))
+          (when (and (= 0 vim.v.shell_error)
+                     (= src (.. config-dir :/lua/plugins.fnl)))
+            (vim.cmd :PackerCompile))))))
 
 (au BufWritePost *.fnl compile-config-fennel)
 
@@ -29,21 +47,20 @@
   (let [dir :/Users/tim/code/udir/
         src (vim.fn.expand "<afile>:p")
         ;; Don't use abs path because it appears in output of `lambda`
-        src2 (pick-values 1 (src:gsub (.. "^" dir) ""))
-        dest (pick-values 1 (src2:gsub :.fnl$ :.lua))
+        src2 (src:gsub (.. "^" dir) "")
+        dest (src2:gsub :.fnl$ :.lua)
         compile? (vim.startswith src dir)]
     (when compile?
       (vim.cmd (.. "lcd " dir))
-      (let [cmd (string.format "fennel --compile %s > %s"
+      (let [cmd (string.format "fennel --globals 'vim' --compile %s > %s"
                                (vim.fn.fnameescape src2)
                                (vim.fn.fnameescape dest))]
         (local output (vim.fn.system cmd))
-        (if vim.v.shell_error (print output)))
+        (if vim.v.shell_error (on-fnl-err output)))
       (vim.cmd "lcd -"))))
 
 (au BufWritePost *.fnl compile-udir-fennel)
 
-;; Handle large buffers
 (fn handle-large-buffers []
   (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
     (when (or (> size (* 1024 1024)) (= size -2))
@@ -69,7 +86,6 @@
 
 (au BufNewFile * setup-make-executable)
 
-;; Maybe read template
 (fn maybe-read-template []
   (let [path (.. (vim.fn.stdpath :data) :/templates)
         fs (uv.fs_scandir path)]
@@ -89,7 +105,6 @@
                             (table.remove lines))
                         (vim.api.nvim_buf_set_lines 0 0 -1 true lines)))))))))))
 
-;; Maybe create missing directories
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
@@ -98,7 +113,6 @@
 
 (au [BufWritePre FileWritePre] * maybe-create-directories)
 
-;; Highlight text on yank
 (fn highlight-text []
   (vim.highlight.on_yank {:higroup :IncSearch
                           :timeout 150
@@ -107,7 +121,6 @@
 
 (au TextYankPost * highlight-text)
 
-;; Source colorscheme on write
 (fn source-colorscheme []
   (do
     (vim.cmd (.. "source " (vim.fn.expand "<afile>:p")))
@@ -116,13 +129,11 @@
 
 (au BufWritePost */colors/*.vim source-colorscheme)
 
-;; Source tmux config on write
 (fn source-tmux-cfg []
   (vim.fn.system (.. "tmux source-file " (vim.fn.expand "<afile>:p"))))
 
 (au BufWritePost *tmux.conf source-tmux-cfg)
 
-;; Restore cursor position
 (fn restore-cursor-position []
   (let [last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\"")]
     (if (not (vim.endswith vim.bo.filetype :commit))
@@ -144,6 +155,19 @@
 
 ;; Reload file if changed on disk
 (au [FocusGained BufEnter] * :checktime)
+
+(fn update-user-js []
+  (local cmd
+         "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh")
+  (local opts {:args [cmd :-d :-s :-b]})
+
+  (fn on-exit [code _]
+    (assert (= 0 code))
+    (print "Updated user.js"))
+
+  (local (handle pid) (assert (vim.loop.spawn cmd opts on-exit))))
+
+(au BufWritePost user-overrides.js update-user-js)
 
 (vim.cmd "augroup END")
 

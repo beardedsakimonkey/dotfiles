@@ -10,7 +10,3 @@
                       :<C-k> (cmp.mapping.select_prev_item)}
             :experimental {:ghost_text true}})
 
-(cmp.setup.cmdline "/" {:sources [{:name :buffer}]})
-
-;; (cmp.setup.cmdline ":" {:sources (cmp.config.sources [{:name :path}])})
-

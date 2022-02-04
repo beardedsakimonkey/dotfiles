@@ -65,6 +65,7 @@
 (local file (snap.config.file:with defaults))
 
 (snap.maps [[:<space>b (file {:producer sorted-buffers})]
+            ;; TODO: filter out directories
             [:<space>o (file {:producer :vim.oldfile})]
             [:<space>f (file {:producer :ripgrep.file})]
             [:<space>a visual-grep {:modes [:v]}]

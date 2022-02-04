@@ -19,13 +19,16 @@
   (buf_keymap :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   (buf_keymap :<space>w "<Cmd>lua vim.lsp.buf.formatting()<CR>"))
 
-;; nvim-cmp supports more types of completion candidates, so advertise it to LSP servers.
-(local capabilities (vim.lsp.protocol.make_client_capabilities))
-(local capabilities (cmp_nvim_lsp.update_capabilities capabilities))
+(local cfg
+       {: on_attach
+        ;; nvim-cmp supports more types of completion candidates, so advertise it to LSP servers.
+        :capabilities (cmp_nvim_lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities))
+        :flags {:debounce_text_changes 150}
+        :handlers {:textDocument/publishDiagnostics (vim.lsp.with vim.lsp.diagnostic.on_publish_diagnostics
+                                                                  {:signs false})}})
 
-(tset lspconfig.util :default_config
-      (vim.tbl_extend :force lspconfig.util.default_config
-                      {: on_attach : capabilities}))
+(set lspconfig.util.default_config
+     (vim.tbl_extend :force lspconfig.util.default_config cfg))
 
 (lspconfig.clangd.setup {})
 

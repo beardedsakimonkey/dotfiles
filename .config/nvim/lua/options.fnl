@@ -5,7 +5,7 @@
 ;; <50   - Contents of registers (up to 50 lines each) will be remembered
 ;; s10   - Items with contents occupying more then 10 KiB are skipped
 ;; h     - Disable the effect of 'hlsearch' when loading the shada file
-(set! shada "!,'4096,<50,s10,h")
+(set! shada "!,'8192,<50,s10,h")
 
 (set! display :msgsep)
 (set! inccommand :nosplit)

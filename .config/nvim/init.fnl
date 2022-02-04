@@ -33,9 +33,9 @@
 
 (vim.cmd "com! DiffOrig echo my#diff_orig()")
 
+;; NOTE: Don't need to require plugins.fnl
 (require :mappings)
 (require :options)
-(require :plugins)
 (require :autocmds)
 (require :statusline)
 

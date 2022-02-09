@@ -98,14 +98,6 @@ _G.packer_plugins = {
     path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/cmp-path",
     url = "https://github.com/hrsh7th/cmp-path"
   },
-  ["fennel-repl.nvim"] = {
-    commands = { "FennelRepl" },
-    loaded = false,
-    needs_bufread = false,
-    only_cond = false,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/fennel-repl.nvim",
-    url = "https://github.com/gpanders/fennel-repl.nvim"
-  },
   ["fennel.vim"] = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/fennel.vim",
@@ -124,6 +116,11 @@ _G.packer_plugins = {
     only_cond = false,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/formatter.nvim",
     url = "https://github.com/mhartington/formatter.nvim"
+  },
+  ["indent-o-matic"] = {
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/indent-o-matic",
+    url = "https://github.com/Darazaki/indent-o-matic"
   },
   ["lightspeed.nvim"] = {
     config = { "require'config.lightspeed'" },
@@ -147,7 +144,7 @@ _G.packer_plugins = {
     url = "https://github.com/jose-elias-alvarez/minsnip.nvim"
   },
   ["nvim-cmp"] = {
-    after = { "cmp-buffer", "cmp-nvim-lua", "cmp-path" },
+    after = { "cmp-nvim-lua", "cmp-buffer", "cmp-path" },
     loaded = true,
     only_config = true
   },
@@ -166,7 +163,7 @@ _G.packer_plugins = {
     url = "https://github.com/neovim/nvim-lspconfig"
   },
   ["nvim-treesitter"] = {
-    after = { "nvim-treesitter-rescript", "nvim-ts-autotag", "playground" },
+    after = { "playground", "nvim-ts-autotag", "nvim-treesitter-rescript" },
     loaded = true,
     only_config = true
   },
@@ -181,8 +178,9 @@ _G.packer_plugins = {
   ["nvim-ts-autotag"] = {
     config = { "require'nvim-ts-autotag'.setup()" },
     load_after = {},
-    loaded = true,
+    loaded = false,
     needs_bufread = false,
+    only_cond = false,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/nvim-ts-autotag",
     url = "https://github.com/windwp/nvim-ts-autotag"
   },
@@ -205,12 +203,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/tim/.local/share/nvim/site/pack/packer/start/snap",
     url = "https://github.com/camspiers/snap"
-  },
-  ["targets.vim"] = {
-    config = { "require'config.targets'" },
-    loaded = true,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/targets.vim",
-    url = "https://github.com/wellle/targets.vim"
   },
   udir = {
     config = { "require'config.udir'" },
@@ -260,10 +252,13 @@ _G.packer_plugins = {
     path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/vim-rescript",
     url = "https://github.com/rescript-lang/vim-rescript"
   },
-  ["vim-sleuth"] = {
-    loaded = true,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/vim-sleuth",
-    url = "https://github.com/tpope/vim-sleuth"
+  ["vim-startuptime"] = {
+    commands = { "StartupTime" },
+    loaded = false,
+    needs_bufread = false,
+    only_cond = false,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/vim-startuptime",
+    url = "https://github.com/dstein64/vim-startuptime"
   },
   ["vim-surround"] = {
     loaded = true,
@@ -281,77 +276,71 @@ time([[Setup for nvim-colorizer.lua]], false)
 time([[Config for lightspeed.nvim]], true)
 require'config.lightspeed'
 time([[Config for lightspeed.nvim]], false)
--- Config for: undoquit.vim
-time([[Config for undoquit.vim]], true)
-require'config.undoquit'
-time([[Config for undoquit.vim]], false)
--- Config for: nvim-treesitter
-time([[Config for nvim-treesitter]], true)
-require'config.treesitter'
-time([[Config for nvim-treesitter]], false)
--- Config for: udir
-time([[Config for udir]], true)
-require'config.udir'
-time([[Config for udir]], false)
--- Config for: fidget.nvim
-time([[Config for fidget.nvim]], true)
-require'fidget'.setup{}
-time([[Config for fidget.nvim]], false)
--- Config for: snap
-time([[Config for snap]], true)
-require'config.snap'
-time([[Config for snap]], false)
--- Config for: minsnip.nvim
-time([[Config for minsnip.nvim]], true)
-require'config.minsnip'
-time([[Config for minsnip.nvim]], false)
 -- Config for: nvim-cmp
 time([[Config for nvim-cmp]], true)
 require'config.cmp'
 time([[Config for nvim-cmp]], false)
+-- Config for: nvim-treesitter
+time([[Config for nvim-treesitter]], true)
+require'config.treesitter'
+time([[Config for nvim-treesitter]], false)
+-- Config for: fidget.nvim
+time([[Config for fidget.nvim]], true)
+require'fidget'.setup{}
+time([[Config for fidget.nvim]], false)
+-- Config for: udir
+time([[Config for udir]], true)
+require'config.udir'
+time([[Config for udir]], false)
 -- Config for: nvim-lspconfig
 time([[Config for nvim-lspconfig]], true)
 require'config.lsp'
 time([[Config for nvim-lspconfig]], false)
--- Config for: targets.vim
-time([[Config for targets.vim]], true)
-require'config.targets'
-time([[Config for targets.vim]], false)
+-- Config for: minsnip.nvim
+time([[Config for minsnip.nvim]], true)
+require'config.minsnip'
+time([[Config for minsnip.nvim]], false)
+-- Config for: snap
+time([[Config for snap]], true)
+require'config.snap'
+time([[Config for snap]], false)
+-- Config for: undoquit.vim
+time([[Config for undoquit.vim]], true)
+require'config.undoquit'
+time([[Config for undoquit.vim]], false)
 -- Load plugins in order defined by `after`
 time([[Sequenced loading]], true)
-vim.cmd [[ packadd cmp-path ]]
 vim.cmd [[ packadd cmp-nvim-lua ]]
 vim.cmd [[ packadd cmp-buffer ]]
-vim.cmd [[ packadd nvim-ts-autotag ]]
-
--- Config for: nvim-ts-autotag
-require'nvim-ts-autotag'.setup()
-
+vim.cmd [[ packadd cmp-path ]]
 time([[Sequenced loading]], false)
 
 -- Command lazy-loads
 time([[Defining lazy-load commands]], true)
-pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file TSPlaygroundToggle lua require("packer.load")({'playground'}, { cmd = "TSPlaygroundToggle", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
 pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file UndotreeToggle lua require("packer.load")({'undotree'}, { cmd = "UndotreeToggle", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
-pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file FennelRepl lua require("packer.load")({'fennel-repl.nvim'}, { cmd = "FennelRepl", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
+pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file TSPlaygroundToggle lua require("packer.load")({'playground'}, { cmd = "TSPlaygroundToggle", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
 pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file ColorizerAttachToBuffer lua require("packer.load")({'nvim-colorizer.lua'}, { cmd = "ColorizerAttachToBuffer", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
 pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file TSHighlightCapturesUnderCursor lua require("packer.load")({'playground'}, { cmd = "TSHighlightCapturesUnderCursor", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
+pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file StartupTime lua require("packer.load")({'vim-startuptime'}, { cmd = "StartupTime", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
 time([[Defining lazy-load commands]], false)
 
 -- Keymap lazy-loads
 time([[Defining lazy-load keymaps]], true)
+vim.cmd [[vnoremap <silent> D <cmd>lua require("packer.load")({'linediff.vim'}, { keys = "D", prefix = "" }, _G.packer_plugins)<cr>]]
 vim.cmd [[noremap <silent> cx <cmd>lua require("packer.load")({'vim-exchange'}, { keys = "cx", prefix = "" }, _G.packer_plugins)<cr>]]
 vim.cmd [[noremap <silent> gc <cmd>lua require("packer.load")({'vim-commentary'}, { keys = "gc", prefix = "" }, _G.packer_plugins)<cr>]]
-vim.cmd [[vnoremap <silent> D <cmd>lua require("packer.load")({'linediff.vim'}, { keys = "D", prefix = "" }, _G.packer_plugins)<cr>]]
 time([[Defining lazy-load keymaps]], false)
 
 vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType go ++once lua require("packer.load")({'formatter.nvim'}, { ft = "go" }, _G.packer_plugins)]]
+vim.cmd [[au FileType rescript ++once lua require("packer.load")({'vim-rescript', 'nvim-ts-autotag', 'nvim-treesitter-rescript'}, { ft = "rescript" }, _G.packer_plugins)]]
+vim.cmd [[au FileType html ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "html" }, _G.packer_plugins)]]
+vim.cmd [[au FileType typescript ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "typescript" }, _G.packer_plugins)]]
+vim.cmd [[au FileType javascript ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "javascript" }, _G.packer_plugins)]]
 vim.cmd [[au FileType fennel ++once lua require("packer.load")({'formatter.nvim'}, { ft = "fennel" }, _G.packer_plugins)]]
-vim.cmd [[au FileType rescript ++once lua require("packer.load")({'vim-rescript', 'nvim-treesitter-rescript'}, { ft = "rescript" }, _G.packer_plugins)]]
+vim.cmd [[au FileType go ++once lua require("packer.load")({'formatter.nvim'}, { ft = "go" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 vim.cmd [[augroup filetypedetect]]

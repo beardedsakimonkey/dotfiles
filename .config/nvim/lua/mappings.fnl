@@ -57,16 +57,16 @@
 (no n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
 (no n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
 
-(no n "*" "<CMD>keepj norm! *<CR>zzzv" :silent)
-(no n "#" "<CMD>keepj norm! #<CR>zzzv" :silent)
-(no n :g* "<CMD>keepj norm! g*<CR>zzzv" :silent)
-(no n "g#" "<CMD>keepj norm! g#<CR>zzzv" :silent)
+(no n "*" "<CMD>norm! *<CR>zzzv" :silent)
+(no n "#" "<CMD>norm! #<CR>zzzv" :silent)
+(no n :g* "<CMD>norm! g*<CR>zzzv" :silent)
+(no n "g#" "<CMD>norm! g#<CR>zzzv" :silent)
 ;; XXX: doesn't support multiline selection
 ;; Adapted from lacygoill's vimrc.
-(no x "*" "\"vyms:let @/='<c-r>v'<bar>keepj norm! n<CR>zzzv" :silent)
-(no x "#" "\"vyms:let @/='<c-r>v'<bar>keepj norm! N<CR>zzzv" :silent)
-(no x :g* "\"vyms:let @/='\\<<c-r>v\\>'<bar>keepj norm! n<CR>zzzv" :silent)
-(no x "g#" "\"vyms:let @/='\\<<c-r>v\\>'<bar>keepj norm! N<CR>zzzv" :silent)
+(no x "*" "\"vyms:let @/='<c-r>v'<bar>norm! n<CR>zzzv" :silent)
+(no x "#" "\"vyms:let @/='<c-r>v'<bar>norm! N<CR>zzzv" :silent)
+(no x :g* "\"vyms:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv" :silent)
+(no x "g#" "\"vyms:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv" :silent)
 
 (no n :g/
     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
@@ -105,12 +105,6 @@
 (no n "]t" :<CMD>tabnext<CR> :silent)
 (no n "]T" :<CMD>+tabmove<CR> :silent)
 (no n "[T" :<CMD>-tabmove<CR> :silent)
-;; Adapted from lacygoill's vimrc.
-(no n "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(no n "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(no x "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(no x "[n" "[n ?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-
 (no n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
 (no n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
 (no n "]Q" :<Cmd>cnfile<CR>zz :silent)
@@ -119,6 +113,10 @@
 (no n "[l" ":<C-u><c-r>=v:count1<CR>lprev<CR>zz" :silent)
 (no n "]L" :<Cmd>lnfile<CR>zz :silent)
 (no n "[L" :<Cmd>lpfile<CR>zz :silent)
+
+;; Adapted from lacygoill's vimrc.
+(no "" "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
+(no "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 
 (no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
 (no "" :<Space>q "<CMD>b#<CR>" :silent)
@@ -145,33 +143,27 @@
 
 (no n :<space>t :<CMD>tabedit<CR> :silent)
 (no n :cn :cgn :silent)
+(no x "." ":norm! .<CR>" :silent)
+(no "" :<C-g> :g<C-g>)
 
 (no n :<space>l :<CMD>vsplit<CR> :silent)
 (no n :<space>j :<CMD>split<CR> :silent)
 
 (no "" :<C-q> :<CMD>q<CR> :silent)
+;; Increment number
 (no n :<C-s> :<C-a> :silent)
 (no n :<CR> :<CMD>w<CR> :silent)
 
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
+(no n :g> :<CMD>40messages<CR> :silent)
 
 (no n :con "<CMD>set number!<CR>" :silent)
 (no n :coc "<CMD>set cursorline!<CR>" :silent)
 (no n :cow "<CMD>set wrap!<CR>" :silent)
 (no n :col "<CMD>set hlsearch!<CR>" :silent)
 (no n :coi "<CMD>set ignorecase!<CR>" :silent)
-
-;; Adapted from justinmk's vimrc
-(no n :g>
-    ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>"
-    :silent)
-
-(no x "." ":norm! .<CR>" :silent)
-
-;; Paste from insert mode
-(no i :<C-p> :<C-o>p)
 
 (fn move-line [dir]
   (vim.cmd "keepj norm! mv")
@@ -207,10 +199,8 @@
 
 (no x "/" visual-slash)
 
-(map o :ac "<Cmd>call my#inner_comment(0)<CR>" :silent)
-
 ;; Repeat last edit on last changed text. Adapted from lacygoill's vimrc.
-(fn repeat-last-edit-on-last-changed-text []
+(fn repeat-last-edit []
   (let [changed (vim.fn.getreg "\"" 1 1)]
     (when changed
       (let [;; Escape backslashes
@@ -221,7 +211,7 @@
         (vim.fn.setreg "/" (.. "\\V" pat) :c)
         (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))
 
-(no :n :<space>. repeat-last-edit-on-last-changed-text)
+(no :n :<space>. repeat-last-edit)
 
 ;; Adapted form lacygoill's vimrc.
 (fn previous-window-in-same-direction [dir]
@@ -270,4 +260,38 @@
 (no n :<C-h> navigate-h :silent)
 (no n :<C-j> navigate-j :silent)
 (no n :<C-k> navigate-k :silent)
+
+;; Jump to previous buffer in jumplist. Adapted from gapnders' config.
+(fn jump [forward?]
+  (let [bufnr (vim.api.nvim_get_current_buf)
+        [jumplist index] (vim.fn.getjumplist)
+        (start stop step) (if forward?
+                              (values (+ index 2) (length jumplist) 1)
+                              (values index 1 -1))]
+    (var target nil)
+    (var count vim.v.count1)
+    (for [i start stop step :until (= count 0)]
+      (match (. jumplist i)
+        {: bufnr} (do
+                    (set count (- count 1))
+                    (set target i))))
+    (when target
+      (let [cmd (.. "normal! "
+                    (if forward?
+                        (.. (+ 1 (- target start))
+                            (vim.api.nvim_replace_termcodes :<C-I> true true
+                                                            true))
+                        (.. (+ 1 (- start target))
+                            (vim.api.nvim_replace_termcodes :<C-O> true true
+                                                            true))))]
+        (vim.cmd cmd)))))
+
+(fn jump-backward []
+  (jump false))
+
+(fn jump-forward []
+  (jump true))
+
+(no n "[j" jump-backward)
+(no n "]j" jump-forward)
 

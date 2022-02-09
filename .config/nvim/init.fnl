@@ -1,7 +1,3 @@
-(set vim.g.loaded_getscriptPlugin 1)
-(set vim.g.loaded_logiPat 1)
-(set vim.g.loaded_rrhelper 1)
-
 (set vim.g.loaded_vimball 1)
 (set vim.g.loaded_vimballPlugin 1)
 
@@ -15,8 +11,8 @@
 (set vim.g.loaded_netrwPlugin 1)
 
 (set vim.g.loaded_matchit 1)
-
-;; Disable $VIMRUNTIME/menu.vim
+(set vim.g.loaded_tutor_mode_plugin 1)
+(set vim.g.loaded_2html_plugin 1)
 (set vim.g.did_install_default_menus 1)
 
 (set vim.g.loaded_python_provider 0)

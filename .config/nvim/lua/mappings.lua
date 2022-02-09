@@ -123,28 +123,28 @@ do
   vim.api.nvim_set_keymap("n", "N", "<CMD>keepj norm! Nzzzv<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "*", "<CMD>keepj norm! *<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "*", "<CMD>norm! *<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "#", "<CMD>keepj norm! #<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "#", "<CMD>norm! #<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "g*", "<CMD>keepj norm! g*<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "g*", "<CMD>norm! g*<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "g#", "<CMD>keepj norm! g#<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("n", "g#", "<CMD>norm! g#<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("x", "*", "\"vyms:let @/='<c-r>v'<bar>keepj norm! n<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("x", "*", "\"vyms:let @/='<c-r>v'<bar>norm! n<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("x", "#", "\"vyms:let @/='<c-r>v'<bar>keepj norm! N<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("x", "#", "\"vyms:let @/='<c-r>v'<bar>norm! N<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("x", "g*", "\"vyms:let @/='\\<<c-r>v\\>'<bar>keepj norm! n<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("x", "g*", "\"vyms:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("x", "g#", "\"vyms:let @/='\\<<c-r>v\\>'<bar>keepj norm! N<CR>zzzv", {noremap = true, silent = true})
+  vim.api.nvim_set_keymap("x", "g#", "\"vyms:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("n", "g/", "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {noremap = true, silent = true})
@@ -213,18 +213,6 @@ do
   vim.api.nvim_set_keymap("n", "[T", "<CMD>-tabmove<CR>", {noremap = true, silent = true})
 end
 do
-  vim.api.nvim_set_keymap("n", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("n", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("x", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("x", "[n", "[n ?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-end
-do
   vim.api.nvim_set_keymap("n", "]q", ":<C-u><C-r>=v:count1<CR>cnext<CR>zz", {noremap = true, silent = true})
 end
 do
@@ -247,6 +235,12 @@ do
 end
 do
   vim.api.nvim_set_keymap("n", "[L", "<Cmd>lpfile<CR>zz", {noremap = true, silent = true})
+end
+do
+  vim.api.nvim_set_keymap("", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
+end
+do
+  vim.api.nvim_set_keymap("", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
 end
 do
   vim.api.nvim_set_keymap("", "<Space>d", "<CMD>call Kwbd(1)<CR>", {noremap = true, silent = true})
@@ -306,6 +300,12 @@ do
   vim.api.nvim_set_keymap("n", "cn", "cgn", {noremap = true, silent = true})
 end
 do
+  vim.api.nvim_set_keymap("x", ".", ":norm! .<CR>", {noremap = true, silent = true})
+end
+do
+  vim.api.nvim_set_keymap("", "<C-g>", "g<C-g>", {noremap = true})
+end
+do
   vim.api.nvim_set_keymap("n", "<space>l", "<CMD>vsplit<CR>", {noremap = true, silent = true})
 end
 do
@@ -323,6 +323,9 @@ end
 vim.cmd("xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 vim.cmd("xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 do
+  vim.api.nvim_set_keymap("n", "g>", "<CMD>40messages<CR>", {noremap = true, silent = true})
+end
+do
   vim.api.nvim_set_keymap("n", "con", "<CMD>set number!<CR>", {noremap = true, silent = true})
 end
 do
@@ -336,15 +339,6 @@ do
 end
 do
   vim.api.nvim_set_keymap("n", "coi", "<CMD>set ignorecase!<CR>", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("n", "g>", ":set nomore<bar>echo repeat(\"\\n\",&cmdheight)<bar>40messages<bar>set more<CR>", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("x", ".", ":norm! .<CR>", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_set_keymap("i", "<C-p>", "<C-o>p", {noremap = true})
 end
 local function move_line(dir)
   vim.cmd("keepj norm! mv")
@@ -397,10 +391,7 @@ do
   _G["my__map__visual_slash"] = visual_slash
   vim.api.nvim_set_keymap("x", "/", "<Cmd>lua my__map__visual_slash()<CR>", {noremap = true})
 end
-do
-  vim.api.nvim_set_keymap("o", "ac", "<Cmd>call my#inner_comment(0)<CR>", {silent = true})
-end
-local function repeat_last_edit_on_last_changed_text()
+local function repeat_last_edit()
   local changed = vim.fn.getreg("\"", 1, 1)
   if changed then
     local changed0
@@ -416,8 +407,8 @@ local function repeat_last_edit_on_last_changed_text()
   end
 end
 do
-  _G["my__map__repeat_last_edit_on_last_changed_text"] = repeat_last_edit_on_last_changed_text
-  vim.api.nvim_set_keymap("n", "<space>.", "<Cmd>lua my__map__repeat_last_edit_on_last_changed_text()<CR>", {noremap = true})
+  _G["my__map__repeat_last_edit"] = repeat_last_edit
+  vim.api.nvim_set_keymap("n", "<space>.", "<Cmd>lua my__map__repeat_last_edit()<CR>", {noremap = true})
 end
 local function previous_window_in_same_direction(dir)
   local cnr = vim.fn.winnr()
@@ -474,5 +465,56 @@ do
   _G["my__map__navigate_j"] = navigate_j
   vim.api.nvim_set_keymap("n", "<C-j>", "<Cmd>lua my__map__navigate_j()<CR>", {noremap = true, silent = true})
 end
-_G["my__map__navigate_k"] = navigate_k
-return vim.api.nvim_set_keymap("n", "<C-k>", "<Cmd>lua my__map__navigate_k()<CR>", {noremap = true, silent = true})
+do
+  _G["my__map__navigate_k"] = navigate_k
+  vim.api.nvim_set_keymap("n", "<C-k>", "<Cmd>lua my__map__navigate_k()<CR>", {noremap = true, silent = true})
+end
+local function jump(forward_3f)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local _let_9_ = vim.fn.getjumplist()
+  local jumplist = _let_9_[1]
+  local index = _let_9_[2]
+  local start, stop, step = nil, nil, nil
+  if forward_3f then
+    start, stop, step = (index + 2), #jumplist, 1
+  else
+    start, stop, step = index, 1, -1
+  end
+  local target = nil
+  local count = vim.v.count1
+  for i = start, stop, step do
+    if (count == 0) then break end
+    local _11_ = jumplist[i]
+    if ((_G.type(_11_) == "table") and ((_11_).bufnr == bufnr)) then
+      count = (count - 1)
+      target = i
+    else
+    end
+  end
+  if target then
+    local cmd
+    local function _13_()
+      if forward_3f then
+        return ((1 + (target - start)) .. vim.api.nvim_replace_termcodes("<C-I>", true, true, true))
+      else
+        return ((1 + (start - target)) .. vim.api.nvim_replace_termcodes("<C-O>", true, true, true))
+      end
+    end
+    cmd = ("normal! " .. _13_())
+    return vim.cmd(cmd)
+  else
+    return nil
+  end
+end
+local function jump_backward()
+  return jump(false)
+end
+local function jump_forward()
+  return jump(true)
+end
+do
+  _G["my__map__jump_backward"] = jump_backward
+  vim.api.nvim_set_keymap("n", "[j", "<Cmd>lua my__map__jump_backward()<CR>", {noremap = true})
+end
+_G["my__map__jump_forward"] = jump_forward
+return vim.api.nvim_set_keymap("n", "]j", "<Cmd>lua my__map__jump_forward()<CR>", {noremap = true})

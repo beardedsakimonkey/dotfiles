@@ -11,14 +11,7 @@
 (formatter.setup {:filetype {:fennel [fnlfmt]
                              :go [gofmt]}})
 
-;; Need a new augroup here otherwise writing autocmds.fnl would wipe this.
 (vim.cmd "augroup my-formatter | au!")
-
-(fn format-write []
-  (vim.cmd ":silent FormatWrite"))
-
-(au BufWritePost *.fnl format-write)
-(au BufWritePost *.go format-write)
-
+(au BufWritePost [*.fnl *.go] ":silent FormatWrite")
 (vim.cmd "augroup END")
 

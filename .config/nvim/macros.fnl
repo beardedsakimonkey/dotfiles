@@ -8,10 +8,6 @@
                       (tostring v)) ",")
       (tostring syms)))
 
-;; TODO: what about something like
-;; (augroup :mine 
-;;   [BufWritePost *.fnl blah]
-;;   [BufWritePost *.fnl blah])
 (fn au [event pattern handler ...]
   (let [fn-name (if (sym? handler) (to-lua-string handler :my__au__) nil)
         event (join-syms event)
@@ -37,6 +33,10 @@
               _ value)]
     `(tset vim.opt_local ,opt ,val)))
 
+(fn setlocal+= [option value]
+  (assert-compile (sym? option) "expected sym for option" option)
+  `(: (. vim.opt_local ,(tostring option)) :append ,value))
+
 (fn filter [keep? list]
   (icollect [_ v (ipairs list)]
     (when (keep? v)
@@ -50,10 +50,6 @@
   found)
 
 ;; TODO: Support list of modes
-;; TODO: We don't need to require a symbol for a function.  We can serialize
-;; mode + lhs and use that in e.g. `_G["nv<C-l>"] = function () end`. Then, if we
-;; ever create a mapping that would clobber another, we can fail at compile
-;; time (except for with mode lists).
 (fn map [mode lhs rhs ...]
   (let [fn-name (if (sym? rhs) (to-lua-string rhs :my__map__) nil)
         buffer (contains? #(= :buffer $1) [...])
@@ -79,5 +75,5 @@
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
                                (.. (or vim.b.undo_ftplugin :exe) ,cmd))))
 
-{: au : set! : setlocal! : no : map : undo_ftplugin}
+{: au : set! : setlocal! : setlocal+= : no : map : undo_ftplugin}
 

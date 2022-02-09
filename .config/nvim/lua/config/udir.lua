@@ -35,5 +35,6 @@ local function is_file_hidden(file, files, cwd)
     return nil
   end
 end
-udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden})
+local map = udir.map
+udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden, keymaps = {q = map.quit, h = map.up_dir, ["-"] = map.up_dir, l = map.open, ["<CR>"] = map.open, s = map.open_split, v = map.open_vsplit, t = map.open_tab, r = map.reload, d = map.delete, ["+"] = map.create, m = map.move, c = map.copy, C = "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<CR>", ["."] = map.toggle_hidden_files}})
 return vim.api.nvim_set_keymap("n", "-", "<Cmd>Udir<CR>", {noremap = true})

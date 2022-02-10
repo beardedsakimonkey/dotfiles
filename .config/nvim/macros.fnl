@@ -19,23 +19,26 @@
        ,(if fn-name `(tset _G ,fn-name ,handler))
        (vim.cmd ,(.. "autocmd " event " " pattern " " opts " " command)))))
 
-(fn set! [option value]
-  (let [opt (tostring option)
-        val (match (type value)
-              :nil true
-              _ value)]
-    `(tset vim.opt ,opt ,val)))
+(fn _opt [opt option ?value-or-eq ?value]
+  (local value-or-eq (if (= nil ?value-or-eq) true ?value-or-eq))
+  (local (value ?cmd) (match (tostring value-or-eq)
+                        "+=" (values ?value :append)
+                        "-=" (values ?value :remove)
+                        "^=" (values ?value :prepend)
+                        _ (values value-or-eq nil)))
+  (if ?cmd
+      (if (and (= ?cmd :remove) (sequence? value))
+          ;; Remove options one-by-one to avoid issues (see :h set-=)
+          (let [form `(do
+                        )]
+            (each [_ v (ipairs value)]
+              (table.insert form `(: (. vim ,opt ,(tostring option)) ,?cmd ,v)))
+            form)
+          `(: (. vim ,opt ,(tostring option)) ,?cmd ,value))
+      `(tset vim ,opt ,(tostring option) ,value)))
 
-(fn setlocal! [option value]
-  (let [opt (tostring option)
-        val (match (type value)
-              :nil true
-              _ value)]
-    `(tset vim.opt_local ,opt ,val)))
-
-(fn setlocal+= [option value]
-  (assert-compile (sym? option) "expected sym for option" option)
-  `(: (. vim.opt_local ,(tostring option)) :append ,value))
+(local opt (partial _opt :opt))
+(local opt-local (partial _opt :opt_local))
 
 (fn filter [keep? list]
   (icollect [_ v (ipairs list)]
@@ -75,5 +78,5 @@
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
                                (.. (or vim.b.undo_ftplugin :exe) ,cmd))))
 
-{: au : set! : setlocal! : setlocal+= : no : map : undo_ftplugin}
+{: au : opt : opt-local : no : map : undo_ftplugin}
 

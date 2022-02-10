@@ -1,7 +1,7 @@
-(import-macros {: setlocal! : undo_ftplugin} :macros)
+(import-macros {: opt-local : undo_ftplugin} :macros)
 
-(setlocal! commentstring "// %s")
-(setlocal! keywordprg ":vert Man")
+(opt-local commentstring "// %s")
+(opt-local keywordprg ":vert Man")
 
 (undo_ftplugin "setl cms< keywordprg<")
 

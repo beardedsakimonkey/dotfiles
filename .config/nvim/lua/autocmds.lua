@@ -3,9 +3,13 @@ vim.cmd("augroup mine | au!")
 local efm = "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function on_fnl_err(output)
+  if string.match(output, "macros.fnl") then
+    print(output)
+  else
+  end
   local lines = vim.split(output, "\n")
-  local _let_1_ = vim.fn.getqflist({efm = efm, lines = lines})
-  local items = _let_1_["items"]
+  local _let_2_ = vim.fn.getqflist({efm = efm, lines = lines})
+  local items = _let_2_["items"]
   for _, v in ipairs(items) do
     v.text = (v.text):gsub("^\n", "")
   end
@@ -72,10 +76,10 @@ local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))
   if ((size > (1024 * 1024)) or (size == -2)) then
     vim.cmd("syntax clear")
-    do end (vim.opt_local)["foldmethod"] = "manual"
-    vim.opt_local["foldenable"] = false
-    vim.opt_local["swapfile"] = false
-    vim.opt_local["undofile"] = false
+    do end (vim)["opt_local"]["foldmethod"] = "manual"
+    vim["opt_local"]["foldenable"] = false
+    vim["opt_local"]["swapfile"] = false
+    vim["opt_local"]["undofile"] = false
     return nil
   else
     return nil
@@ -129,7 +133,7 @@ local function maybe_read_template()
             return error(..., 0)
           end
         end
-        local function _12_()
+        local function _13_()
           local lines
           do
             local tbl_15_auto = {}
@@ -150,7 +154,7 @@ local function maybe_read_template()
           end
           return vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
         end
-        close_handlers_8_auto(_G.xpcall(_12_, (package.loaded.fennel or debug).traceback))
+        close_handlers_8_auto(_G.xpcall(_13_, (package.loaded.fennel or debug).traceback))
       else
       end
     else

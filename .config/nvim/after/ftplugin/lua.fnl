@@ -1,6 +1,6 @@
-(import-macros {: setlocal! : undo_ftplugin} :macros)
+(import-macros {: opt-local : undo_ftplugin} :macros)
 
-(setlocal! keywordprg ":help")
+(opt-local keywordprg ":help")
 
 (undo_ftplugin "setl keywordprg<")
 

@@ -37,7 +37,7 @@ M.show = function()
   local lsp = "%3*%{v:lua.require'statusline'.lsp_errors()} %4*%{v:lua.require'statusline'.lsp_warns()}%*"
   return ("%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*" .. "%{expand('%:t')}%* " .. lsp .. " %=" .. rhs .. " ")
 end
-vim.opt["statusline"] = "%!v:lua.require'statusline'.show()"
+vim["opt"]["statusline"] = "%!v:lua.require'statusline'.show()"
 M.tabline = function()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
@@ -65,5 +65,5 @@ M.tablabel = function(n)
   local name = vim.fn.fnamemodify(vim.fn.bufname(buflist[vim.fn.tabpagewinnr(n)]), ":t:s/^$/[No Name]/")
   return (modified .. name .. " ")
 end
-vim.opt["tabline"] = "%!v:lua.require'statusline'.tabline()"
+vim["opt"]["tabline"] = "%!v:lua.require'statusline'.tabline()"
 return M

@@ -1,6 +1,6 @@
-(import-macros {: setlocal! : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : no : undo_ftplugin} :macros)
 
-(setlocal! keywordprg :help)
+(opt-local keywordprg :help)
 
 (no n :q :<Cmd>lclose<Bar>q<CR> :buffer :silent :nowait)
 (no n :<CR> "<C-]>" :buffer)

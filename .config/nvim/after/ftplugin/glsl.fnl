@@ -1,6 +1,6 @@
-(import-macros {: setlocal! : undo_ftplugin} :macros)
+(import-macros {: opt-local : undo_ftplugin} :macros)
 
-(setlocal! commentstring "// %s")
+(opt-local commentstring "// %s")
 
 (undo_ftplugin "setl cms<")
 

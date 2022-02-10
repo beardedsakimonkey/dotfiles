@@ -1,4 +1,4 @@
-vim.opt_local["scrolloff"] = 0
+vim["opt_local"]["scrolloff"] = 0
 do
   vim.api.nvim_buf_set_keymap(0, "n", "q", "<Cmd>q<CR>", {noremap = true})
 end

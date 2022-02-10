@@ -1,4 +1,4 @@
-vim.opt_local["keywordprg"] = "help"
+vim["opt_local"]["keywordprg"] = "help"
 do
   vim.api.nvim_buf_set_keymap(0, "n", "q", "<Cmd>lclose<Bar>q<CR>", {noremap = true, nowait = true, silent = true})
 end

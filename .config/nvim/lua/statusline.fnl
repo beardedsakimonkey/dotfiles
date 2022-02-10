@@ -1,4 +1,4 @@
-(import-macros {: set!} :macros)
+(import-macros {: opt} :macros)
 
 (local M {})
 
@@ -21,7 +21,7 @@
     (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*"
         "%{expand('%:t')}%* " lsp " %=" rhs " ")))
 
-(set! statusline "%!v:lua.require'statusline'.show()")
+(opt statusline "%!v:lua.require'statusline'.show()")
 
 ;; Tabline ------------------------
 
@@ -43,7 +43,7 @@
                                    ":t:s/^$/[No Name]/")]
       (.. modified name " "))))
 
-(set! tabline "%!v:lua.require'statusline'.tabline()")
+(opt tabline "%!v:lua.require'statusline'.tabline()")
 
 M
 

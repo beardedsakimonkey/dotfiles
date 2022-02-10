@@ -1,6 +1,6 @@
-(import-macros {: setlocal! : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : no : undo_ftplugin} :macros)
 
-(setlocal! scrolloff 0)
+(opt-local scrolloff 0)
 
 (no n :q :<Cmd>q<CR> :buffer)
 

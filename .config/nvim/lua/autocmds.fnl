@@ -1,4 +1,4 @@
-(import-macros {: au : setlocal!} :macros)
+(import-macros {: au : opt-local} :macros)
 (local uv vim.loop)
 
 ;; NOTE: Only use this augroup in this file.
@@ -11,6 +11,8 @@
 
 ;; Adapted from gpanders' config
 (fn on-fnl-err [output]
+  (when (string.match output :macros.fnl)
+    (print output))
   (let [lines (vim.split output "\n")
         {: items} (vim.fn.getqflist {: efm : lines})]
     (each [_ v (ipairs items)]
@@ -65,10 +67,10 @@
   (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
     (when (or (> size (* 1024 1024)) (= size -2))
       (vim.cmd "syntax clear")
-      (setlocal! foldmethod :manual)
-      (setlocal! foldenable false)
-      (setlocal! swapfile false)
-      (setlocal! undofile false))))
+      (opt-local foldmethod :manual)
+      (opt-local foldenable false)
+      (opt-local swapfile false)
+      (opt-local undofile false))))
 
 (au BufReadPre * handle-large-buffers)
 
@@ -145,11 +147,8 @@
 (au VimResized * "wincmd =")
 
 (fn setup-formatting []
-  (vim.opt_local.formatoptions:append :jcn)
-  ;; Remove options one-by-one to avoid issues (see :h set-=)
-  (vim.opt_local.formatoptions:remove :r)
-  (vim.opt_local.formatoptions:remove :o)
-  (vim.opt_local.formatoptions:remove :t))
+  (opt-local formatoptions += :jcn)
+  (opt-local formatoptions -= [:r :o :t]))
 
 (au FileType * setup-formatting)
 

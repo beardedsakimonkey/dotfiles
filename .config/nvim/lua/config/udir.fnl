@@ -37,7 +37,8 @@
                        :s map.open_split
                        :v map.open_vsplit
                        :t map.open_tab
-                       :r map.reload
+                       :R map.reload
+                       :r map.move
                        :d map.delete
                        :+ map.create
                        :m map.move

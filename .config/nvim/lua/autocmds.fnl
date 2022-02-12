@@ -1,8 +1,7 @@
 (import-macros {: au : opt-local} :macros)
 (local uv vim.loop)
 
-;; NOTE: Only use this augroup in this file.
-(vim.cmd "augroup mine | au!")
+(vim.cmd "augroup my/autocmds | au!")
 
 (local efm
        "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#")

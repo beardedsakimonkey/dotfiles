@@ -144,7 +144,7 @@ _G.packer_plugins = {
     url = "https://github.com/jose-elias-alvarez/minsnip.nvim"
   },
   ["nvim-cmp"] = {
-    after = { "cmp-nvim-lua", "cmp-buffer", "cmp-path" },
+    after = { "cmp-nvim-lua", "cmp-path", "cmp-buffer" },
     loaded = true,
     only_config = true
   },
@@ -163,7 +163,7 @@ _G.packer_plugins = {
     url = "https://github.com/neovim/nvim-lspconfig"
   },
   ["nvim-treesitter"] = {
-    after = { "playground", "nvim-ts-autotag", "nvim-treesitter-rescript" },
+    after = { "nvim-ts-autotag", "playground", "nvim-treesitter-rescript" },
     loaded = true,
     only_config = true
   },
@@ -225,11 +225,8 @@ _G.packer_plugins = {
     url = "https://github.com/mbbill/undotree"
   },
   ["vim-commentary"] = {
-    keys = { { "", "gc" } },
-    loaded = false,
-    needs_bufread = false,
-    only_cond = false,
-    path = "/Users/tim/.local/share/nvim/site/pack/packer/opt/vim-commentary",
+    loaded = true,
+    path = "/Users/tim/.local/share/nvim/site/pack/packer/start/vim-commentary",
     url = "https://github.com/tpope/vim-commentary"
   },
   ["vim-exchange"] = {
@@ -272,10 +269,10 @@ time([[Defining packer_plugins]], false)
 time([[Setup for nvim-colorizer.lua]], true)
 require'config.colorizer'
 time([[Setup for nvim-colorizer.lua]], false)
--- Config for: lightspeed.nvim
-time([[Config for lightspeed.nvim]], true)
-require'config.lightspeed'
-time([[Config for lightspeed.nvim]], false)
+-- Config for: undoquit.vim
+time([[Config for undoquit.vim]], true)
+require'config.undoquit'
+time([[Config for undoquit.vim]], false)
 -- Config for: nvim-cmp
 time([[Config for nvim-cmp]], true)
 require'config.cmp'
@@ -284,18 +281,6 @@ time([[Config for nvim-cmp]], false)
 time([[Config for nvim-treesitter]], true)
 require'config.treesitter'
 time([[Config for nvim-treesitter]], false)
--- Config for: fidget.nvim
-time([[Config for fidget.nvim]], true)
-require'fidget'.setup{}
-time([[Config for fidget.nvim]], false)
--- Config for: udir
-time([[Config for udir]], true)
-require'config.udir'
-time([[Config for udir]], false)
--- Config for: nvim-lspconfig
-time([[Config for nvim-lspconfig]], true)
-require'config.lsp'
-time([[Config for nvim-lspconfig]], false)
 -- Config for: minsnip.nvim
 time([[Config for minsnip.nvim]], true)
 require'config.minsnip'
@@ -304,15 +289,27 @@ time([[Config for minsnip.nvim]], false)
 time([[Config for snap]], true)
 require'config.snap'
 time([[Config for snap]], false)
--- Config for: undoquit.vim
-time([[Config for undoquit.vim]], true)
-require'config.undoquit'
-time([[Config for undoquit.vim]], false)
+-- Config for: udir
+time([[Config for udir]], true)
+require'config.udir'
+time([[Config for udir]], false)
+-- Config for: nvim-lspconfig
+time([[Config for nvim-lspconfig]], true)
+require'config.lsp'
+time([[Config for nvim-lspconfig]], false)
+-- Config for: fidget.nvim
+time([[Config for fidget.nvim]], true)
+require'fidget'.setup{}
+time([[Config for fidget.nvim]], false)
+-- Config for: lightspeed.nvim
+time([[Config for lightspeed.nvim]], true)
+require'config.lightspeed'
+time([[Config for lightspeed.nvim]], false)
 -- Load plugins in order defined by `after`
 time([[Sequenced loading]], true)
 vim.cmd [[ packadd cmp-nvim-lua ]]
-vim.cmd [[ packadd cmp-buffer ]]
 vim.cmd [[ packadd cmp-path ]]
+vim.cmd [[ packadd cmp-buffer ]]
 time([[Sequenced loading]], false)
 
 -- Command lazy-loads
@@ -328,7 +325,6 @@ time([[Defining lazy-load commands]], false)
 time([[Defining lazy-load keymaps]], true)
 vim.cmd [[vnoremap <silent> D <cmd>lua require("packer.load")({'linediff.vim'}, { keys = "D", prefix = "" }, _G.packer_plugins)<cr>]]
 vim.cmd [[noremap <silent> cx <cmd>lua require("packer.load")({'vim-exchange'}, { keys = "cx", prefix = "" }, _G.packer_plugins)<cr>]]
-vim.cmd [[noremap <silent> gc <cmd>lua require("packer.load")({'vim-commentary'}, { keys = "gc", prefix = "" }, _G.packer_plugins)<cr>]]
 time([[Defining lazy-load keymaps]], false)
 
 vim.cmd [[augroup packer_load_aucmds]]
@@ -336,11 +332,11 @@ vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
 vim.cmd [[au FileType rescript ++once lua require("packer.load")({'vim-rescript', 'nvim-ts-autotag', 'nvim-treesitter-rescript'}, { ft = "rescript" }, _G.packer_plugins)]]
+vim.cmd [[au FileType go ++once lua require("packer.load")({'formatter.nvim'}, { ft = "go" }, _G.packer_plugins)]]
 vim.cmd [[au FileType html ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "html" }, _G.packer_plugins)]]
 vim.cmd [[au FileType typescript ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "typescript" }, _G.packer_plugins)]]
 vim.cmd [[au FileType javascript ++once lua require("packer.load")({'nvim-ts-autotag'}, { ft = "javascript" }, _G.packer_plugins)]]
 vim.cmd [[au FileType fennel ++once lua require("packer.load")({'formatter.nvim'}, { ft = "fennel" }, _G.packer_plugins)]]
-vim.cmd [[au FileType go ++once lua require("packer.load")({'formatter.nvim'}, { ft = "go" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 vim.cmd [[augroup filetypedetect]]

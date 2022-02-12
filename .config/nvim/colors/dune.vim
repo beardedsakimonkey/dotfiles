@@ -72,3 +72,8 @@ hi! link FennelParen  Comment
 hi FennelSymbol guifg=Black
 
 hi manHeader  guifg=DeepPink4 gui=bold
+
+hi! link UdirDirectory Directory
+hi! link UdirSymlink Constant
+hi UdirExecutable guifg=#8B0A50
+hi! link UdirVirtText Comment

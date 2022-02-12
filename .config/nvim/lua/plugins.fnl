@@ -51,7 +51,7 @@
                                  :opt true
                                  :keys [[:v :D]]}
       :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
-      :tpope/vim-commentary {:opt true :keys :gc}
+      :tpope/vim-commentary {}
       :tpope/vim-surround {}
       :tpope/vim-repeat {}
       ;; Languages

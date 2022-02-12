@@ -1,5 +1,5 @@
 local uv = vim.loop
-vim.cmd("augroup mine | au!")
+vim.cmd("augroup my/autocmds | au!")
 local efm = "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function on_fnl_err(output)

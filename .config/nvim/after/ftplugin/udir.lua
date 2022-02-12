@@ -1,2 +1,3 @@
+vim["opt_local"]["cursorline"] = true
 vim["opt_local"]["statusline"] = " %f"
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl fo< tw< cc<"))
+return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl cursorline< statusline<"))

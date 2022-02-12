@@ -1,7 +1,11 @@
-(import-macros {: opt-local : undo_ftplugin} :macros)
+(import-macros {: opt-local : no : undo_ftplugin} :macros)
 
 (opt-local commentstring "// %s")
 (opt-local keywordprg ":vert Man")
 
-(undo_ftplugin "setl cms< keywordprg<")
+(no n "]h" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
+(no n "[h" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
+
+(undo_ftplugin "setl cms< keywordprg<" "sil! nun <buffer> ]h"
+               "sil! nun <buffer> [h")
 

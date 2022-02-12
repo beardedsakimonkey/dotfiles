@@ -37,6 +37,12 @@
           `(: (. vim ,opt ,(tostring option)) ,?cmd ,value))
       `(tset vim ,opt ,(tostring option) ,value)))
 
+;; Usage examples:
+;;
+;;   (opt cursorline)
+;;   (opt textwidth 80)
+;;   (opt-local formatoptions -= [:f :l])
+;;
 (local opt (partial _opt :opt))
 (local opt-local (partial _opt :opt_local))
 

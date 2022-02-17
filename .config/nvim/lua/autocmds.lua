@@ -6,6 +6,7 @@ local function on_fnl_err(output)
   if string.match(output, "macros.fnl") then
     print(output)
   else
+    print(output)
   end
   local lines = vim.split(output, "\n")
   local _let_2_ = vim.fn.getqflist({efm = efm, lines = lines})
@@ -16,18 +17,25 @@ local function on_fnl_err(output)
   local results = vim.diagnostic.fromqflist(items)
   return vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), results)
 end
+local function write_21(text, filename)
+  local handle = assert(io.open(filename, "w+"))
+  handle:write(text)
+  return handle:close()
+end
 local function compile_config_fennel()
+  vim.diagnostic.reset(ns, tonumber(vim.fn.expand("<abuf>")))
   local config_dir = vim.fn.stdpath("config")
   local src = vim.fn.expand("<afile>:p")
   local dest = src:gsub(".fnl$", ".lua")
   local compile_3f = (vim.startswith(src, config_dir) and not vim.endswith(src, "macros.fnl"))
   if compile_3f then
-    local cmd = string.format("fennel --globals 'vim' --compile %s > %s", vim.fn.fnameescape(src), vim.fn.fnameescape(dest))
+    local cmd = string.format("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s", vim.fn.fnameescape(src))
     vim.cmd(("lcd " .. config_dir))
     local output = vim.fn.system(cmd)
-    if vim.v.shell_error then
+    if (0 ~= vim.v.shell_error) then
       on_fnl_err(output)
     else
+      write_21(output, dest)
     end
     vim.cmd("lcd -")
     if not vim.startswith(src, (config_dir .. "/after/ftplugin")) then
@@ -56,7 +64,7 @@ local function compile_udir_fennel()
   if compile_3f then
     vim.cmd(("lcd " .. dir))
     do
-      local cmd = string.format("fennel --globals 'vim' --compile %s > %s", vim.fn.fnameescape(src2), vim.fn.fnameescape(dest))
+      local cmd = string.format("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s > %s", vim.fn.fnameescape(src2), vim.fn.fnameescape(dest))
       local output = vim.fn.system(cmd)
       if vim.v.shell_error then
         on_fnl_err(output)
@@ -117,7 +125,7 @@ local function maybe_read_template()
   local fs = uv.fs_scandir(path)
   local done_3f = false
   while not done_3f do
-    local name, type = uv.fs_scandir_next(fs)
+    local name, _type = uv.fs_scandir_next(fs)
     if not name then
       done_3f = true
     elseif "else" then
@@ -161,6 +169,10 @@ local function maybe_read_template()
     end
   end
   return nil
+end
+do
+  _G["my__au__maybe_read_template"] = maybe_read_template
+  vim.cmd("autocmd BufNewFile *  lua my__au__maybe_read_template()")
 end
 local function maybe_create_directories()
   local afile = vim.fn.expand("<afile>")
@@ -237,7 +249,7 @@ local function update_user_js()
     assert((0 == code))
     return print("Updated user.js")
   end
-  local handle, pid = assert(vim.loop.spawn(cmd, opts, on_exit))
+  local _handle, _pid = assert(vim.loop.spawn(cmd, opts, on_exit))
   return nil
 end
 do

@@ -27,7 +27,7 @@ hi Constant     guifg=#BD00BD      guibg=none       gui=none
 hi Special      guifg=DodgerBlue4  guibg=none       gui=none
 hi String       guifg=DarkGreen    guibg=none       gui=none
 hi Directory    guifg=Blue3        guibg=none       gui=none
-hi SignColumn   guifg=none         guibg=#c9c5b5
+hi SignColumn   guifg=none         guibg=#C5C2B5
 hi Todo         guifg=Burlywood4   guibg=none       gui=bold
 hi MatchParen   guifg=none         guibg=PaleTurquoise
 
@@ -68,6 +68,16 @@ hi DiagnosticUnderlineWarn   guibg=#e5daa5 gui=underline
 hi DiagnosticUnderlineInfo                 gui=underline
 hi DiagnosticUnderlineHint                 gui=underline
 
+hi DiagnosticSignError guibg=#c9c5b5 guifg=Red3
+hi DiagnosticSignWarn  guibg=#c9c5b5 guifg=Orange3
+hi DiagnosticSignInfo  guibg=#c9c5b5 guifg=Orchid
+hi DiagnosticSignHint  guibg=#c9c5b5 guifg=Orchid
+
+sign define DiagnosticSignError text=● texthl=DiagnosticSignError linehl= numhl=
+sign define DiagnosticSignWarn text=● texthl=DiagnosticSignWarn linehl= numhl=
+sign define DiagnosticSignInfo text=● texthl=DiagnosticSignInfo linehl= numhl=
+sign define DiagnosticSignHint text=● texthl=DiagnosticSignHint linehl= numhl=
+
 hi! link FennelParen  Comment
 hi FennelSymbol guifg=Black
 
@@ -77,3 +87,5 @@ hi! link UdirDirectory Directory
 hi! link UdirSymlink Constant
 hi UdirExecutable guifg=#8B0A50
 hi! link UdirVirtText Comment
+
+hi! link TSConstant Special

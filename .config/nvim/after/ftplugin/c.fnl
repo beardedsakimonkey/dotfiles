@@ -3,9 +3,9 @@
 (opt-local commentstring "// %s")
 (opt-local keywordprg ":vert Man")
 
-(no n "]h" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
-(no n "[h" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
+(no n "]f" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
+(no n "[f" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
 
-(undo_ftplugin "setl cms< keywordprg<" "sil! nun <buffer> ]h"
-               "sil! nun <buffer> [h")
+(undo_ftplugin "setl cms< keywordprg<" "sil! nun <buffer> ]f"
+               "sil! nun <buffer> [f")
 

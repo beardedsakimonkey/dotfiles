@@ -8,7 +8,7 @@ aug my_rescript | au! * <buffer>
     endfu
 aug END
 
-nno <silent> <buffer> K <Cmd>RescriptJumpToDefinition<CR>
+nno <silent> <buffer> gd <Cmd>RescriptJumpToDefinition<CR>
 
 setl cms=//%s
 

@@ -47,6 +47,7 @@ zstyle ':completion:*:options' list-colors '=^(-- *)=0;36'
 zstyle ':completion:*:builtins' list-colors '=*=0;32'
 
 zstyle ':completion:*:*:mpv:*' file-patterns \
+    '.megatmp.*' \
     '*.(#i)(flv|mp4|webm|mkv|wmv|mov|avi|mp3|ogg|wma|flac|wav|aiff|m4a|m4b|m4v|gif|ifo)(-.) *(-/):directories' \
     '*:all-files'
 

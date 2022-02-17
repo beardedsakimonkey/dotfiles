@@ -61,6 +61,7 @@
 (opt sidescrolloff 2)
 (opt virtualedit :block)
 (opt wrap false)
+;; (opt wrapscan false)
 
 (opt number)
 (opt sessionoptions [:help :tabpages :winsize :curdir :folds])

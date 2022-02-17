@@ -1,6 +1,5 @@
 local lspconfig = require("lspconfig")
-local cmp_nvim_lsp = require("cmp_nvim_lsp")
-local function on_attach(client, bufnr)
+local function on_attach(_client, bufnr)
   local function buf_keymap(lhs, rhs)
     return vim.api.nvim_buf_set_keymap(bufnr, "n", lhs, rhs, {noremap = true, silent = true})
   end
@@ -18,6 +17,6 @@ local function on_attach(client, bufnr)
   buf_keymap("gl", "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   return buf_keymap("<space>w", "<Cmd>lua vim.lsp.buf.formatting()<CR>")
 end
-local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}, handlers = {["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {signs = false})}}
+local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}, handlers = {["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {signs = true})}}
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, cfg)
 return lspconfig.clangd.setup({})

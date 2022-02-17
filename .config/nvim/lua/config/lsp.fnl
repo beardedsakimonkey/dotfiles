@@ -1,7 +1,6 @@
 (local lspconfig (require :lspconfig))
-(local cmp_nvim_lsp (require :cmp_nvim_lsp))
 
-(fn on_attach [client bufnr]
+(fn on_attach [_client bufnr]
   (fn buf_keymap [lhs rhs]
     (vim.api.nvim_buf_set_keymap bufnr :n lhs rhs {:noremap true :silent true}))
 
@@ -23,7 +22,7 @@
        {: on_attach
         :flags {:debounce_text_changes 150}
         :handlers {:textDocument/publishDiagnostics (vim.lsp.with vim.lsp.diagnostic.on_publish_diagnostics
-                                                                  {:signs false})}})
+                                                                  {:signs true})}})
 
 (set lspconfig.util.default_config
      (vim.tbl_extend :force lspconfig.util.default_config cfg))

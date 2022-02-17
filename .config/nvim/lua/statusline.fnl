@@ -2,24 +2,16 @@
 
 (local M {})
 
-(local {: ERROR : WARN} vim.diagnostic.severity)
-
-(fn M.lsp_errors []
-  (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
-      (let [count (vim.tbl_count (vim.diagnostic.get 0 {:severity ERROR}))]
-        (if (> count 0) (.. " ● " count) ""))))
-
-(fn M.lsp_warns []
-  (if (vim.tbl_isempty (vim.lsp.buf_get_clients 0)) ""
-      (let [count (vim.tbl_count (vim.diagnostic.get 0 {:severity WARN}))]
-        (if (> count 0) (.. " ● " count) ""))))
-
+;; fnlfmt: skip
 (fn M.show []
-  (let [current-win? (= vim.g.statusline_winid (vim.fn.win_getid))
-        rhs (if current-win? "%6*%{session#status()}%*" "")
-        lsp "%3*%{v:lua.require'statusline'.lsp_errors()} %4*%{v:lua.require'statusline'.lsp_warns()}%*"]
-    (.. "%1*%{!&modifiable?'  X ':&ro?'  RO ':''}%2*%{&modified?'  + ':''}%* %7*"
-        "%{expand('%:t')}%* " lsp " %=" rhs " ")))
+  (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))]
+    (.. "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
+        "%{expand('%:t')}%* "
+        "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}"
+        "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}"
+        "%="
+        (if current-win "%6*%{session#status()}%*" "")
+        " ")))
 
 (opt statusline "%!v:lua.require'statusline'.show()")
 

@@ -14,7 +14,7 @@ hi NonText      guifg=none         guibg=#C5C2B5
 hi Visual       guifg=fg           guibg=OliveDrab2 gui=none
 hi Search       guifg=none         guibg=#ffd787 
 hi IncSearch    guifg=White        guibg=#BD00BD    gui=none
-hi WarningMsg   guifg=Red4         guibg=White      gui=bold
+hi WarningMsg   guifg=Red4         guibg=none       gui=bold
 hi ErrorMsg     guifg=White        guibg=IndianRed3
 hi PreProc      guifg=DeepPink4    guibg=none       gui=none
 hi Comment      guifg=Burlywood4   guibg=none       gui=none
@@ -27,7 +27,7 @@ hi Constant     guifg=#BD00BD      guibg=none       gui=none
 hi Special      guifg=DodgerBlue4  guibg=none       gui=none
 hi String       guifg=DarkGreen    guibg=none       gui=none
 hi Directory    guifg=Blue3        guibg=none       gui=none
-hi SignColumn   guifg=none         guibg=#C5C2B5
+hi SignColumn   guifg=none         guibg=#c9c5b5
 hi Todo         guifg=Burlywood4   guibg=none       gui=bold
 hi MatchParen   guifg=none         guibg=PaleTurquoise
 

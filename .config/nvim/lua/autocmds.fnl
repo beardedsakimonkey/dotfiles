@@ -49,8 +49,6 @@
                      (= src (.. config-dir :/lua/plugins.fnl)))
             (vim.cmd :PackerCompile))))))
 
-(au BufWritePost *.fnl compile-config-fennel)
-
 (fn compile-udir-fennel []
   (let [dir :/Users/tim/code/udir/
         src (vim.fn.expand "<afile>:p")
@@ -67,8 +65,6 @@
         (if vim.v.shell_error (on-fnl-err output)))
       (vim.cmd "lcd -"))))
 
-(au BufWritePost *.fnl compile-udir-fennel)
-
 (fn handle-large-buffers []
   (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
     (when (or (> size (* 1024 1024)) (= size -2))
@@ -77,8 +73,6 @@
       (opt-local foldenable false)
       (opt-local swapfile false)
       (opt-local undofile false))))
-
-(au BufReadPre * handle-large-buffers)
 
 ;; Make files with a shebang executable on first write
 (fn maybe-make-executable []
@@ -91,8 +85,6 @@
 
 (fn setup-make-executable []
   (au BufWritePost <buffer> maybe-make-executable :++once))
-
-(au BufNewFile * setup-make-executable)
 
 (fn maybe-read-template []
   (let [path (.. (vim.fn.stdpath :data) :/templates)
@@ -113,15 +105,11 @@
                             (table.remove lines))
                         (vim.api.nvim_buf_set_lines 0 0 -1 true lines)))))))))))
 
-(au BufNewFile * maybe-read-template)
-
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
         new (vim.fn.expand "<afile>:p:h")]
     (if create? (vim.fn.mkdir new :p))))
-
-(au [BufWritePre FileWritePre] * maybe-create-directories)
 
 (fn highlight-text []
   (vim.highlight.on_yank {:higroup :IncSearch
@@ -129,39 +117,23 @@
                           :on_visual false
                           :on_macro true}))
 
-(au TextYankPost * highlight-text)
-
 (fn source-colorscheme []
   (do
     (vim.cmd (.. "source " (vim.fn.expand "<afile>:p")))
     (if vim.g.colors_name
         (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
 
-(au BufWritePost */colors/*.vim source-colorscheme)
-
 (fn source-tmux-cfg []
   (vim.fn.system (.. "tmux source-file " (vim.fn.expand "<afile>:p"))))
-
-(au BufWritePost *tmux.conf source-tmux-cfg)
 
 (fn restore-cursor-position []
   (let [last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\"")]
     (if (not (vim.endswith vim.bo.filetype :commit))
         (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos))))
 
-(au BufReadPost * restore-cursor-position)
-
-;; Resize splits when vim is resized
-(au VimResized * "wincmd =")
-
 (fn setup-formatting []
   (opt-local formatoptions += :jcn)
   (opt-local formatoptions -= [:r :o :t]))
-
-(au FileType * setup-formatting)
-
-;; Reload file if changed on disk
-(au [FocusGained BufEnter] * :checktime)
 
 (fn update-user-js []
   (local cmd
@@ -174,6 +146,21 @@
 
   (local (_handle _pid) (assert (vim.loop.spawn cmd opts on-exit))))
 
+(au BufWritePost *.fnl compile-config-fennel)
+(au BufWritePost *.fnl compile-udir-fennel)
+(au BufReadPre * handle-large-buffers)
+(au BufNewFile * setup-make-executable)
+(au BufNewFile * maybe-read-template)
+(au [BufWritePre FileWritePre] * maybe-create-directories)
+(au TextYankPost * highlight-text)
+(au BufWritePost */colors/*.vim source-colorscheme)
+(au BufWritePost *tmux.conf source-tmux-cfg)
+(au BufReadPost * restore-cursor-position)
+;; Resize splits when vim is resized
+(au VimResized * "wincmd =")
+(au FileType * setup-formatting)
+;; Reload file if changed on disk
+(au [FocusGained BufEnter] * :checktime)
 (au BufWritePost user-overrides.js update-user-js)
 
 (vim.cmd "augroup END")

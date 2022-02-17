@@ -51,10 +51,6 @@ local function compile_config_fennel()
     return nil
   end
 end
-do
-  _G["my__au__compile_config_fennel"] = compile_config_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_config_fennel()")
-end
 local function compile_udir_fennel()
   local dir = "/Users/tim/code/udir/"
   local src = vim.fn.expand("<afile>:p")
@@ -76,10 +72,6 @@ local function compile_udir_fennel()
     return nil
   end
 end
-do
-  _G["my__au__compile_udir_fennel"] = compile_udir_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_udir_fennel()")
-end
 local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))
   if ((size > (1024 * 1024)) or (size == -2)) then
@@ -92,10 +84,6 @@ local function handle_large_buffers()
   else
     return nil
   end
-end
-do
-  _G["my__au__handle_large_buffers"] = handle_large_buffers
-  vim.cmd("autocmd BufReadPre *  lua my__au__handle_large_buffers()")
 end
 local function maybe_make_executable()
   local shebang = vim.fn.matchstr(vim.fn.getline(1), "^#!\\S\\+")
@@ -115,10 +103,6 @@ end
 local function setup_make_executable()
   _G["my__au__maybe_make_executable"] = maybe_make_executable
   return vim.cmd("autocmd BufWritePost <buffer> ++once lua my__au__maybe_make_executable()")
-end
-do
-  _G["my__au__setup_make_executable"] = setup_make_executable
-  vim.cmd("autocmd BufNewFile *  lua my__au__setup_make_executable()")
 end
 local function maybe_read_template()
   local path = (vim.fn.stdpath("data") .. "/templates")
@@ -170,10 +154,6 @@ local function maybe_read_template()
   end
   return nil
 end
-do
-  _G["my__au__maybe_read_template"] = maybe_read_template
-  vim.cmd("autocmd BufNewFile *  lua my__au__maybe_read_template()")
-end
 local function maybe_create_directories()
   local afile = vim.fn.expand("<afile>")
   local create_3f = not afile:match("://")
@@ -184,16 +164,8 @@ local function maybe_create_directories()
     return nil
   end
 end
-do
-  _G["my__au__maybe_create_directories"] = maybe_create_directories
-  vim.cmd("autocmd BufWritePre,FileWritePre *  lua my__au__maybe_create_directories()")
-end
 local function highlight_text()
   return vim.highlight.on_yank({higroup = "IncSearch", timeout = 150, on_visual = false, on_macro = true})
-end
-do
-  _G["my__au__highlight_text"] = highlight_text
-  vim.cmd("autocmd TextYankPost *  lua my__au__highlight_text()")
 end
 local function source_colorscheme()
   vim.cmd(("source " .. vim.fn.expand("<afile>:p")))
@@ -203,16 +175,8 @@ local function source_colorscheme()
     return nil
   end
 end
-do
-  _G["my__au__source_colorscheme"] = source_colorscheme
-  vim.cmd("autocmd BufWritePost */colors/*.vim  lua my__au__source_colorscheme()")
-end
 local function source_tmux_cfg()
   return vim.fn.system(("tmux source-file " .. vim.fn.expand("<afile>:p")))
-end
-do
-  _G["my__au__source_tmux_cfg"] = source_tmux_cfg
-  vim.cmd("autocmd BufWritePost *tmux.conf  lua my__au__source_tmux_cfg()")
 end
 local function restore_cursor_position()
   local last_cursor_pos = vim.api.nvim_buf_get_mark(0, "\"")
@@ -222,25 +186,11 @@ local function restore_cursor_position()
     return nil
   end
 end
-do
-  _G["my__au__restore_cursor_position"] = restore_cursor_position
-  vim.cmd("autocmd BufReadPost *  lua my__au__restore_cursor_position()")
-end
-do
-  vim.cmd("autocmd VimResized *  wincmd =")
-end
 local function setup_formatting()
   do end (vim.opt_local.formatoptions):append("jcn")
   do end (vim.opt_local.formatoptions):remove("r")
   do end (vim.opt_local.formatoptions):remove("o")
   return (vim.opt_local.formatoptions):remove("t")
-end
-do
-  _G["my__au__setup_formatting"] = setup_formatting
-  vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
-end
-do
-  vim.cmd("autocmd FocusGained,BufEnter *  checktime")
 end
 local function update_user_js()
   local cmd = "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh"
@@ -251,6 +201,56 @@ local function update_user_js()
   end
   local _handle, _pid = assert(vim.loop.spawn(cmd, opts, on_exit))
   return nil
+end
+do
+  _G["my__au__compile_config_fennel"] = compile_config_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_config_fennel()")
+end
+do
+  _G["my__au__compile_udir_fennel"] = compile_udir_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_udir_fennel()")
+end
+do
+  _G["my__au__handle_large_buffers"] = handle_large_buffers
+  vim.cmd("autocmd BufReadPre *  lua my__au__handle_large_buffers()")
+end
+do
+  _G["my__au__setup_make_executable"] = setup_make_executable
+  vim.cmd("autocmd BufNewFile *  lua my__au__setup_make_executable()")
+end
+do
+  _G["my__au__maybe_read_template"] = maybe_read_template
+  vim.cmd("autocmd BufNewFile *  lua my__au__maybe_read_template()")
+end
+do
+  _G["my__au__maybe_create_directories"] = maybe_create_directories
+  vim.cmd("autocmd BufWritePre,FileWritePre *  lua my__au__maybe_create_directories()")
+end
+do
+  _G["my__au__highlight_text"] = highlight_text
+  vim.cmd("autocmd TextYankPost *  lua my__au__highlight_text()")
+end
+do
+  _G["my__au__source_colorscheme"] = source_colorscheme
+  vim.cmd("autocmd BufWritePost */colors/*.vim  lua my__au__source_colorscheme()")
+end
+do
+  _G["my__au__source_tmux_cfg"] = source_tmux_cfg
+  vim.cmd("autocmd BufWritePost *tmux.conf  lua my__au__source_tmux_cfg()")
+end
+do
+  _G["my__au__restore_cursor_position"] = restore_cursor_position
+  vim.cmd("autocmd BufReadPost *  lua my__au__restore_cursor_position()")
+end
+do
+  vim.cmd("autocmd VimResized *  wincmd =")
+end
+do
+  _G["my__au__setup_formatting"] = setup_formatting
+  vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
+end
+do
+  vim.cmd("autocmd FocusGained,BufEnter *  checktime")
 end
 do
   _G["my__au__update_user_js"] = update_user_js

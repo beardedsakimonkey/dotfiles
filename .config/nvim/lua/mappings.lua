@@ -12,12 +12,6 @@ local function move_line(dir)
   vim.cmd(("move " .. _1_() .. vim.v.count1))
   return vim.cmd("keepj norm! =`v")
 end
-local function move_line_up()
-  return move_line("up")
-end
-local function move_line_down()
-  return move_line("down")
-end
 local function zoom_toggle()
   if (vim.fn.winnr("$") ~= 1) then
     if vim.t.zoom_restore then
@@ -81,25 +75,14 @@ local function navigate(dir)
     return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
   end
 end
-local function navigate_l()
-  return navigate("l")
-end
-local function navigate_h()
-  return navigate("h")
-end
-local function navigate_j()
-  return navigate("j")
-end
-local function navigate_k()
-  return navigate("k")
-end
-local function jump(forward_3f)
+local function jump(dir)
+  local next_3f = ("next" == dir)
   local bufnr = vim.api.nvim_get_current_buf()
   local _let_9_ = vim.fn.getjumplist()
   local jumplist = _let_9_[1]
   local index = _let_9_[2]
   local start, stop, step = nil, nil, nil
-  if forward_3f then
+  if next_3f then
     start, stop, step = (index + 2), #jumplist, 1
   else
     start, stop, step = index, 1, -1
@@ -118,7 +101,7 @@ local function jump(forward_3f)
   if target then
     local cmd
     local function _13_()
-      if forward_3f then
+      if next_3f then
         return ((1 + (target - start)) .. vim.api.nvim_replace_termcodes("<C-I>", true, true, true))
       else
         return ((1 + (start - target)) .. vim.api.nvim_replace_termcodes("<C-O>", true, true, true))
@@ -129,12 +112,6 @@ local function jump(forward_3f)
   else
     return nil
   end
-end
-local function jump_backward()
-  return jump(false)
-end
-local function jump_forward()
-  return jump(true)
 end
 vim.api.nvim_set_keymap("n", "<Down>", "gj", {noremap = true})
 vim.api.nvim_set_keymap("n", "<Up>", "gk", {noremap = true})
@@ -162,10 +139,22 @@ vim.api.nvim_set_keymap("x", "p", "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true
 vim.api.nvim_set_keymap("n", "`", "g`", {noremap = true})
 vim.api.nvim_set_keymap("n", "'", "g'", {noremap = true})
 vim.api.nvim_set_keymap("", "<C-g>", "g<C-g>", {noremap = true})
-vim.api.nvim_set_keymap("n", "<C-l>", "", {callback = navigate_l, noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "<C-h>", "", {callback = navigate_h, noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "<C-j>", "", {callback = navigate_j, noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "<C-k>", "", {callback = navigate_k, noremap = true, silent = true})
+local function _15_()
+  return navigate("l")
+end
+vim.api.nvim_set_keymap("n", "<C-l>", "", {callback = _15_, noremap = true, silent = true})
+local function _16_()
+  return navigate("h")
+end
+vim.api.nvim_set_keymap("n", "<C-h>", "", {callback = _16_, noremap = true, silent = true})
+local function _17_()
+  return navigate("j")
+end
+vim.api.nvim_set_keymap("n", "<C-j>", "", {callback = _17_, noremap = true, silent = true})
+local function _18_()
+  return navigate("k")
+end
+vim.api.nvim_set_keymap("n", "<C-k>", "", {callback = _18_, noremap = true, silent = true})
 do
   vim.api.nvim_set_keymap("n", ";", ":", {noremap = true})
   vim.api.nvim_set_keymap("x", ";", ":", {noremap = true})
@@ -256,10 +245,22 @@ vim.api.nvim_set_keymap("n", "]L", "<Cmd>lnfile<CR>zz", {noremap = true, silent 
 vim.api.nvim_set_keymap("n", "[L", "<Cmd>lpfile<CR>zz", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "[e", "", {callback = move_line_up, noremap = true})
-vim.api.nvim_set_keymap("n", "]e", "", {callback = move_line_down, noremap = true})
-vim.api.nvim_set_keymap("n", "[j", "", {callback = jump_backward, noremap = true})
-vim.api.nvim_set_keymap("n", "]j", "", {callback = jump_forward, noremap = true})
+local function _19_()
+  return move_line("up")
+end
+vim.api.nvim_set_keymap("n", "[e", "", {callback = _19_, noremap = true})
+local function _20_()
+  return move_line("down")
+end
+vim.api.nvim_set_keymap("n", "]e", "", {callback = _20_, noremap = true})
+local function _21_()
+  return jump("next")
+end
+vim.api.nvim_set_keymap("n", "[j", "", {callback = _21_, noremap = true})
+local function _22_()
+  return jump("prev")
+end
+vim.api.nvim_set_keymap("n", "]j", "", {callback = _22_, noremap = true})
 vim.api.nvim_set_keymap("n", "'V", "<CMD>e ~/.config/nvim/lua<CR>", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("n", "'P", "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("n", "'Z", "<CMD>e ~/.zshrc<CR>", {noremap = true, silent = true})

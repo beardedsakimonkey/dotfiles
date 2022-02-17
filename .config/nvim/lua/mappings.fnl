@@ -10,12 +10,6 @@
   (vim.cmd (.. "move " (if (= dir :up) "--" "+") vim.v.count1))
   (vim.cmd "keepj norm! =`v"))
 
-(fn move-line-up []
-  (move-line :up))
-
-(fn move-line-down []
-  (move-line :down))
-
 ;; Adapted from lacygoill's vimrc
 (fn zoom-toggle []
   (when (not= (vim.fn.winnr "$") 1)
@@ -75,23 +69,12 @@
       (vim.cmd "try | wincmd p | catch | entry")
       (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
 
-(fn navigate-l []
-  (navigate :l))
-
-(fn navigate-h []
-  (navigate :h))
-
-(fn navigate-j []
-  (navigate :j))
-
-(fn navigate-k []
-  (navigate :k))
-
 ;; Adapted from gpanders' config
-(fn jump [forward?]
-  (let [bufnr (vim.api.nvim_get_current_buf)
+(fn jump [dir]
+  (let [next? (= :next dir)
+        bufnr (vim.api.nvim_get_current_buf)
         [jumplist index] (vim.fn.getjumplist)
-        (start stop step) (if forward?
+        (start stop step) (if next?
                               (values (+ index 2) (length jumplist) 1)
                               (values index 1 -1))]
     (var target nil)
@@ -103,7 +86,7 @@
                     (set target i))))
     (when target
       (let [cmd (.. "normal! "
-                    (if forward?
+                    (if next?
                         (.. (+ 1 (- target start))
                             (vim.api.nvim_replace_termcodes :<C-I> true true
                                                             true))
@@ -111,12 +94,6 @@
                             (vim.api.nvim_replace_termcodes :<C-O> true true
                                                             true))))]
         (vim.cmd cmd)))))
-
-(fn jump-backward []
-  (jump false))
-
-(fn jump-forward []
-  (jump true))
 
 ;;
 ;; Augmented deafults
@@ -136,10 +113,10 @@
 (map n "'" "g'")
 (map "" :<C-g> :g<C-g>)
 ;; Navigate to the window you came from.
-(map n :<C-l> navigate-l :silent)
-(map n :<C-h> navigate-h :silent)
-(map n :<C-j> navigate-j :silent)
-(map n :<C-k> navigate-k :silent)
+(map n :<C-l> #(navigate :l) :silent)
+(map n :<C-h> #(navigate :h) :silent)
+(map n :<C-j> #(navigate :j) :silent)
+(map n :<C-k> #(navigate :k) :silent)
 
 ;;
 ;; Remapped builtins
@@ -275,11 +252,11 @@
 ;; Adapted from lacygoill's vimrc.
 (map "" "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (map "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(map n "[e" move-line-up)
-(map n "]e" move-line-down)
+(map n "[e" #(move-line :up))
+(map n "]e" #(move-line :down))
 ;; Jump to previous buffer in jumplist.
-(map n "[j" jump-backward)
-(map n "]j" jump-forward)
+(map n "[j" #(jump :next))
+(map n "]j" #(jump :prev))
 
 ;;
 ;; Bookmarks

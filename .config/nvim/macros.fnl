@@ -1,5 +1,8 @@
-;; TODO: use nvim_add_user_command instead of `command`
-;; TODO: use nvim_define_autocmd (pending https://github.com/neovim/neovim/pull/14661)
+;; TODO: Create `command` macro using nvim_add_user_command
+
+;; TODO: Use nvim_define_autocmd (pending https://github.com/neovim/neovim/pull/14661)
+;; Create an `augroup` macro that splices group name into each form. This should
+;; make it so we can guarantee that an autocmd has a group name.
 
 (fn to-lua-string [sym prefix]
   (let [str (.. prefix (tostring sym))]
@@ -18,14 +21,13 @@
         opts (table.concat [...] " ")
         command (if fn-name (.. "lua " fn-name "()") handler)]
     `(do
-       ;; TODO: Check to make sure that we're not overriding an existing key
        ,(if fn-name `(tset _G ,fn-name ,handler))
        (vim.cmd ,(.. "autocmd " event " " pattern " " opts " " command)))))
 
 ;;
 ;; Macros for :set and :setlocal
 ;;
-(fn _opt [opt option ?value-or-eq ?value]
+(fn opt* [opt option ?value-or-eq ?value]
   (local value-or-eq (if (= nil ?value-or-eq) true ?value-or-eq))
   (local (value ?cmd) (match (tostring value-or-eq)
                         "+=" (values ?value :append)
@@ -43,36 +45,27 @@
           `(: (. vim ,opt ,(tostring option)) ,?cmd ,value))
       `(tset vim ,opt ,(tostring option) ,value)))
 
-(local opt (partial _opt :opt))
-(local opt-local (partial _opt :opt_local))
-
-(fn filter [keep? list]
-  (icollect [_ v (ipairs list)]
-    (when (keep? v)
-      v)))
-
-(fn contains? [matches? list]
-  (var found false)
-  (each [_ v (ipairs list) :until found]
-    (when (matches? v)
-      (set found true)))
-  found)
+(local opt (partial opt* :opt))
+(local opt-local (partial opt* :opt_local))
 
 ;;
 ;; Macro for :noremap, etc
 ;;
 (fn map [modes lhs rhs ...]
-  (local opts (collect [_ v (ipairs (filter #(and (not= :buffer $1)
-                                                  (not= :remap $1))
-                                            [...]))]
-                (values v true)))
-  (set opts.noremap (not (contains? #(= :remap $1) [...])))
+  (local opts (collect [_ opt (ipairs [...])]
+                (values opt true)))
+  (if (not= nil opts.remap)
+      (do
+        (set opts.noremap (not opts.remap))
+        (set opts.remap nil))
+      (set opts.noremap true))
+  (local buffer? (not= nil opts.buffer))
+  (set opts.buffer nil)
   ;; XXX: Doesn't handle sym that references a string 
   (local str? (= :string (type rhs)))
   (when (not str?)
-    (tset opts :callback rhs))
+    (set opts.callback rhs))
   (local rhs (if str? rhs ""))
-  (local buffer? (contains? #(= :buffer $1) [...]))
   (if (sequence? modes)
       (let [form `(do
                     )]

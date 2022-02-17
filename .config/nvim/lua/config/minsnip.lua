@@ -23,5 +23,4 @@ local function expand_snippet()
     return nil
   end
 end
-_G["my__map__expand_snippet"] = expand_snippet
-return vim.api.nvim_set_keymap("i", "<C-l>", "<Cmd>lua my__map__expand_snippet()<CR>", {noremap = true})
+return vim.api.nvim_set_keymap("i", "<C-l>", "", {callback = expand_snippet, noremap = true})

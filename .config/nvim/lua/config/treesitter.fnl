@@ -1,5 +1,5 @@
 (local configs (require :nvim-treesitter.configs))
-(import-macros {: no} :macros)
+(import-macros {: map} :macros)
 
 (configs.setup {:ensure_installed [:query :rescript :javascript :glsl :lua]
                 :highlight {:enable true}
@@ -19,5 +19,5 @@
                                            :show_help "?"}}})
 
 ;; From nvim-treesitter/playground
-(no n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)
+(map n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)
 

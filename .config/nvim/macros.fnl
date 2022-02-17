@@ -1,3 +1,6 @@
+;; TODO: use nvim_add_user_command instead of `command`
+;; TODO: use nvim_define_autocmd (pending https://github.com/neovim/neovim/pull/14661)
+
 (fn to-lua-string [sym prefix]
   (let [str (.. prefix (tostring sym))]
     (pick-values 1 (str:gsub "-" "_"))))
@@ -19,6 +22,9 @@
        ,(if fn-name `(tset _G ,fn-name ,handler))
        (vim.cmd ,(.. "autocmd " event " " pattern " " opts " " command)))))
 
+;;
+;; Macros for :set and :setlocal
+;;
 (fn _opt [opt option ?value-or-eq ?value]
   (local value-or-eq (if (= nil ?value-or-eq) true ?value-or-eq))
   (local (value ?cmd) (match (tostring value-or-eq)
@@ -37,12 +43,6 @@
           `(: (. vim ,opt ,(tostring option)) ,?cmd ,value))
       `(tset vim ,opt ,(tostring option) ,value)))
 
-;; Usage examples:
-;;
-;;   (opt cursorline)
-;;   (opt textwidth 80)
-;;   (opt-local formatoptions -= [:f :l])
-;;
 (local opt (partial _opt :opt))
 (local opt-local (partial _opt :opt_local))
 
@@ -58,31 +58,44 @@
       (set found true)))
   found)
 
-;; TODO: Support list of modes
-(fn map [mode lhs rhs ...]
-  (let [fn-name (if (sym? rhs) (to-lua-string rhs :my__map__) nil)
-        buffer (contains? #(= :buffer $1) [...])
-        opts (collect [_ v (ipairs (filter #(not= :buffer $1) [...]))]
-               (values v true))
-        command (if fn-name
-                    (if opts.expr
-                        (.. "v:lua." fn-name "()")
-                        (.. "<Cmd>lua " fn-name "()<CR>"))
-                    rhs)]
-    `(do
-       ,(if fn-name `(tset _G ,fn-name ,rhs))
-       ,(if buffer
-            `(vim.api.nvim_buf_set_keymap 0 ,(tostring mode) ,lhs ,command
-                                          ,opts)
-            `(vim.api.nvim_set_keymap ,(tostring mode) ,lhs ,command ,opts)))))
+;;
+;; Macro for :noremap, etc
+;;
+(fn map [modes lhs rhs ...]
+  (local opts (collect [_ v (ipairs (filter #(and (not= :buffer $1)
+                                                  (not= :remap $1))
+                                            [...]))]
+                (values v true)))
+  (set opts.noremap (not (contains? #(= :remap $1) [...])))
+  ;; XXX: Doesn't handle sym that references a string 
+  (local str? (= :string (type rhs)))
+  (when (not str?)
+    (tset opts :callback rhs))
+  (local rhs (if str? rhs ""))
+  (local buffer? (contains? #(= :buffer $1) [...]))
+  (if (sequence? modes)
+      (let [form `(do
+                    )]
+        (each [_ mode (ipairs modes)]
+          (if buffer?
+              (table.insert form
+                            `(vim.api.nvim_buf_set_keymap 0 ,(tostring mode)
+                                                          ,lhs ,rhs ,opts))
+              (table.insert form
+                            `(vim.api.nvim_set_keymap ,(tostring mode) ,lhs
+                                                      ,rhs ,opts))))
+        form)
+      (if buffer?
+          `(vim.api.nvim_buf_set_keymap 0 ,(tostring modes) ,lhs ,rhs ,opts)
+          `(vim.api.nvim_set_keymap ,(tostring modes) ,lhs ,rhs ,opts))))
 
-(fn no [mode lhs rhs ...]
-  (map mode lhs rhs :noremap ...))
-
+;;
+;; Macro for b:undo_ftplugin
+;;
 (fn undo_ftplugin [...]
   (let [cmd (.. " | " (table.concat [...] " | "))]
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
                                (.. (or vim.b.undo_ftplugin :exe) ,cmd))))
 
-{: au : opt : opt-local : no : map : undo_ftplugin}
+{: au : opt : opt-local : map : undo_ftplugin}
 

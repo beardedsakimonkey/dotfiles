@@ -21,7 +21,7 @@ local function contains_3f(matches_3f, list)
   end
   return found
 end
-local function is_file_hidden(file, files, cwd)
+local function is_file_hidden(file, files, _cwd)
   if vim.endswith(file.name, ".lua") then
     local fnl = string.gsub(file.name, ".lua$", ".fnl")
     local function _3_(_241)
@@ -35,6 +35,6 @@ local function is_file_hidden(file, files, cwd)
     return nil
   end
 end
-local map = udir.map
-udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden, keymaps = {q = map.quit, h = map.up_dir, ["-"] = map.up_dir, l = map.open, ["<CR>"] = map.open, s = map.open_split, v = map.open_vsplit, t = map.open_tab, R = map.reload, r = map.move, d = map.delete, ["+"] = map.create, m = map.move, c = map.copy, C = "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<CR>", ["."] = map.toggle_hidden_files}})
+local m = udir.map
+udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden, keymaps = {q = m.quit, h = m.up_dir, ["-"] = m.up_dir, l = m.open, ["<CR>"] = m.open, s = m.open_split, v = m.open_vsplit, T = m.open_tab, R = m.reload, r = m.move, d = m.delete, ["+"] = m.create, m = m.move, c = m.copy, C = "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<CR>", ["."] = m.toggle_hidden_files}})
 return vim.api.nvim_set_keymap("n", "-", "<Cmd>Udir<CR>", {noremap = true})

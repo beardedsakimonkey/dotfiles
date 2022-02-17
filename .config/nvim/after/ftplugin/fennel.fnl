@@ -1,4 +1,4 @@
-(import-macros {: opt-local : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : map : undo_ftplugin} :macros)
 
 (vim.cmd "inoreabbrev <buffer> lambda λ")
 
@@ -11,8 +11,8 @@
   (local to (from:gsub :.fnl$ :.lua))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
-(no n "]f" goto-lua :buffer)
-(no n "[f" goto-lua :buffer)
+(map n "]f" goto-lua :buffer)
+(map n "[f" goto-lua :buffer)
 
 ;; fnlfmt: skip
 (undo_ftplugin "setl cms< keywordprg< iskeyword<"

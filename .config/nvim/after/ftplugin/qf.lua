@@ -1,10 +1,6 @@
-do
-  vim.api.nvim_buf_set_keymap(0, "n", "q", "<Cmd>q<CR>", {noremap = true, silent = true})
-end
-do
-  vim.api.nvim_buf_set_keymap(0, "n", "<CR>", "<CR>", {noremap = true})
-end
-vim["opt_local"]["statusline"] = " %q %{printf(\" %d line%s\", line(\"$\"), line(\"$\") > 1 ? \"s \" : \" \")}"
+vim.api.nvim_buf_set_keymap(0, "n", "q", "<Cmd>q<CR>", {noremap = true, silent = true})
+vim.api.nvim_buf_set_keymap(0, "n", "<CR>", "<CR>", {noremap = true})
+do end (vim)["opt_local"]["statusline"] = " %q %{printf(\" %d line%s\", line(\"$\"), line(\"$\") > 1 ? \"s \" : \" \")}"
 if (1 ~= vim.g.loaded_cfilter) then
   vim.cmd("sil! packadd cfilter")
   vim.g.loaded_cfilter = 1

@@ -1,17 +1,17 @@
-(import-macros {: opt-local : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : map : undo_ftplugin} :macros)
 
 (opt-local scrolloff 0)
 
-(no n :q :<Cmd>q<CR> :buffer)
+(map n :q :<Cmd>q<CR> :buffer)
 
 ;; Adapted from gpanders' config
-(no n :u :<C-u> :buffer :nowait)
-(no n :d :<C-d> :buffer :nowait)
-(no n :U :<C-b> :buffer :nowait)
-(no n :D :<C-f> :buffer :nowait)
-(no n :<Tab> "/<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>" :buffer :silent)
-(no n :<S-Tab> "?<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>" :buffer :silent)
-(no n :<CR> "g<C-]>" :buffer)
+(map n :u :<C-u> :buffer :nowait)
+(map n :d :<C-d> :buffer :nowait)
+(map n :U :<C-b> :buffer :nowait)
+(map n :D :<C-f> :buffer :nowait)
+(map n :<Tab> "/<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>" :buffer :silent)
+(map n :<S-Tab> "?<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>" :buffer :silent)
+(map n :<CR> "g<C-]>" :buffer)
 
 ;; fnlfmt: skip
 (undo_ftplugin "setl scrolloff<"

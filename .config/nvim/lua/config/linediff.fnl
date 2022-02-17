@@ -1,5 +1,5 @@
-(import-macros {: no} :macros)
+(import-macros {: map} :macros)
 
 (set vim.g.linediff_buffer_type :scratch)
-(no x :D "mode() is# 'V' ? ':Linediff<cr>' : 'D'" :expr)
+(map x :D "mode() is# 'V' ? ':Linediff<cr>' : 'D'" :expr)
 

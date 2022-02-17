@@ -1,5 +1,4 @@
 (local cmp (require :cmp))
-(import-macros {: no} :macros)
 
 (cmp.setup {:sources [{:name :buffer}
                       {:name :path}

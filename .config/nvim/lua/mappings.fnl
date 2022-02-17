@@ -1,4 +1,4 @@
-(import-macros {: no : map} :macros)
+(import-macros {: map : map} :macros)
 
 ;; NOTE: Don't use <Cmd> if the mapping contains <C-r>
 
@@ -121,201 +121,198 @@
 ;;
 ;; Augmented deafults
 ;;
-(no n :<Down> :gj)
-(no n :<Up> :gk)
-(no n :<c-e> :<c-e><c-e>)
-(no n :<c-y> :<c-y><c-y>)
-(no x "<" :<gv)
-(no x ">" :>gv)
-(no n :s "\"_s")
-(no x :s "\"_s")
-(no n :Z :zzzH)
-(no x :Z :zzzH)
-(no n :p "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'" :expr)
-(no n :P "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'" :expr)
-(no x :p "'\"_c<C-r>'.v:register.'<Esc>'" :expr)
-(no n "`" "g`")
-(no n "'" "g'")
-(no "" :<C-g> :g<C-g>)
+(map n :<Down> :gj)
+(map n :<Up> :gk)
+(map n :<c-e> :<c-e><c-e>)
+(map n :<c-y> :<c-y><c-y>)
+(map [n x] "<" "<<")
+(map [n x] ">" ">>")
+(map [n x] :s "\"_s")
+(map [n x] :Z :zzzH)
+(map n :p "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'" :expr)
+(map n :P "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'" :expr)
+(map x :p "'\"_c<C-r>'.v:register.'<Esc>'" :expr)
+(map n "`" "g`")
+(map n "'" "g'")
+(map "" :<C-g> :g<C-g>)
 ;; Navigate to the window you came from.
-(no n :<C-l> navigate-l :silent)
-(no n :<C-h> navigate-h :silent)
-(no n :<C-j> navigate-j :silent)
-(no n :<C-k> navigate-k :silent)
+(map n :<C-l> navigate-l :silent)
+(map n :<C-h> navigate-h :silent)
+(map n :<C-j> navigate-j :silent)
+(map n :<C-k> navigate-k :silent)
 
 ;;
 ;; Remapped builtins
 ;;
-(no n ";" ":")
-(no x ";" ":")
-(no n ":" ";")
-(no x ":" ";")
+(map [n x] ";" ":")
+(map [n x] ":" ";")
 ;; `qq` to start recording, `Q` to repeat
-(no n :Q "@q")
-(no "" :H "^")
-(no "" :L "$")
-(no "" "(" :H :silent)
-(no "" ")" :L :silent)
+(map n :Q "@q")
+(map "" :H "^")
+(map "" :L "$")
+(map "" "(" :H :silent)
+(map "" ")" :L :silent)
 ;; Increment number
-(no n :<C-s> :<C-a> :silent)
+(map n :<C-s> :<C-a> :silent)
 (map "" :<tab> "<CMD>keepj norm! %<CR>" :silent)
+
 ;; Move <Tab>'s original behavior to <C-p>
-(no n :<C-p> :<C-i>)
-(no n :cn :cgn :silent)
+(map n :<C-p> :<C-i>)
+(map n :cn :cgn :silent)
 
 ;;
 ;; Misc
 ;;
-(no n :<CR> :<CMD>w<CR> :silent)
-(no "" :<C-q> :<CMD>q<CR> :silent)
-(no n :<space>l :<CMD>vsplit<CR> :silent)
-(no n :<space>j :<CMD>split<CR> :silent)
-(no n :<space>t :<CMD>tabedit<CR> :silent)
-(no "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
-(no "" :<Space>q "<CMD>b#<CR>" :silent)
-(no n :g> :<CMD>40messages<CR> :silent)
+(map n :<CR> :<CMD>w<CR> :silent)
+(map "" :<C-q> :<CMD>q<CR> :silent)
+(map n :<space>l :<CMD>vsplit<CR> :silent)
+(map n :<space>j :<CMD>split<CR> :silent)
+(map n :<space>t :<CMD>tabedit<CR> :silent)
+(map "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
+(map "" :<Space>q "<CMD>b#<CR>" :silent)
+(map n :g> :<CMD>40messages<CR> :silent)
 ;; Select previously changed/yanked text
-(no n :gv "g`[vg`]")
-(no n :gV "g'[Vg']")
+(map n :gv "g`[vg`]")
+(map n :gV "g'[Vg']")
 ;; Format previously changed/yanked text
-(no n :=v "mvg'[=g']g`v")
+(map n :=v "mvg'[=g']g`v")
 ;; Reselect previous selection
-(no n :gs :gv)
+(map n :gs :gv)
 ;; Jump to where last change was made
-(no n :gl "g`.")
+(map n :gl "g`.")
 ;; Jump to where insert mode was last exited
-(no n :gi "g`^")
-(no n :<space>z zoom-toggle :silent)
-(no x "." ":norm! .<CR>" :silent)
+(map n :gi "g`^")
+(map n :<space>z zoom-toggle :silent)
+(map x "." ":norm! .<CR>" :silent)
 ;; Repeat last edit on last changed text.
-(no :n :g. repeat-last-edit)
+(map n :g. repeat-last-edit)
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 ;; Search only in visual selection.
-(no x "/" visual-slash)
+(map x "/" visual-slash)
 
 ;;
 ;; Command mode
 ;;
-(no c :<C-p> :<Up>)
-(no c :<C-n> :<Down>)
-(no c :<C-j> :<C-g>)
-(no c :<C-k> :<C-t>)
-(no c :<C-a> :<Home>)
+(map c :<C-p> :<Up>)
+(map c :<C-n> :<Down>)
+(map c :<C-j> :<C-g>)
+(map c :<C-k> :<C-t>)
+(map c :<C-a> :<Home>)
 
 ;;
 ;; Keep jumps
 ;;
-(no n :<Home> "<CMD>keepj norm! gg<CR>" :silent)
-(no n :<End> "<CMD>keepj norm! G<CR>" :silent)
-(no n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
-(no n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
-(no n :M "<CMD>keepj norm! M<CR>" :silent)
-(no n "{" "<CMD>keepj norm! {<CR>" :silent)
-(no n "}" "<CMD>keepj norm! }<CR>" :silent)
-(no n :gg "<CMD>keepj norm! gg<CR>" :silent)
-(no n :G "<CMD>keepj norm! G<CR>" :silent)
-(no n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
-(no n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
+(map n :<Home> "<CMD>keepj norm! gg<CR>" :silent)
+(map n :<End> "<CMD>keepj norm! G<CR>" :silent)
+(map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
+(map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
+(map n :M "<CMD>keepj norm! M<CR>" :silent)
+(map n "{" "<CMD>keepj norm! {<CR>" :silent)
+(map n "}" "<CMD>keepj norm! }<CR>" :silent)
+(map n :gg "<CMD>keepj norm! gg<CR>" :silent)
+(map n :G "<CMD>keepj norm! G<CR>" :silent)
+(map n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
+(map n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
 
 ;;
 ;; Search
 ;;
-(no n "*" "<CMD>norm! *<CR>zzzv" :silent)
-(no n "#" "<CMD>norm! #<CR>zzzv" :silent)
-(no n :g* "<CMD>norm! g*<CR>zzzv" :silent)
-(no n "g#" "<CMD>norm! g#<CR>zzzv" :silent)
+(map n "*" "<CMD>norm! *<CR>zzzv" :silent)
+(map n "#" "<CMD>norm! #<CR>zzzv" :silent)
+(map n :g* "<CMD>norm! g*<CR>zzzv" :silent)
+(map n "g#" "<CMD>norm! g#<CR>zzzv" :silent)
 ;; NOTE: Doesn't support multiline selection. Adapted from lacygoill's vimrc.
-(no x "*" "\"vy:let @/='<c-r>v'<bar>norm! n<CR>zzzv" :silent)
-(no x "#" "\"vy:let @/='<c-r>v'<bar>norm! N<CR>zzzv" :silent)
-(no x :g* "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv" :silent)
-(no x "g#" "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv" :silent)
-(no n :g/ ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
-    :silent)
+(map x "*" "\"vy:let @/='<c-r>v'<bar>norm! n<CR>zzzv" :silent)
+(map x "#" "\"vy:let @/='<c-r>v'<bar>norm! N<CR>zzzv" :silent)
+(map x :g* "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv" :silent)
+(map x "g#" "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv" :silent)
+(map n :g/ ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
+     :silent)
 
-(no x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>" :silent)
-(no n :<RightMouse>
-    "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
-    :silent)
+(map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>" :silent)
+(map n :<RightMouse>
+     "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
+     :silent)
 
 ;; Adapted from lacygoill's vimrc.
-(no n :S
-    "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>"
-    :silent)
+(map n :S
+     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>"
+     :silent)
 
-(no n :<Space>s "ms:<C-u>%s///g<left><left>")
+(map n :<Space>s "ms:<C-u>%s///g<left><left>")
 
 ;;
 ;; Alt key
 ;;
-(no ! :<A-h> :<Left>)
-(no ! :<A-l> :<Right>)
-(no ! :<A-j> :<C-Left>)
-(no "!" :<A-k> :<C-Right>)
-(no n :<A-l> :<C-w>L)
-(no n :<A-h> :<C-w>H)
-(no n :<A-j> :<C-w>J)
-(no n :<A-k> :<C-w>K)
+(map ! :<A-h> :<Left>)
+(map ! :<A-l> :<Right>)
+(map ! :<A-j> :<C-Left>)
+(map "!" :<A-k> :<C-Right>)
+(map n :<A-l> :<C-w>L)
+(map n :<A-h> :<C-w>H)
+(map n :<A-j> :<C-w>J)
+(map n :<A-k> :<C-w>K)
 
 ;;
 ;; Unimpaired
 ;;
-(no n "]b" :<CMD>bnext<CR> :silent)
-(no n "[b" :<CMD>bprev<CR> :silent)
-(no n "[t" :<CMD>tabprev<CR> :silent)
-(no n "]t" :<CMD>tabnext<CR> :silent)
-(no n "]T" :<CMD>+tabmove<CR> :silent)
-(no n "[T" :<CMD>-tabmove<CR> :silent)
-(no n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
-(no n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
-(no n "]Q" :<Cmd>cnfile<CR>zz :silent)
-(no n "[Q" :<Cmd>cpfile<CR>zz :silent)
-(no n "]l" ":<C-u><c-r>=v:count1<CR>lnext<CR>zz" :silent)
-(no n "[l" ":<C-u><c-r>=v:count1<CR>lprev<CR>zz" :silent)
-(no n "]L" :<Cmd>lnfile<CR>zz :silent)
-(no n "[L" :<Cmd>lpfile<CR>zz :silent)
+(map n "]b" :<CMD>bnext<CR> :silent)
+(map n "[b" :<CMD>bprev<CR> :silent)
+(map n "[t" :<CMD>tabprev<CR> :silent)
+(map n "]t" :<CMD>tabnext<CR> :silent)
+(map n "]T" :<CMD>+tabmove<CR> :silent)
+(map n "[T" :<CMD>-tabmove<CR> :silent)
+(map n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
+(map n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
+(map n "]Q" :<Cmd>cnfile<CR>zz :silent)
+(map n "[Q" :<Cmd>cpfile<CR>zz :silent)
+(map n "]l" ":<C-u><c-r>=v:count1<CR>lnext<CR>zz" :silent)
+(map n "[l" ":<C-u><c-r>=v:count1<CR>lprev<CR>zz" :silent)
+(map n "]L" :<Cmd>lnfile<CR>zz :silent)
+(map n "[L" :<Cmd>lpfile<CR>zz :silent)
 ;; Adapted from lacygoill's vimrc.
-(no "" "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(no "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(no n "[e" move-line-up)
-(no n "]e" move-line-down)
+(map "" "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
+(map "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
+(map n "[e" move-line-up)
+(map n "]e" move-line-down)
 ;; Jump to previous buffer in jumplist.
-(no n "[j" jump-backward)
-(no n "]j" jump-forward)
+(map n "[j" jump-backward)
+(map n "]j" jump-forward)
 
 ;;
 ;; Bookmarks
 ;;
-(no n "'V" "<CMD>e ~/.config/nvim/lua<CR>" :silent)
-(no n "'P" "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
-(no n "'Z" "<CMD>e ~/.zshrc<CR>" :silent)
-(no n "'N" "<CMD>e ~/notes/notes.md<CR>" :silent)
-(no n "'T" "<CMD>e ~/notes/todo.md<CR>" :silent)
-(no n "'A" "<CMD>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
+(map n "'V" "<CMD>e ~/.config/nvim/lua<CR>" :silent)
+(map n "'P" "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
+(map n "'Z" "<CMD>e ~/.zshrc<CR>" :silent)
+(map n "'N" "<CMD>e ~/notes/notes.md<CR>" :silent)
+(map n "'T" "<CMD>e ~/notes/todo.md<CR>" :silent)
+(map n "'A" "<CMD>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
 
 ;;
 ;; Grab file name
 ;;
-(no i :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(no c :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(no n :yo ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>" :silent)
-(no n :yO ":<c-u>let @\"='<c-r>=expand(\"%:p\")<CR>'<CR>" :silent)
+(map i :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
+(map c :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
+(map n :yo ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>" :silent)
+(map n :yO ":<c-u>let @\"='<c-r>=expand(\"%:p\")<CR>'<CR>" :silent)
 
 ;;
 ;; Toggle options
 ;;
-(no n :con "<CMD>set number!<CR>" :silent)
-(no n :coc "<CMD>set cursorline!<CR>" :silent)
-(no n :cow "<CMD>set wrap!<CR>" :silent)
-(no n :col "<CMD>set hlsearch!<CR>" :silent)
-(no n :coi "<CMD>set ignorecase!<CR>" :silent)
+(map n :con "<CMD>set number!<CR>" :silent)
+(map n :coc "<CMD>set cursorline!<CR>" :silent)
+(map n :cow "<CMD>set wrap!<CR>" :silent)
+(map n :col "<CMD>set hlsearch!<CR>" :silent)
+(map n :coi "<CMD>set ignorecase!<CR>" :silent)
 
 ;;
 ;; Avoid typo
 ;;
-(no x :K :k)
-(no x :J :j)
+(map x :K :k)
+(map x :J :j)
 (vim.cmd "cnoreabbrev ~? ~/")
 
 ;;

@@ -1,5 +1,5 @@
 (local udir (require :udir))
-(import-macros {: no} :macros)
+(import-macros {: map} :macros)
 
 (fn endswith-any [str suffixes]
   (var hidden false)
@@ -15,7 +15,7 @@
       (set found true)))
   found)
 
-(fn is-file-hidden [file files cwd]
+(fn is-file-hidden [file files _cwd]
   ;; Hide .lua file if there's a sibling .fnl file
   (if (vim.endswith file.name :.lua)
       (let [fnl (string.gsub file.name :.lua$ :.fnl)]
@@ -24,27 +24,28 @@
       (let [suffixes [:.bs.js :.o]]
         (endswith-any file.name suffixes))))
 
-(local map udir.map)
+(local m udir.map)
 
 (udir.setup {:auto_open true
              :show_hidden_files false
              :is_file_hidden is-file-hidden
-             :keymaps {:q map.quit
-                       :h map.up_dir
-                       :- map.up_dir
-                       :l map.open
-                       :<CR> map.open
-                       :s map.open_split
-                       :v map.open_vsplit
-                       :t map.open_tab
-                       :R map.reload
-                       :r map.move
-                       :d map.delete
-                       :+ map.create
-                       :m map.move
-                       :c map.copy
+             :keymaps {:q m.quit
+                       :h m.up_dir
+                       :- m.up_dir
+                       :l m.open
+                       :<CR> m.open
+                       :s m.open_split
+                       :v m.open_vsplit
+                       ;; Don't clobber (t)eleport
+                       :T m.open_tab
+                       :R m.reload
+                       :r m.move
+                       :d m.delete
+                       :+ m.create
+                       :m m.move
+                       :c m.copy
                        :C "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<CR>"
-                       :. map.toggle_hidden_files}})
+                       :. m.toggle_hidden_files}})
 
-(no n "-" :<Cmd>Udir<CR>)
+(map n "-" :<Cmd>Udir<CR>)
 

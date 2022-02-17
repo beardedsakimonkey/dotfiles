@@ -1,8 +1,8 @@
-(import-macros {: opt-local : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : map : undo_ftplugin} :macros)
 
-(no n :q :<Cmd>q<CR> :silent :buffer)
+(map n :q :<Cmd>q<CR> :silent :buffer)
 ;; Undo any existing <CR> mapping
-(no n :<CR> :<CR> :buffer)
+(map n :<CR> :<CR> :buffer)
 
 (opt-local statusline
            " %q %{printf(\" %d line%s\", line(\"$\"), line(\"$\") > 1 ? \"s \" : \" \")}")

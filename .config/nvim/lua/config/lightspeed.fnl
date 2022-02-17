@@ -9,12 +9,12 @@
 ;; No need to unmap `S` since it already has a custom mapping
 
 ;; "Teleport"
-(map n :t :<Plug>Lightspeed_s)
-(map n :T :<Plug>Lightspeed_S)
+(map n :t :<Plug>Lightspeed_s :remap)
+(map n :T :<Plug>Lightspeed_S :remap)
 
-(map n :f :<Plug>Lightspeed_f)
-(map n :F :<Plug>Lightspeed_F)
+(map n :f :<Plug>Lightspeed_f :remap)
+(map n :F :<Plug>Lightspeed_F :remap)
 
 ;; Go to next result from f/t (use , for going to prev results)
-(map n ":" "<Plug>Lightspeed_;_ft")
+(map n ":" "<Plug>Lightspeed_;_ft" :remap)
 

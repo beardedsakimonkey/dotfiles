@@ -1,4 +1,4 @@
-(import-macros {: opt-local : no : undo_ftplugin} :macros)
+(import-macros {: opt-local : map : undo_ftplugin} :macros)
 
 (opt-local keywordprg ":help")
 
@@ -7,8 +7,8 @@
   (local to (from:gsub :.lua$ :.fnl))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
-(no n "]f" goto-fnl :buffer)
-(no n "[f" goto-fnl :buffer)
+(map n "]f" goto-fnl :buffer)
+(map n "[f" goto-fnl :buffer)
 
 (undo_ftplugin "setl keywordprg<" "sil! nunmap <buffer> ]f"
                "sil! nunmap <buffer> [f")

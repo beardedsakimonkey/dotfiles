@@ -49,6 +49,9 @@
       :AndrewRadev/linediff.vim {:config "require'config.linediff'"
                                  :opt true
                                  :keys [[:v :D]]}
+      :tommcdo/vim-lion {:opt true
+                         :keys [:gl :gL]
+                         :config "vim.g.lion_squeeze_spaces = 1"}
       :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
       :tpope/vim-commentary {}
       :tpope/vim-surround {}

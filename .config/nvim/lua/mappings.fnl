@@ -155,8 +155,6 @@
 (map n :=v "mvg'[=g']g`v")
 ;; Reselect previous selection
 (map n :gs :gv)
-;; Jump to where last change was made
-(map n :gl "g`.")
 ;; Jump to where insert mode was last exited
 (map n :gi "g`^")
 (map n :<space>z zoom-toggle :silent)

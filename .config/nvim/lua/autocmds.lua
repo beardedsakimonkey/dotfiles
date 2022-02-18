@@ -1,4 +1,3 @@
-local uv = vim.loop
 vim.cmd("augroup my/autocmds | au!")
 local efm = "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
 local ns = vim.api.nvim_create_namespace("my/autocmds")
@@ -86,16 +85,10 @@ local function handle_large_buffers()
   end
 end
 local function maybe_make_executable()
-  local shebang = vim.fn.matchstr(vim.fn.getline(1), "^#!\\S\\+")
-  if shebang then
-    local name = vim.fn.expand("<afile>:p:S")
-    local mode = tonumber("755", 8)
-    local error = uv.fs_chmod(name, mode)
-    if error then
-      return print("Cannot make file '", name, "' executable")
-    else
-      return nil
-    end
+  local first_line = (vim.api.nvim_buf_get_lines(0, 0, 1, false))[1]
+  if first_line:match("^#!%S+") then
+    local path = vim.fn.expand("<afile>:p:S")
+    return vim.cmd(("sil !chmod +x " .. path))
   else
     return nil
   end
@@ -103,56 +96,6 @@ end
 local function setup_make_executable()
   _G["my__au__maybe_make_executable"] = maybe_make_executable
   return vim.cmd("autocmd BufWritePost <buffer> ++once lua my__au__maybe_make_executable()")
-end
-local function maybe_read_template()
-  local path = (vim.fn.stdpath("data") .. "/templates")
-  local fs = uv.fs_scandir(path)
-  local done_3f = false
-  while not done_3f do
-    local name, _type = uv.fs_scandir_next(fs)
-    if not name then
-      done_3f = true
-    elseif "else" then
-      local basename = string.match(name, "(%w+)%.")
-      if (basename == vim.bo.filetype) then
-        done_3f = true
-        local file = assert(io.open((path .. "/" .. name)))
-        local function close_handlers_8_auto(ok_9_auto, ...)
-          file:close()
-          if ok_9_auto then
-            return ...
-          else
-            return error(..., 0)
-          end
-        end
-        local function _13_()
-          local lines
-          do
-            local tbl_15_auto = {}
-            local i_16_auto = #tbl_15_auto
-            for v in file:lines() do
-              local val_17_auto = v
-              if (nil ~= val_17_auto) then
-                i_16_auto = (i_16_auto + 1)
-                do end (tbl_15_auto)[i_16_auto] = val_17_auto
-              else
-              end
-            end
-            lines = tbl_15_auto
-          end
-          if (lines[#lines] == "") then
-            table.remove(lines)
-          else
-          end
-          return vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
-        end
-        close_handlers_8_auto(_G.xpcall(_13_, (package.loaded.fennel or debug).traceback))
-      else
-      end
-    else
-    end
-  end
-  return nil
 end
 local function maybe_create_directories()
   local afile = vim.fn.expand("<afile>")
@@ -219,10 +162,6 @@ do
   vim.cmd("autocmd BufNewFile *  lua my__au__setup_make_executable()")
 end
 do
-  _G["my__au__maybe_read_template"] = maybe_read_template
-  vim.cmd("autocmd BufNewFile *  lua my__au__maybe_read_template()")
-end
-do
   _G["my__au__maybe_create_directories"] = maybe_create_directories
   vim.cmd("autocmd BufWritePre,FileWritePre *  lua my__au__maybe_create_directories()")
 end
@@ -255,5 +194,21 @@ end
 do
   _G["my__au__update_user_js"] = update_user_js
   vim.cmd("autocmd BufWritePost user-overrides.js  lua my__au__update_user_js()")
+end
+local function template_sh()
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
+end
+local function template_h()
+  local file_name = vim.fn.expand("<afile>:t")
+  local guard = string.upper(file_name:gsub("%.", "_"))
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
+end
+do
+  _G["my__au__template_sh"] = template_sh
+  vim.cmd("autocmd BufNewFile *.sh  lua my__au__template_sh()")
+end
+do
+  _G["my__au__template_h"] = template_h
+  vim.cmd("autocmd BufNewFile *.h  lua my__au__template_h()")
 end
 return vim.cmd("augroup END")

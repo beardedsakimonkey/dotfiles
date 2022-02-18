@@ -1,5 +1,4 @@
 (import-macros {: au : opt-local} :macros)
-(local uv vim.loop)
 
 (vim.cmd "augroup my/autocmds | au!")
 
@@ -76,34 +75,14 @@
 
 ;; Make files with a shebang executable on first write
 (fn maybe-make-executable []
-  (let [shebang (vim.fn.matchstr (vim.fn.getline 1) "^#!\\S\\+")]
-    (if shebang
-        (let [name (vim.fn.expand "<afile>:p:S")
-              mode (tonumber :755 8)
-              error (uv.fs_chmod name mode)]
-          (if error (print "Cannot make file '" name "' executable"))))))
+  (local first-line (. (vim.api.nvim_buf_get_lines 0 0 1 false) 1))
+  (if (first-line:match "^#!%S+")
+      (let [path (vim.fn.expand "<afile>:p:S")]
+        ;; NOTE: libuv operations say that the file doesn't exist yet..
+        (vim.cmd (.. "sil !chmod +x " path)))))
 
 (fn setup-make-executable []
   (au BufWritePost <buffer> maybe-make-executable :++once))
-
-(fn maybe-read-template []
-  (let [path (.. (vim.fn.stdpath :data) :/templates)
-        fs (uv.fs_scandir path)]
-    (var done? false)
-    (while (not done?)
-      (let [(name _type) (uv.fs_scandir_next fs)]
-        (if (not name) (set done? true) :else
-            (let [basename (string.match name "(%w+)%.")]
-              (if (= basename vim.bo.filetype)
-                  (do
-                    (set done? true)
-                    (with-open [file (assert (io.open (.. path "/" name)))]
-                      (let [lines (icollect [v (file:lines)]
-                                    v)]
-                        ;; In case the file ends with a newline
-                        (if (= (. lines (length lines)) "")
-                            (table.remove lines))
-                        (vim.api.nvim_buf_set_lines 0 0 -1 true lines)))))))))))
 
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
@@ -150,7 +129,6 @@
 (au BufWritePost *.fnl compile-udir-fennel)
 (au BufReadPre * handle-large-buffers)
 (au BufNewFile * setup-make-executable)
-(au BufNewFile * maybe-read-template)
 (au [BufWritePre FileWritePre] * maybe-create-directories)
 (au TextYankPost * highlight-text)
 (au BufWritePost */colors/*.vim source-colorscheme)
@@ -162,6 +140,21 @@
 ;; Reload file if changed on disk
 (au [FocusGained BufEnter] * :checktime)
 (au BufWritePost user-overrides.js update-user-js)
+
+(macro set-lines [lines]
+  `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
+
+;; Templates
+(fn template-sh []
+  (set-lines ["#!/bin/bash"]))
+
+(fn template-h []
+  (let [file-name (vim.fn.expand "<afile>:t")
+        guard (string.upper (file-name:gsub "%." "_"))]
+    (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
+
+(au BufNewFile *.sh template-sh)
+(au BufNewFile *.h template-h)
 
 (vim.cmd "augroup END")
 

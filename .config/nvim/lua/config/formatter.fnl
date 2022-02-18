@@ -5,7 +5,7 @@
   {:exe :fnlfmt :args [(vim.api.nvim_buf_get_name 0)] :stdin true})
 
 (fn gofmt []
-  {:exe :gofmt :args [(vim.api.nvim_buf_get_name 0)] :stdin true})
+  {:exe :gofmt :args ["-w"] :stdin true})
 
 ;; NOTE: YOU MUST UPDATE plugins.fnl WHEN ADDING NEW FILETYPES.
 (formatter.setup {:filetype {:fennel [fnlfmt]

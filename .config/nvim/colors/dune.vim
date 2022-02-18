@@ -89,3 +89,4 @@ hi UdirExecutable guifg=#8B0A50
 hi! link UdirVirtText Comment
 
 hi! link TSConstant Special
+hi! link TSPunctBracket Comment

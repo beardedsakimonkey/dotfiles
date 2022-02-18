@@ -45,7 +45,7 @@
                        :m m.move
                        :c m.copy
                        :C "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<CR>"
-                       :. m.toggle_hidden_files}})
+                       :gh m.toggle_hidden_files}})
 
 (map n "-" :<Cmd>Udir<CR>)
 

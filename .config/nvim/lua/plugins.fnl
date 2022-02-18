@@ -36,7 +36,6 @@
                                :after :nvim-treesitter}
       ;; LSP
       :neovim/nvim-lspconfig {:config "require'config.lsp'"}
-      :j-hui/fidget.nvim {:config "require'fidget'.setup{}"}
       ;; Completion
       :hrsh7th/nvim-cmp {:config "require'config.cmp'"}
       :hrsh7th/cmp-buffer {:after :nvim-cmp}
@@ -55,7 +54,6 @@
       :tpope/vim-surround {}
       :tpope/vim-repeat {}
       ;; Languages
-      :bakpakin/fennel.vim {}
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
       ;; Local
       "~/code/udir" {:config "require'config.udir'"}})

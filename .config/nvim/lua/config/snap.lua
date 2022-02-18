@@ -40,7 +40,7 @@ local function normal_grep()
   return snap.run(with_defaults(grep))
 end
 local function help_grep()
-  local function help_select(selection, winnr, type)
+  local function _help_select(selection, _winnr, type)
     local cmd
     do
       local _5_ = type
@@ -59,7 +59,18 @@ local function help_grep()
     end
     return vim.api.nvim_command((cmd .. "help " .. tostring(selection)))
   end
-  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = help_select, views = {snap.get("preview.help")}}))
+  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _help_select, views = {snap.get("preview.help")}}))
+end
+local function get_oldfiles()
+  local function _7_(file)
+    local not_wildignored = (0 == vim.fn.empty(vim.fn.glob(file)))
+    local is_dir = (0 == vim.fn.isdirectory(file))
+    return (not_wildignored and is_dir)
+  end
+  return vim.tbl_filter(_7_, vim.v.oldfiles)
+end
+local function oldfiles()
+  return snap.sync(get_oldfiles)
 end
 local file = (snap.config.file):with(defaults)
-return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = "vim.oldfile"})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})
+return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = oldfiles})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})

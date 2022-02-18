@@ -52,7 +52,7 @@
   (snap.run (with-defaults {:prompt :Help>
                             :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
                             ;; The built-in help select function doesn't handle splits
-                            :select (fn help-select [selection winnr type]
+                            :select (fn _help-select [selection _winnr type]
                                       (let [cmd (match type
                                                   :vsplit "vert "
                                                   :split "belowright "
@@ -62,11 +62,22 @@
                                                                   (tostring selection)))))
                             :views [(snap.get :preview.help)]})))
 
+;; Oldfiles producer that filters out directories
+(fn get-oldfiles []
+  (vim.tbl_filter (fn [file]
+                    (local not-wildignored
+                           (= 0 (vim.fn.empty (vim.fn.glob file))))
+                    (local is-dir (= 0 (vim.fn.isdirectory file)))
+                    (and not-wildignored is-dir))
+                  vim.v.oldfiles))
+
+(fn oldfiles []
+  (snap.sync get-oldfiles))
+
 (local file (snap.config.file:with defaults))
 
 (snap.maps [[:<space>b (file {:producer sorted-buffers})]
-            ;; TODO: filter out directories
-            [:<space>o (file {:producer :vim.oldfile})]
+            [:<space>o (file {:producer oldfiles})]
             [:<space>f (file {:producer :ripgrep.file})]
             [:<space>a visual-grep {:modes [:v]}]
             [:<space>a normal-grep]

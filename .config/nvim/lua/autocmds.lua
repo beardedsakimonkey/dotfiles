@@ -1,15 +1,10 @@
 vim.cmd("augroup my/autocmds | au!")
-local efm = "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function on_fnl_err(output)
-  if string.match(output, "macros.fnl") then
-    print(output)
-  else
-    print(output)
-  end
+  print(output)
   local lines = vim.split(output, "\n")
-  local _let_2_ = vim.fn.getqflist({efm = efm, lines = lines})
-  local items = _let_2_["items"]
+  local _let_1_ = vim.fn.getqflist({efm = "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#", lines = lines})
+  local items = _let_1_["items"]
   for _, v in ipairs(items) do
     v.text = (v.text):gsub("^\n", "")
   end
@@ -21,52 +16,63 @@ local function write_21(text, filename)
   handle:write(text)
   return handle:close()
 end
-local function compile_config_fennel()
-  vim.diagnostic.reset(ns, tonumber(vim.fn.expand("<abuf>")))
+local function tbl_find(pred_3f, seq)
+  local _3fres = nil
+  for _, v in ipairs(seq) do
+    if (nil ~= _3fres) then break end
+    if pred_3f(v) then
+      _3fres = v
+    else
+    end
+  end
+  return _3fres
+end
+local function compile_fennel()
   local config_dir = vim.fn.stdpath("config")
+  local roots = {(config_dir .. "/"), "/Users/tim/code/udir/"}
   local src = vim.fn.expand("<afile>:p")
-  local dest = src:gsub(".fnl$", ".lua")
-  local compile_3f = (vim.startswith(src, config_dir) and not vim.endswith(src, "macros.fnl"))
+  local _3froot
+  local function _3_(_241)
+    return vim.startswith(src, _241)
+  end
+  _3froot = tbl_find(_3_, roots)
+  local src0
+  if _3froot then
+    src0 = src:gsub(("^" .. _3froot), "")
+  else
+    src0 = src
+  end
+  local dest = src0:gsub(".fnl$", ".lua")
+  local compile_3f = (_3froot and not vim.endswith(src0, "macros.fnl"))
+  vim.diagnostic.reset(ns, tonumber(vim.fn.expand("<abuf>")))
   if compile_3f then
-    local cmd = string.format("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s", vim.fn.fnameescape(src))
-    vim.cmd(("lcd " .. config_dir))
+    local cmd = ("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile " .. vim.fn.fnameescape(src0))
+    if _3froot then
+      vim.cmd(("lcd " .. _3froot))
+    else
+    end
     local output = vim.fn.system(cmd)
     if (0 ~= vim.v.shell_error) then
       on_fnl_err(output)
     else
       write_21(output, dest)
     end
-    vim.cmd("lcd -")
-    if not vim.startswith(src, (config_dir .. "/after/ftplugin")) then
-      vim.cmd(("luafile " .. dest))
+    if ((0 == vim.v.shell_error) and (_3froot == config_dir)) then
+      if not vim.startswith(src0, "after/ftplugin") then
+        vim.cmd(("luafile " .. dest))
+      else
+      end
+      if (src0 == "lua/plugins.fnl") then
+        vim.cmd("PackerCompile")
+      else
+      end
     else
     end
-    if ((0 == vim.v.shell_error) and (src == (config_dir .. "/lua/plugins.fnl"))) then
-      return vim.cmd("PackerCompile")
+    if _3froot then
+      return vim.cmd("lcd -")
     else
       return nil
     end
-  else
-    return nil
-  end
-end
-local function compile_udir_fennel()
-  local dir = "/Users/tim/code/udir/"
-  local src = vim.fn.expand("<afile>:p")
-  local src2 = src:gsub(("^" .. dir), "")
-  local dest = src2:gsub(".fnl$", ".lua")
-  local compile_3f = vim.startswith(src, dir)
-  if compile_3f then
-    vim.cmd(("lcd " .. dir))
-    do
-      local cmd = string.format("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s > %s", vim.fn.fnameescape(src2), vim.fn.fnameescape(dest))
-      local output = vim.fn.system(cmd)
-      if vim.v.shell_error then
-        on_fnl_err(output)
-      else
-      end
-    end
-    return vim.cmd("lcd -")
   else
     return nil
   end
@@ -145,13 +151,57 @@ local function update_user_js()
   local _handle, _pid = assert(vim.loop.spawn(cmd, opts, on_exit))
   return nil
 end
-do
-  _G["my__au__compile_config_fennel"] = compile_config_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_config_fennel()")
+local function strip_trailing_newline(str)
+  if ("\n" == str:sub(-1)) then
+    return str:sub(1, -2)
+  else
+    return str
+  end
+end
+local function edit_url()
+  local stdout = vim.loop.new_pipe()
+  local stderr = vim.loop.new_pipe()
+  local function on_exit(exit_code, signal)
+    if (0 ~= exit_code) then
+      return print(string.format("spawn failed (exit code %d, signal %d)", exit_code, signal))
+    else
+      return nil
+    end
+  end
+  local opts = {stdio = {nil, stdout, stderr}, args = {"--location", "--silent", "--show-error", vim.fn.expand("<afile>")}}
+  local _handle, _pid = vim.loop.spawn("curl", opts, on_exit)
+  local function on_stdout_2ferr(_3ferr, _3fdata)
+    assert(not _3ferr, _3ferr)
+    if (nil ~= _3fdata) then
+      local lines = vim.split(strip_trailing_newline(_3fdata), "\n")
+      local function _19_()
+        local start
+        if vim.bo.modified then
+          start = -1
+        else
+          start = 0
+        end
+        return vim.api.nvim_buf_set_lines(0, start, -1, false, lines)
+      end
+      return vim.schedule(_19_)
+    else
+      return nil
+    end
+  end
+  vim.loop.read_start(stdout, on_stdout_2ferr)
+  return vim.loop.read_start(stderr, on_stdout_2ferr)
+end
+local function template_sh()
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
+end
+local function template_h()
+  local file_name = vim.fn.expand("<afile>:t")
+  local guard = string.upper(file_name:gsub("%.", "_"))
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
 do
-  _G["my__au__compile_udir_fennel"] = compile_udir_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_udir_fennel()")
+  _G["my__au__compile_fennel"] = compile_fennel
+  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_fennel()")
 end
 do
   _G["my__au__handle_large_buffers"] = handle_large_buffers
@@ -195,13 +245,9 @@ do
   _G["my__au__update_user_js"] = update_user_js
   vim.cmd("autocmd BufWritePost user-overrides.js  lua my__au__update_user_js()")
 end
-local function template_sh()
-  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
-end
-local function template_h()
-  local file_name = vim.fn.expand("<afile>:t")
-  local guard = string.upper(file_name:gsub("%.", "_"))
-  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
+do
+  _G["my__au__edit_url"] = edit_url
+  vim.cmd("autocmd BufNewFile http://*,https://*  lua my__au__edit_url()")
 end
 do
   _G["my__au__template_sh"] = template_sh

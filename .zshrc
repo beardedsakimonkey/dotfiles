@@ -394,6 +394,7 @@ cd() {
 
 megadl() {
     emulate -L zsh
+    cd ~/movies
     local url="$1"
     for i in {1..10}; do
         if [[ "$url" =~ "mega.nz" ]] ||  [[ "$url" =~ "^https" ]]; then

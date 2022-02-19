@@ -40,19 +40,19 @@ function Kwbd(kwbdStage)
             enew
             let l:newBuf = bufnr("%")
             windo if(buflisted(winbufnr(0))) | execute "b! " . l:newBuf | endif
+        endif
+        execute s:kwbdWinNum . 'wincmd w'
     endif
-    execute s:kwbdWinNum . 'wincmd w'
-endif
-if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
-    execute "bd! " . s:kwbdBufNum
-endif
-if(!s:buflistedLeft)
-    set buflisted
-    set bufhidden=delete
-    set buftype=
-    setlocal noswapfile
-endif
-  else
+    if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
+        execute "bd! " . s:kwbdBufNum
+    endif
+    if(!s:buflistedLeft)
+        set buflisted
+        set bufhidden=delete
+        set buftype=
+        setlocal noswapfile
+    endif
+    else
       if(bufnr("%") == s:kwbdBufNum)
           let prevbufvar = bufnr("#")
           if(prevbufvar > 0 && buflisted(prevbufvar) && prevbufvar != s:kwbdBufNum)

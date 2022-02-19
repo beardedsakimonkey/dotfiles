@@ -37,7 +37,7 @@
                        :s m.open_split
                        :v m.open_vsplit
                        ;; Don't clobber (t)eleport
-                       :T m.open_tab
+                       :<C-t> m.open_tab
                        :R m.reload
                        :r m.move
                        :d m.delete

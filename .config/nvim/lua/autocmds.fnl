@@ -2,18 +2,14 @@
 
 (vim.cmd "augroup my/autocmds | au!")
 
-(local efm
-       "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#")
-
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
 
 ;; Adapted from gpanders' config
 (fn on-fnl-err [output]
-  (if (string.match output :macros.fnl)
-      (print output)
-      (print output))
+  (print output)
   (let [lines (vim.split output "\n")
-        {: items} (vim.fn.getqflist {: efm : lines})]
+        {: items} (vim.fn.getqflist {:efm "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
+                                     : lines})]
     (each [_ v (ipairs items)]
       (set v.text (v.text:gsub "^\n" "")))
     (local results (vim.diagnostic.fromqflist items))
@@ -24,45 +20,38 @@
   (handle:write text)
   (handle:close))
 
-;; In .nvim/config, recompile fennel on write
-(fn compile-config-fennel []
-  (vim.diagnostic.reset ns (tonumber (vim.fn.expand :<abuf>)))
+(fn tbl_find [pred? seq]
+  (var ?res nil)
+  (each [_ v (ipairs seq) :until (not= nil ?res)]
+    (when (pred? v)
+      (set ?res v)))
+  ?res)
+
+(fn compile-fennel []
   (let [config-dir (vim.fn.stdpath :config)
+        roots [(.. config-dir "/") :/Users/tim/code/udir/]
         src (vim.fn.expand "<afile>:p")
+        ?root (tbl_find #(vim.startswith src $1) roots)
+        ;; Avoid abs path because it appears in output of `lambda`
+        src (if ?root (src:gsub (.. "^" ?root) "") src)
         dest (src:gsub :.fnl$ :.lua)
-        compile? (and (vim.startswith src config-dir)
-                      (not (vim.endswith src :macros.fnl)))]
+        compile? (and ?root (not (vim.endswith src :macros.fnl)))]
+    (vim.diagnostic.reset ns (tonumber (vim.fn.expand :<abuf>)))
     (if compile?
-        (let [cmd (string.format "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s"
-                                 (vim.fn.fnameescape src))]
+        (let [cmd (.. "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile "
+                      (vim.fn.fnameescape src))]
           ;; Change dir so macros.fnl gets read
-          (vim.cmd (.. "lcd " config-dir))
-          ;; TODO: pcall this so that the subsequent lcd runs even if it fails
+          (when ?root
+            (vim.cmd (.. "lcd " ?root)))
           (local output (vim.fn.system cmd))
           (if (not= 0 vim.v.shell_error) (on-fnl-err output)
               (write! output dest))
-          (vim.cmd "lcd -")
-          (when (not (vim.startswith src (.. config-dir :/after/ftplugin)))
-            (vim.cmd (.. "luafile " dest)))
-          (when (and (= 0 vim.v.shell_error)
-                     (= src (.. config-dir :/lua/plugins.fnl)))
-            (vim.cmd :PackerCompile))))))
-
-(fn compile-udir-fennel []
-  (let [dir :/Users/tim/code/udir/
-        src (vim.fn.expand "<afile>:p")
-        ;; Don't use abs path because it appears in output of `lambda`
-        src2 (src:gsub (.. "^" dir) "")
-        dest (src2:gsub :.fnl$ :.lua)
-        compile? (vim.startswith src dir)]
-    (when compile?
-      (vim.cmd (.. "lcd " dir))
-      (let [cmd (string.format "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile %s > %s"
-                               (vim.fn.fnameescape src2)
-                               (vim.fn.fnameescape dest))]
-        (local output (vim.fn.system cmd))
-        (if vim.v.shell_error (on-fnl-err output)))
-      (vim.cmd "lcd -"))))
+          (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
+            (if (not (vim.startswith src :after/ftplugin))
+                (vim.cmd (.. "luafile " dest)))
+            (if (= src :lua/plugins.fnl) (vim.cmd :PackerCompile)))
+          (when ?root
+            (vim.cmd "lcd -"))))))
 
 (fn handle-large-buffers []
   (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
@@ -73,7 +62,6 @@
       (opt-local swapfile false)
       (opt-local undofile false))))
 
-;; Make files with a shebang executable on first write
 (fn maybe-make-executable []
   (local first-line (. (vim.api.nvim_buf_get_lines 0 0 1 false) 1))
   (if (first-line:match "^#!%S+")
@@ -114,6 +102,9 @@
   (opt-local formatoptions += :jcn)
   (opt-local formatoptions -= [:r :o :t]))
 
+;;
+;; Update user.js
+;;
 (fn update-user-js []
   (local cmd
          "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh")
@@ -125,8 +116,55 @@
 
   (local (_handle _pid) (assert (vim.loop.spawn cmd opts on-exit))))
 
-(au BufWritePost *.fnl compile-config-fennel)
-(au BufWritePost *.fnl compile-udir-fennel)
+;;
+;; Edit url
+;;
+(fn strip-trailing-newline [str]
+  (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
+
+(fn edit-url []
+  (local stdout (vim.loop.new_pipe))
+  (local stderr (vim.loop.new_pipe))
+
+  (fn on-exit [exit-code signal]
+    (if (not= 0 exit-code)
+        (print (string.format "spawn failed (exit code %d, signal %d)"
+                              exit-code signal))))
+
+  (local opts {:stdio [nil stdout stderr]
+               :args [; follow redirects
+                      :--location
+                      :--silent
+                      :--show-error
+                      (vim.fn.expand :<afile>)]})
+  (local (_handle _pid) (vim.loop.spawn :curl opts on-exit))
+
+  (fn on-stdout/err [?err ?data]
+    (assert (not ?err) ?err)
+    (when (not= nil ?data)
+      (local lines (vim.split (strip-trailing-newline ?data) "\n"))
+      (vim.schedule (fn []
+                      (local start (if vim.bo.modified -1 0))
+                      (vim.api.nvim_buf_set_lines 0 start -1 false lines)))))
+
+  (vim.loop.read_start stdout on-stdout/err)
+  (vim.loop.read_start stderr on-stdout/err))
+
+;;
+;; Templates
+;;
+(macro set-lines [lines]
+  `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
+
+(fn template-sh []
+  (set-lines ["#!/bin/bash"]))
+
+(fn template-h []
+  (let [file-name (vim.fn.expand "<afile>:t")
+        guard (string.upper (file-name:gsub "%." "_"))]
+    (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
+
+(au BufWritePost *.fnl compile-fennel)
 (au BufReadPre * handle-large-buffers)
 (au BufNewFile * setup-make-executable)
 (au [BufWritePre FileWritePre] * maybe-create-directories)
@@ -140,19 +178,7 @@
 ;; Reload file if changed on disk
 (au [FocusGained BufEnter] * :checktime)
 (au BufWritePost user-overrides.js update-user-js)
-
-(macro set-lines [lines]
-  `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
-
-;; Templates
-(fn template-sh []
-  (set-lines ["#!/bin/bash"]))
-
-(fn template-h []
-  (let [file-name (vim.fn.expand "<afile>:t")
-        guard (string.upper (file-name:gsub "%." "_"))]
-    (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
-
+(au BufNewFile [http://* https://*] edit-url)
 (au BufNewFile *.sh template-sh)
 (au BufNewFile *.h template-h)
 

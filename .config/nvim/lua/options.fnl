@@ -1,7 +1,7 @@
 (import-macros {: opt} :macros)
 
 ;; !     - Save and restore all-caps global variables
-;; '4096 - Marks will be remembered for the last 4096 files edited (also the number of `v:oldfiles` stored)
+;; '8192 - Marks will be remembered for the last 8192 files edited (also the number of `v:oldfiles` stored)
 ;; <50   - Contents of registers (up to 50 lines each) will be remembered
 ;; s10   - Items with contents occupying more then 10 KiB are skipped
 ;; h     - Disable the effect of 'hlsearch' when loading the shada file
@@ -61,7 +61,6 @@
 (opt sidescrolloff 2)
 (opt virtualedit :block)
 (opt wrap false)
-;; (opt wrapscan false)
 
 (opt number)
 (opt sessionoptions [:help :tabpages :winsize :curdir :folds])

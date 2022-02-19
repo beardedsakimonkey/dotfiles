@@ -26,7 +26,7 @@
 (fn visual-slash []
   (vim.api.nvim_input "/\\%V"))
 
-;; Adapted form lacygoill's vimrc.
+;; Adapted from lacygoill's vimrc.
 (fn repeat-last-edit []
   (let [changed (vim.fn.getreg "\"" 1 1)]
     (when changed
@@ -38,7 +38,7 @@
         (vim.fn.setreg "/" (.. "\\V" pat) :c)
         (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))
 
-;; Adapted form lacygoill's vimrc.
+;; Navigate to the window you came from. Adapted from lacygoill's vimrc.
 (fn previous-window-in-same-direction [dir]
   (let [cnr (vim.fn.winnr)
         pnr (vim.fn.winnr "#")]
@@ -69,32 +69,6 @@
       (vim.cmd "try | wincmd p | catch | entry")
       (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
 
-;; Adapted from gpanders' config
-(fn jump [dir]
-  (let [next? (= :next dir)
-        bufnr (vim.api.nvim_get_current_buf)
-        [jumplist index] (vim.fn.getjumplist)
-        (start stop step) (if next?
-                              (values (+ index 2) (length jumplist) 1)
-                              (values index 1 -1))]
-    (var target nil)
-    (var count vim.v.count1)
-    (for [i start stop step :until (= count 0)]
-      (match (. jumplist i)
-        {: bufnr} (do
-                    (set count (- count 1))
-                    (set target i))))
-    (when target
-      (let [cmd (.. "normal! "
-                    (if next?
-                        (.. (+ 1 (- target start))
-                            (vim.api.nvim_replace_termcodes :<C-I> true true
-                                                            true))
-                        (.. (+ 1 (- start target))
-                            (vim.api.nvim_replace_termcodes :<C-O> true true
-                                                            true))))]
-        (vim.cmd cmd)))))
-
 ;;
 ;; Augmented deafults
 ;;
@@ -102,29 +76,28 @@
 (map n :<Up> :gk)
 (map n :<c-e> :<c-e><c-e>)
 (map n :<c-y> :<c-y><c-y>)
+(map "" :<C-g> :g<C-g>)
 (map [n x] "<" "<<")
 (map [n x] ">" ">>")
 (map [n x] :s "\"_s")
-(map [n x] :Z :zzzH)
 (map n :p "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'" :expr)
 (map n :P "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'" :expr)
 (map x :p "'\"_c<C-r>'.v:register.'<Esc>'" :expr)
 (map n "`" "g`")
 (map n "'" "g'")
-(map "" :<C-g> :g<C-g>)
-;; Navigate to the window you came from.
+;; Select previously changed/yanked text
+(map n :gv "g`[vg`]")
+(map n :gV "g'[Vg']")
 (map n :<C-l> #(navigate :l) :silent)
 (map n :<C-h> #(navigate :h) :silent)
 (map n :<C-j> #(navigate :j) :silent)
 (map n :<C-k> #(navigate :k) :silent)
 
 ;;
-;; Remapped builtins
+;; Rearrange some default mappings
 ;;
 (map [n x] ";" ":")
 (map [n x] ":" ";")
-;; `qq` to start recording, `Q` to repeat
-(map n :Q "@q")
 (map "" :H "^")
 (map "" :L "$")
 (map "" "(" :H :silent)
@@ -132,14 +105,16 @@
 ;; Increment number
 (map n :<C-s> :<C-a> :silent)
 (map "" :<tab> "<CMD>keepj norm! %<CR>" :silent)
-
 ;; Move <Tab>'s original behavior to <C-p>
 (map n :<C-p> :<C-i>)
-(map n :cn :cgn :silent)
 
 ;;
 ;; Misc
 ;;
+(map n :cn :cgn :silent)
+(map [n x] :Z :zzzH)
+;; `qq` to start recording, `Q` to repeat
+(map n :Q "@q")
 (map n :<CR> :<CMD>w<CR> :silent)
 (map "" :<C-q> :<CMD>q<CR> :silent)
 (map n :<space>l :<CMD>vsplit<CR> :silent)
@@ -148,11 +123,6 @@
 (map "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
 (map "" :<Space>q "<CMD>b#<CR>" :silent)
 (map n :g> :<CMD>40messages<CR> :silent)
-;; Select previously changed/yanked text
-(map n :gv "g`[vg`]")
-(map n :gV "g'[Vg']")
-;; Format previously changed/yanked text
-(map n :=v "mvg'[=g']g`v")
 ;; Reselect previous selection
 (map n :gs :gv)
 ;; Jump to where insert mode was last exited
@@ -252,9 +222,6 @@
 (map "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (map n "[e" #(move-line :up))
 (map n "]e" #(move-line :down))
-;; Jump to previous buffer in jumplist.
-(map n "[j" #(jump :next))
-(map n "]j" #(jump :prev))
 
 ;;
 ;; Bookmarks
@@ -265,6 +232,9 @@
 (map n "'N" "<CMD>e ~/notes/notes.md<CR>" :silent)
 (map n "'T" "<CMD>e ~/notes/todo.md<CR>" :silent)
 (map n "'A" "<CMD>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
+(map n "'U"
+     "<CMD>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
+     :silent)
 
 ;;
 ;; Grab file name

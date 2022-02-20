@@ -28,8 +28,8 @@ local function tbl_find(pred_3f, seq)
   return _3fres
 end
 local function compile_fennel()
-  local config_dir = vim.fn.stdpath("config")
-  local roots = {(config_dir .. "/"), "/Users/tim/code/udir/"}
+  local config_dir = (vim.fn.stdpath("config") .. "/")
+  local roots = {config_dir, "/Users/tim/code/udir/"}
   local src = vim.fn.expand("<afile>:p")
   local _3froot
   local function _3_(_241)
@@ -46,7 +46,7 @@ local function compile_fennel()
   local compile_3f = (_3froot and not vim.endswith(src0, "macros.fnl"))
   vim.diagnostic.reset(ns, tonumber(vim.fn.expand("<abuf>")))
   if compile_3f then
-    local cmd = ("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile " .. vim.fn.fnameescape(src0))
+    local cmd = ("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile " .. vim.fn.shellescape(src0))
     if _3froot then
       vim.cmd(("lcd " .. _3froot))
     else
@@ -59,7 +59,7 @@ local function compile_fennel()
     end
     if ((0 == vim.v.shell_error) and (_3froot == config_dir)) then
       if not vim.startswith(src0, "after/ftplugin") then
-        vim.cmd(("luafile " .. dest))
+        vim.cmd(("luafile " .. vim.fn.fnameescape(dest)))
       else
       end
       if (src0 == "lua/plugins.fnl") then

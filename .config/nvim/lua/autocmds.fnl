@@ -28,8 +28,8 @@
   ?res)
 
 (fn compile-fennel []
-  (let [config-dir (vim.fn.stdpath :config)
-        roots [(.. config-dir "/") :/Users/tim/code/udir/]
+  (let [config-dir (.. (vim.fn.stdpath :config) "/")
+        roots [config-dir :/Users/tim/code/udir/]
         src (vim.fn.expand "<afile>:p")
         ?root (tbl_find #(vim.startswith src $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`
@@ -39,7 +39,7 @@
     (vim.diagnostic.reset ns (tonumber (vim.fn.expand :<abuf>)))
     (if compile?
         (let [cmd (.. "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile "
-                      (vim.fn.fnameescape src))]
+                      (vim.fn.shellescape src))]
           ;; Change dir so macros.fnl gets read
           (when ?root
             (vim.cmd (.. "lcd " ?root)))
@@ -48,7 +48,7 @@
               (write! output dest))
           (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
             (if (not (vim.startswith src :after/ftplugin))
-                (vim.cmd (.. "luafile " dest)))
+                (vim.cmd (.. "luafile " (vim.fn.fnameescape dest))))
             (if (= src :lua/plugins.fnl) (vim.cmd :PackerCompile)))
           (when ?root
             (vim.cmd "lcd -"))))))

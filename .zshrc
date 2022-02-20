@@ -333,6 +333,7 @@ alias sudo='\sudo '
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='\ls -FG'
 alias a='ls -A'
+alias at='ls -At'
 
 alias gj='git-jump'
 alias gs='git status'

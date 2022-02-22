@@ -1,15 +1,30 @@
 vim.g.mapleader = "<s-f5>"
 vim.g.maplocalleader = ","
+local function prev_change_list()
+  local _local_1_ = vim.api.nvim_win_get_cursor(0)
+  local row = _local_1_[1]
+  local _ = _local_1_[2]
+  vim.cmd("normal! g;")
+  local _local_2_ = vim.api.nvim_win_get_cursor(0)
+  local row2 = _local_2_[1]
+  local _0 = _local_2_[2]
+  local delta = math.abs((row - row2))
+  if (delta <= 1) then
+    return vim.cmd("normal! g;")
+  else
+    return nil
+  end
+end
 local function move_line(dir)
   vim.cmd("keepj norm! mv")
-  local function _1_()
+  local function _4_()
     if (dir == "up") then
       return "--"
     else
       return "+"
     end
   end
-  vim.cmd(("move " .. _1_() .. vim.v.count1))
+  vim.cmd(("move " .. _4_() .. vim.v.count1))
   return vim.cmd("keepj norm! =`v")
 end
 local function zoom_toggle()
@@ -33,10 +48,10 @@ local function repeat_last_edit()
   local changed = vim.fn.getreg("\"", 1, 1)
   if changed then
     local changed0
-    local function _4_(_241)
+    local function _7_(_241)
       return vim.fn.escape(_241, "\\")
     end
-    changed0 = vim.tbl_map(_4_, changed)
+    changed0 = vim.tbl_map(_7_, changed)
     local pat = table.concat(changed0, "\\n")
     vim.fn.setreg("/", ("\\V" .. pat), "c")
     return vim.cmd("exe \"norm! cgn\\<c-@>\"")
@@ -47,20 +62,20 @@ end
 local function previous_window_in_same_direction(dir)
   local cnr = vim.fn.winnr()
   local pnr = vim.fn.winnr("#")
-  local _6_ = dir
-  if (_6_ == "h") then
+  local _9_ = dir
+  if (_9_ == "h") then
     local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
     local rightedge_previous_window = ((vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr)) - 1)
     return ((leftedge_current_window - 1) == (rightedge_previous_window + 1))
-  elseif (_6_ == "l") then
+  elseif (_9_ == "l") then
     local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
     local rightedge_current_window = ((vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr)) - 1)
     return ((leftedge_previous_window - 1) == (rightedge_current_window + 1))
-  elseif (_6_ == "j") then
+  elseif (_9_ == "j") then
     local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
     local bottomedge_current_window = ((vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr)) - 1)
     return ((topedge_previous_window - 1) == (bottomedge_current_window + 1))
-  elseif (_6_ == "k") then
+  elseif (_9_ == "k") then
     local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
     local bottomedge_previous_window = ((vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr)) - 1)
     return ((topedge_current_window - 1) == (bottomedge_previous_window + 1))
@@ -99,22 +114,22 @@ vim.api.nvim_set_keymap("n", "`", "g`", {noremap = true})
 vim.api.nvim_set_keymap("n", "'", "g'", {noremap = true})
 vim.api.nvim_set_keymap("n", "gv", "g`[vg`]", {noremap = true})
 vim.api.nvim_set_keymap("n", "gV", "g'[Vg']", {noremap = true})
-local function _9_()
+local function _12_()
   return navigate("l")
 end
-vim.api.nvim_set_keymap("n", "<C-l>", "", {callback = _9_, noremap = true, silent = true})
-local function _10_()
+vim.api.nvim_set_keymap("n", "<C-l>", "", {callback = _12_, noremap = true, silent = true})
+local function _13_()
   return navigate("h")
 end
-vim.api.nvim_set_keymap("n", "<C-h>", "", {callback = _10_, noremap = true, silent = true})
-local function _11_()
+vim.api.nvim_set_keymap("n", "<C-h>", "", {callback = _13_, noremap = true, silent = true})
+local function _14_()
   return navigate("j")
 end
-vim.api.nvim_set_keymap("n", "<C-j>", "", {callback = _11_, noremap = true, silent = true})
-local function _12_()
+vim.api.nvim_set_keymap("n", "<C-j>", "", {callback = _14_, noremap = true, silent = true})
+local function _15_()
   return navigate("k")
 end
-vim.api.nvim_set_keymap("n", "<C-k>", "", {callback = _12_, noremap = true, silent = true})
+vim.api.nvim_set_keymap("n", "<C-k>", "", {callback = _15_, noremap = true, silent = true})
 do
   vim.api.nvim_set_keymap("n", ";", ":", {noremap = true})
   vim.api.nvim_set_keymap("x", ";", ":", {noremap = true})
@@ -152,6 +167,7 @@ vim.api.nvim_set_keymap("n", "g.", "", {callback = repeat_last_edit, noremap = t
 vim.cmd("xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 vim.cmd("xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 vim.api.nvim_set_keymap("x", "/", "", {callback = visual_slash, noremap = true})
+vim.api.nvim_set_keymap("n", "g;", "", {callback = prev_change_list, noremap = true})
 vim.api.nvim_set_keymap("c", "<C-p>", "<Up>", {noremap = true})
 vim.api.nvim_set_keymap("c", "<C-n>", "<Down>", {noremap = true})
 vim.api.nvim_set_keymap("c", "<C-j>", "<C-g>", {noremap = true})
@@ -205,14 +221,14 @@ vim.api.nvim_set_keymap("n", "]L", "<Cmd>lnfile<CR>zz", {noremap = true, silent 
 vim.api.nvim_set_keymap("n", "[L", "<Cmd>lpfile<CR>zz", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {noremap = true, silent = true})
-local function _13_()
+local function _16_()
   return move_line("up")
 end
-vim.api.nvim_set_keymap("n", "[e", "", {callback = _13_, noremap = true})
-local function _14_()
+vim.api.nvim_set_keymap("n", "[e", "", {callback = _16_, noremap = true})
+local function _17_()
   return move_line("down")
 end
-vim.api.nvim_set_keymap("n", "]e", "", {callback = _14_, noremap = true})
+vim.api.nvim_set_keymap("n", "]e", "", {callback = _17_, noremap = true})
 vim.api.nvim_set_keymap("n", "'V", "<CMD>e ~/.config/nvim/lua<CR>", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("n", "'P", "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {noremap = true, silent = true})
 vim.api.nvim_set_keymap("n", "'Z", "<CMD>e ~/.zshrc<CR>", {noremap = true, silent = true})

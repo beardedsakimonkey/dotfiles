@@ -344,7 +344,8 @@ alias gc='git commit'
 alias gco='git checkout'
 alias gp='git push'
 
-alias yt='youtube-dl'
+alias ydl='youtube-dl'
+alias mdl='megadl'
 
 makenvim() {
     local EXTRA_FLAGS

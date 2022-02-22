@@ -5,6 +5,14 @@
 (set vim.g.mapleader :<s-f5>)
 (set vim.g.maplocalleader ",")
 
+(fn prev-change-list []
+  (local [row _] (vim.api.nvim_win_get_cursor 0))
+  (vim.cmd "normal! g;")
+  (local [row2 _] (vim.api.nvim_win_get_cursor 0))
+  (local delta (math.abs (- row row2)))
+  (when (<= delta 1)
+    (vim.cmd "normal! g;")))
+
 (fn move-line [dir]
   (vim.cmd "keepj norm! mv")
   (vim.cmd (.. "move " (if (= dir :up) "--" "+") vim.v.count1))
@@ -136,6 +144,7 @@
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
 ;; Search only in visual selection.
 (map x "/" visual-slash)
+(map n "g;" prev-change-list)
 
 ;;
 ;; Command mode

@@ -87,8 +87,7 @@ hi! link UdirSymlink    Constant
 hi! link UdirExecutable PreProc
 hi! link UdirVirtText   Comment
 
-hi! link TSConstant     Special
-hi! link TSPunctBracket Comment
+hi! link TSConstBuiltin Constant
 
 hi! link markdownH1 Title
 hi! link markdownH2 Statement

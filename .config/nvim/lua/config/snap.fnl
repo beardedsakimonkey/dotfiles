@@ -63,6 +63,7 @@
                             :views [(snap.get :preview.help)]})))
 
 ;; Oldfiles producer that filters out directories
+;; TODO: filter out man pages "^man://"
 (fn get-oldfiles []
   (vim.tbl_filter (fn [file]
                     (local not-wildignored

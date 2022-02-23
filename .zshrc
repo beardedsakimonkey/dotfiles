@@ -1,6 +1,5 @@
 #
 # General
-# functions: /usr/local/opt/zsh/share/zsh/functions/
 #
 
 stty start undef # disable C-s
@@ -170,8 +169,15 @@ zle -N __insert_last_word
 
 #
 # Modules
-# see: /usr/local/Cellar/zsh/5.8/share/zsh/functions/
+# see: /usr/local/opt/zsh/share/zsh/functions/
 #
+
+autoload -Uz url-quote-magic
+zle -N self-insert url-quote-magic
+
+# make url-quote-magic work when bracketed-pasting
+autoload -Uz bracketed-paste-magic
+zle -N bracketed-paste bracketed-paste-magic
 
 autoload -U select-bracketed
 zle -N select-bracketed

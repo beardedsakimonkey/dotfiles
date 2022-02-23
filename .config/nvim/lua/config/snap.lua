@@ -3,7 +3,7 @@ local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"
 local function with_defaults(tbl)
   return vim.tbl_extend("force", {}, defaults, tbl)
 end
-local function get_sorted_buffers(request)
+local function get_buffers(request)
   local function _1_()
     local original_buf = vim.api.nvim_win_get_buf(request.winnr)
     local bufs
@@ -22,8 +22,8 @@ local function get_sorted_buffers(request)
   end
   return _1_
 end
-local function sorted_buffers(request)
-  return snap.sync(get_sorted_buffers(request))
+local function buffers(request)
+  return snap.sync(get_buffers(request))
 end
 local function get_selected_text()
   local reg = vim.fn.getreg("\"")
@@ -73,4 +73,4 @@ local function oldfiles()
   return snap.sync(get_oldfiles)
 end
 local file = (snap.config.file):with(defaults)
-return snap.maps({{"<space>b", file({producer = sorted_buffers})}, {"<space>o", file({producer = oldfiles})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})
+return snap.maps({{"<space>b", file({producer = buffers})}, {"<space>o", file({producer = oldfiles})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})

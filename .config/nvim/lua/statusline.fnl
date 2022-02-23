@@ -3,17 +3,16 @@
 (local M {})
 
 ;; fnlfmt: skip
-(fn M.show []
+(fn M.statusline []
   (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))]
     (.. "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
         "%{expand('%:t')}%* "
         "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}"
         "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}"
         "%="
-        (if current-win "%6*%{session#status()}%*" "")
-        " ")))
+        (if current-win "%6*%{session#status()}%* " ""))))
 
-(opt statusline "%!v:lua.require'statusline'.show()")
+(opt statusline "%!v:lua.require'statusline'.statusline()")
 
 ;; Tabline ------------------------
 

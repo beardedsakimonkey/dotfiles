@@ -4,12 +4,14 @@
 
 (fn goto-fnl []
   (local from (vim.fn.expand "%:p"))
-  (local to (from:gsub :.lua$ :.fnl))
+  (local to (from:gsub "%.lua$" :.fnl))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
 (map n "]f" goto-fnl :buffer)
 (map n "[f" goto-fnl :buffer)
 
-(undo_ftplugin "setl keywordprg<" "sil! nunmap <buffer> ]f"
+;; fnlfmt: skip
+(undo_ftplugin "setl keywordprg<"
+               "sil! nunmap <buffer> ]f"
                "sil! nunmap <buffer> [f")
 

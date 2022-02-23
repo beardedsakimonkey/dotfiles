@@ -31,7 +31,7 @@
           (vim.cmd "wincmd _")))))
 
 ;; Adapted from lacygoill's vimrc.
-(fn visual-slash []
+(fn search-in-visual-selection []
   (vim.api.nvim_input "/\\%V"))
 
 ;; Adapted from lacygoill's vimrc.
@@ -78,7 +78,7 @@
       (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
 
 ;;
-;; Augmented deafults
+;; Enhanced deafults
 ;;
 (map n :<Down> :gj)
 (map n :<Up> :gk)
@@ -93,13 +93,19 @@
 (map x :p "'\"_c<C-r>'.v:register.'<Esc>'" :expr)
 (map n "`" "g`")
 (map n "'" "g'")
-;; Select previously changed/yanked text
-(map n :gv "g`[vg`]")
-(map n :gV "g'[Vg']")
 (map n :<C-l> #(navigate :l) :silent)
 (map n :<C-h> #(navigate :h) :silent)
 (map n :<C-j> #(navigate :j) :silent)
 (map n :<C-k> #(navigate :k) :silent)
+(map n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
+(map n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
+(map n "*" :*zzzv :silent)
+(map n "#" "#zzzv" :silent)
+(map n :g* :g*zzzv :silent)
+(map n "g#" "g#zzzv" :silent)
+(map n "g;" prev-change-list)
+(map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
+(map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
 
 ;;
 ;; Rearrange some default mappings
@@ -110,11 +116,16 @@
 (map "" :L "$")
 (map "" "(" :H :silent)
 (map "" ")" :L :silent)
-;; Increment number
+(map n :<Home> "<CMD>keepj norm! gg<CR>" :silent)
+(map n :<End> "<CMD>keepj norm! G<CR>" :silent)
 (map n :<C-s> :<C-a> :silent)
 (map "" :<tab> "<CMD>keepj norm! %<CR>" :silent)
-;; Move <Tab>'s original behavior to <C-p>
-(map n :<C-p> :<C-i>)
+(map n :<C-p> :<Tab>)
+;; Select previously changed/yanked text
+(map n :gv "g`[vg`]")
+(map n :gV "g'[Vg']")
+;; Reselect previous selection
+(map n :gs :gv)
 
 ;;
 ;; Misc
@@ -131,20 +142,15 @@
 (map "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
 (map "" :<Space>q "<CMD>b#<CR>" :silent)
 (map n :g> :<CMD>40messages<CR> :silent)
-;; Reselect previous selection
-(map n :gs :gv)
 ;; Jump to where insert mode was last exited
 (map n :gi "g`^")
 (map n :<space>z zoom-toggle :silent)
 (map x "." ":norm! .<CR>" :silent)
-;; Repeat last edit on last changed text.
 (map n :g. repeat-last-edit)
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
-;; Search only in visual selection.
-(map x "/" visual-slash)
-(map n "g;" prev-change-list)
+(map x "/" search-in-visual-selection)
 
 ;;
 ;; Command mode
@@ -158,42 +164,30 @@
 ;;
 ;; Keep jumps
 ;;
-(map n :<Home> "<CMD>keepj norm! gg<CR>" :silent)
-(map n :<End> "<CMD>keepj norm! G<CR>" :silent)
-(map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
-(map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
 (map n :M "<CMD>keepj norm! M<CR>" :silent)
 (map n "{" "<CMD>keepj norm! {<CR>" :silent)
 (map n "}" "<CMD>keepj norm! }<CR>" :silent)
 (map n :gg "<CMD>keepj norm! gg<CR>" :silent)
 (map n :G "<CMD>keepj norm! G<CR>" :silent)
-(map n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
-(map n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
 
 ;;
 ;; Search
 ;;
-(map n "*" "<CMD>norm! *<CR>zzzv" :silent)
-(map n "#" "<CMD>norm! #<CR>zzzv" :silent)
-(map n :g* "<CMD>norm! g*<CR>zzzv" :silent)
-(map n "g#" "<CMD>norm! g#<CR>zzzv" :silent)
 ;; NOTE: Doesn't support multiline selection. Adapted from lacygoill's vimrc.
 (map x "*" "\"vy:let @/='<c-r>v'<bar>norm! n<CR>zzzv" :silent)
 (map x "#" "\"vy:let @/='<c-r>v'<bar>norm! N<CR>zzzv" :silent)
 (map x :g* "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv" :silent)
 (map x "g#" "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv" :silent)
-(map n :g/ ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
-     :silent)
+(map n :g/ :*N)
 
-(map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>" :silent)
+(map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
 (map n :<RightMouse>
      "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
      :silent)
 
 ;; Adapted from lacygoill's vimrc.
 (map n :S
-     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>"
-     :silent)
+     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>")
 
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
 
@@ -203,7 +197,7 @@
 (map ! :<A-h> :<Left>)
 (map ! :<A-l> :<Right>)
 (map ! :<A-j> :<C-Left>)
-(map "!" :<A-k> :<C-Right>)
+(map ! :<A-k> :<C-Right>)
 (map n :<A-l> :<C-w>L)
 (map n :<A-h> :<C-w>H)
 (map n :<A-j> :<C-w>J)

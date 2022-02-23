@@ -12,5 +12,8 @@
   (vim.cmd "sil! packadd cfilter")
   (set vim.g.loaded_cfilter 1))
 
-(undo_ftplugin "sil! nun <buffer> q" "sil! nun <buffer> <CR>" "setl stl<")
+;; fnlfmt: skip
+(undo_ftplugin "sil! nun <buffer> q"
+               "sil! nun <buffer> <CR>"
+               "setl stl<")
 

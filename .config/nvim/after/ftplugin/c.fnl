@@ -6,6 +6,8 @@
 (map n "]f" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
 (map n "[f" :<Cmd>ClangdSwitchSourceHeader<CR> :buffer)
 
-(undo_ftplugin "setl cms< keywordprg<" "sil! nun <buffer> ]f"
+;; fnlfmt: skip
+(undo_ftplugin "setl cms< keywordprg<"
+			   "sil! nun <buffer> ]f"
                "sil! nun <buffer> [f")
 

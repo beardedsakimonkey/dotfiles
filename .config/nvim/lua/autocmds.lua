@@ -80,12 +80,7 @@ end
 local function handle_large_buffers()
   local size = vim.fn.getfsize(vim.fn.expand("<afile>"))
   if ((size > (1024 * 1024)) or (size == -2)) then
-    vim.cmd("syntax clear")
-    do end (vim)["opt_local"]["foldmethod"] = "manual"
-    vim["opt_local"]["foldenable"] = false
-    vim["opt_local"]["swapfile"] = false
-    vim["opt_local"]["undofile"] = false
-    return nil
+    return vim.cmd("syntax clear")
   else
     return nil
   end
@@ -93,7 +88,7 @@ end
 local function maybe_make_executable()
   local first_line = (vim.api.nvim_buf_get_lines(0, 0, 1, false))[1]
   if first_line:match("^#!%S+") then
-    local path = vim.fn.expand("<afile>:p:S")
+    local path = vim.fn.shellescape(vim.fn.expand("<afile>:p"))
     return vim.cmd(("sil !chmod +x " .. path))
   else
     return nil
@@ -106,7 +101,7 @@ end
 local function maybe_create_directories()
   local afile = vim.fn.expand("<afile>")
   local create_3f = not afile:match("://")
-  local new = vim.fn.expand("<afile>:p:h")
+  local new = vim.fn.fnameescape(vim.fn.expand("<afile>:p:h"))
   if create_3f then
     return vim.fn.mkdir(new, "p")
   else
@@ -117,7 +112,7 @@ local function highlight_text()
   return vim.highlight.on_yank({higroup = "IncSearch", timeout = 150, on_visual = false, on_macro = true})
 end
 local function source_colorscheme()
-  vim.cmd(("source " .. vim.fn.expand("<afile>:p")))
+  vim.cmd(("source " .. vim.fn.fnameescape(vim.fn.expand("<afile>:p"))))
   if vim.g.colors_name then
     return vim.cmd(("colorscheme " .. vim.g.colors_name))
   else
@@ -125,7 +120,8 @@ local function source_colorscheme()
   end
 end
 local function source_tmux_cfg()
-  return vim.fn.system(("tmux source-file " .. vim.fn.expand("<afile>:p")))
+  local file = vim.fn.shellescape(vim.fn.expand("<afile>:p"))
+  return vim.fn.system(("tmux source-file " .. file))
 end
 local function restore_cursor_position()
   local last_cursor_pos = vim.api.nvim_buf_get_mark(0, "\"")

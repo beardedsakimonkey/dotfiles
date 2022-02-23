@@ -17,6 +17,7 @@ local function on_attach(_client, bufnr)
   buf_keymap("gl", "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   return buf_keymap("<space>w", "<Cmd>lua vim.lsp.buf.formatting()<CR>")
 end
-local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}, handlers = {["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {signs = true})}}
+vim.diagnostic.config({virtual_text = {prefix = "\226\151\143"}})
+local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}}
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, cfg)
 return lspconfig.clangd.setup({})

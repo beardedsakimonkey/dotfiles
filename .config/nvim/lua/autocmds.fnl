@@ -54,20 +54,16 @@
             (vim.cmd "lcd -"))))))
 
 (fn handle-large-buffers []
-  (let [size (vim.fn.getfsize (vim.fn.expand :<afile>))]
-    (when (or (> size (* 1024 1024)) (= size -2))
-      (vim.cmd "syntax clear")
-      (opt-local foldmethod :manual)
-      (opt-local foldenable false)
-      (opt-local swapfile false)
-      (opt-local undofile false))))
+  (local size (vim.fn.getfsize (vim.fn.expand :<afile>)))
+  (when (or (> size (* 1024 1024)) (= size -2))
+    (vim.cmd "syntax clear")))
 
 (fn maybe-make-executable []
   (local first-line (. (vim.api.nvim_buf_get_lines 0 0 1 false) 1))
-  (if (first-line:match "^#!%S+")
-      (let [path (vim.fn.expand "<afile>:p:S")]
-        ;; NOTE: libuv operations say that the file doesn't exist yet..
-        (vim.cmd (.. "sil !chmod +x " path)))))
+  (when (first-line:match "^#!%S+")
+    (local path (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
+    ;; NOTE: libuv operations say that the file doesn't exist yet..
+    (vim.cmd (.. "sil !chmod +x " path))))
 
 (fn setup-make-executable []
   (au BufWritePost <buffer> maybe-make-executable :++once))
@@ -75,7 +71,7 @@
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
-        new (vim.fn.expand "<afile>:p:h")]
+        new (vim.fn.fnameescape (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
 
 (fn highlight-text []
@@ -85,18 +81,18 @@
                           :on_macro true}))
 
 (fn source-colorscheme []
-  (do
-    (vim.cmd (.. "source " (vim.fn.expand "<afile>:p")))
-    (if vim.g.colors_name
-        (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
+  (vim.cmd (.. "source " (vim.fn.fnameescape (vim.fn.expand "<afile>:p"))))
+  (if vim.g.colors_name
+      (vim.cmd (.. "colorscheme " vim.g.colors_name))))
 
 (fn source-tmux-cfg []
-  (vim.fn.system (.. "tmux source-file " (vim.fn.expand "<afile>:p"))))
+  (local file (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
+  (vim.fn.system (.. "tmux source-file " file)))
 
 (fn restore-cursor-position []
-  (let [last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\"")]
-    (if (not (vim.endswith vim.bo.filetype :commit))
-        (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos))))
+  (local last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\""))
+  (if (not (vim.endswith vim.bo.filetype :commit))
+      (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos)))
 
 (fn setup-formatting []
   (opt-local formatoptions += :jcn)

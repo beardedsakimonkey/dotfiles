@@ -18,11 +18,9 @@
   (buf_keymap :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   (buf_keymap :<space>w "<Cmd>lua vim.lsp.buf.formatting()<CR>"))
 
-(local cfg
-       {: on_attach
-        :flags {:debounce_text_changes 150}
-        :handlers {:textDocument/publishDiagnostics (vim.lsp.with vim.lsp.diagnostic.on_publish_diagnostics
-                                                                  {:signs true})}})
+(vim.diagnostic.config {:virtual_text {:prefix "●"}})
+
+(local cfg {: on_attach :flags {:debounce_text_changes 150}})
 
 (set lspconfig.util.default_config
      (vim.tbl_extend :force lspconfig.util.default_config cfg))

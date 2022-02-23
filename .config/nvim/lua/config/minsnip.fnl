@@ -2,8 +2,8 @@
 (import-macros {: map} :macros)
 
 (minsnip.setup {:cl #(match vim.bo.filetype
-                       :lua "print($0)"
                        :c "printf(\"$0\\n\");"
+                       :lua "print($0)"
                        :fennel "(print $0)"
                        :javascript "console.log($0)"
                        :rescript "Js.log($0)")})

@@ -8,9 +8,9 @@
 (fn with-defaults [tbl]
   (vim.tbl_extend :force {} defaults tbl))
 
-;; Based off of
-;; https://github.com/camspiers/snap/blob/main/fnl/snap/producer/vim/buffer.fnl
-(fn get-sorted-buffers [request]
+;; Unlike the built-in buffers producer, this filters out the current buffer and
+;; sorts buffers by last used.
+(fn get-buffers [request]
   (fn []
     (let [original-buf (vim.api.nvim_win_get_buf (. request :winnr))
           bufs (vim.tbl_filter #(and (not= (vim.fn.bufname $1) "")
@@ -23,8 +23,8 @@
                       (. (vim.fn.getbufinfo $2) 1 :lastused)))
       (vim.tbl_map #(vim.fn.bufname $1) bufs))))
 
-(fn sorted-buffers [request]
-  (snap.sync (get-sorted-buffers request)))
+(fn buffers [request]
+  (snap.sync (get-buffers request)))
 
 (fn get-selected-text []
   (local reg (vim.fn.getreg "\""))
@@ -77,7 +77,7 @@
 
 (local file (snap.config.file:with defaults))
 
-(snap.maps [[:<space>b (file {:producer sorted-buffers})]
+(snap.maps [[:<space>b (file {:producer buffers})]
             [:<space>o (file {:producer oldfiles})]
             [:<space>f (file {:producer :ripgrep.file})]
             [:<space>a visual-grep {:modes [:v]}]

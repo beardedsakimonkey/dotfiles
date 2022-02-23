@@ -23,7 +23,7 @@ local function contains_3f(matches_3f, list)
 end
 local function is_file_hidden(file, files, _cwd)
   if vim.endswith(file.name, ".lua") then
-    local fnl = string.gsub(file.name, ".lua$", ".fnl")
+    local fnl = string.gsub(file.name, "%.lua$", ".fnl")
     local function _3_(_241)
       return (fnl == _241.name)
     end

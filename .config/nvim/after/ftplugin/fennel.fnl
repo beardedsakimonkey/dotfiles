@@ -3,7 +3,7 @@
 (vim.cmd "inoreabbrev <buffer> lambda λ")
 
 (opt-local commentstring ";; %s")
-(opt-local comments ":;")
+(opt-local comments "n:;")
 (opt-local keywordprg ":help")
 (opt-local iskeyword
            "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94")
@@ -30,7 +30,7 @@
 
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
-  (local to (from:gsub :.fnl$ :.lua))
+  (local to (from:gsub "%.fnl$" :.lua))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
 (map n "]f" goto-lua :buffer)

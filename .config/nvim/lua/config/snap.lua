@@ -62,10 +62,12 @@ local function help_grep()
   return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _help_select, views = {snap.get("preview.help")}}))
 end
 local function get_oldfiles()
-  local function _7_(file)
-    local not_wildignored = (0 == vim.fn.empty(vim.fn.glob(file)))
-    local is_dir = (0 == vim.fn.isdirectory(file))
-    return (not_wildignored and is_dir)
+  local function _7_(_3ffile)
+    local file = (_3ffile or "")
+    local wildignored = (1 == vim.fn.empty(vim.fn.glob(file)))
+    local dir = (0 == vim.fn.isdirectory(file))
+    local manpage = vim.startswith(file, "man://")
+    return (not wildignored and dir and not manpage)
   end
   return vim.tbl_filter(_7_, vim.v.oldfiles)
 end

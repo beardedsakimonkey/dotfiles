@@ -7,7 +7,8 @@
   (vim.cmd ":ColorizerAttachToBuffer"))
 
 (vim.cmd "augroup my-colorizer | au!")
-(au BufEnter [rgb.txt dune.vim] ":ColorizerAttachToBuffer")
-(au BufWritePost [rgb.txt dune.vim] reload-colorizer)
+(au BufEnter [rgb.txt navajo.fnl] ":ColorizerAttachToBuffer")
+
+(au BufWritePost [rgb.txt navajo.fnl] reload-colorizer)
 (vim.cmd "augroup END")
 

@@ -62,15 +62,16 @@
                                                                   (tostring selection)))))
                             :views [(snap.get :preview.help)]})))
 
-;; Oldfiles producer that filters out directories
-;; TODO: filter out man pages "^man://"
+;; Oldfiles producer that filters out directories and man pages
 (fn get-oldfiles []
-  (vim.tbl_filter (fn [file]
-                    (local not-wildignored
-                           (= 0 (vim.fn.empty (vim.fn.glob file))))
-                    (local is-dir (= 0 (vim.fn.isdirectory file)))
-                    (and not-wildignored is-dir))
-                  vim.v.oldfiles))
+  (->> vim.v.oldfiles
+       (vim.tbl_filter (fn [?file]
+                         (local file (or ?file ""))
+                         (local wildignored
+                                (= 1 (vim.fn.empty (vim.fn.glob file))))
+                         (local dir (= 0 (vim.fn.isdirectory file)))
+                         (local manpage (vim.startswith file "man://"))
+                         (and (not wildignored) dir (not manpage))))))
 
 (fn oldfiles []
   (snap.sync get-oldfiles))

@@ -172,12 +172,9 @@ zle -N __insert_last_word
 # see: /usr/local/opt/zsh/share/zsh/functions/
 #
 
-autoload -Uz url-quote-magic
+autoload -Uz url-quote-magic bracketed-paste-url-magic
 zle -N self-insert url-quote-magic
-
-# make url-quote-magic work when bracketed-pasting
-autoload -Uz bracketed-paste-magic
-zle -N bracketed-paste bracketed-paste-magic
+zle -N bracketed-paste bracketed-paste-url-magic
 
 autoload -U select-bracketed
 zle -N select-bracketed
@@ -350,6 +347,7 @@ alias gc='git commit'
 alias gco='git checkout'
 alias gp='git push'
 
+alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
 alias ydl='youtube-dl'
 alias mdl='megadl'
 

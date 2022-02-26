@@ -21,11 +21,15 @@
 (set vim.g.loaded_ruby_provider 0)
 (set vim.g.loaded_node_provider 0)
 
-(vim.cmd "colorscheme dune")
+(vim.cmd "colorscheme navajo")
+
+;; Enable filetype.lua
+(set vim.g.do_filetype_lua 1)
+;; Disable filetype.vim
+(set vim.g.did_load_filetypes 0)
 
 ;; See :h syntax-loading
 (vim.cmd "syntax enable")
-(vim.cmd "filetype plugin indent on")
 
 (require :mappings)
 (require :options)

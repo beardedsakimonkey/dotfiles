@@ -174,22 +174,23 @@
 ;; Search
 ;;
 ;; NOTE: Doesn't support multiline selection. Adapted from lacygoill's vimrc.
-(map x "*" "\"vy:let @/='<c-r>v'<bar>norm! n<CR>zzzv" :silent)
-(map x "#" "\"vy:let @/='<c-r>v'<bar>norm! N<CR>zzzv" :silent)
-(map x :g* "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! n<CR>zzzv" :silent)
-(map x "g#" "\"vy:let @/='\\<<c-r>v\\>'<bar>norm! N<CR>zzzv" :silent)
+(map x "*" "\"vy:let @/='\\<<c-r>v\\>'<CR>nzzzv" :silent)
+(map x "#" "\"vy:let @/='\\<<c-r>v\\>'<CR>Nzzzv" :silent)
+(map x :g* "\"vy:let @/='<c-r>v'<CR>nzzzv" :silent)
+(map x "g#" "\"vy:let @/='<c-r>v'<CR>Nzzzv" :silent)
 (map n :g/ :*N)
-
 (map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
 (map n :<RightMouse>
      "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
      :silent)
 
+;;
+;; Substitute
+;;
+(map n :<Space>s "ms:<C-u>%s///g<left><left>")
 ;; Adapted from lacygoill's vimrc.
 (map n :S
      "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>")
-
-(map n :<Space>s "ms:<C-u>%s///g<left><left>")
 
 ;;
 ;; Alt key

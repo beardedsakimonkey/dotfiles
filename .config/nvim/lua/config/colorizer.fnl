@@ -1,4 +1,4 @@
-(import-macros {: au} :macros)
+(import-macros {: augroup : autocmd} :macros)
 
 ;; Workaround for https://github.com/norcalli/nvim-colorizer.lua/issues/35
 (fn reload-colorizer []
@@ -6,9 +6,7 @@
   (require :colorizer)
   (vim.cmd ":ColorizerAttachToBuffer"))
 
-(vim.cmd "augroup my-colorizer | au!")
-(au BufEnter [rgb.txt navajo.fnl] ":ColorizerAttachToBuffer")
-
-(au BufWritePost [rgb.txt navajo.fnl] reload-colorizer)
-(vim.cmd "augroup END")
+(augroup :my/colorizer
+         (autocmd BufEnter [rgb.txt navajo.fnl] ":ColorizerAttachToBuffer")
+         (autocmd BufWritePost [rgb.txt navajo.fnl] reload-colorizer))
 

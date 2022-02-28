@@ -6,8 +6,7 @@ local function gofmt()
   return {exe = "gofmt", args = {"-w"}, stdin = true}
 end
 formatter.setup({filetype = {fennel = {fnlfmt}, go = {gofmt}}})
-vim.cmd("augroup my-formatter | au!")
-do
-  vim.cmd("autocmd BufWritePost *.fnl,*.go  :silent FormatWrite")
-end
-return vim.cmd("augroup END")
+vim.api.nvim_create_augroup({clear = true, name = "my/formatter"})
+local _1_ = "my/formatter"
+vim.api.nvim_create_autocmd({command = ":silent FormatWrite", event = "BufWritePost", group = _1_, pattern = {"*.fnl", "*.go"}})
+return _1_

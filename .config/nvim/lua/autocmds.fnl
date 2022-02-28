@@ -1,6 +1,4 @@
-(import-macros {: au : opt-local} :macros)
-
-(vim.cmd "augroup my/autocmds | au!")
+(import-macros {: autocmd : augroup : opt-local} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
 
@@ -15,7 +13,7 @@
     (local results (vim.diagnostic.fromqflist items))
     (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)))
 
-(fn write! [text filename]
+(fn write-file [text filename]
   (local handle (assert (io.open filename :w+)))
   (handle:write text)
   (handle:close))
@@ -45,7 +43,7 @@
             (vim.cmd (.. "lcd " ?root)))
           (local output (vim.fn.system cmd))
           (if (not= 0 vim.v.shell_error) (on-fnl-err output)
-              (write! output dest))
+              (write-file output dest))
           (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
             (if (not (vim.startswith src :after/ftplugin))
                 (vim.cmd (.. "luafile " (vim.fn.fnameescape dest))))
@@ -65,20 +63,11 @@
     ;; NOTE: libuv operations say that the file doesn't exist yet..
     (vim.cmd (.. "sil !chmod +x " path))))
 
-(fn setup-make-executable []
-  (au BufWritePost <buffer> maybe-make-executable :++once))
-
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
         new (vim.fn.fnameescape (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
-
-(fn highlight-text []
-  (vim.highlight.on_yank {:higroup :IncSearch
-                          :timeout 150
-                          :on_visual false
-                          :on_macro true}))
 
 (fn source-colorscheme []
   (vim.cmd (.. "source " (vim.fn.fnameescape (vim.fn.expand "<afile>:p"))))
@@ -94,13 +83,10 @@
   (if (not (vim.endswith vim.bo.filetype :commit))
       (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos)))
 
-(fn setup-formatting []
+(fn setup-formatoptions []
   (opt-local formatoptions += :jcn)
   (opt-local formatoptions -= [:r :o :t]))
 
-;;
-;; Update user.js
-;;
 (fn update-user-js []
   (local cmd
          "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh")
@@ -112,9 +98,6 @@
 
   (local (_handle _pid) (assert (vim.loop.spawn cmd opts on-exit))))
 
-;;
-;; Edit url
-;;
 (fn strip-trailing-newline [str]
   (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
 
@@ -146,37 +129,31 @@
   (vim.loop.read_start stdout on-stdout/err)
   (vim.loop.read_start stderr on-stdout/err))
 
-;;
-;; Templates
-;;
 (macro set-lines [lines]
   `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
-
-(fn template-sh []
-  (set-lines ["#!/bin/bash"]))
 
 (fn template-h []
   (let [file-name (vim.fn.expand "<afile>:t")
         guard (string.upper (file-name:gsub "%." "_"))]
     (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
 
-(au BufWritePost *.fnl compile-fennel)
-(au BufReadPre * handle-large-buffers)
-(au BufNewFile * setup-make-executable)
-(au [BufWritePre FileWritePre] * maybe-create-directories)
-(au TextYankPost * highlight-text)
-(au BufWritePost */colors/*.vim source-colorscheme)
-(au BufWritePost *tmux.conf source-tmux-cfg)
-(au BufReadPost * restore-cursor-position)
-;; Resize splits when vim is resized
-(au VimResized * "wincmd =")
-(au FileType * setup-formatting)
-;; Reload file if changed on disk
-(au [FocusGained BufEnter] * :checktime)
-(au BufWritePost user-overrides.js update-user-js)
-(au BufNewFile [http://* https://*] edit-url)
-(au BufNewFile *.sh template-sh)
-(au BufNewFile *.h template-h)
-
-(vim.cmd "augroup END")
+;; fnlfmt: skip
+(augroup :my/autocmds
+         (autocmd BufWritePost *.fnl compile-fennel)
+         (autocmd BufReadPre * handle-large-buffers)
+         (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
+         (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
+         (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
+         (autocmd BufWritePost */colors/*.vim source-colorscheme)
+         (autocmd BufWritePost *tmux.conf source-tmux-cfg)
+         (autocmd BufReadPost * restore-cursor-position)
+         ;; Resize splits when vim is resized
+         (autocmd VimResized * "wincmd =")
+         (autocmd FileType * setup-formatoptions)
+         ;; Reload file if changed on disk
+         (autocmd [FocusGained BufEnter] * :checktime)
+         (autocmd BufWritePost user-overrides.js update-user-js)
+         (autocmd BufNewFile [http://* https://*] edit-url)
+         (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))
+         (autocmd BufNewFile *.h template-h))
 

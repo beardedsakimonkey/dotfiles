@@ -1,4 +1,3 @@
-vim.cmd("augroup my/autocmds | au!")
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function on_fnl_err(output)
   print(output)
@@ -11,7 +10,7 @@ local function on_fnl_err(output)
   local results = vim.diagnostic.fromqflist(items)
   return vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), results)
 end
-local function write_21(text, filename)
+local function write_file(text, filename)
   local handle = assert(io.open(filename, "w+"))
   handle:write(text)
   return handle:close()
@@ -55,7 +54,7 @@ local function compile_fennel()
     if (0 ~= vim.v.shell_error) then
       on_fnl_err(output)
     else
-      write_21(output, dest)
+      write_file(output, dest)
     end
     if ((0 == vim.v.shell_error) and (_3froot == config_dir)) then
       if not vim.startswith(src0, "after/ftplugin") then
@@ -94,10 +93,6 @@ local function maybe_make_executable()
     return nil
   end
 end
-local function setup_make_executable()
-  _G["my__au__maybe_make_executable"] = maybe_make_executable
-  return vim.cmd("autocmd BufWritePost <buffer> ++once lua my__au__maybe_make_executable()")
-end
 local function maybe_create_directories()
   local afile = vim.fn.expand("<afile>")
   local create_3f = not afile:match("://")
@@ -107,9 +102,6 @@ local function maybe_create_directories()
   else
     return nil
   end
-end
-local function highlight_text()
-  return vim.highlight.on_yank({higroup = "IncSearch", timeout = 150, on_visual = false, on_macro = true})
 end
 local function source_colorscheme()
   vim.cmd(("source " .. vim.fn.fnameescape(vim.fn.expand("<afile>:p"))))
@@ -131,7 +123,7 @@ local function restore_cursor_position()
     return nil
   end
 end
-local function setup_formatting()
+local function setup_formatoptions()
   do end (vim.opt_local.formatoptions):append("jcn")
   do end (vim.opt_local.formatoptions):remove("r")
   do end (vim.opt_local.formatoptions):remove("o")
@@ -187,70 +179,35 @@ local function edit_url()
   vim.loop.read_start(stdout, on_stdout_2ferr)
   return vim.loop.read_start(stderr, on_stdout_2ferr)
 end
-local function template_sh()
-  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
-end
 local function template_h()
   local file_name = vim.fn.expand("<afile>:t")
   local guard = string.upper(file_name:gsub("%.", "_"))
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
-do
-  _G["my__au__compile_fennel"] = compile_fennel
-  vim.cmd("autocmd BufWritePost *.fnl  lua my__au__compile_fennel()")
+vim.api.nvim_create_augroup({clear = true, name = "my/autocmds"})
+local _22_ = "my/autocmds"
+vim.api.nvim_create_autocmd({callback = compile_fennel, event = "BufWritePost", group = _22_, pattern = "*.fnl"})
+vim.api.nvim_create_autocmd({callback = handle_large_buffers, event = "BufReadPre", group = _22_, pattern = "*"})
+local function _23_()
+  return vim.api.nvim_create_autocmd({buffer = 0, callback = maybe_make_executable, event = "BufWritePost", group = "my/autocmds"})
 end
-do
-  _G["my__au__handle_large_buffers"] = handle_large_buffers
-  vim.cmd("autocmd BufReadPre *  lua my__au__handle_large_buffers()")
+vim.api.nvim_create_autocmd({callback = _23_, event = "BufNewFile", group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({callback = maybe_create_directories, event = {"BufWritePre", "FileWritePre"}, group = _22_, pattern = "*"})
+local function _24_()
+  return vim.highlight.on_yank({on_visual = false})
 end
-do
-  _G["my__au__setup_make_executable"] = setup_make_executable
-  vim.cmd("autocmd BufNewFile *  lua my__au__setup_make_executable()")
+vim.api.nvim_create_autocmd({callback = _24_, event = "TextYankPost", group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({callback = source_colorscheme, event = "BufWritePost", group = _22_, pattern = "*/colors/*.vim"})
+vim.api.nvim_create_autocmd({callback = source_tmux_cfg, event = "BufWritePost", group = _22_, pattern = "*tmux.conf"})
+vim.api.nvim_create_autocmd({callback = restore_cursor_position, event = "BufReadPost", group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({command = "wincmd =", event = "VimResized", group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({callback = setup_formatoptions, event = "FileType", group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({command = "checktime", event = {"FocusGained", "BufEnter"}, group = _22_, pattern = "*"})
+vim.api.nvim_create_autocmd({callback = update_user_js, event = "BufWritePost", group = _22_, pattern = "user-overrides.js"})
+vim.api.nvim_create_autocmd({callback = edit_url, event = "BufNewFile", group = _22_, pattern = {"http://*", "https://*"}})
+local function _25_()
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
 end
-do
-  _G["my__au__maybe_create_directories"] = maybe_create_directories
-  vim.cmd("autocmd BufWritePre,FileWritePre *  lua my__au__maybe_create_directories()")
-end
-do
-  _G["my__au__highlight_text"] = highlight_text
-  vim.cmd("autocmd TextYankPost *  lua my__au__highlight_text()")
-end
-do
-  _G["my__au__source_colorscheme"] = source_colorscheme
-  vim.cmd("autocmd BufWritePost */colors/*.vim  lua my__au__source_colorscheme()")
-end
-do
-  _G["my__au__source_tmux_cfg"] = source_tmux_cfg
-  vim.cmd("autocmd BufWritePost *tmux.conf  lua my__au__source_tmux_cfg()")
-end
-do
-  _G["my__au__restore_cursor_position"] = restore_cursor_position
-  vim.cmd("autocmd BufReadPost *  lua my__au__restore_cursor_position()")
-end
-do
-  vim.cmd("autocmd VimResized *  wincmd =")
-end
-do
-  _G["my__au__setup_formatting"] = setup_formatting
-  vim.cmd("autocmd FileType *  lua my__au__setup_formatting()")
-end
-do
-  vim.cmd("autocmd FocusGained,BufEnter *  checktime")
-end
-do
-  _G["my__au__update_user_js"] = update_user_js
-  vim.cmd("autocmd BufWritePost user-overrides.js  lua my__au__update_user_js()")
-end
-do
-  _G["my__au__edit_url"] = edit_url
-  vim.cmd("autocmd BufNewFile http://*,https://*  lua my__au__edit_url()")
-end
-do
-  _G["my__au__template_sh"] = template_sh
-  vim.cmd("autocmd BufNewFile *.sh  lua my__au__template_sh()")
-end
-do
-  _G["my__au__template_h"] = template_h
-  vim.cmd("autocmd BufNewFile *.h  lua my__au__template_h()")
-end
-return vim.cmd("augroup END")
+vim.api.nvim_create_autocmd({callback = _25_, event = "BufNewFile", group = _22_, pattern = "*.sh"})
+vim.api.nvim_create_autocmd({callback = template_h, event = "BufNewFile", group = _22_, pattern = "*.h"})
+return _22_

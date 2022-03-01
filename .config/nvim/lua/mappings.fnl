@@ -5,13 +5,13 @@
 (set vim.g.mapleader :<s-f5>)
 (set vim.g.maplocalleader ",")
 
-(fn prev-change-list []
+(fn nav-change-list [cmd]
   (local [row _] (vim.api.nvim_win_get_cursor 0))
-  (vim.cmd "normal! g;")
+  (vim.cmd (.. "sil! normal! " cmd))
   (local [row2 _] (vim.api.nvim_win_get_cursor 0))
   (local delta (math.abs (- row row2)))
   (when (<= delta 1)
-    (vim.cmd "normal! g;")))
+    (vim.cmd (.. "sil! normal! " cmd))))
 
 (fn move-line [dir]
   (vim.cmd "keepj norm! mv")
@@ -103,7 +103,8 @@
 (map n "#" "#zzzv" :silent)
 (map n :g* :g*zzzv :silent)
 (map n "g#" "g#zzzv" :silent)
-(map n "g;" prev-change-list)
+(map n "g;" #(nav-change-list "g;"))
+(map n "g'" #(nav-change-list "g,"))
 (map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
 (map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
 
@@ -178,7 +179,9 @@
 (map x "#" "\"vy:let @/='\\<<c-r>v\\>'<CR>Nzzzv" :silent)
 (map x :g* "\"vy:let @/='<c-r>v'<CR>nzzzv" :silent)
 (map x "g#" "\"vy:let @/='<c-r>v'<CR>Nzzzv" :silent)
-(map n :g/ :*N)
+(map n :g/ ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
+     :silent)
+
 (map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
 (map n :<RightMouse>
      "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"

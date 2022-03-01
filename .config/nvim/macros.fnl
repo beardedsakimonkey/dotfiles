@@ -22,8 +22,8 @@
          (if (= :string (type cmd))
              (values cmd nil)
              (values nil cmd)))
-  `(vim.api.nvim_create_autocmd {:group ,group
-                                 :event ,event
+  `(vim.api.nvim_create_autocmd ,event
+                                {:group ,group
                                  :pattern ,?pattern
                                  :buffer ,?buffer
                                  :command ,?command
@@ -33,7 +33,7 @@
 
 (fn augroup [name ...]
   `(do
-     (vim.api.nvim_create_augroup {:name ,name :clear true})
+     (vim.api.nvim_create_augroup ,name {:clear true})
      (doto ,name ,...)))
 
 (fn opt* [opt option ?value-or-eq ?value]
@@ -58,6 +58,8 @@
 (local opt-local (partial opt* :opt_local))
 
 (fn map [modes lhs rhs ...]
+  ;; (when _G.undo_ftplugin
+  ;;   (table.insert _G.undo_ftplugin :blah))
   (local opts (collect [_ opt (ipairs [...])]
                 (values opt true)))
   (if (not= nil opts.remap)
@@ -93,5 +95,20 @@
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
                                (.. (or vim.b.undo_ftplugin :exe) ,cmd))))
 
-{: augroup : autocmd : opt : opt-local : map : undo_ftplugin}
+;; (fn with-undo-ftplugin [...]
+;;   (set _G.undo_ftplugin [])
+;;   (local ast (macroexpand `(do
+;;                              ,...) (get-scope)))
+;;   (table.insert ast (undo_ftplugin (unpack _G.undo_ftplugin)))
+;;   (set _G.undo_ftplugin nil)
+;;   ast)
+
+{: augroup
+ : autocmd
+ : opt
+ : opt-local
+ : map
+ : undo_ftplugin
+ ;; : with-undo-ftplugin
+ }
 

@@ -3,8 +3,8 @@ local function reload_colorizer()
   require("colorizer")
   return vim.cmd(":ColorizerAttachToBuffer")
 end
-vim.api.nvim_create_augroup({clear = true, name = "my/colorizer"})
+vim.api.nvim_create_augroup("my/colorizer", {clear = true})
 local _1_ = "my/colorizer"
-vim.api.nvim_create_autocmd({command = ":ColorizerAttachToBuffer", event = "BufEnter", group = _1_, pattern = {"rgb.txt", "navajo.fnl"}})
-vim.api.nvim_create_autocmd({callback = reload_colorizer, event = "BufWritePost", group = _1_, pattern = {"rgb.txt", "navajo.fnl"}})
+vim.api.nvim_create_autocmd("BufEnter", {command = ":ColorizerAttachToBuffer", group = _1_, pattern = {"rgb.txt", "navajo.fnl"}})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = reload_colorizer, group = _1_, pattern = {"rgb.txt", "navajo.fnl"}})
 return _1_

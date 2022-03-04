@@ -284,8 +284,8 @@ if [ -f ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh ]; 
     bindkey -a "\C-p" history-substring-search-up
     bindkey    "\C-n" history-substring-search-down
     bindkey -a "\C-n" history-substring-search-down
-    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#afffaf"
-    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#ffd7ff"
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=#c6ddb1"
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=#dda296"
 else
     bindkey "\C-p" up-line-or-search
     bindkey "\C-n" down-line-or-search

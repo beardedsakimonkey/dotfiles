@@ -3,9 +3,8 @@
 (fn use [pkgs]
   (packer.startup (fn []
                     (each [name opts (pairs pkgs)]
-                      (do
-                        (tset opts 1 name)
-                        (packer.use opts))))))
+                      (tset opts 1 name)
+                      (packer.use opts)))))
 
 (use {;; Neovim
       :wbthomason/packer.nvim {}
@@ -24,12 +23,14 @@
       :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
                                         :run ":TSUpdate"}
       :nvim-treesitter/playground {:opt true
+                                   :ft :query
                                    :cmd [:TSPlaygroundToggle
                                          :TSHighlightCapturesUnderCursor]
                                    :after :nvim-treesitter}
       :nkrkv/nvim-treesitter-rescript {:opt true
                                        :ft :rescript
-                                       :after :nvim-treesitter}
+                                       :after :nvim-treesitter
+                                       :run ":TSUpdate"}
       :windwp/nvim-ts-autotag {:config "require'nvim-ts-autotag'.setup()"
                                :opt true
                                :ft [:html :rescript :typescript :javascript]

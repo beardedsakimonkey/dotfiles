@@ -46,7 +46,7 @@
         (vim.fn.setreg "/" (.. "\\V" pat) :c)
         (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))
 
-;; Navigate to the window you came from. Adapted from lacygoill's vimrc.
+;; Adapted from lacygoill's vimrc.
 (fn previous-window-in-same-direction [dir]
   (let [cnr (vim.fn.winnr)
         pnr (vim.fn.winnr "#")]
@@ -93,12 +93,8 @@
 (map x :p "'\"_c<C-r>'.v:register.'<Esc>'" :expr)
 (map n "`" "g`")
 (map n "'" "g'")
-(map n :<C-l> #(navigate :l) :silent)
-(map n :<C-h> #(navigate :h) :silent)
-(map n :<C-j> #(navigate :j) :silent)
-(map n :<C-k> #(navigate :k) :silent)
-(map n :n "<CMD>keepj norm! nzzzv<CR>" :silent)
-(map n :N "<CMD>keepj norm! Nzzzv<CR>" :silent)
+(map n :n "<Cmd>keepj norm! nzzzv<CR>" :silent)
+(map n :N "<Cmd>keepj norm! Nzzzv<CR>" :silent)
 (map n "*" :*zzzv :silent)
 (map n "#" "#zzzv" :silent)
 (map n :g* :g*zzzv :silent)
@@ -117,11 +113,15 @@
 (map "" :L "$")
 (map "" "(" :H :silent)
 (map "" ")" :L :silent)
-(map n :<Home> "<CMD>keepj norm! gg<CR>" :silent)
-(map n :<End> "<CMD>keepj norm! G<CR>" :silent)
+(map n :<Home> "<Cmd>keepj norm! gg<CR>" :silent)
+(map n :<End> "<Cmd>keepj norm! G<CR>" :silent)
 (map n :<C-s> :<C-a> :silent)
-(map "" :<tab> "<CMD>keepj norm! %<CR>" :silent)
+(map "" :<tab> "<Cmd>keepj norm! %<CR>" :silent)
 (map n :<C-p> :<Tab>)
+(map n :<C-l> #(navigate :l) :silent)
+(map n :<C-h> #(navigate :h) :silent)
+(map n :<C-j> #(navigate :j) :silent)
+(map n :<C-k> #(navigate :k) :silent)
 ;; Select previously changed/yanked text
 (map n :gv "g`[vg`]")
 (map n :gV "g'[Vg']")
@@ -133,25 +133,24 @@
 ;;
 (map n :cn :cgn :silent)
 (map [n x] :Z :zzzH)
-;; `qq` to start recording, `Q` to repeat
 (map n :Q "@q")
-(map n :<CR> :<CMD>w<CR> :silent)
-(map "" :<C-q> :<CMD>q<CR> :silent)
-(map n :<space>l :<CMD>vsplit<CR> :silent)
-(map n :<space>j :<CMD>split<CR> :silent)
-(map n :<space>t :<CMD>tabedit<CR> :silent)
-(map "" :<Space>d "<CMD>call Kwbd(1)<CR>" :silent)
-(map "" :<Space>q "<CMD>b#<CR>" :silent)
-(map n :g> :<CMD>40messages<CR> :silent)
+(map n :<CR> :<Cmd>w<CR> :silent)
+(map "" :<C-q> :<Cmd>q<CR> :silent)
+(map n :<space>l :<Cmd>vsplit<CR> :silent)
+(map n :<space>j :<Cmd>split<CR> :silent)
+(map n :<space>t :<Cmd>tabedit<CR> :silent)
+(map "" :<Space>d "<Cmd>call Kwbd(1)<CR>" :silent)
+(map "" :<Space>q "<Cmd>b#<CR>" :silent)
+(map n :g> :<Cmd>40messages<CR> :silent)
 ;; Jump to where insert mode was last exited
 (map n :gi "g`^")
 (map n :<space>z zoom-toggle :silent)
 (map x "." ":norm! .<CR>" :silent)
 (map n :g. repeat-last-edit)
+(map x "/" search-in-visual-selection)
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
 (vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
-(map x "/" search-in-visual-selection)
 
 ;;
 ;; Command mode
@@ -165,11 +164,11 @@
 ;;
 ;; Keep jumps
 ;;
-(map n :M "<CMD>keepj norm! M<CR>" :silent)
-(map n "{" "<CMD>keepj norm! {<CR>" :silent)
-(map n "}" "<CMD>keepj norm! }<CR>" :silent)
-(map n :gg "<CMD>keepj norm! gg<CR>" :silent)
-(map n :G "<CMD>keepj norm! G<CR>" :silent)
+(map n :M "<Cmd>keepj norm! M<CR>" :silent)
+(map n "{" "<Cmd>keepj norm! {<CR>" :silent)
+(map n "}" "<Cmd>keepj norm! }<CR>" :silent)
+(map n :gg "<Cmd>keepj norm! gg<CR>" :silent)
+(map n :G "<Cmd>keepj norm! G<CR>" :silent)
 
 ;;
 ;; Search
@@ -210,12 +209,12 @@
 ;;
 ;; Unimpaired
 ;;
-(map n "]b" :<CMD>bnext<CR> :silent)
-(map n "[b" :<CMD>bprev<CR> :silent)
-(map n "[t" :<CMD>tabprev<CR> :silent)
-(map n "]t" :<CMD>tabnext<CR> :silent)
-(map n "]T" :<CMD>+tabmove<CR> :silent)
-(map n "[T" :<CMD>-tabmove<CR> :silent)
+(map n "]b" :<Cmd>bnext<CR> :silent)
+(map n "[b" :<Cmd>bprev<CR> :silent)
+(map n "[t" :<Cmd>tabprev<CR> :silent)
+(map n "]t" :<Cmd>tabnext<CR> :silent)
+(map n "]T" :<Cmd>+tabmove<CR> :silent)
+(map n "[T" :<Cmd>-tabmove<CR> :silent)
 (map n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
 (map n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
 (map n "]Q" :<Cmd>cnfile<CR>zz :silent)
@@ -233,14 +232,14 @@
 ;;
 ;; Bookmarks
 ;;
-(map n "'V" "<CMD>e ~/.config/nvim/lua<CR>" :silent)
-(map n "'P" "<CMD>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
-(map n "'Z" "<CMD>e ~/.zshrc<CR>" :silent)
-(map n "'N" "<CMD>e ~/notes/notes.md<CR>" :silent)
-(map n "'T" "<CMD>e ~/notes/todo.md<CR>" :silent)
-(map n "'A" "<CMD>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
+(map n "'V" "<Cmd>e ~/.config/nvim/lua<CR>" :silent)
+(map n "'P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
+(map n "'Z" "<Cmd>e ~/.zshrc<CR>" :silent)
+(map n "'N" "<Cmd>e ~/notes/notes.md<CR>" :silent)
+(map n "'T" "<Cmd>e ~/notes/todo.md<CR>" :silent)
+(map n "'A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
 (map n "'U"
-     "<CMD>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
+     "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
 
 ;;
@@ -254,11 +253,11 @@
 ;;
 ;; Toggle options
 ;;
-(map n :con "<CMD>set number!<CR>" :silent)
-(map n :coc "<CMD>set cursorline!<CR>" :silent)
-(map n :cow "<CMD>set wrap!<CR>" :silent)
-(map n :col "<CMD>set hlsearch!<CR>" :silent)
-(map n :coi "<CMD>set ignorecase!<CR>" :silent)
+(map n :con "<Cmd>set number!<CR>" :silent)
+(map n :coc "<Cmd>set cursorline!<CR>" :silent)
+(map n :cow "<Cmd>set wrap!<CR>" :silent)
+(map n :col "<Cmd>set hlsearch!<CR>" :silent)
+(map n :coi "<Cmd>set ignorecase!<CR>" :silent)
 
 ;;
 ;; Avoid typo

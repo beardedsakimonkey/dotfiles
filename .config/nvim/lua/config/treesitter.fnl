@@ -21,7 +21,10 @@
                                            :unfocus_language :F
                                            :update :R
                                            :goto_node :<cr>
-                                           :show_help "?"}}})
+                                           :show_help "?"}}
+                :query_linter {:enable true
+                               :use_virtual_text true
+                               :lint_events [:BufWrite :BufEnter]}})
 
 ;; From nvim-treesitter/playground
 (map n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)

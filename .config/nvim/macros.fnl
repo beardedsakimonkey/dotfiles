@@ -1,4 +1,7 @@
 (fn autocmd [group event pattern cmd ...]
+  (each [_ opt (ipairs [...])]
+    (assert-compile (or (= opt :++once) (= opt :++nested))
+                    (.. "Invalid opt: " opt)))
   (local opts (collect [_ opt (ipairs [...])]
                 opt
                 true))
@@ -8,12 +11,9 @@
                        (tostring v)) nil)
              (let [pat (tostring pattern)]
                (match (string.match pat "^<buffer=?(%d*)>$")
-                 nil
-                 (values pat nil)
-                 "" ; <buffer>
-                 (values nil 0)
-                 num ; <buffer=123>
-                 (values nil num)))))
+                 nil (values pat nil)
+                 "" (values nil 0)
+                 num (values nil num)))))
   (local event (if (sequence? event)
                    (icollect [_ v (ipairs event)]
                      (tostring v))
@@ -28,8 +28,8 @@
                                  :buffer ,?buffer
                                  :command ,?command
                                  :callback ,?callback
-                                 :once ,opts.once
-                                 :nested ,opts.nested}))
+                                 :once ,opts.++once
+                                 :nested ,opts.++nested}))
 
 (fn augroup [name ...]
   `(do

@@ -4,14 +4,15 @@
 
 ;; Adapted from gpanders' config
 (fn on-fnl-err [output]
-  (print output)
   (let [lines (vim.split output "\n")
         {: items} (vim.fn.getqflist {:efm "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
                                      : lines})]
     (each [_ v (ipairs items)]
       (set v.text (v.text:gsub "^\n" "")))
     (local results (vim.diagnostic.fromqflist items))
-    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)))
+    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)
+    ;; Don't echo until nvim has rendered diagnostics
+    (vim.schedule #(vim.api.nvim_echo [[output :WarningMsg]] true {}))))
 
 (fn write-file [text filename]
   (local handle (assert (io.open filename :w+)))
@@ -40,7 +41,7 @@
                       (vim.fn.shellescape src))]
           ;; Change dir so macros.fnl gets read
           (when ?root
-            (vim.cmd (.. "lcd " ?root)))
+            (vim.cmd (.. "lcd " (vim.fn.fnameescape ?root))))
           (local output (vim.fn.system cmd))
           (if (not= 0 vim.v.shell_error) (on-fnl-err output)
               (write-file output dest))
@@ -48,6 +49,10 @@
             (if (not (vim.startswith src :after/ftplugin))
                 (vim.cmd (.. "luafile " (vim.fn.fnameescape dest))))
             (if (= src :lua/plugins.fnl) (vim.cmd :PackerCompile)))
+          (when (= src :colors/navajo.fnl)
+            (vim.cmd (.. "luafile " (vim.fn.fnameescape dest)))
+            (if vim.g.colors_name
+                (vim.cmd (.. "colorscheme " vim.g.colors_name))))
           (when ?root
             (vim.cmd "lcd -"))))))
 
@@ -69,10 +74,10 @@
         new (vim.fn.fnameescape (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
 
-(fn source-colorscheme []
-  (vim.cmd (.. "source " (vim.fn.fnameescape (vim.fn.expand "<afile>:p"))))
-  (if vim.g.colors_name
-      (vim.cmd (.. "colorscheme " vim.g.colors_name))))
+;; (fn source-colorscheme []
+;;   (vim.cmd (.. "source " (vim.fn.fnameescape (vim.fn.expand "<afile>:p"))))
+;;   (if vim.g.colors_name
+;;       (vim.cmd (.. "colorscheme " vim.g.colors_name))))
 
 (fn source-tmux-cfg []
   (local file (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
@@ -110,13 +115,13 @@
         (print (string.format "spawn failed (exit code %d, signal %d)"
                               exit-code signal))))
 
-  (local opts {:stdio [nil stdout stderr]
-               :args [; follow redirects
-                      :--location
-                      :--silent
-                      :--show-error
-                      (vim.fn.expand :<afile>)]})
-  (local (_handle _pid) (vim.loop.spawn :curl opts on-exit))
+  (vim.loop.spawn :curl
+                  {:stdio [nil stdout stderr]
+                   :args [; follow redirects
+                          :--location
+                          :--silent
+                          :--show-error
+                          (vim.fn.expand :<afile>)]} on-exit)
 
   (fn on-stdout/err [?err ?data]
     (assert (not ?err) ?err)
@@ -144,13 +149,11 @@
          (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
          (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
-         (autocmd BufWritePost */colors/*.vim source-colorscheme)
+         ;; (autocmd BufWritePost */colors/*.vim source-colorscheme)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufReadPost * restore-cursor-position)
-         ;; Resize splits when vim is resized
          (autocmd VimResized * "wincmd =")
          (autocmd FileType * setup-formatoptions)
-         ;; Reload file if changed on disk
          (autocmd [FocusGained BufEnter] * :checktime)
          (autocmd BufWritePost user-overrides.js update-user-js)
          (autocmd BufNewFile [http://* https://*] edit-url)

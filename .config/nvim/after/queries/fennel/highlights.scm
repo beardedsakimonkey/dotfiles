@@ -15,3 +15,5 @@
 ((symbol) @function.builtin
  (#any-of? @function.builtin
   "not" "not=" "or" "and"))
+
+(ERROR) @error

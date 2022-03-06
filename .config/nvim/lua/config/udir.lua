@@ -22,13 +22,22 @@ local function contains_3f(matches_3f, list)
   return found
 end
 local function is_file_hidden(file, files, _cwd)
-  if vim.endswith(file.name, ".lua") then
-    local fnl = string.gsub(file.name, "%.lua$", ".fnl")
-    local function _3_(_241)
+  local ext = string.match(file.name, "%.(%w-)$")
+  local _3_ = ext
+  if (_3_ == "lua") then
+    local fnl = string.gsub(file.name, "lua$", "fnl")
+    local function _4_(_241)
       return (fnl == _241.name)
     end
-    return contains_3f(_3_, files)
-  elseif "else" then
+    return contains_3f(_4_, files)
+  elseif (_3_ == "js") then
+    local res = string.gsub(file.name, "js$", "res")
+    local function _5_(_241)
+      return (res == _241.name)
+    end
+    return contains_3f(_5_, files)
+  elseif true then
+    local _ = _3_
     local suffixes = {".bs.js", ".o"}
     return endswith_any(file.name, suffixes)
   else

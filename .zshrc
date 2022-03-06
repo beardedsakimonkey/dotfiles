@@ -350,6 +350,7 @@ alias gp='git push'
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
 alias ydl='youtube-dl'
 alias mdl='megadl'
+alias peek='git-peek'
 
 makenvim() {
     local EXTRA_FLAGS

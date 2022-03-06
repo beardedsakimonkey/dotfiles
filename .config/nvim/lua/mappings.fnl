@@ -109,6 +109,8 @@
 ;;
 (map [n x] ";" ":")
 (map [n x] ":" ";")
+(map n "`" "'")
+(map n "'" "`")
 (map "" :H "^")
 (map "" :L "$")
 (map "" "(" :H :silent)

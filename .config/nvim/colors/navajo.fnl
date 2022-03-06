@@ -98,6 +98,7 @@
 (hi FennelSymbol fg=Black)
 
 (link TSConstBuiltin Constant)
+;; (hi TSError fg=none bg=#dda296)
 
 (link markdownH1 Title)
 (link markdownH2 Statement)

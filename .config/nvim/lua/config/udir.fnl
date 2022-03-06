@@ -16,12 +16,13 @@
   found)
 
 (fn is-file-hidden [file files _cwd]
-  ;; Hide .lua file if there's a sibling .fnl file
-  (if (vim.endswith file.name :.lua)
-      (let [fnl (string.gsub file.name "%.lua$" :.fnl)]
-        (contains? #(= fnl $1.name) files))
-      :else
-      (let [suffixes [:.bs.js :.o]]
+  (local ext (string.match file.name "%.(%w-)$"))
+  (match ext
+    :lua (let [fnl (string.gsub file.name :lua$ :fnl)]
+           (contains? #(= fnl $1.name) files))
+    :js (let [res (string.gsub file.name :js$ :res)]
+          (contains? #(= res $1.name) files))
+    _ (let [suffixes [:.bs.js :.o]]
         (endswith-any file.name suffixes))))
 
 (local m udir.map)

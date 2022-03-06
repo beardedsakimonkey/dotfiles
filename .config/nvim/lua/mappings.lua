@@ -136,6 +136,8 @@ do
   vim.api.nvim_set_keymap("n", ":", ";", {noremap = true})
   vim.api.nvim_set_keymap("x", ":", ";", {noremap = true})
 end
+vim.api.nvim_set_keymap("n", "`", "'", {noremap = true})
+vim.api.nvim_set_keymap("n", "'", "`", {noremap = true})
 vim.api.nvim_set_keymap("", "H", "^", {noremap = true})
 vim.api.nvim_set_keymap("", "L", "$", {noremap = true})
 vim.api.nvim_set_keymap("", "(", "H", {noremap = true, silent = true})

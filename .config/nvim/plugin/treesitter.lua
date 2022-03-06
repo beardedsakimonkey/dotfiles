@@ -30,4 +30,4 @@ end
 local function _5_()
   return fn_motion()
 end
-return vim.api.nvim_set_keymap("n", "[a", "", {callback = _5_, noremap = true})
+return vim.keymap.set("n", "[a", _5_, {})

@@ -1,6 +1,4 @@
-(import-macros {: opt-local : undo_ftplugin} :macros)
+(import-macros {: opt-local : with-undo-ftplugin} :macros)
 
-(opt-local formatoptions += :t)
-
-(undo_ftplugin "setl fo<")
+(with-undo-ftplugin (opt-local formatoptions += :t))
 

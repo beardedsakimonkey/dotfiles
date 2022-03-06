@@ -23,4 +23,4 @@ local function expand_snippet()
     return nil
   end
 end
-return vim.api.nvim_set_keymap("i", "<C-l>", "", {callback = expand_snippet, noremap = true})
+return vim.keymap.set("i", "<C-l>", expand_snippet, {})

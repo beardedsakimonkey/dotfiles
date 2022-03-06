@@ -1,8 +1,7 @@
-(import-macros {: opt-local : undo_ftplugin} :macros)
+(import-macros {: with-undo-ftplugin : opt-local} :macros)
 
-(opt-local formatoptions += :t)
-(opt-local textwidth 80)
-(opt-local colorcolumn :80)
-
-(undo_ftplugin "setl fo< tw< cc<")
+;; fnlfmt: skip
+(with-undo-ftplugin (opt-local formatoptions += :t)
+                    (opt-local textwidth 80)
+                    (opt-local colorcolumn :80))
 

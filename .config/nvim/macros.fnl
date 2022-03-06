@@ -37,6 +37,8 @@
      (doto ,name ,...)))
 
 (fn opt* [opt option ?value-or-eq ?value]
+  (when _G.undo-cmds
+    (table.insert _G.undo-cmds (.. "setl " (tostring option) "<")))
   (local value-or-eq (if (= nil ?value-or-eq) true ?value-or-eq))
   (local (value ?cmd) (match (tostring value-or-eq)
                         "+=" (values ?value :append)
@@ -58,57 +60,39 @@
 (local opt-local (partial opt* :opt_local))
 
 (fn map [modes lhs rhs ...]
-  ;; (when _G.undo_ftplugin
-  ;;   (table.insert _G.undo_ftplugin :blah))
+  (when _G.undo-cmds
+    (table.insert _G.undo-cmds (.. "sil! nun <buffer> " lhs)))
+  ;; By default, noremap is true
   (local opts (collect [_ opt (ipairs [...])]
                 (values opt true)))
-  (if (not= nil opts.remap)
-      (do
-        (set opts.noremap (not opts.remap))
-        (set opts.remap nil))
-      (set opts.noremap true))
-  (local buffer? (not= nil opts.buffer))
-  (set opts.buffer nil)
-  ;; XXX: Doesn't handle sym that references a string 
-  (local str? (= :string (type rhs)))
-  (when (not str?)
-    (set opts.callback rhs))
-  (local rhs (if str? rhs ""))
-  (if (sequence? modes)
-      (let [form `(do
-                    )]
-        (each [_ mode (ipairs modes)]
-          (if buffer?
-              (table.insert form
-                            `(vim.api.nvim_buf_set_keymap 0 ,(tostring mode)
-                                                          ,lhs ,rhs ,opts))
-              (table.insert form
-                            `(vim.api.nvim_set_keymap ,(tostring mode) ,lhs
-                                                      ,rhs ,opts))))
-        form)
-      (if buffer?
-          `(vim.api.nvim_buf_set_keymap 0 ,(tostring modes) ,lhs ,rhs ,opts)
-          `(vim.api.nvim_set_keymap ,(tostring modes) ,lhs ,rhs ,opts))))
+  (local modes (if (sequence? modes)
+                   (icollect [_ mode (ipairs modes)]
+                     (tostring mode))
+                   (tostring modes)))
+  `(vim.keymap.set ,modes ,lhs ,rhs ,opts))
 
-(fn undo_ftplugin [...]
+(fn undo-ftplugin [...]
   (let [cmd (.. " | " (table.concat [...] " | "))]
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
                                (.. (or vim.b.undo_ftplugin :exe) ,cmd))))
 
-;; (fn with-undo-ftplugin [...]
-;;   (set _G.undo_ftplugin [])
-;;   (local ast (macroexpand `(do
-;;                              ,...) (get-scope)))
-;;   (table.insert ast (undo_ftplugin (unpack _G.undo_ftplugin)))
-;;   (set _G.undo_ftplugin nil)
-;;   ast)
+(fn helper []
+  (undo-ftplugin (unpack _G.undo-cmds)))
+
+(fn with-undo-ftplugin [...]
+  (set _G.undo-cmds [])
+  (local form `(do
+                 ,...))
+  (local scope (get-scope))
+  (set scope.macros.helper helper)
+  (table.insert form `(helper))
+  form)
 
 {: augroup
  : autocmd
  : opt
  : opt-local
  : map
- : undo_ftplugin
- ;; : with-undo-ftplugin
- }
+ : undo-ftplugin
+ : with-undo-ftplugin}
 

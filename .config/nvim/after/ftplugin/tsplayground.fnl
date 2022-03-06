@@ -1,6 +1,4 @@
-(import-macros {: map : undo_ftplugin} :macros)
+(import-macros {: map : with-undo-ftplugin} :macros)
 
-(map n :q :<Cmd>q<CR> :silent :buffer)
-
-(undo_ftplugin "sil! nun <buffer> q")
+(with-undo-ftplugin (map n :q :<Cmd>q<CR> :silent :buffer))
 

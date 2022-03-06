@@ -1,6 +1,4 @@
-(import-macros {: opt-local : undo_ftplugin} :macros)
+(import-macros {: opt-local : with-undo-ftplugin} :macros)
 
-(opt-local statusline " %f")
-
-(undo_ftplugin "setl statusline<")
+(with-undo-ftplugin (opt-local statusline " %f"))
 

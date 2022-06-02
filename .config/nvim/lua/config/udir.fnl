@@ -2,16 +2,16 @@
 (import-macros {: map} :macros)
 
 (fn endswith-any [str suffixes]
-  (var hidden false)
-  (each [_ suf (ipairs suffixes) :until hidden]
+  (var found false)
+  (each [_ suf (ipairs suffixes) :until found]
     (when (vim.endswith str suf)
-      (set hidden true)))
-  hidden)
+      (set found true)))
+  found)
 
-(fn contains? [matches? list]
+(fn some? [list pred?]
   (var found false)
   (each [_ v (ipairs list) :until found]
-    (when (matches? v)
+    (when (pred? v)
       (set found true)))
   found)
 
@@ -19,11 +19,10 @@
   (local ext (string.match file.name "%.(%w-)$"))
   (match ext
     :lua (let [fnl (string.gsub file.name :lua$ :fnl)]
-           (contains? #(= fnl $1.name) files))
+           (some? files #(= fnl $1.name)))
     :js (let [res (string.gsub file.name :js$ :res)]
-          (contains? #(= res $1.name) files))
-    _ (let [suffixes [:.bs.js :.o]]
-        (endswith-any file.name suffixes))))
+          (some? files #(= res $1.name)))
+    _ (endswith-any file.name [:.bs.js :.o])))
 
 (local m udir.map)
 
@@ -34,6 +33,7 @@
                        :h m.up_dir
                        :- m.up_dir
                        :l m.open
+                       :i m.open
                        :<CR> m.open
                        :s m.open_split
                        :v m.open_vsplit

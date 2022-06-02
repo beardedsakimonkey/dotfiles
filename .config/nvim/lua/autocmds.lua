@@ -186,6 +186,10 @@ local function template_h()
   local guard = string.upper(file_name:gsub("%.", "_"))
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
+local function template_c()
+  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\tprintf(\"hi\\n\");\n}"
+  return vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, "\n"))
+end
 vim.api.nvim_create_augroup("my/autocmds", {clear = true})
 local _24_ = "my/autocmds"
 vim.api.nvim_create_autocmd("BufWritePost", {callback = compile_fennel, group = _24_, pattern = "*.fnl"})
@@ -211,4 +215,5 @@ local function _27_()
 end
 vim.api.nvim_create_autocmd("BufNewFile", {callback = _27_, group = _24_, pattern = "*.sh"})
 vim.api.nvim_create_autocmd("BufNewFile", {callback = template_h, group = _24_, pattern = "*.h"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = template_c, group = _24_, pattern = "main.c"})
 return _24_

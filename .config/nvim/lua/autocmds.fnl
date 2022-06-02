@@ -143,6 +143,15 @@
     (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
 
 ;; fnlfmt: skip
+(fn template-c []
+  (local str "#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+\tprintf(\"hi\\n\");
+}")
+         (set-lines (vim.split str "\n")))
+
+;; fnlfmt: skip
 (augroup :my/autocmds
          (autocmd BufWritePost *.fnl compile-fennel)
          (autocmd BufReadPre * handle-large-buffers)
@@ -158,5 +167,6 @@
          (autocmd BufWritePost user-overrides.js update-user-js)
          (autocmd BufNewFile [http://* https://*] edit-url)
          (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))
-         (autocmd BufNewFile *.h template-h))
+         (autocmd BufNewFile *.h template-h)
+         (autocmd BufNewFile main.c template-c))
 

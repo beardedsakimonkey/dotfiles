@@ -333,6 +333,7 @@ fi
 #
 
 alias sudo='\sudo '
+alias sudoedit='sudo -e'
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='\ls -FG'
 alias a='ls -A'

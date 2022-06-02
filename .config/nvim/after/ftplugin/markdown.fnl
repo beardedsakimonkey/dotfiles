@@ -1,4 +1,6 @@
 (import-macros {: opt-local : with-undo-ftplugin} :macros)
 
-(with-undo-ftplugin (opt-local formatoptions += :t))
+;; fnlfmt: skip
+(with-undo-ftplugin (opt-local formatoptions += :t)
+                    (opt-local textwidth 100))
 

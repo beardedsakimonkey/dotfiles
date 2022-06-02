@@ -6,6 +6,8 @@
 !/.config/alacritty
 !/.config/tmux
 !/.config/nvim
+# packer_compiled.lua contains absolute paths, so not portable.
+/.config/nvim/plugin/packer_compiled.lua
 
 !/.zsh
 !/.zshenv

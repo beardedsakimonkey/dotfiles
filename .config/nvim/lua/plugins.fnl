@@ -1,13 +1,25 @@
-(local packer (require :packer))
+(import-macros {: opt} :macros)
 
 (fn use [pkgs]
+  (local packer (require :packer))
   (packer.startup (fn []
                     (each [name opts (pairs pkgs)]
                       (tset opts 1 name)
                       (packer.use opts)))))
 
+;; Install packer.nvim if needed.
+(local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
+(local needs-boostrap (not (vim.loop.fs_access path :R)))
+(when needs-boostrap
+  (os.execute (.. "git clone --depth=1 https://github.com/wbthomason/packer.nvim "
+                  path))
+  (opt runtimepath ^= (.. (vim.fn.stdpath :data) "/site/pack/*/start/*,"
+                          vim.o.runtimepath)))
+
+;; NOTE: Ideally, we take a snapshot before `PackerUpdate`ing.
 (use {;; Neovim
       :wbthomason/packer.nvim {}
+      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
@@ -58,7 +70,9 @@
       :tpope/vim-surround {}
       :tpope/vim-repeat {}
       ;; Languages
-      :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      ;; Local
-      "~/code/udir" {:config "require'config.udir'"}})
+      :rescript-lang/vim-rescript {:opt true :ft :rescript}})
+
+(when needs-boostrap
+  (local packer (require :packer))
+  (packer.sync))
 

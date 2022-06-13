@@ -349,6 +349,7 @@ alias gco='git checkout'
 alias gp='git push'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
+alias rtorrent='\rtorrent -n -o import=~/.config/rtorrent/rtorrent.rc'
 alias ydl='youtube-dl'
 alias mdl='megadl'
 alias peek='git-peek'
@@ -397,23 +398,6 @@ cd() {
         builtin cd $(dirname $1)
     else
         builtin cd "$@"
-    fi
-}
-
-megadl() {
-    emulate -L zsh
-    cd ~/movies
-    local url="$1"
-    for i in {1..10}; do
-        if [[ "$url" =~ "mega.nz" ]] ||  [[ "$url" =~ "^https" ]]; then
-            break
-        fi
-        url=$(base64 -d <<<"$url" 2> /dev/null)
-    done
-    if [[ "$url" =~ "mega.nz" ]]; then
-        command megadl --choose-files "$url"
-    else
-        printf "bad url: %s\n" "$url"
     fi
 }
 

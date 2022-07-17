@@ -1,6 +1,7 @@
 local lightspeed = require("lightspeed")
 lightspeed.setup({jump_to_unique_chars = {safety_timeout = 400}, match_only_the_start_of_same_char_seqs = true, limit_ft_matches = 5})
-vim.cmd("silent! unmap s")
+vim.cmd("map s s")
+vim.cmd("xmap s s")
 vim.keymap.set("n", "t", "<Plug>Lightspeed_s", {remap = true})
 vim.keymap.set("n", "T", "<Plug>Lightspeed_S", {remap = true})
 vim.keymap.set("n", "f", "<Plug>Lightspeed_f", {remap = true})

@@ -8,6 +8,34 @@
   (local to (from:gsub "%.fnl$" :.lua))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
+(fn get-outer-node [node]
+  (var parent node)
+  (var result node)
+  (while (not= nil (parent:parent))
+    (set result parent)
+    (set parent (result:parent)))
+  result)
+
+(fn get-root-text [init-repl?]
+  (local ts-utils (require :nvim-treesitter.ts_utils))
+  (local alt-win (-> (vim.fn.winnr "#")
+                     (vim.fn.win_getid)))
+  ;; Initializing the repl moves us to a new win, so use the alt win
+  (local winid (if init-repl? alt-win 0))
+  (local node (ts-utils.get_node_at_cursor winid))
+  (local outer (get-outer-node node))
+  (vim.treesitter.get_node_text outer (tonumber (vim.fn.winbufnr winid))))
+
+(fn eval-outer-form []
+  (local {: get-bufnr : callback : start} (require :fennel-repl))
+  (var buf (get-bufnr))
+  (local init-repl? (= nil buf))
+  (when init-repl?
+    (start)
+    (set buf (get-bufnr)))
+  (local text (get-root-text init-repl?))
+  (callback buf text))
+
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)
                     (opt-local commentstring ";; %s")
@@ -36,5 +64,6 @@
                                 :while
                                 :with-open])
                     (map n "]f" goto-lua :buffer)
-                    (map n "[f" goto-lua :buffer))
+                    (map n "[f" goto-lua :buffer)
+                    (map n "<space>ev" eval-outer-form :buffer))
 

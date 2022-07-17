@@ -5,7 +5,9 @@
                    :match_only_the_start_of_same_char_seqs true
                    :limit_ft_matches 5})
 
-(vim.cmd "silent! unmap s")
+;; Prevent lightspeed from creating mappings for `s`
+(vim.cmd "map s s")
+(vim.cmd "xmap s s")
 ;; No need to unmap `S` since it already has a custom mapping
 
 ;; "Teleport"

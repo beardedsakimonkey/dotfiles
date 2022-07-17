@@ -1,4 +1,4 @@
-(import-macros {: map : map} :macros)
+(import-macros {: map} :macros)
 
 ;; NOTE: Don't use <Cmd> if the mapping contains <C-r>
 
@@ -245,6 +245,8 @@
 (map n "'U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
+
+(map n "'C" "<Cmd> e ~/.config/<CR>" :silent)
 
 ;;
 ;; Grab file name

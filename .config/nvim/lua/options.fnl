@@ -69,3 +69,5 @@
 (opt textwidth 80)
 (opt cursorline)
 
+;; (opt jumpoptions :view)
+

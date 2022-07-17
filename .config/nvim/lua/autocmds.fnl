@@ -28,7 +28,9 @@
 
 (fn compile-fennel []
   (let [config-dir (.. (vim.fn.stdpath :config) "/")
-        roots [config-dir :/Users/tim/code/udir/]
+        roots [config-dir
+               :/Users/tim/code/udir/
+               :/Users/tim/.local/share/nvim/site/pack/mine/snap2/]
         src (vim.fn.expand "<afile>:p")
         ?root (tbl_find #(vim.startswith src $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`
@@ -149,7 +151,7 @@
 int main(int argc, char *argv[]) {
 \tprintf(\"hi\\n\");
 }")
-         (set-lines (vim.split str "\n")))
+  (set-lines (vim.split str "\n")))
 
 ;; fnlfmt: skip
 (augroup :my/autocmds

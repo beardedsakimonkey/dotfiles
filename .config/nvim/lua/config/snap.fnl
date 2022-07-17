@@ -1,9 +1,12 @@
 (local snap (require :snap))
+(import-macros {: map} :macros)
 
 (local defaults {:mappings {:enter-split [:<C-s>]
                             :enter-vsplit [:<C-l>]
                             :next [:<C-v>]}
-                 :reverse true})
+                 :consumer :fzy
+                 :reverse true
+                 :prompt ""})
 
 (fn with-defaults [tbl]
   (vim.tbl_extend :force {} defaults tbl))
@@ -33,23 +36,25 @@
   (vim.fn.setreg "\"" reg)
   text)
 
-(local grep {:producer ((snap.get :consumer.limit) 10000
-                                                   (snap.get :producer.ripgrep.vimgrep))
-             :select (. (snap.get :select.vimgrep) :select)
-             :multiselect (. (snap.get :select.vimgrep) :multiselect)
-             :views [(snap.get :preview.vimgrep)]
-             :prompt :Grep>})
+(local grep-cfg {:producer ((snap.get :consumer.limit) 10000
+                                                       (snap.get :producer.ripgrep.vimgrep))
+                 :select (. (snap.get :select.vimgrep) :select)
+                 :multiselect (. (snap.get :select.vimgrep) :multiselect)
+                 :views [(snap.get :preview.vimgrep)]
+                 :prompt :Grep>})
 
 ;; TODO: Maybe just execute a command so that we can easily redo it.
 (fn visual-grep []
-  (snap.run (with-defaults (vim.tbl_extend :force {} grep
+  (snap.run (with-defaults (vim.tbl_extend :force {} grep-cfg
                                            {:initial_filter (get-selected-text)}))))
 
-(fn normal-grep []
-  (snap.run (with-defaults grep)))
+(fn grep []
+  (snap.run (with-defaults grep-cfg)))
 
-(fn help-grep []
+(fn help []
   (snap.run (with-defaults {:prompt :Help>
+                            ;; FIXME: it seems like the producer is yielding
+                            ;; stuff, but the consumer doesn't.
                             :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
                             ;; The built-in help select function doesn't handle splits
                             :select (fn _help-select [selection _winnr type]
@@ -78,10 +83,10 @@
 
 (local file (snap.config.file:with defaults))
 
-(snap.maps [[:<space>b (file {:producer buffers})]
-            [:<space>o (file {:producer oldfiles})]
-            [:<space>f (file {:producer :ripgrep.file})]
-            [:<space>a visual-grep {:modes [:v]}]
-            [:<space>a normal-grep]
-            [:<space>h help-grep]])
+(map n :<space>b (file {:producer buffers}))
+(map n :<space>o (file {:producer oldfiles}))
+(map n :<space>f (file {:producer :ripgrep.file}))
+(map n :<space>a grep)
+(map x :<space>a visual-grep)
+(map n :<space>h help)
 

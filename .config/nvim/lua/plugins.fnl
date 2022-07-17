@@ -1,12 +1,5 @@
 (import-macros {: opt} :macros)
 
-(fn use [pkgs]
-  (local packer (require :packer))
-  (packer.startup (fn []
-                    (each [name opts (pairs pkgs)]
-                      (tset opts 1 name)
-                      (packer.use opts)))))
-
 ;; Install packer.nvim if needed.
 (local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
 (local needs-boostrap (not (vim.loop.fs_access path :R)))
@@ -16,7 +9,13 @@
   (opt runtimepath ^= (.. (vim.fn.stdpath :data) "/site/pack/*/start/*,"
                           vim.o.runtimepath)))
 
-;; NOTE: Ideally, we take a snapshot before `PackerUpdate`ing.
+(fn use [pkgs]
+  (local packer (require :packer))
+  (packer.startup (fn []
+                    (each [name opts (pairs pkgs)]
+                      (tset opts 1 name)
+                      (packer.use opts)))))
+
 (use {;; Neovim
       :wbthomason/packer.nvim {}
       :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
@@ -24,7 +23,7 @@
                                    :opt true
                                    :ft [:fennel :go]}
       :ggandor/lightspeed.nvim {:config "require'config.lightspeed'"}
-      :camspiers/snap {:config "require'config.snap'" :rocks :fzy}
+      :beardedsakimonkey/snap {:config "require'config.snap'"}
       :jose-elias-alvarez/minsnip.nvim {:config "require'config.minsnip'"
                                         :commit :6ae2f32}
       :norcalli/nvim-colorizer.lua {:setup "require'config.colorizer'"
@@ -70,7 +69,8 @@
       :tpope/vim-surround {}
       :tpope/vim-repeat {}
       ;; Languages
-      :rescript-lang/vim-rescript {:opt true :ft :rescript}})
+      :rescript-lang/vim-rescript {:opt true :ft :rescript}
+      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl}})
 
 (when needs-boostrap
   (local packer (require :packer))

@@ -1,5 +1,5 @@
 local snap = require("snap")
-local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, reverse = true}
+local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, consumer = "fzy", reverse = true, prompt = ""}
 local function with_defaults(tbl)
   return vim.tbl_extend("force", {}, defaults, tbl)
 end
@@ -32,14 +32,14 @@ local function get_selected_text()
   vim.fn.setreg("\"", reg)
   return text
 end
-local grep = {producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, multiselect = (snap.get("select.vimgrep")).multiselect, views = {snap.get("preview.vimgrep")}, prompt = "Grep>"}
+local grep_cfg = {producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, multiselect = (snap.get("select.vimgrep")).multiselect, views = {snap.get("preview.vimgrep")}, prompt = "Grep>"}
 local function visual_grep()
-  return snap.run(with_defaults(vim.tbl_extend("force", {}, grep, {initial_filter = get_selected_text()})))
+  return snap.run(with_defaults(vim.tbl_extend("force", {}, grep_cfg, {initial_filter = get_selected_text()})))
 end
-local function normal_grep()
-  return snap.run(with_defaults(grep))
+local function grep()
+  return snap.run(with_defaults(grep_cfg))
 end
-local function help_grep()
+local function help()
   local function _help_select(selection, _winnr, type)
     local cmd
     do
@@ -75,4 +75,9 @@ local function oldfiles()
   return snap.sync(get_oldfiles)
 end
 local file = (snap.config.file):with(defaults)
-return snap.maps({{"<space>b", file({producer = buffers})}, {"<space>o", file({producer = oldfiles})}, {"<space>f", file({producer = "ripgrep.file"})}, {"<space>a", visual_grep, {modes = {"v"}}}, {"<space>a", normal_grep}, {"<space>h", help_grep}})
+vim.keymap.set("n", "<space>b", file({producer = buffers}), {})
+vim.keymap.set("n", "<space>o", file({producer = oldfiles}), {})
+vim.keymap.set("n", "<space>f", file({producer = "ripgrep.file"}), {})
+vim.keymap.set("n", "<space>a", grep, {})
+vim.keymap.set("x", "<space>a", visual_grep, {})
+return vim.keymap.set("n", "<space>h", help, {})

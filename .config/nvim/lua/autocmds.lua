@@ -31,7 +31,7 @@ local function tbl_find(pred_3f, seq)
 end
 local function compile_fennel()
   local config_dir = (vim.fn.stdpath("config") .. "/")
-  local roots = {config_dir, "/Users/tim/code/udir/"}
+  local roots = {config_dir, "/Users/tim/code/udir/", "/Users/tim/.local/share/nvim/site/pack/mine/snap2/"}
   local src = vim.fn.expand("<afile>:p")
   local _3froot
   local function _4_(_241)

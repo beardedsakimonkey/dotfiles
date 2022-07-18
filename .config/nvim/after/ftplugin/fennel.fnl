@@ -16,7 +16,7 @@
     (set parent (result:parent)))
   result)
 
-(fn get-root-text [init-repl?]
+(fn get-outer-form-text [init-repl?]
   (local ts-utils (require :nvim-treesitter.ts_utils))
   (local alt-win (-> (vim.fn.winnr "#")
                      (vim.fn.win_getid)))
@@ -26,14 +26,16 @@
   (local outer (get-outer-node node))
   (vim.treesitter.get_node_text outer (tonumber (vim.fn.winbufnr winid))))
 
+;; NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
+;; drawn until entering insert mode. (`init_prompt()` in edit.c)
 (fn eval-outer-form []
-  (local {: get-bufnr : callback : start} (require :fennel-repl))
-  (var buf (get-bufnr))
+  (local {: get_bufnr : callback : start} (require :fennel-repl))
+  (var buf (get_bufnr))
   (local init-repl? (= nil buf))
   (when init-repl?
     (start)
-    (set buf (get-bufnr)))
-  (local text (get-root-text init-repl?))
+    (set buf (get_bufnr)))
+  (local text (get-outer-form-text init-repl?))
   (callback buf text))
 
 ;; fnlfmt: skip

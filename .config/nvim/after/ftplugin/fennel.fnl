@@ -16,12 +16,8 @@
     (set parent (result:parent)))
   result)
 
-(fn get-outer-form-text [init-repl?]
+(fn get-outer-form-text [winid]
   (local ts-utils (require :nvim-treesitter.ts_utils))
-  (local alt-win (-> (vim.fn.winnr "#")
-                     (vim.fn.win_getid)))
-  ;; Initializing the repl moves us to a new win, so use the alt win
-  (local winid (if init-repl? alt-win 0))
   (local node (ts-utils.get_node_at_cursor winid))
   (local outer (get-outer-node node))
   (vim.treesitter.get_node_text outer (tonumber (vim.fn.winbufnr winid))))
@@ -29,14 +25,16 @@
 ;; NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
 ;; drawn until entering insert mode. (`init_prompt()` in edit.c)
 (fn eval-outer-form []
-  (local {: get_bufnr : callback : start} (require :fennel-repl))
-  (var buf (get_bufnr))
-  (local init-repl? (= nil buf))
-  (when init-repl?
-    (start)
-    (set buf (get_bufnr)))
-  (local text (get-outer-form-text init-repl?))
-  (callback buf text))
+  (local repl (require :fennel-repl))
+  (local bufnr (repl.start))
+  ;; (vim.api.nvim_clear_autocmds {:buffer bufnr})
+  (local repl-focused (vim.startswith (vim.api.nvim_buf_get_name bufnr)
+                                      :fennel-repl))
+  ;; Initializing the repl moves us to a new win, so use the alt win
+  (local text (get-outer-form-text (if (not repl-focused)
+                                       (vim.fn.win_getid (vim.fn.winnr "#"))
+                                       0)))
+  (repl.callback bufnr text))
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)

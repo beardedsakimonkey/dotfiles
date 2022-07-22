@@ -14,33 +14,26 @@ local function get_outer_node(node)
   end
   return result
 end
-local function get_outer_form_text(init_repl_3f)
+local function get_outer_form_text(winid)
   local ts_utils = require("nvim-treesitter.ts_utils")
-  local alt_win = vim.fn.win_getid(vim.fn.winnr("#"))
-  local winid
-  if init_repl_3f then
-    winid = alt_win
-  else
-    winid = 0
-  end
   local node = ts_utils.get_node_at_cursor(winid)
   local outer = get_outer_node(node)
   return vim.treesitter.get_node_text(outer, tonumber(vim.fn.winbufnr(winid)))
 end
 local function eval_outer_form()
-  local _local_2_ = require("fennel-repl")
-  local get_bufnr = _local_2_["get_bufnr"]
-  local callback = _local_2_["callback"]
-  local start = _local_2_["start"]
-  local buf = get_bufnr()
-  local init_repl_3f = (nil == buf)
-  if init_repl_3f then
-    start()
-    buf = get_bufnr()
-  else
+  local repl = require("fennel-repl")
+  local bufnr = repl.start()
+  local repl_focused = vim.startswith(vim.api.nvim_buf_get_name(bufnr), "fennel-repl")
+  local text
+  local function _1_()
+    if not repl_focused then
+      return vim.fn.win_getid(vim.fn.winnr("#"))
+    else
+      return 0
+    end
   end
-  local text = get_outer_form_text(init_repl_3f)
-  return callback(buf, text)
+  text = get_outer_form_text(_1_())
+  return repl.callback(bufnr, text)
 end
 vim["opt_local"]["expandtab"] = true
 vim["opt_local"]["commentstring"] = ";; %s"

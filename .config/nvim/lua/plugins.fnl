@@ -70,7 +70,8 @@
       :tpope/vim-repeat {}
       ;; Languages
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      :beardedsakimonkey/fennel-repl.nvim {:opt true
+      :beardedsakimonkey/fennel-repl.nvim {:branch :mine
+                                           :opt true
                                            :cmd :FennelRepl
                                            :ft :fennel
                                            :config "require'config.fennelrepl'"}})

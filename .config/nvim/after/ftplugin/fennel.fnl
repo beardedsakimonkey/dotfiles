@@ -18,15 +18,15 @@
 
 (fn get-outer-form-text [winid]
   (local ts-utils (require :nvim-treesitter.ts_utils))
-  (local node (ts-utils.get_node_at_cursor winid))
-  (local outer (get-outer-node node))
-  (vim.treesitter.get_node_text outer (tonumber (vim.fn.winbufnr winid))))
+  (local cursor-node (ts-utils.get_node_at_cursor winid))
+  (local outer-node (get-outer-node cursor-node))
+  (vim.treesitter.get_node_text outer-node (vim.fn.winbufnr winid)))
 
 ;; NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
 ;; drawn until entering insert mode. (`init_prompt()` in edit.c)
 (fn eval-outer-form []
   (local repl (require :fennel-repl))
-  (local bufnr (repl.start))
+  (local bufnr (repl.open))
   ;; (vim.api.nvim_clear_autocmds {:buffer bufnr})
   (local repl-focused (vim.startswith (vim.api.nvim_buf_get_name bufnr)
                                       :fennel-repl))

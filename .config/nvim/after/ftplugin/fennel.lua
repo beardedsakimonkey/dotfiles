@@ -16,13 +16,13 @@ local function get_outer_node(node)
 end
 local function get_outer_form_text(winid)
   local ts_utils = require("nvim-treesitter.ts_utils")
-  local node = ts_utils.get_node_at_cursor(winid)
-  local outer = get_outer_node(node)
-  return vim.treesitter.get_node_text(outer, tonumber(vim.fn.winbufnr(winid)))
+  local cursor_node = ts_utils.get_node_at_cursor(winid)
+  local outer_node = get_outer_node(cursor_node)
+  return vim.treesitter.get_node_text(outer_node, vim.fn.winbufnr(winid))
 end
 local function eval_outer_form()
   local repl = require("fennel-repl")
-  local bufnr = repl.start()
+  local bufnr = repl.open()
   local repl_focused = vim.startswith(vim.api.nvim_buf_get_name(bufnr), "fennel-repl")
   local text
   local function _1_()

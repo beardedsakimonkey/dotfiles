@@ -150,7 +150,7 @@
 (map n :gi "g`^")
 (map n :<space>z zoom-toggle :silent)
 (map x "." ":norm! .<CR>" :silent)
-(map n :g. repeat-last-edit)
+(map n :<space>. repeat-last-edit)
 (map x "/" search-in-visual-selection)
 ;; Adapted from justinmk's vimrc
 (vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")

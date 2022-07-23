@@ -6,8 +6,7 @@
                    :limit_ft_matches 5})
 
 ;; Prevent lightspeed from creating mappings for `s`
-(vim.cmd "map s s")
-(vim.cmd "xmap s s")
+(map ["" x] :s :s)
 ;; No need to unmap `S` since it already has a custom mapping
 
 ;; "Teleport"
@@ -18,5 +17,6 @@
 (map n :F :<Plug>Lightspeed_F :remap)
 
 ;; Go to next result from f/t (use , for going to prev results)
+(pcall #(vim.keymap.del :n ":"))
 (map n ":" "<Plug>Lightspeed_;_ft" :remap)
 

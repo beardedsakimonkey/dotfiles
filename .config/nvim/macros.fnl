@@ -62,7 +62,7 @@
 (fn map [modes lhs rhs ...]
   (when _G.undo-cmds
     (table.insert _G.undo-cmds (.. "sil! nun <buffer> " lhs)))
-  ;; By default, noremap is true
+  ;; NOTE: noremap is true by default
   (local opts (collect [_ opt (ipairs [...])]
                 (values opt true)))
   (local modes (if (sequence? modes)

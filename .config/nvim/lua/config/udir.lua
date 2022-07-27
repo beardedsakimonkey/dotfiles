@@ -1,4 +1,5 @@
 local udir = require("udir")
+local m = udir.map
 local function endswith_any(str, suffixes)
   local found = false
   for _, suf in ipairs(suffixes) do
@@ -43,6 +44,17 @@ local function is_file_hidden(file, files, _cwd)
     return nil
   end
 end
-local m = udir.map
-udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden, keymaps = {q = m.quit, h = m.up_dir, ["-"] = m.up_dir, l = m.open, i = m.open, ["<CR>"] = m.open, s = m.open_split, v = m.open_vsplit, ["<C-t>"] = m.open_tab, R = m.reload, r = m.move, d = m.delete, ["+"] = m.create, m = m.move, c = m.copy, C = "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<BAR>pwd<CR>", gh = m.toggle_hidden_files}})
+local function cd(cmd)
+  local store = require("udir.store")
+  local state = store.get()
+  vim.cmd((cmd .. " " .. vim.fn.fnameescape(state.cwd)))
+  return vim.cmd("pwd")
+end
+local function _7_()
+  return cd("cd")
+end
+local function _8_()
+  return cd("lcd")
+end
+udir.setup({auto_open = true, show_hidden_files = false, is_file_hidden = is_file_hidden, keymaps = {q = m.quit, h = m.up_dir, ["-"] = m.up_dir, l = m.open, i = m.open, ["<CR>"] = m.open, s = m.open_split, v = m.open_vsplit, ["<C-t>"] = m.open_tab, R = m.reload, r = m.move, d = m.delete, ["+"] = m.create, m = m.move, c = m.copy, C = _7_, L = _8_, gh = m.toggle_hidden_files}})
 return vim.keymap.set("n", "-", "<Cmd>Udir<CR>", {})

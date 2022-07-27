@@ -2,14 +2,11 @@ vim.g.mapleader = "<s-f5>"
 vim.g.maplocalleader = ","
 local function nav_change_list(cmd)
   local _local_1_ = vim.api.nvim_win_get_cursor(0)
-  local row = _local_1_[1]
-  local _ = _local_1_[2]
+  local line = _local_1_[1]
   vim.cmd(("sil! normal! " .. cmd))
   local _local_2_ = vim.api.nvim_win_get_cursor(0)
-  local row2 = _local_2_[1]
-  local _0 = _local_2_[2]
-  local delta = math.abs((row - row2))
-  if (delta <= 1) then
+  local line2 = _local_2_[1]
+  if (line == line2) then
     return vim.cmd(("sil! normal! " .. cmd))
   else
     return nil
@@ -222,14 +219,14 @@ local function _19_()
   return move_line("down")
 end
 vim.keymap.set("n", "]e", _19_, {})
-vim.keymap.set("n", "'V", "<Cmd>e ~/.config/nvim/lua<CR>", {silent = true})
+vim.keymap.set("n", "'V", "<Cmd>e ~/.config/nvim/lua/<CR>", {silent = true})
+vim.keymap.set("n", "'C", "<Cmd>e ~/.config/nvim/lua/config/<CR>", {silent = true})
 vim.keymap.set("n", "'P", "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {silent = true})
 vim.keymap.set("n", "'Z", "<Cmd>e ~/.zshrc<CR>", {silent = true})
 vim.keymap.set("n", "'N", "<Cmd>e ~/notes/notes.md<CR>", {silent = true})
 vim.keymap.set("n", "'T", "<Cmd>e ~/notes/todo.md<CR>", {silent = true})
 vim.keymap.set("n", "'A", "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>", {silent = true})
 vim.keymap.set("n", "'U", "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>", {silent = true})
-vim.keymap.set("n", "'C", "<Cmd> e ~/.config/<CR>", {silent = true})
 vim.keymap.set("i", "<C-o>", "<c-r>=expand(\"%:t:r:r:r\")<CR>", {})
 vim.keymap.set("c", "<C-o>", "<c-r>=expand(\"%:t:r:r:r\")<CR>", {})
 vim.keymap.set("n", "yo", ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>", {silent = true})

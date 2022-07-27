@@ -64,10 +64,22 @@ end
 local function get_oldfiles()
   local function _7_(_3ffile)
     local file = (_3ffile or "")
-    local wildignored = (1 == vim.fn.empty(vim.fn.glob(file)))
-    local dir = (0 == vim.fn.isdirectory(file))
-    local manpage = vim.startswith(file, "man://")
-    return (not wildignored and dir and not manpage)
+    local not_wildignored
+    local function _8_()
+      return (0 == vim.fn.empty(vim.fn.glob(file)))
+    end
+    not_wildignored = _8_
+    local not_dir
+    local function _9_()
+      return (0 == vim.fn.isdirectory(file))
+    end
+    not_dir = _9_
+    local not_manpage
+    local function _10_()
+      return not vim.startswith(file, "man://")
+    end
+    not_manpage = _10_
+    return (not_wildignored() and not_dir() and not_manpage())
   end
   return vim.tbl_filter(_7_, vim.v.oldfiles)
 end

@@ -53,8 +53,6 @@
 
 (fn help []
   (snap.run (with-defaults {:prompt :Help>
-                            ;; FIXME: it seems like the producer is yielding
-                            ;; stuff, but the consumer doesn't.
                             :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
                             ;; The built-in help select function doesn't handle splits
                             :select (fn _help-select [selection _winnr type]
@@ -72,11 +70,12 @@
   (->> vim.v.oldfiles
        (vim.tbl_filter (fn [?file]
                          (local file (or ?file ""))
-                         (local wildignored
-                                (= 1 (vim.fn.empty (vim.fn.glob file))))
-                         (local dir (= 0 (vim.fn.isdirectory file)))
-                         (local manpage (vim.startswith file "man://"))
-                         (and (not wildignored) dir (not manpage))))))
+                         (local not-wildignored
+                                #(= 0 (vim.fn.empty (vim.fn.glob file))))
+                         (local not-dir #(= 0 (vim.fn.isdirectory file)))
+                         (local not-manpage
+                                #(not (vim.startswith file "man://")))
+                         (and (not-wildignored) (not-dir) (not-manpage))))))
 
 (fn oldfiles []
   (snap.sync get-oldfiles))

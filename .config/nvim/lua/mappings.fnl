@@ -6,11 +6,10 @@
 (set vim.g.maplocalleader ",")
 
 (fn nav-change-list [cmd]
-  (local [row _] (vim.api.nvim_win_get_cursor 0))
+  (local [line] (vim.api.nvim_win_get_cursor 0))
   (vim.cmd (.. "sil! normal! " cmd))
-  (local [row2 _] (vim.api.nvim_win_get_cursor 0))
-  (local delta (math.abs (- row row2)))
-  (when (<= delta 1)
+  (local [line2] (vim.api.nvim_win_get_cursor 0))
+  (when (= line line2)
     (vim.cmd (.. "sil! normal! " cmd))))
 
 (fn move-line [dir]
@@ -236,7 +235,8 @@
 ;;
 ;; Bookmarks
 ;;
-(map n "'V" "<Cmd>e ~/.config/nvim/lua<CR>" :silent)
+(map n "'V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
+(map n "'C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
 (map n "'P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
 (map n "'Z" "<Cmd>e ~/.zshrc<CR>" :silent)
 (map n "'N" "<Cmd>e ~/notes/notes.md<CR>" :silent)
@@ -245,8 +245,6 @@
 (map n "'U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
-
-(map n "'C" "<Cmd> e ~/.config/<CR>" :silent)
 
 ;;
 ;; Grab file name

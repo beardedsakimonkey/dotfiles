@@ -5,6 +5,6 @@
                                :frag :glsl}
                    :filename {:tmux.conf :tmux
                               :.fasdrc :bash
-                              :.rtorrent.rc :dosini}
+                              :rtorrent.rc :dosini}
                    :pattern {:.*/zsh/functions/.* :zsh}})
 

@@ -30,6 +30,7 @@
                                     :opt true
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
+      :kylechui/nvim-surround {:config "require'config.surround'"}
       ;; Treesitter
       :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
                                         :run ":TSUpdate"}
@@ -38,6 +39,7 @@
                                    :cmd [:TSPlaygroundToggle
                                          :TSHighlightCapturesUnderCursor]
                                    :after :nvim-treesitter}
+      :nvim-treesitter/nvim-treesitter-textobjects {}
       :nkrkv/nvim-treesitter-rescript {:opt true
                                        :ft :rescript
                                        :after :nvim-treesitter
@@ -66,7 +68,6 @@
                          :config "vim.g.lion_squeeze_spaces = 1"}
       :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
       :tpope/vim-commentary {}
-      :tpope/vim-surround {}
       :tpope/vim-repeat {}
       ;; Languages
       :rescript-lang/vim-rescript {:opt true :ft :rescript}

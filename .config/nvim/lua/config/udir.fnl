@@ -1,4 +1,5 @@
 (local udir (require :udir))
+(local m udir.map)
 (import-macros {: map} :macros)
 
 (fn endswith-any [str suffixes]
@@ -24,7 +25,11 @@
           (some? files #(= res $1.name)))
     _ (endswith-any file.name [:.bs.js :.o])))
 
-(local m udir.map)
+(fn cd [cmd]
+  (local store (require :udir.store))
+  (local state (store.get))
+  (vim.cmd (.. cmd " " (vim.fn.fnameescape state.cwd)))
+  (vim.cmd :pwd))
 
 (udir.setup {:auto_open true
              :show_hidden_files false
@@ -45,7 +50,8 @@
                        :+ m.create
                        :m m.move
                        :c m.copy
-                       :C "<Cmd>lua vim.cmd('lcd ' .. vim.fn.fnameescape(require('udir.store').get().cwd))<BAR>pwd<CR>"
+                       :C #(cd :cd)
+                       :L #(cd :lcd)
                        :gh m.toggle_hidden_files}})
 
 (map n "-" :<Cmd>Udir<CR>)

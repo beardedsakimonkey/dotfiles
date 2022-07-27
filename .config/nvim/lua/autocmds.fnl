@@ -29,8 +29,8 @@
 (fn compile-fennel []
   (let [config-dir (.. (vim.fn.stdpath :config) "/")
         roots [config-dir
-               :/Users/tim/code/udir/
-               :/Users/tim/.local/share/nvim/site/pack/mine/snap2/]
+               (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-udir/)
+               (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)]
         src (vim.fn.expand "<afile>:p")
         ?root (tbl_find #(vim.startswith src $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`

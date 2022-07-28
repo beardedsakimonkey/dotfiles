@@ -152,8 +152,8 @@
 (map n :<space>. repeat-last-edit)
 (map x "/" search-in-visual-selection)
 ;; Adapted from justinmk's vimrc
-(vim.cmd "xno <expr> I (mode()=~#'[vV]'?'<C-v>^o^I':'I')")
-(vim.cmd "xno <expr> A (mode()=~#'[vV]'?'<C-v>0o$A':'A')")
+(map x :I "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'" :expr)
+(map x :A "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'" :expr)
 
 ;;
 ;; Command mode
@@ -210,7 +210,7 @@
 (map n :<A-k> :<C-w>K)
 
 ;;
-;; Unimpaired
+;; Bracket
 ;;
 (map n "]b" :<Cmd>bnext<CR> :silent)
 (map n "[b" :<Cmd>bprev<CR> :silent)
@@ -269,9 +269,5 @@
 (map x :K :k)
 (map x :J :j)
 (vim.cmd "cnoreabbrev ~? ~/")
-
-;;
-;; Abbreviations
-;;
 (vim.cmd "cnoreabbrev <expr> man getcmdtype() is# \":\" && getcmdpos() == 4 ? 'vert Man' : 'man'")
 

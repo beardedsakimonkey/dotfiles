@@ -18,7 +18,7 @@ local function select_quote(char)
     return nil
   end
 end
-local function txtobj_i()
+local function i()
   local char = vim.fn.nr2char(vim.fn.getchar())
   if (cfg.delimiters.pairs[char] or cfg.delimiters.separators[char] or cfg.delimiters.aliases[char]) then
     return select_quote(char)
@@ -26,4 +26,4 @@ local function txtobj_i()
     return nil
   end
 end
-return vim.keymap.set("o", "i", txtobj_i, {})
+return vim.keymap.set("o", "i", i, {})

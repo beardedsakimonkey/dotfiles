@@ -48,12 +48,12 @@
     (vim.cmd "normal! v")
     (vim.api.nvim_win_set_cursor 0 [(. right 1) (- (. right 2) 2)])))
 
-(fn txtobj-i []
+(fn i []
   (local char (vim.fn.nr2char (vim.fn.getchar)))
   (when (or (. cfg.delimiters.pairs char) (. cfg.delimiters.separators char)
             (. cfg.delimiters.aliases char))
     (select-quote char)))
 
-;; TODO: visual mode
-(map o :i txtobj-i)
+;; TODO: visual mode, repeat
+(map o :i i)
 

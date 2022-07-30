@@ -162,6 +162,7 @@ int main(int argc, char *argv[]) {
          (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
          ;; (autocmd BufWritePost */colors/*.vim source-colorscheme)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
+         (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
          (autocmd BufReadPost * restore-cursor-position)
          (autocmd VimResized * "wincmd =")
          (autocmd FileType * setup-formatoptions)

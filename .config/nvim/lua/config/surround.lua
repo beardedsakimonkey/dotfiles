@@ -2,7 +2,7 @@ local nvim_surround = require("nvim-surround")
 local function surround_link()
   return {"[", ("](" .. vim.fn.getreg("*") .. ")")}
 end
-local cfg = {keymaps = {insert = "<C-g>s", insert_line = "<C-g>S", normal = "ys", normal_cur = "yss", normal_line = "yS", normal_cur_line = "ySS", visual = "S", visual_line = "gS", delete = "ds", change = "cs"}, delimiters = {pairs = {["("] = {"( ", " )"}, [")"] = {"(", ")"}, ["{"] = {"{ ", " }"}, ["}"] = {"{ ", " }"}, ["<"] = {"< ", " >"}, [">"] = {"<", ">"}, ["["] = {"[ ", " ]"}, ["]"] = {"[", "]"}, l = surround_link}, separators = {["'"] = {"'", "'"}, ["\""] = {"\"", "\""}, ["`"] = {"`", "`"}}, HTML = {t = "type", T = "whole"}, aliases = {a = ">", b = ")", B = "}", r = "]", q = {"\"", "'", "`"}, s = {"}", "]", ")", ">", "\"", "'", "`"}}}, highlight_motion = {duration = 0}, move_cursor = "begin"}
+local cfg = {keymaps = {insert = "<C-g>s", insert_line = "<C-g>S", normal = "ys", normal_cur = "yss", normal_line = "yS", normal_cur_line = "ySS", visual = "S", visual_line = "gS", delete = "ds", change = "cs"}, delimiters = {pairs = {["("] = {"( ", " )"}, [")"] = {"(", ")"}, ["{"] = {"{ ", " }"}, ["}"] = {"{ ", " }"}, ["<"] = {"< ", " >"}, [">"] = {"<", ">"}, ["["] = {"[ ", " ]"}, ["]"] = {"[", "]"}, l = surround_link}, separators = {["'"] = {"'", "'"}, ["\""] = {"\"", "\""}, ["`"] = {"`", "`"}}, HTML = {t = "type", T = "whole"}, aliases = {a = ">", b = ")", B = "}", r = "]", ["'"] = {"\"", "'", "`"}, s = {"}", "]", ")", ">", "\"", "'", "`"}}}, highlight_motion = {duration = 0}, move_cursor = "begin"}
 nvim_surround.setup(cfg)
 local function select_quote(char)
   local _local_1_ = require("nvim-surround.utils")
@@ -18,7 +18,7 @@ local function select_quote(char)
     return nil
   end
 end
-local function i()
+local function _i()
   local char = vim.fn.nr2char(vim.fn.getchar())
   if (cfg.delimiters.pairs[char] or cfg.delimiters.separators[char] or cfg.delimiters.aliases[char]) then
     return select_quote(char)
@@ -26,4 +26,4 @@ local function i()
     return nil
   end
 end
-return vim.keymap.set("o", "i", i, {})
+return _i

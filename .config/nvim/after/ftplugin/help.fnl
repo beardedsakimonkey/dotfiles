@@ -8,10 +8,10 @@
                     (map n :d :<C-d> :buffer :nowait)
                     (map n :U :<C-b> :buffer :nowait)
                     (map n :D :<C-f> :buffer :nowait)
-                    (map n :<Tab> "/<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>"
+                    (map n :<Tab> "<Cmd>call search('\\v\\|\\S{-}\\|')<CR>"
                          :buffer :silent)
                     (map n :<S-Tab>
-                         "?<Bar>\\S\\{-}<Bar><CR><Cmd>nohlsearch<CR>" :buffer
+                         "<Cmd>call search('\\v\\|\\S{-}\\|', 'b')<CR>" :buffer
                          :silent)
                     (map n :<CR> "g<C-]>" :buffer))
 

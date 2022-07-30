@@ -3,6 +3,7 @@
 
 (minsnip.setup {:cl #(match vim.bo.filetype
                        :c "printf(\"$0\\n\");"
+                       :vim "echom $0"
                        :lua "print($0)"
                        :fennel "(print $0)"
                        :javascript "console.log($0)"

@@ -249,19 +249,19 @@
 ;;
 ;; Grab file name
 ;;
-(map i :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(map c :<C-o> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(map n :yo ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>" :silent)
-(map n :yO ":<c-u>let @\"='<c-r>=expand(\"%:p\")<CR>'<CR>" :silent)
+(map i :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
+(map c :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
+(map n :yd ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>" :silent)
+(map n :yD ":<c-u>let @\"='<c-r>=expand(\"%:p\")<CR>'<CR>" :silent)
 
 ;;
 ;; Toggle options
 ;;
-(map n :con "<Cmd>set number!<CR>" :silent)
-(map n :coc "<Cmd>set cursorline!<CR>" :silent)
-(map n :cow "<Cmd>set wrap!<CR>" :silent)
-(map n :col "<Cmd>set hlsearch!<CR>" :silent)
-(map n :coi "<Cmd>set ignorecase!<CR>" :silent)
+(map n :gon "<Cmd>set number!<CR>" :silent)
+(map n :goc "<Cmd>set cursorline!<CR>" :silent)
+(map n :gow "<Cmd>set wrap!<CR>" :silent)
+(map n :gol "<Cmd>set hlsearch!<CR>" :silent)
+(map n :goi "<Cmd>set ignorecase!<CR>" :silent)
 
 ;;
 ;; Avoid typo

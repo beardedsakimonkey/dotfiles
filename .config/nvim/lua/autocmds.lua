@@ -204,6 +204,7 @@ local function _26_()
 end
 vim.api.nvim_create_autocmd("TextYankPost", {callback = _26_, group = _24_, pattern = "*"})
 vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux_cfg, group = _24_, pattern = "*tmux.conf"})
+vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _24_, pattern = "*/.config/nvim/plugin/*.vim"})
 vim.api.nvim_create_autocmd("BufReadPost", {callback = restore_cursor_position, group = _24_, pattern = "*"})
 vim.api.nvim_create_autocmd("VimResized", {command = "wincmd =", group = _24_, pattern = "*"})
 vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group = _24_, pattern = "*"})

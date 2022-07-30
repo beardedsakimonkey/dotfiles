@@ -3,6 +3,8 @@ local function _1_()
   local _2_ = vim.bo.filetype
   if (_2_ == "c") then
     return "printf(\"$0\\n\");"
+  elseif (_2_ == "vim") then
+    return "echom $0"
   elseif (_2_ == "lua") then
     return "print($0)"
   elseif (_2_ == "fennel") then

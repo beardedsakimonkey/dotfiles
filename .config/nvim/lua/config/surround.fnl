@@ -1,5 +1,5 @@
 (local nvim-surround (require :nvim-surround))
-(import-macros {: map} :macros)
+(import-macros {: map : opt-local} :macros)
 
 (fn surround-link []
   ["[" (.. "](" (vim.fn.getreg "*") ")")])
@@ -31,7 +31,7 @@
                                    :b ")"
                                    :B "}"
                                    :r "]"
-                                   :q ["\"" "'" "`"]
+                                   "'" ["\"" "'" "`"]
                                    :s ["}" "]" ")" ">" "\"" "'" "`"]}}
             :highlight_motion {:duration 0}
             :move_cursor :begin})
@@ -48,12 +48,12 @@
     (vim.cmd "normal! v")
     (vim.api.nvim_win_set_cursor 0 [(. right 1) (- (. right 2) 2)])))
 
-(fn i []
+(fn _i []
   (local char (vim.fn.nr2char (vim.fn.getchar)))
   (when (or (. cfg.delimiters.pairs char) (. cfg.delimiters.separators char)
             (. cfg.delimiters.aliases char))
     (select-quote char)))
 
 ;; TODO: visual mode, repeat
-(map o :i i)
+;; (map o :i i)
 

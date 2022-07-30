@@ -39,8 +39,8 @@ local function compile_fennel()
   end
   _3froot = tbl_find(_4_, roots)
   local src0
-  if _3froot then
-    src0 = src:gsub(("^" .. _3froot), "")
+  if (_3froot and vim.startswith(src, _3froot)) then
+    src0 = src:sub((1 + #_3froot))
   else
     src0 = src
   end

@@ -1,5 +1,10 @@
 vim.cmd("inoreabbrev <buffer> lambda \206\187")
 vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | unabbrev <buffer> lambda"))
+if ("prompt" == (vim.opt.buftype):get()) then
+  vim.cmd("nnoremap <buffer> <CR> :<C-u>startinsert<CR><CR>")
+  vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <CR>"))
+else
+end
 local function goto_lua()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.fnl$", ".lua")
@@ -25,14 +30,14 @@ local function eval_outer_form()
   local bufnr = repl.open()
   local repl_focused = vim.startswith(vim.api.nvim_buf_get_name(bufnr), "fennel-repl")
   local text
-  local function _1_()
+  local function _2_()
     if not repl_focused then
       return vim.fn.win_getid(vim.fn.winnr("#"))
     else
       return 0
     end
   end
-  text = get_outer_form_text(_1_())
+  text = get_outer_form_text(_2_())
   return repl.callback(bufnr, text)
 end
 vim["opt_local"]["expandtab"] = true

@@ -34,7 +34,9 @@
         src (vim.fn.expand "<afile>:p")
         ?root (tbl_find #(vim.startswith src $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`
-        src (if ?root (src:gsub (.. "^" ?root) "") src)
+        src (if (and ?root (vim.startswith src ?root))
+                (src:sub (+ 1 (length ?root)))
+                src)
         dest (src:gsub :.fnl$ :.lua)
         compile? (and ?root (not (vim.endswith src :macros.fnl)))]
     (vim.diagnostic.reset ns (tonumber (vim.fn.expand :<abuf>)))

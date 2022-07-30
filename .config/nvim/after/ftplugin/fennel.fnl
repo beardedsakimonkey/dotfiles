@@ -3,6 +3,11 @@
 (vim.cmd "inoreabbrev <buffer> lambda λ")
 (undo-ftplugin "unabbrev <buffer> lambda")
 
+;; fennel-repl
+(when (= :prompt (: vim.opt.buftype :get))
+  (vim.cmd "nnoremap <buffer> <CR> :<C-u>startinsert<CR><CR>")
+  (undo-ftplugin "sil! nun <buffer> <CR>"))
+
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.fnl$" :.lua))

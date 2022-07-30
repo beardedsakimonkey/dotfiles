@@ -62,26 +62,38 @@ local function help()
   return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _help_select, views = {snap.get("preview.help")}}))
 end
 local function get_oldfiles()
-  local function _7_(_3ffile)
-    local file = (_3ffile or "")
-    local not_wildignored
-    local function _8_()
-      return (0 == vim.fn.empty(vim.fn.glob(file)))
-    end
-    not_wildignored = _8_
-    local not_dir
-    local function _9_()
-      return (0 == vim.fn.isdirectory(file))
-    end
-    not_dir = _9_
-    local not_manpage
-    local function _10_()
-      return not vim.startswith(file, "man://")
-    end
-    not_manpage = _10_
-    return (not_wildignored() and not_dir() and not_manpage())
+  local blacklist = {}
+  local function _7_(file)
+    return not blacklist[file]
   end
-  return vim.tbl_filter(_7_, vim.v.oldfiles)
+  local function _8_(file)
+    if not file then
+      return false
+    else
+      local not_wildignored
+      local function _9_()
+        return (0 == vim.fn.empty(vim.fn.glob(file)))
+      end
+      not_wildignored = _9_
+      local not_dir
+      local function _10_()
+        return (0 == vim.fn.isdirectory(file))
+      end
+      not_dir = _10_
+      local not_manpage
+      local function _11_()
+        return not vim.startswith(file, "man://")
+      end
+      not_manpage = _11_
+      local keep = (not_wildignored() and not_dir() and not_manpage())
+      if keep then
+        blacklist[file:gsub("%.fnl$", ".lua")] = true
+      else
+      end
+      return keep
+    end
+  end
+  return vim.tbl_filter(_7_, vim.tbl_filter(_8_, vim.v.oldfiles))
 end
 local function oldfiles()
   return snap.sync(get_oldfiles)

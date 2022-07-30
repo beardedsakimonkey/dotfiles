@@ -21,12 +21,13 @@
       (set found true)))
   found)
 
-(local excludes [:/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/])
+(local excludes [:/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/
+                 :/Users/tim/.config/nvim/colors/])
 
 (var enabled true)
 
-(vim.api.nvim_create_user_command "FormatDisable" #(set enabled false) {})
-(vim.api.nvim_create_user_command "FormatEnable" #(set enabled true) {})
+(vim.api.nvim_create_user_command :FormatDisable #(set enabled false) {})
+(vim.api.nvim_create_user_command :FormatEnable #(set enabled true) {})
 
 (augroup :my/formatter
          (autocmd BufWritePost [*.fnl *.go]

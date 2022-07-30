@@ -18,7 +18,7 @@ local function some_3f(list, pred_3f)
   end
   return found
 end
-local excludes = {"/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/"}
+local excludes = {"/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/", "/Users/tim/.config/nvim/colors/"}
 local enabled = true
 local function _2_()
   enabled = false

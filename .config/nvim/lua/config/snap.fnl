@@ -67,15 +67,24 @@
 
 ;; Oldfiles producer that filters out directories and man pages
 (fn get-oldfiles []
+  ;; Blacklist lua files that have a fnl counterpart
+  (local blacklist {})
   (->> vim.v.oldfiles
-       (vim.tbl_filter (fn [?file]
-                         (local file (or ?file ""))
-                         (local not-wildignored
-                                #(= 0 (vim.fn.empty (vim.fn.glob file))))
-                         (local not-dir #(= 0 (vim.fn.isdirectory file)))
-                         (local not-manpage
-                                #(not (vim.startswith file "man://")))
-                         (and (not-wildignored) (not-dir) (not-manpage))))))
+       (vim.tbl_filter (fn [file]
+                         (if (not file) false
+                             (let [not-wildignored #(= 0
+                                                       (vim.fn.empty (vim.fn.glob file)))
+                                   not-dir #(= 0 (vim.fn.isdirectory file))
+                                   not-manpage #(not (vim.startswith file
+                                                                     "man://"))
+                                   keep (and (not-wildignored) (not-dir)
+                                             (not-manpage))]
+                               (when keep
+                                 (tset blacklist (file:gsub "%.fnl$" :.lua)
+                                       true))
+                               keep))))
+       (vim.tbl_filter (fn [file]
+                         (not (. blacklist file))))))
 
 (fn oldfiles []
   (snap.sync get-oldfiles))

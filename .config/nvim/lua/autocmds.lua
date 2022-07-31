@@ -46,7 +46,8 @@ local function compile_fennel()
   end
   local dest = src0:gsub(".fnl$", ".lua")
   local compile_3f = (_3froot and not vim.endswith(src0, "macros.fnl"))
-  vim.diagnostic.reset(ns, tonumber(vim.fn.expand("<abuf>")))
+  local buf = tonumber(vim.fn.expand("<abuf>"))
+  vim.diagnostic.reset(ns, buf)
   if compile_3f then
     local cmd = ("fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile " .. vim.fn.shellescape(src0))
     if _3froot then
@@ -55,8 +56,10 @@ local function compile_fennel()
     end
     local output = vim.fn.system(cmd)
     if (0 ~= vim.v.shell_error) then
+      vim.b.comp_err = true
       on_fnl_err(output)
     else
+      vim.b.comp_err = false
       write_file(output, dest)
     end
     if ((0 == vim.v.shell_error) and (_3froot == config_dir)) then

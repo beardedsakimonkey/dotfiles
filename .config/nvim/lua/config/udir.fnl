@@ -1,5 +1,5 @@
 (local udir (require :udir))
-(local m udir.map)
+(local u (require :udir.util))
 (import-macros {: map} :macros)
 
 (fn endswith-any [str suffixes]
@@ -31,28 +31,49 @@
   (vim.cmd (.. cmd " " (vim.fn.fnameescape state.cwd)))
   (vim.cmd :pwd))
 
-(udir.setup {:auto_open true
-             :show_hidden_files false
-             :is_file_hidden is-file-hidden
-             :keymaps {:q m.quit
-                       :h m.up_dir
-                       :- m.up_dir
-                       :l m.open
-                       :i m.open
-                       :<CR> m.open
-                       :s m.open_split
-                       :v m.open_vsplit
-                       ;; Don't clobber (t)eleport
-                       :<C-t> m.open_tab
-                       :R m.reload
-                       :r m.move
-                       :d m.delete
-                       :+ m.create
-                       :m m.move
-                       :c m.copy
-                       :C #(cd :cd)
-                       :L #(cd :lcd)
-                       :gh m.toggle_hidden_files}})
+(fn sort-recent [files]
+  (local store (require :udir.store))
+  (local {: cwd} (store.get))
+  (local mtimes {})
+  (each [_ file (ipairs files)]
+    (local stat (assert (vim.loop.fs_stat (u.join-path cwd file.name))))
+    (tset mtimes file.name stat.mtime.sec))
+  (table.sort files #(if (= $1.type $2.type)
+                         (let [mtime1 (. mtimes $1.name)
+                               mtime2 (. mtimes $2.name)]
+                           (if (and mtime1 mtime2) (> mtime1 mtime2)
+                               (< $1.name $2.name)))
+                         (= :directory $1.type)))
+  files)
+
+(local default-sort udir.config.sort)
+
+(fn toggle-sort []
+  (local sort (if (= udir.config.sort default-sort) sort-recent default-sort))
+  (tset udir.config :sort sort)
+  (udir.reload))
+
+(tset udir :config {:is_file_hidden is-file-hidden
+                    :show_hidden_files false
+                    :keymaps {:q udir.quit
+                              :h udir.up_dir
+                              :- udir.up_dir
+                              :l udir.open
+                              :<CR> udir.open
+                              :i udir.open
+                              :s #(udir.open :split)
+                              :v #(udir.open :vsplit)
+                              :t #(udir.open :tabedit)
+                              :R udir.reload
+                              :d udir.delete
+                              :+ udir.create
+                              :m udir.move
+                              :r udir.move
+                              :c udir.copy
+                              :gh udir.toggle_hidden_files
+                              :T toggle-sort
+                              :C #(cd :cd)
+                              :L #(cd :lcd)}})
 
 (map n "-" :<Cmd>Udir<CR>)
 

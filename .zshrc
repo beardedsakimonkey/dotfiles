@@ -308,7 +308,7 @@ if [ -n "$(command -v fasd)" ]; then
             [ -z "$_fasd_ret" ] && return
             if [ -d "$_fasd_ret" ]; then
                 builtin cd "$_fasd_ret"
-                $EDITOR
+                $EDITOR .
             elif [ -e "$_fasd_ret" ]; then
                 builtin cd "$(dirname "$_fasd_ret")"
                 $EDITOR $(basename "$_fasd_ret")

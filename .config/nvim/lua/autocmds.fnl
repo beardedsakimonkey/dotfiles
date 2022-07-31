@@ -38,8 +38,9 @@
                 (src:sub (+ 1 (length ?root)))
                 src)
         dest (src:gsub :.fnl$ :.lua)
-        compile? (and ?root (not (vim.endswith src :macros.fnl)))]
-    (vim.diagnostic.reset ns (tonumber (vim.fn.expand :<abuf>)))
+        compile? (and ?root (not (vim.endswith src :macros.fnl)))
+        buf (tonumber (vim.fn.expand :<abuf>))]
+    (vim.diagnostic.reset ns buf)
     (if compile?
         (let [cmd (.. "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile "
                       (vim.fn.shellescape src))]
@@ -47,8 +48,14 @@
           (when ?root
             (vim.cmd (.. "lcd " (vim.fn.fnameescape ?root))))
           (local output (vim.fn.system cmd))
-          (if (not= 0 vim.v.shell_error) (on-fnl-err output)
-              (write-file output dest))
+          (if (not= 0 vim.v.shell_error)
+              (do
+                ;; Instruct formatter to avoid formatting
+                (set vim.b.comp_err true)
+                (on-fnl-err output))
+              (do
+                (set vim.b.comp_err false)
+                (write-file output dest)))
           (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
             (if (not (vim.startswith src :after/ftplugin))
                 (vim.cmd (.. "luafile " (vim.fn.fnameescape dest))))

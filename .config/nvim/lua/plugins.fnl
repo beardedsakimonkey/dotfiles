@@ -71,7 +71,9 @@
       :tpope/vim-repeat {}
       ;; Languages
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}})
+      :beardedsakimonkey/fennel-repl.nvim {:opt true
+                                           :cmd :FennelRepl
+                                           :ft :fennel}})
 
 (when needs-boostrap
   (local packer (require :packer))

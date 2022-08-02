@@ -57,6 +57,7 @@
       :hrsh7th/cmp-path {:after :nvim-cmp}
       :hrsh7th/cmp-nvim-lsp {}
       ;; Vimscript
+      :farmergreg/vim-lastplace {}
       :mbbill/undotree {:opt true :cmd :UndotreeToggle}
       :tommcdo/vim-exchange {:opt true :keys :cx}
       :dstein64/vim-startuptime {:opt true :cmd :StartupTime}
@@ -71,9 +72,7 @@
       :tpope/vim-repeat {}
       ;; Languages
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      :beardedsakimonkey/fennel-repl.nvim {:opt true
-                                           :cmd :FennelRepl
-                                           :ft :fennel}})
+      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}})
 
 (when needs-boostrap
   (local packer (require :packer))

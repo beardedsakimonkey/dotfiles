@@ -85,23 +85,15 @@
         new (vim.fn.fnameescape (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
 
-;; (fn source-colorscheme []
-;;   (vim.cmd (.. "source " (vim.fn.fnameescape (vim.fn.expand "<afile>:p"))))
-;;   (if vim.g.colors_name
-;;       (vim.cmd (.. "colorscheme " vim.g.colors_name))))
-
 (fn source-tmux-cfg []
   (local file (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
   (vim.fn.system (.. "tmux source-file " file)))
 
-(fn restore-cursor-position []
-  (local last-cursor-pos (vim.api.nvim_buf_get_mark 0 "\""))
-  (if (not (vim.endswith vim.bo.filetype :commit))
-      (pcall vim.api.nvim_win_set_cursor 0 last-cursor-pos)))
-
 (fn setup-formatoptions []
   (opt-local formatoptions += :jcn)
-  (opt-local formatoptions -= [:r :o :t]))
+  (when (not= :markdown (vim.fn.expand :<amatch>))
+    (opt-local formatoptions -= :t))
+  (opt-local formatoptions -= [:r :o]))
 
 (fn update-user-js []
   (local cmd
@@ -164,21 +156,19 @@ int main(int argc, char *argv[]) {
 
 ;; fnlfmt: skip
 (augroup :my/autocmds
-         (autocmd BufWritePost *.fnl compile-fennel)
          (autocmd BufReadPre * handle-large-buffers)
-         (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
+         (autocmd FileType * setup-formatoptions)
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
-         (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
-         ;; (autocmd BufWritePost */colors/*.vim source-colorscheme)
+         (autocmd BufWritePost *.fnl compile-fennel)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
-         (autocmd BufReadPost * restore-cursor-position)
-         (autocmd VimResized * "wincmd =")
-         (autocmd FileType * setup-formatoptions)
-         (autocmd [FocusGained BufEnter] * :checktime)
          (autocmd BufWritePost user-overrides.js update-user-js)
+         (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
          (autocmd BufNewFile [http://* https://*] edit-url)
          (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))
          (autocmd BufNewFile *.h template-h)
-         (autocmd BufNewFile main.c template-c))
+         (autocmd BufNewFile main.c template-c)
+         (autocmd VimResized * "wincmd =")
+         (autocmd [FocusGained BufEnter] * :checktime)
+         (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false})))
 

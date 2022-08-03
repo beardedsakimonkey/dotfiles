@@ -2,23 +2,28 @@
 
 ;; Install packer.nvim if needed.
 (local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
-(local needs-boostrap (not (vim.loop.fs_access path :R)))
-(when needs-boostrap
+(local bootstrap? (not (vim.loop.fs_access path :R)))
+(when bootstrap?
   (os.execute (.. "git clone --depth=1 https://github.com/wbthomason/packer.nvim "
                   path))
   (opt runtimepath ^= (.. (vim.fn.stdpath :data) "/site/pack/*/start/*,"
                           vim.o.runtimepath)))
 
+(local packer (require :packer))
+
 (fn use [pkgs]
-  (local packer (require :packer))
-  (packer.startup (fn []
+  (packer.startup (fn [use]
                     (each [name opts (pairs pkgs)]
                       (tset opts 1 name)
-                      (packer.use opts)))))
+                      (use opts)))))
 
-(use {;; Neovim
+(use {;;
+      ;; Neovim
+      ;;
       :wbthomason/packer.nvim {}
-      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
+      :neovim/nvim-lspconfig {:config "require'config.lsp'"}
+      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"
+                                    :branch :config}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
@@ -31,7 +36,9 @@
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
       :kylechui/nvim-surround {:config "require'config.surround'"}
+      ;;
       ;; Treesitter
+      ;;
       :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
                                         :run ":TSUpdate"}
       :nvim-treesitter/playground {:opt true
@@ -48,16 +55,18 @@
                                :opt true
                                :ft [:html :rescript :typescript :javascript]
                                :after :nvim-treesitter}
-      ;; LSP
-      :neovim/nvim-lspconfig {:config "require'config.lsp'"}
+      ;;
       ;; Completion
+      ;;
       :hrsh7th/nvim-cmp {:config "require'config.cmp'"}
       :hrsh7th/cmp-buffer {:after :nvim-cmp}
       :hrsh7th/cmp-nvim-lua {:after :nvim-cmp}
       :hrsh7th/cmp-path {:after :nvim-cmp}
       :hrsh7th/cmp-nvim-lsp {}
+      ;;
       ;; Vimscript
-      :farmergreg/vim-lastplace {}
+      ;;
+      :farmergreg/vim-lastplace {:commit :cef9d62}
       :mbbill/undotree {:opt true :cmd :UndotreeToggle}
       :tommcdo/vim-exchange {:opt true :keys :cx}
       :dstein64/vim-startuptime {:opt true :cmd :StartupTime}
@@ -70,11 +79,12 @@
       :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
       :tpope/vim-commentary {}
       :tpope/vim-repeat {}
+      ;;
       ;; Languages
+      ;;
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
       :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}})
 
-(when needs-boostrap
-  (local packer (require :packer))
+(when bootstrap?
   (packer.sync))
 

@@ -151,6 +151,7 @@
 (map x "." ":norm! .<CR>" :silent)
 (map n :<space>. repeat-last-edit)
 (map x "/" search-in-visual-selection)
+(map x :<space>y "\"*y")
 ;; Adapted from justinmk's vimrc
 (map x :I "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'" :expr)
 (map x :A "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'" :expr)
@@ -193,6 +194,7 @@
 ;; Substitute
 ;;
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
+(map x :<space>s "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
 ;; Adapted from lacygoill's vimrc.
 (map n :S
      "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>")
@@ -235,14 +237,14 @@
 ;;
 ;; Bookmarks
 ;;
-(map n "'V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
-(map n "'C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
-(map n "'P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
-(map n "'Z" "<Cmd>e ~/.zshrc<CR>" :silent)
-(map n "'N" "<Cmd>e ~/notes/notes.md<CR>" :silent)
-(map n "'T" "<Cmd>e ~/notes/todo.md<CR>" :silent)
-(map n "'A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
-(map n "'U"
+(map n ":V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
+(map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
+(map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
+(map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)
+(map n ":N" "<Cmd>e ~/notes/notes.md<CR>" :silent)
+(map n ":T" "<Cmd>e ~/notes/todo.md<CR>" :silent)
+(map n ":A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
+(map n ":U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
 

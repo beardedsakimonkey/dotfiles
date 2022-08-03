@@ -218,7 +218,9 @@ autoload -Uz zcalc
 
 autoload -U colors && colors
 
-PROMPT="%F{black}${SSH_TTY:+ssh:}"
+PROMPT="
+"
+PROMPT+="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{black}%B%50<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{8}.%F{red})❯%b%f "
@@ -343,15 +345,18 @@ alias gj='git-jump'
 alias gs='git status'
 alias gl='git log'
 alias gd='git diff'
+alias gdt='git difftool'
 alias ga='git add'
 alias gc='git commit'
 alias gco='git checkout'
 alias gp='git push'
+alias gb='git branch'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
 alias rtorrent='\rtorrent -n -o import=~/.config/rtorrent/rtorrent.rc'
 alias ydl='youtube-dl'
 alias mdl='megadl'
+alias dl='aria2c'
 alias peek='git-peek'
 
 makenvim() {

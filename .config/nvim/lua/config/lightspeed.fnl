@@ -17,6 +17,6 @@
 (map n :F :<Plug>Lightspeed_F :remap)
 
 ;; Go to next result from f/t (use , for going to prev results)
-(pcall #(vim.keymap.del :n ":"))
-(map n ":" "<Plug>Lightspeed_;_ft" :remap)
+(pcall #(vim.keymap.del :n "'"))
+(map n "'" "<Plug>Lightspeed_;_ft" :remap)
 

@@ -96,15 +96,11 @@
   (opt-local formatoptions -= [:r :o]))
 
 (fn update-user-js []
-  (local cmd
-         "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh")
-  (local opts {:args [cmd :-d :-s :-b]})
-
-  (fn on-exit [code _]
-    (assert (= 0 code))
-    (print "Updated user.js"))
-
-  (local (_handle _pid) (assert (vim.loop.spawn cmd opts on-exit))))
+  (vim.loop.spawn "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh"
+                  {:args [:-d :-s :-b]}
+                  (fn [code]
+                    (assert (= 0 code))
+                    (print "Updated user.js"))))
 
 (fn strip-trailing-newline [str]
   (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
@@ -113,10 +109,10 @@
   (local stdout (vim.loop.new_pipe))
   (local stderr (vim.loop.new_pipe))
 
-  (fn on-exit [exit-code signal]
-    (if (not= 0 exit-code)
-        (print (string.format "spawn failed (exit code %d, signal %d)"
-                              exit-code signal))))
+  (fn on-exit [code signal]
+    (if (not= 0 code)
+        (print (string.format "spawn failed (exit code %d, signal %d)" code
+                              signal))))
 
   (vim.loop.spawn :curl
                   {:stdio [nil stdout stderr]

@@ -87,6 +87,8 @@ local function navigate(dir)
     return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
   end
 end
+vim.keymap.set("n", "j", "gj", {})
+vim.keymap.set("n", "k", "gk", {})
 vim.keymap.set("n", "<Down>", "gj", {})
 vim.keymap.set("n", "<Up>", "gk", {})
 vim.keymap.set("n", "<c-e>", "<c-e><c-e>", {})

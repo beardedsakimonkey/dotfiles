@@ -1,7 +1,7 @@
 vim.cmd("inoreabbrev <buffer> lambda \206\187")
 vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | unabbrev <buffer> lambda"))
 if ("prompt" == (vim.opt.buftype):get()) then
-  vim.cmd("nnoremap <buffer> <CR> :<C-u>startinsert<CR><CR>")
+  vim.keymap.set("n", "<CR>", "<Cmd>startinsert<CR><CR>", {buffer = true})
   vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <CR>"))
 else
 end

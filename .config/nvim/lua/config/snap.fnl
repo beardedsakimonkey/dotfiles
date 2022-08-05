@@ -79,7 +79,7 @@
                                                                      "man://"))
                                    keep (and (not-wildignored) (not-dir)
                                              (not-manpage))]
-                               (when keep
+                               (when (and keep (not= nil (file:match "%.fnl$")))
                                  (tset blacklist (file:gsub "%.fnl$" :.lua)
                                        true))
                                keep))))

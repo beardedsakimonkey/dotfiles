@@ -5,7 +5,7 @@
 
 ;; fennel-repl
 (when (= :prompt (: vim.opt.buftype :get))
-  (vim.cmd "nnoremap <buffer> <CR> :<C-u>startinsert<CR><CR>")
+  (map n :<CR> :<Cmd>startinsert<CR><CR> :buffer)
   (undo-ftplugin "sil! nun <buffer> <CR>"))
 
 (fn goto-lua []

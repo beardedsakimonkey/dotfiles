@@ -79,6 +79,8 @@
 ;;
 ;; Enhanced deafults
 ;;
+(map n :j :gj)
+(map n :k :gk)
 (map n :<Down> :gj)
 (map n :<Up> :gk)
 (map n :<c-e> :<c-e><c-e>)

@@ -61,13 +61,7 @@ local function sort_recent(files)
   end
   local function _8_(_241, _242)
     if (_241.type == _242.type) then
-      local mtime1 = mtimes[_241.name]
-      local mtime2 = mtimes[_242.name]
-      if (mtime1 and mtime2) then
-        return (mtime1 > mtime2)
-      else
-        return (_241.name < _242.name)
-      end
+      return (mtimes[_241.name] > mtimes[_242.name])
     else
       return ("directory" == _241.type)
     end
@@ -86,20 +80,20 @@ local function toggle_sort()
   udir.config["sort"] = sort
   return udir.reload()
 end
-local function _12_()
+local function _11_()
   return udir.open("split")
 end
-local function _13_()
+local function _12_()
   return udir.open("vsplit")
 end
-local function _14_()
+local function _13_()
   return udir.open("tabedit")
 end
-local function _15_()
+local function _14_()
   return cd("cd")
 end
-local function _16_()
+local function _15_()
   return cd("lcd")
 end
-udir["config"] = {is_file_hidden = is_file_hidden, show_hidden_files = false, keymaps = {q = udir.quit, h = udir.up_dir, ["-"] = udir.up_dir, l = udir.open, ["<CR>"] = udir.open, i = udir.open, s = _12_, v = _13_, t = _14_, R = udir.reload, d = udir.delete, ["+"] = udir.create, m = udir.move, r = udir.move, c = udir.copy, gh = udir.toggle_hidden_files, T = toggle_sort, C = _15_, L = _16_}}
+udir["config"] = {is_file_hidden = is_file_hidden, show_hidden_files = false, keymaps = {q = udir.quit, h = udir.up_dir, ["-"] = udir.up_dir, l = udir.open, ["<CR>"] = udir.open, i = udir.open, s = _11_, v = _12_, t = _13_, R = udir.reload, d = udir.delete, ["+"] = udir.create, m = udir.move, r = udir.move, c = udir.copy, gh = udir.toggle_hidden_files, T = toggle_sort, C = _14_, L = _15_}}
 return vim.keymap.set("n", "-", "<Cmd>Udir<CR>", {})

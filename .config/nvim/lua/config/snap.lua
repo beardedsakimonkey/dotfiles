@@ -86,7 +86,7 @@ local function get_oldfiles()
       end
       not_manpage = _11_
       local keep = (not_wildignored() and not_dir() and not_manpage())
-      if keep then
+      if (keep and (nil ~= file:match("%.fnl$"))) then
         blacklist[file:gsub("%.fnl$", ".lua")] = true
       else
       end

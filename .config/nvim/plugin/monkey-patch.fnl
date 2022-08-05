@@ -7,3 +7,8 @@
 
 (set _G.print print-PATCHED)
 
+;; (fn dump []
+;;   )
+
+;; (set _G.dump dump)
+

@@ -39,10 +39,7 @@
     (local stat (assert (vim.loop.fs_stat (u.join-path cwd file.name))))
     (tset mtimes file.name stat.mtime.sec))
   (table.sort files #(if (= $1.type $2.type)
-                         (let [mtime1 (. mtimes $1.name)
-                               mtime2 (. mtimes $2.name)]
-                           (if (and mtime1 mtime2) (> mtime1 mtime2)
-                               (< $1.name $2.name)))
+                         (> (. mtimes $1.name) (. mtimes $2.name))
                          (= :directory $1.type)))
   files)
 

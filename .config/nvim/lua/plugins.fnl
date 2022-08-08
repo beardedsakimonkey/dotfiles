@@ -83,7 +83,8 @@
       ;; Languages
       ;;
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
-      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}})
+      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}
+      :beardedsakimonkey/nvim-antifennel {:opt true :cmd :Antifennel}})
 
 (when bootstrap?
   (packer.sync))

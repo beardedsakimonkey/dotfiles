@@ -40,7 +40,7 @@ local function _8_(_6_)
   end
   excluded = some_3f(excludes, _9_)
   if (enabled and not excluded and not vim.b.comp_err) then
-    return format.format("", "silent", 1, -1, {write = true})
+    return format.format("", "", 1, -1, {write = true})
   else
     return nil
   end

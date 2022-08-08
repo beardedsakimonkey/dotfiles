@@ -36,5 +36,5 @@
                     ;; that would trigger a cascading BufWritePost and thus
                     ;; printing the compile error twice.
                     (when (and enabled (not excluded) (not vim.b.comp_err))
-                      (format.format "" :silent 1 -1 {:write true})))))
+                      (format.format "" "" 1 -1 {:write true})))))
 

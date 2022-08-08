@@ -30,7 +30,9 @@
   (let [config-dir (.. (vim.fn.stdpath :config) "/")
         roots [config-dir
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-udir/)
-               (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)]
+               (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)
+               (.. (vim.fn.stdpath :data)
+                   :/site/pack/packer/opt/nvim-antifennel/)]
         src (vim.fn.expand "<afile>:p")
         ?root (tbl_find #(vim.startswith src $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`

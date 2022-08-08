@@ -4,7 +4,7 @@
 (undo-ftplugin "unabbrev <buffer> lambda")
 
 ;; fennel-repl
-(when (= :prompt (: vim.opt.buftype :get))
+(when (= :prompt (vim.opt.buftype:get))
   (map n :<CR> :<Cmd>startinsert<CR><CR> :buffer)
   (undo-ftplugin "sil! nun <buffer> <CR>"))
 
@@ -13,7 +13,7 @@
   (local to (from:gsub "%.fnl$" :.lua))
   (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
 
-(fn get-outer-node [node]
+(fn get-root-node [node]
   (var parent node)
   (var result node)
   (while (not= nil (parent:parent))
@@ -21,25 +21,43 @@
     (set parent (result:parent)))
   result)
 
-(fn get-outer-form-text [winid]
+(fn get-root-form [winid _bufnr]
   (local ts-utils (require :nvim-treesitter.ts_utils))
   (local cursor-node (ts-utils.get_node_at_cursor winid))
-  (local outer-node (get-outer-node cursor-node))
-  (vim.treesitter.get_node_text outer-node (vim.fn.winbufnr winid)))
+  (get-root-node cursor-node))
+
+(fn form? [node bufnr]
+  (local text (vim.treesitter.get_node_text node bufnr))
+  (local first (text:sub 1 1))
+  (local last (text:sub -1))
+  (and (= "(" first) (= ")" last)))
+
+(fn get-outer-form* [node bufnr]
+  (if (not node) nil
+      (form? node bufnr) node
+      (get-outer-form* (node:parent) bufnr)))
+
+(fn get-outer-form [winid bufnr]
+  (local ts-utils (require :nvim-treesitter.ts_utils))
+  (local cursor-node (ts-utils.get_node_at_cursor winid))
+  ;; Walk up the syntax tree until we hit a node that is wrapped in `()`
+  (get-outer-form* cursor-node bufnr))
 
 ;; NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
 ;; drawn until entering insert mode. (`init_prompt()` in edit.c)
-(fn eval-outer-form []
+(fn eval-form [root?]
   (local repl (require :fennel-repl))
-  (local bufnr (repl.open))
-  ;; (vim.api.nvim_clear_autocmds {:buffer bufnr})
-  (local repl-focused (vim.startswith (vim.api.nvim_buf_get_name bufnr)
+  (local repl-bufnr (repl.open))
+  (local repl-focused (vim.startswith (vim.api.nvim_buf_get_name repl-bufnr)
                                       :fennel-repl))
   ;; Initializing the repl moves us to a new win, so use the alt win
-  (local text (get-outer-form-text (if (not repl-focused)
-                                       (vim.fn.win_getid (vim.fn.winnr "#"))
-                                       0)))
-  (repl.callback bufnr text))
+  (local winid (if (not repl-focused)
+                   (vim.fn.win_getid (vim.fn.winnr "#"))
+                   0))
+  (local bufnr (vim.fn.winbufnr winid))
+  (local form ((if root? get-root-form get-outer-form) winid bufnr))
+  (local text (vim.treesitter.get_node_text form bufnr))
+  (repl.callback repl-bufnr text))
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)
@@ -70,5 +88,6 @@
                                 :with-open])
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
-                    (map n "<space>ev" eval-outer-form :buffer))
+                    (map n ",ee" #(eval-form false) :buffer)
+                    (map n ",er" #(eval-form true) :buffer))
 

@@ -1,11 +1,11 @@
 (import-macros {: opt} :macros)
 
-;; !     - Save and restore all-caps global variables
-;; '8192 - Marks will be remembered for the last 8192 files edited (also the number of `v:oldfiles` stored)
-;; <50   - Contents of registers (up to 50 lines each) will be remembered
-;; s10   - Items with contents occupying more then 10 KiB are skipped
-;; h     - Disable the effect of 'hlsearch' when loading the shada file
-(opt shada "!,'8192,<50,s10,h")
+;; !      → Save and restore all-caps global variables
+;; '10000 → Marks will be remembered for the last 10000 files edited (also the number of `v:oldfiles` stored)
+;; <50    → Contents of registers (up to 50 lines each) will be remembered
+;; s10    → Items with contents occupying more then 10 KiB are skipped
+;; h      → Disable the effect of 'hlsearch' when loading the shada file
+(opt shada "!,'10000,<50,s10,h")
 
 (opt lazyredraw)
 ;; Avoid confusing <esc>-key with <a-…>

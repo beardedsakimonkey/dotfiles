@@ -1,4 +1,4 @@
-vim["opt"]["shada"] = "!,'8192,<50,s10,h"
+vim["opt"]["shada"] = "!,'10000,<50,s10,h"
 vim["opt"]["lazyredraw"] = true
 vim["opt"]["ttimeoutlen"] = 0
 vim["opt"]["timeoutlen"] = 3000

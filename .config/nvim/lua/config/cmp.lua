@@ -14,4 +14,18 @@ local function get_bufnrs()
   end
   return vim.tbl_keys(visible_bufs)
 end
-return cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = cmp.mapping.select_next_item(), ["<C-k>"] = cmp.mapping.select_prev_item()}, experimental = {ghost_text = true}})
+local function _2_()
+  if cmp.visible() then
+    return cmp.select_next_item()
+  else
+    return cmp.complete()
+  end
+end
+local function _4_()
+  if cmp.visible() then
+    return cmp.select_prev_item()
+  else
+    return cmp.complete()
+  end
+end
+return cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = _2_, ["<C-k>"] = _4_}, experimental = {ghost_text = true}})

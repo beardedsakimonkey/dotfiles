@@ -20,7 +20,9 @@
                       {:name :nvim_lua}
                       {:name :nvim_lsp}]
             :mapping {:<Tab> (cmp.mapping.confirm {:select true})
-                      :<C-j> (cmp.mapping.select_next_item)
-                      :<C-k> (cmp.mapping.select_prev_item)}
+                      :<C-j> #(if (cmp.visible) (cmp.select_next_item)
+                                  (cmp.complete))
+                      :<C-k> #(if (cmp.visible) (cmp.select_prev_item)
+                                  (cmp.complete))}
             :experimental {:ghost_text true}})
 

@@ -47,10 +47,6 @@
                                          :TSHighlightCapturesUnderCursor]
                                    :after :nvim-treesitter}
       :nvim-treesitter/nvim-treesitter-textobjects {}
-      :nkrkv/nvim-treesitter-rescript {:opt true
-                                       :ft :rescript
-                                       :after :nvim-treesitter
-                                       :run ":TSUpdate"}
       :windwp/nvim-ts-autotag {:config "require'nvim-ts-autotag'.setup()"
                                :opt true
                                :ft [:html :rescript :typescript :javascript]

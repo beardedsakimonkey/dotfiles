@@ -39,14 +39,13 @@
       ;;
       ;; Treesitter
       ;;
-      :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
-                                        :run ":TSUpdate"}
+      :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"}
       :nvim-treesitter/playground {:opt true
                                    :ft :query
                                    :cmd [:TSPlaygroundToggle
                                          :TSHighlightCapturesUnderCursor]
                                    :after :nvim-treesitter}
-      :nvim-treesitter/nvim-treesitter-textobjects {}
+      :nvim-treesitter/nvim-treesitter-textobjects {:after :nvim-treesitter}
       :windwp/nvim-ts-autotag {:config "require'nvim-ts-autotag'.setup()"
                                :opt true
                                :ft [:html :rescript :typescript :javascript]

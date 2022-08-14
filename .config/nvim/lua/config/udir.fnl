@@ -31,22 +31,27 @@
   (vim.cmd (.. cmd " " (vim.fn.fnameescape state.cwd)))
   (vim.cmd :pwd))
 
-(fn sort-recent [files]
+(fn sort-by-mtime [files]
   (local store (require :udir.store))
   (local {: cwd} (store.get))
   (local mtimes {})
   (each [_ file (ipairs files)]
-    (local stat (assert (vim.loop.fs_stat (u.join-path cwd file.name))))
-    (tset mtimes file.name stat.mtime.sec))
-  (table.sort files #(if (= $1.type $2.type)
+    ;; `fs_stat` fails in case of a broken symlink
+    (local ?stat (vim.loop.fs_stat (u.join-path cwd file.name)))
+    (local mtime (if ?stat ?stat.mtime.sec 0))
+    (tset mtimes file.name mtime))
+  (table.sort files #(if (= (= :directory $1.type) (= :directory $2.type))
                          (> (. mtimes $1.name) (. mtimes $2.name))
-                         (= :directory $1.type)))
-  files)
+                         (= :directory $1.type))))
 
 (local default-sort udir.config.sort)
+(var default-sort? true)
 
 (fn toggle-sort []
-  (local sort (if (= udir.config.sort default-sort) sort-recent default-sort))
+  (local sort (if default-sort?
+                  sort-by-mtime
+                  default-sort))
+  (set default-sort? (not default-sort?))
   (tset udir.config :sort sort)
   (udir.reload))
 

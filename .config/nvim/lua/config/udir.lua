@@ -50,50 +50,57 @@ local function cd(cmd)
   vim.cmd((cmd .. " " .. vim.fn.fnameescape(state.cwd)))
   return vim.cmd("pwd")
 end
-local function sort_recent(files)
+local function sort_by_mtime(files)
   local store = require("udir.store")
   local _local_7_ = store.get()
   local cwd = _local_7_["cwd"]
   local mtimes = {}
   for _, file in ipairs(files) do
-    local stat = assert(vim.loop.fs_stat(u["join-path"](cwd, file.name)))
-    do end (mtimes)[file.name] = stat.mtime.sec
+    local _3fstat = vim.loop.fs_stat(u["join-path"](cwd, file.name))
+    local mtime
+    if _3fstat then
+      mtime = _3fstat.mtime.sec
+    else
+      mtime = 0
+    end
+    mtimes[file.name] = mtime
   end
-  local function _8_(_241, _242)
-    if (_241.type == _242.type) then
+  local function _9_(_241, _242)
+    if (("directory" == _241.type) == ("directory" == _242.type)) then
       return (mtimes[_241.name] > mtimes[_242.name])
     else
       return ("directory" == _241.type)
     end
   end
-  table.sort(files, _8_)
-  return files
+  return table.sort(files, _9_)
 end
 local default_sort = udir.config.sort
+local default_sort_3f = true
 local function toggle_sort()
   local sort
-  if (udir.config.sort == default_sort) then
-    sort = sort_recent
+  if default_sort_3f then
+    sort = sort_by_mtime
   else
     sort = default_sort
   end
+  default_sort_3f = not default_sort_3f
   udir.config["sort"] = sort
   return udir.reload()
 end
-local function _11_()
+local function _12_()
   return udir.open("split")
 end
-local function _12_()
+local function _13_()
   return udir.open("vsplit")
 end
-local function _13_()
+local function _14_()
   return udir.open("tabedit")
 end
-local function _14_()
+local function _15_()
   return cd("cd")
 end
-local function _15_()
+local function _16_()
   return cd("lcd")
 end
-udir["config"] = {is_file_hidden = is_file_hidden, show_hidden_files = false, keymaps = {q = udir.quit, h = udir.up_dir, ["-"] = udir.up_dir, l = udir.open, ["<CR>"] = udir.open, i = udir.open, s = _11_, v = _12_, t = _13_, R = udir.reload, d = udir.delete, ["+"] = udir.create, m = udir.move, r = udir.move, c = udir.copy, gh = udir.toggle_hidden_files, T = toggle_sort, C = _14_, L = _15_}}
+udir["config"] = {is_file_hidden = is_file_hidden, show_hidden_files = false, keymaps = {q = udir.quit, h = udir.up_dir, ["-"] = udir.up_dir, l = udir.open, ["<CR>"] = udir.open, i = udir.open, s = _12_, v = _13_, t = _14_, R = udir.reload, d = udir.delete, ["+"] = udir.create, m = udir.move, r = udir.move, c = udir.copy, gh = udir.toggle_hidden_files, T = toggle_sort, C = _15_, L = _16_}}
 return vim.keymap.set("n", "-", "<Cmd>Udir<CR>", {})

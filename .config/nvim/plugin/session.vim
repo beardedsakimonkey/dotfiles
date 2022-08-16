@@ -18,7 +18,7 @@ augroup my_session | au!
 
     au VimLeavePre * exe s:track(1)
         \ | if get(g:, 'MY_LAST_SESSION', '') isnot# ''
-        \ |     call writefile([g:MY_LAST_SESSION], $HOME..'/.vim/session/last')
+        \ |     call writefile([g:MY_LAST_SESSION], $HOME..'/.local/share/nvim/session/last')
         \ | endif
 augroup END
 
@@ -144,7 +144,7 @@ fu s:load(session_file) abort
 endfu
 
 fu s:load_session_on_vimenter() abort
-    let file = $HOME..'/.vim/session/last'
+    let file = $HOME..'/.local/share/nvim/session/last'
     if filereadable(file)
         let g:MY_LAST_SESSION = get(readfile(file), 0, '')
     endif
@@ -234,7 +234,7 @@ endfu
 
 fu s:suggest_sessions(arglead, _l, _p) abort
     let files = glob(s:SESSION_DIR..'/*'..a:arglead..'*.vim')
-    return substitute(files, '[^\n]*\.vim/session/\([^\n]*\)\.vim', '\1', 'g')
+    return substitute(files, '[^\n]*\.local/share/nvim/session/\([^\n]*\)\.vim', '\1', 'g')
 endfu
 
 fu s:track(on_vimleavepre) abort
@@ -285,4 +285,5 @@ fu s:where_do_we_save() abort
     endif
 endfu
 
-const s:SESSION_DIR = $HOME..'/.vim/session'
+const s:SESSION_DIR = $HOME..'/.local/share/nvim/session'
+call mkdir(s:SESSION_DIR, 'p')

@@ -71,9 +71,7 @@ vim["opt_local"]["commentstring"] = ";; %s"
 vim["opt_local"]["comments"] = "n:;"
 vim["opt_local"]["keywordprg"] = ":help"
 vim["opt_local"]["iskeyword"] = "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94"
-vim["opt_local"]["lisp"] = true
 vim["opt_local"]["autoindent"] = true
-vim["opt_local"]["lispwords"] = {"accumulate", "collect", "do", "doto", "each", "fn", "for", "icollect", "lambda", "let", "macro", "macros", "match", "when", "while", "with-open"}
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
 local function _6_()
@@ -84,4 +82,4 @@ local function _7_()
   return eval_form(true)
 end
 vim.keymap.set("n", ",er", _7_, {buffer = true})
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | setl lisp< | setl autoindent< | setl lispwords< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er"))
+return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | setl autoindent< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er"))

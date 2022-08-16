@@ -34,12 +34,13 @@ local _5_ = "my/formatter"
 local function _8_(_6_)
   local _arg_7_ = _6_
   local file = _arg_7_["file"]
+  local buf = _arg_7_["buf"]
   local excluded
   local function _9_(_241)
     return vim.startswith(file, _241)
   end
   excluded = some_3f(excludes, _9_)
-  if (enabled and not excluded and not vim.b.comp_err) then
+  if (enabled and not excluded and not vim.fn.getbufvar(buf, "comp_err")) then
     return format.format("", "", 1, -1, {write = true})
   else
     return nil

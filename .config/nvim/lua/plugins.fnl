@@ -78,6 +78,7 @@
       ;; Languages
       ;;
       :rescript-lang/vim-rescript {:opt true :ft :rescript}
+      :bakpakin/fennel.vim {:opt true :ft :fennel}
       :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}
       :beardedsakimonkey/nvim-antifennel {:opt true :cmd :Antifennel}})
 

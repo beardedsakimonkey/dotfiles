@@ -127,11 +127,6 @@
 (map n :<C-h> #(navigate :h) :silent)
 (map n :<C-j> #(navigate :j) :silent)
 (map n :<C-k> #(navigate :k) :silent)
-;; Select previously changed/yanked text
-(map n :gv "g`[vg`]")
-(map n :gV "g'[Vg']")
-;; Reselect previous selection
-(map n :gs :gv)
 
 ;;
 ;; Misc
@@ -149,6 +144,9 @@
 (map n :g> :<Cmd>40messages<CR> :silent)
 ;; Jump to where insert mode was last exited
 (map n :gi "g`^")
+;; Select previously changed/yanked text
+(map n :gs "g`[vg`]")
+(map n :gS "g'[Vg']")
 (map n :<space>z zoom-toggle :silent)
 (map x "." ":norm! .<CR>" :silent)
 (map n :<space>. repeat-last-edit)

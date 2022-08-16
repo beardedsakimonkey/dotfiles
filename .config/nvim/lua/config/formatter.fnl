@@ -30,11 +30,12 @@
 
 (augroup :my/formatter
          (autocmd BufWritePost [*.fnl *.go]
-                  (fn [{: file}]
+                  (fn [{: file : buf}]
                     (local excluded (some? excludes #(vim.startswith file $1)))
                     ;; If compilation failed, we don't want to format, because
                     ;; that would trigger a cascading BufWritePost and thus
                     ;; printing the compile error twice.
-                    (when (and enabled (not excluded) (not vim.b.comp_err))
+                    (when (and enabled (not excluded)
+                               (not (vim.fn.getbufvar buf :comp_err)))
                       (format.format "" "" 1 -1 {:write true})))))
 

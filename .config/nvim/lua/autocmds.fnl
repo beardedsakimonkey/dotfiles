@@ -53,10 +53,10 @@
           (if (not= 0 vim.v.shell_error)
               (do
                 ;; Instruct formatter to avoid formatting
-                (set vim.b.comp_err true)
+                (vim.api.nvim_buf_set_var buf :comp_err true)
                 (on-fnl-err output))
               (do
-                (set vim.b.comp_err false)
+                (vim.api.nvim_buf_set_var buf :comp_err false)
                 (write-file output dest)))
           (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
             (if (not (vim.startswith src :after/ftplugin))
@@ -69,7 +69,7 @@
           (when ?root
             (vim.cmd "lcd -"))))))
 
-(fn handle-large-buffers []
+(fn handle-large-buffer []
   (local size (vim.fn.getfsize (vim.fn.expand :<afile>)))
   (when (or (> size (* 1024 1024)) (= size -2))
     (vim.cmd "syntax clear")))
@@ -152,11 +152,25 @@ int main(int argc, char *argv[]) {
 }")
   (set-lines (vim.split str "\n")))
 
+(fn fast-theme []
+  (local zsh
+         (.. (os.getenv :HOME)
+             :/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh))
+  (if (vim.loop.fs_access zsh :R)
+      (do
+        (local cmd (.. "source " zsh " && fast-theme "
+                       (vim.fn.expand "<afile>:p")))
+        (local output (vim.fn.system cmd))
+        (when (not= 0 vim.v.shell_error)
+          (vim.api.nvim_err_writeln output)))
+      (vim.api.nvim_err_writeln "zsh script not found")))
+
 ;; fnlfmt: skip
 (augroup :my/autocmds
-         (autocmd BufReadPre * handle-large-buffers)
+         (autocmd BufReadPre * handle-large-buffer)
          (autocmd FileType * setup-formatoptions)
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
+         (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufWritePost *.fnl compile-fennel)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")

@@ -59,6 +59,8 @@
   (local text (vim.treesitter.get_node_text form bufnr))
   (repl.callback repl-bufnr text))
 
+;; NOTE: not setting 'lisp' so that nvim-surround doesn't format
+
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)
                     (opt-local commentstring ";; %s")
@@ -66,26 +68,7 @@
                     (opt-local keywordprg ":help")
                     (opt-local iskeyword
                                "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94")
-                    (opt-local lisp)
                     (opt-local autoindent)
-                    ;; Adapted from gpanders' config
-                    (opt-local lispwords
-                               [:accumulate
-                                :collect
-                                :do
-                                :doto
-                                :each
-                                :fn
-                                :for
-                                :icollect
-                                :lambda
-                                :let
-                                :macro
-                                :macros
-                                :match
-                                :when
-                                :while
-                                :with-open])
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
                     (map n ",ee" #(eval-form false) :buffer)

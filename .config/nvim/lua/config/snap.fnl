@@ -16,7 +16,9 @@
 (fn get-buffers [request]
   (fn []
     (let [original-buf (vim.api.nvim_win_get_buf (. request :winnr))
-          bufs (vim.tbl_filter #(and (not= (vim.fn.bufname $1) "")
+          bufs (vim.tbl_filter #(and (not= "" (vim.fn.bufname $1))
+                                     (not (vim.startswith (vim.fn.bufname $1)
+                                                          "man://"))
                                      (= (vim.fn.buflisted $1) 1)
                                      (= (vim.fn.bufexists $1) 1)
                                      (not= $1 original-buf))

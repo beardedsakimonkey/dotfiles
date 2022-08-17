@@ -8,7 +8,7 @@ local function get_buffers(request)
     local original_buf = vim.api.nvim_win_get_buf(request.winnr)
     local bufs
     local function _2_(_241)
-      return ((vim.fn.bufname(_241) ~= "") and (vim.fn.buflisted(_241) == 1) and (vim.fn.bufexists(_241) == 1) and (_241 ~= original_buf))
+      return (("" ~= vim.fn.bufname(_241)) and not vim.startswith(vim.fn.bufname(_241), "man://") and (vim.fn.buflisted(_241) == 1) and (vim.fn.bufexists(_241) == 1) and (_241 ~= original_buf))
     end
     bufs = vim.tbl_filter(_2_, vim.api.nvim_list_bufs())
     local function _3_(_241, _242)

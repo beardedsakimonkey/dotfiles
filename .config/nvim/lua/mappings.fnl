@@ -76,6 +76,47 @@
       (vim.cmd "try | wincmd p | catch | entry")
       (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
 
+;; Adapted from nvim-treesitter-refactor
+(fn ts-substitute []
+  (local ts-utils (require :nvim-treesitter.ts_utils))
+  (local locals (require :nvim-treesitter.locals))
+  (local bufnr (vim.api.nvim_get_current_buf))
+  (local cursor-node (ts-utils.get_node_at_cursor))
+
+  (fn complete-rename [new-name]
+    (when (and new-name (> (length new-name) 0))
+      (local (definition scope) (locals.find_definition cursor-node bufnr))
+      (local nodes-to-rename {})
+      (tset nodes-to-rename (cursor-node:id) cursor-node)
+      (tset nodes-to-rename (definition:id) definition)
+      (each [_ n (ipairs (locals.find_usages definition scope bufnr))]
+        (tset nodes-to-rename (n:id) n))
+      (local edits {})
+      (each [_ node (pairs nodes-to-rename)]
+        (local lsp-range (ts-utils.node_to_lsp_range node))
+        (local text-edit {:range lsp-range :newText new-name})
+        (table.insert edits text-edit))
+      (vim.lsp.util.apply_text_edits edits bufnr :utf-8)))
+
+  (if (not cursor-node)
+      (vim.api.nvim_err_writeln "No node to rename!")
+      ;; NOTE: can eventually use `:h command-preview` on neovim 0.8+
+      (vim.ui.input {:default "" :prompt "New name: "} complete-rename)))
+
+(fn plain-substitute []
+  (local cword (vim.fn.expand :<cword>))
+  (vim.fn.setreg "/" (.. "\\<" cword "\\>") :c)
+  (local keys (vim.api.nvim_replace_termcodes ":%s///g<left><left>" true false
+                                              true))
+  (vim.api.nvim_feedkeys keys :n false))
+
+(fn substitute []
+  (local parsers (require :nvim-treesitter.parsers))
+  (local ts-enabled (parsers.has_parser))
+  (if ts-enabled
+      (ts-substitute)
+      (plain-substitute)))
+
 ;;
 ;; Enhanced deafults
 ;;
@@ -195,9 +236,7 @@
 ;;
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
 (map x :<space>s "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
-;; Adapted from lacygoill's vimrc.
-(map n :S
-     "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>")
+(map n :S substitute)
 
 ;;
 ;; Alt key
@@ -241,8 +280,8 @@
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
 (map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)
-(map n ":N" "<Cmd>e ~/notes/notes.md<CR>" :silent)
-(map n ":T" "<Cmd>e ~/notes/todo.md<CR>" :silent)
+(map n ":N" "<Cmd>e ~/notes/_notes.md<CR>" :silent)
+(map n ":T" "<Cmd>e ~/notes/_todo.md<CR>" :silent)
 (map n ":A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
 (map n ":U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"

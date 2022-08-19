@@ -91,16 +91,12 @@
 (vim.cmd "sign define DiagnosticSignInfo  text=● texthl=DiagnosticSignInfo  linehl= numhl=")
 (vim.cmd "sign define DiagnosticSignHint  text=● texthl=DiagnosticSignHint  linehl= numhl=")
 
-(link UdirDirectory  Directory)
-(link UdirSymlink    Constant)
 (link UdirExecutable PreProc)
-(link UdirVirtText   Comment)
 
 (hi   SnapSelect   bg=#ccc5b5 :bold)
 (hi   SnapPosition fg=#BD00BD bg=none :bold)
 (link SnapPrompt   Comment)
 
-(link FennelParen  Comment)
 (hi   FennelSymbol fg=Black)
 
 (link TSConstBuiltin Constant)

@@ -87,6 +87,52 @@ local function navigate(dir)
     return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
   end
 end
+local function ts_substitute()
+  local ts_utils = require("nvim-treesitter.ts_utils")
+  local locals = require("nvim-treesitter.locals")
+  local bufnr = vim.api.nvim_get_current_buf()
+  local cursor_node = ts_utils.get_node_at_cursor()
+  local function complete_rename(new_name)
+    if (new_name and (#new_name > 0)) then
+      local definition, scope = locals.find_definition(cursor_node, bufnr)
+      local nodes_to_rename = {}
+      nodes_to_rename[cursor_node:id()] = cursor_node
+      nodes_to_rename[definition:id()] = definition
+      for _, n in ipairs(locals.find_usages(definition, scope, bufnr)) do
+        nodes_to_rename[n:id()] = n
+      end
+      local edits = {}
+      for _, node in pairs(nodes_to_rename) do
+        local lsp_range = ts_utils.node_to_lsp_range(node)
+        local text_edit = {range = lsp_range, newText = new_name}
+        table.insert(edits, text_edit)
+      end
+      return vim.lsp.util.apply_text_edits(edits, bufnr, "utf-8")
+    else
+      return nil
+    end
+  end
+  if not cursor_node then
+    return vim.api.nvim_err_writeln("No node to rename!")
+  else
+    return vim.ui.input({default = "", prompt = "New name: "}, complete_rename)
+  end
+end
+local function plain_substitute()
+  local cword = vim.fn.expand("<cword>")
+  vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
+  local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
+  return vim.api.nvim_feedkeys(keys, "n", false)
+end
+local function substitute()
+  local parsers = require("nvim-treesitter.parsers")
+  local ts_enabled = parsers.has_parser()
+  if ts_enabled then
+    return ts_substitute()
+  else
+    return plain_substitute()
+  end
+end
 vim.keymap.set("n", "j", "gj", {})
 vim.keymap.set("n", "k", "gk", {})
 vim.keymap.set("n", "<Down>", "gj", {})
@@ -110,14 +156,14 @@ vim.keymap.set("n", "*", "*zzzv", {silent = true})
 vim.keymap.set("n", "#", "#zzzv", {silent = true})
 vim.keymap.set("n", "g*", "g*zzzv", {silent = true})
 vim.keymap.set("n", "g#", "g#zzzv", {silent = true})
-local function _12_()
+local function _15_()
   return nav_change_list("g;")
 end
-vim.keymap.set("n", "g;", _12_, {})
-local function _13_()
+vim.keymap.set("n", "g;", _15_, {})
+local function _16_()
   return nav_change_list("g,")
 end
-vim.keymap.set("n", "g'", _13_, {})
+vim.keymap.set("n", "g'", _16_, {})
 vim.keymap.set("n", "<PageUp>", "<PageUp>:keepj norm! H<CR>", {silent = true})
 vim.keymap.set("n", "<PageDown>", "<PageDown>:keepj norm! L<CR>", {silent = true})
 vim.keymap.set({"n", "x"}, ";", ":", {})
@@ -133,22 +179,22 @@ vim.keymap.set("n", "<End>", "<Cmd>keepj norm! G<CR>", {silent = true})
 vim.keymap.set("n", "<C-s>", "<C-a>", {silent = true})
 vim.keymap.set("", "<tab>", "<Cmd>keepj norm! %<CR>", {silent = true})
 vim.keymap.set("n", "<C-p>", "<Tab>", {})
-local function _14_()
+local function _17_()
   return navigate("l")
 end
-vim.keymap.set("n", "<C-l>", _14_, {silent = true})
-local function _15_()
+vim.keymap.set("n", "<C-l>", _17_, {silent = true})
+local function _18_()
   return navigate("h")
 end
-vim.keymap.set("n", "<C-h>", _15_, {silent = true})
-local function _16_()
+vim.keymap.set("n", "<C-h>", _18_, {silent = true})
+local function _19_()
   return navigate("j")
 end
-vim.keymap.set("n", "<C-j>", _16_, {silent = true})
-local function _17_()
+vim.keymap.set("n", "<C-j>", _19_, {silent = true})
+local function _20_()
   return navigate("k")
 end
-vim.keymap.set("n", "<C-k>", _17_, {silent = true})
+vim.keymap.set("n", "<C-k>", _20_, {silent = true})
 vim.keymap.set("n", "cn", "cgn", {silent = true})
 vim.keymap.set({"n", "x"}, "Z", "zzzH", {})
 vim.keymap.set("n", "Q", "@q", {})
@@ -189,7 +235,7 @@ vim.keymap.set("x", "g/", "\"vy:let @/='<c-r>v'<Bar>set hls<CR>", {})
 vim.keymap.set("n", "<RightMouse>", "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
 vim.keymap.set("n", "<Space>s", "ms:<C-u>%s///g<left><left>", {})
 vim.keymap.set("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>", {})
-vim.keymap.set("n", "S", "ms:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:%s///g<left><left>", {})
+vim.keymap.set("n", "S", substitute, {})
 vim.keymap.set("!", "<A-h>", "<Left>", {})
 vim.keymap.set("!", "<A-l>", "<Right>", {})
 vim.keymap.set("!", "<A-j>", "<C-Left>", {})
@@ -214,20 +260,20 @@ vim.keymap.set("n", "]L", "<Cmd>lnfile<CR>zz", {silent = true})
 vim.keymap.set("n", "[L", "<Cmd>lpfile<CR>zz", {silent = true})
 vim.keymap.set("", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {silent = true})
 vim.keymap.set("", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {silent = true})
-local function _18_()
+local function _21_()
   return move_line("up")
 end
-vim.keymap.set("n", "[e", _18_, {})
-local function _19_()
+vim.keymap.set("n", "[e", _21_, {})
+local function _22_()
   return move_line("down")
 end
-vim.keymap.set("n", "]e", _19_, {})
+vim.keymap.set("n", "]e", _22_, {})
 vim.keymap.set("n", ":V", "<Cmd>e ~/.config/nvim/lua/<CR>", {silent = true})
 vim.keymap.set("n", ":C", "<Cmd>e ~/.config/nvim/lua/config/<CR>", {silent = true})
 vim.keymap.set("n", ":P", "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {silent = true})
 vim.keymap.set("n", ":Z", "<Cmd>e ~/.zshrc<CR>", {silent = true})
-vim.keymap.set("n", ":N", "<Cmd>e ~/notes/notes.md<CR>", {silent = true})
-vim.keymap.set("n", ":T", "<Cmd>e ~/notes/todo.md<CR>", {silent = true})
+vim.keymap.set("n", ":N", "<Cmd>e ~/notes/_notes.md<CR>", {silent = true})
+vim.keymap.set("n", ":T", "<Cmd>e ~/notes/_todo.md<CR>", {silent = true})
 vim.keymap.set("n", ":A", "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>", {silent = true})
 vim.keymap.set("n", ":U", "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>", {silent = true})
 vim.keymap.set("i", "<C-d>", "<c-r>=expand(\"%:t:r:r:r\")<CR>", {})

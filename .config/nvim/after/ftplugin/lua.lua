@@ -1,7 +1,11 @@
 local function goto_fnl()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.lua$", ".fnl")
-  return vim.cmd(("edit " .. vim.fn.fnameescape(to)))
+  if vim.loop.fs_access(to, "R") then
+    return vim.cmd(("edit " .. vim.fn.fnameescape(to)))
+  else
+    return vim.api.nvim_err_writeln(("Cannot read file " .. to))
+  end
 end
 vim["opt_local"]["keywordprg"] = ":help"
 vim.keymap.set("n", "]f", goto_fnl, {buffer = true})

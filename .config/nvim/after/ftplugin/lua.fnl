@@ -3,7 +3,9 @@
 (fn goto-fnl []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.lua$" :.fnl))
-  (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
+  (if (vim.loop.fs_access to :R)
+      (vim.cmd (.. "edit " (vim.fn.fnameescape to)))
+      (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local keywordprg ":help")

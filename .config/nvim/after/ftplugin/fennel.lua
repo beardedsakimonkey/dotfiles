@@ -8,7 +8,11 @@ end
 local function goto_lua()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.fnl$", ".lua")
-  return vim.cmd(("edit " .. vim.fn.fnameescape(to)))
+  if vim.loop.fs_access(to, "R") then
+    return vim.cmd(("edit " .. vim.fn.fnameescape(to)))
+  else
+    return vim.api.nvim_err_writeln(("Cannot read file " .. to))
+  end
 end
 local function get_root_node(node)
   local parent = node
@@ -56,13 +60,13 @@ local function eval_form(root_3f)
   end
   local bufnr = vim.fn.winbufnr(winid)
   local form
-  local _4_
+  local _5_
   if root_3f then
-    _4_ = get_root_form
+    _5_ = get_root_form
   else
-    _4_ = get_outer_form
+    _5_ = get_outer_form
   end
-  form = _4_(winid, bufnr)
+  form = _5_(winid, bufnr)
   local text = vim.treesitter.get_node_text(form, bufnr)
   return repl.callback(repl_bufnr, text)
 end
@@ -75,9 +79,17 @@ local function goto_require()
     local paths = {("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}
     local found = vim.api.nvim__get_runtime(paths, false, {is_lua = true})
     if (#found > 0) then
-      return vim.cmd(("edit " .. vim.fn.fnameescape(found[1])))
+      local lua_path = found[1]
+      local fnl_path = lua_path:gsub("%.lua$", ".fnl")
+      local path
+      if vim.loop.fs_access(fnl_path, "R") then
+        path = fnl_path
+      else
+        path = lua_path
+      end
+      return vim.cmd(("edit " .. vim.fn.fnameescape(path)))
     else
-      return nil
+      return vim.api.nvim_err_writeln(("Cannot find module " .. basename))
     end
   else
     return nil
@@ -90,13 +102,13 @@ vim["opt_local"]["keywordprg"] = ":help"
 vim["opt_local"]["iskeyword"] = "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94"
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
-local function _8_()
+local function _10_()
   return eval_form(false)
 end
-vim.keymap.set("n", ",ee", _8_, {buffer = true})
-local function _9_()
+vim.keymap.set("n", ",ee", _10_, {buffer = true})
+local function _11_()
   return eval_form(true)
 end
-vim.keymap.set("n", ",er", _9_, {buffer = true})
+vim.keymap.set("n", ",er", _11_, {buffer = true})
 vim.keymap.set("n", "gd", goto_require, {buffer = true})
 return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))

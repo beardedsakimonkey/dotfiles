@@ -11,7 +11,9 @@
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.fnl$" :.lua))
-  (vim.cmd (.. "edit " (vim.fn.fnameescape to))))
+  (if (vim.loop.fs_access to :R)
+      (vim.cmd (.. "edit " (vim.fn.fnameescape to)))
+      (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
 
 (fn get-root-node [node]
   (var parent node)
@@ -68,10 +70,14 @@
     (local basename (?mod-name:gsub "%." "/"))
     (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
     (local found (vim.api.nvim__get_runtime paths false {:is_lua true}))
-    (when (> (length found) 0)
-      (vim.cmd (.. "edit " (vim.fn.fnameescape (. found 1)))))))
+    (if (> (length found) 0)
+        (let [lua-path (. found 1)
+              fnl-path (lua-path:gsub "%.lua$" :.fnl)
+              path (if (vim.loop.fs_access fnl-path :R) fnl-path lua-path)]
+          (vim.cmd (.. "edit " (vim.fn.fnameescape path))))
+        (vim.api.nvim_err_writeln (.. "Cannot find module " basename)))))
 
-;; NOTE: not setting 'lisp' so that nvim-surround doesn't format
+;; NOTE: Avoid 'lisp' so that nvim-surround doesn't format
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)
@@ -80,7 +86,6 @@
                     (opt-local keywordprg ":help")
                     (opt-local iskeyword
                                "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94")
-                    ;; (opt-local autoindent)
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
                     (map n ",ee" #(eval-form false) :buffer)

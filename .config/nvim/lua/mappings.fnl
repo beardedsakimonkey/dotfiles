@@ -1,7 +1,5 @@
 (import-macros {: map} :macros)
 
-;; NOTE: Don't use <Cmd> if the mapping contains <C-r>
-
 (set vim.g.mapleader :<s-f5>)
 (set vim.g.maplocalleader ",")
 
@@ -117,9 +115,13 @@
       (ts-substitute)
       (plain-substitute)))
 
-;;
+(fn yank-doc []
+  (local txt (vim.fn.expand "%:t:r:r:r"))
+  (vim.fn.setreg "\"" txt :c)
+  (vim.fn.setreg "+" txt :c))
+
 ;; Enhanced deafults
-;;
+;; -----------------
 (map n :j :gj)
 (map n :k :gk)
 (map n :<Down> :gj)
@@ -148,9 +150,8 @@
 (map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
 (map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
 
-;;
 ;; Rearrange some default mappings
-;;
+;; -------------------------------
 (map [n x] ";" ":")
 (map [n x] ":" ";")
 (map n "`" "'")
@@ -169,9 +170,8 @@
 (map n :<C-j> #(navigate :j) :silent)
 (map n :<C-k> #(navigate :k) :silent)
 
-;;
-;; Misc
-;;
+;; Miscellaneous
+;; -------------
 (map n :cn :cgn :silent)
 (map [n x] :Z :zzzH)
 (map n :Q "@q")
@@ -197,27 +197,24 @@
 (map x :I "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'" :expr)
 (map x :A "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'" :expr)
 
-;;
 ;; Command mode
-;;
+;; ------------
 (map c :<C-p> :<Up>)
 (map c :<C-n> :<Down>)
 (map c :<C-j> :<C-g>)
 (map c :<C-k> :<C-t>)
 (map c :<C-a> :<Home>)
 
-;;
 ;; Keep jumps
-;;
+;; ----------
 (map n :M "<Cmd>keepj norm! M<CR>" :silent)
 (map n "{" "<Cmd>keepj norm! {<CR>" :silent)
 (map n "}" "<Cmd>keepj norm! }<CR>" :silent)
 (map n :gg "<Cmd>keepj norm! gg<CR>" :silent)
 (map n :G "<Cmd>keepj norm! G<CR>" :silent)
 
-;;
-;; Search
-;;
+;; Search & substitute
+;; -------------------
 ;; NOTE: Doesn't support multiline selection. Adapted from lacygoill's vimrc.
 (map x "*" "\"vy:let @/='\\<<c-r>v\\>'<CR>nzzzv" :silent)
 (map x "#" "\"vy:let @/='\\<<c-r>v\\>'<CR>Nzzzv" :silent)
@@ -231,16 +228,12 @@
      "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
      :silent)
 
-;;
-;; Substitute
-;;
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
 (map x :<space>s "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
 (map n :S substitute)
 
-;;
 ;; Alt key
-;;
+;; -------
 (map ! :<A-h> :<Left>)
 (map ! :<A-l> :<Right>)
 (map ! :<A-j> :<C-Left>)
@@ -250,15 +243,15 @@
 (map n :<A-j> :<C-w>J)
 (map n :<A-k> :<C-w>K)
 
-;;
 ;; Bracket
-;;
+;; -------
 (map n "]b" :<Cmd>bnext<CR> :silent)
 (map n "[b" :<Cmd>bprev<CR> :silent)
 (map n "[t" :<Cmd>tabprev<CR> :silent)
 (map n "]t" :<Cmd>tabnext<CR> :silent)
 (map n "]T" :<Cmd>+tabmove<CR> :silent)
 (map n "[T" :<Cmd>-tabmove<CR> :silent)
+;; NOTE: Don't use <Cmd> if the mapping contains <C-r>
 (map n "]q" ":<C-u><C-r>=v:count1<CR>cnext<CR>zz" :silent)
 (map n "[q" ":<C-u><C-r>=v:count1<CR>cprev<CR>zz" :silent)
 (map n "]Q" :<Cmd>cnfile<CR>zz :silent)
@@ -273,40 +266,36 @@
 (map n "[e" #(move-line :up))
 (map n "]e" #(move-line :down))
 
-;;
 ;; Bookmarks
-;;
+;; ---------
 (map n ":V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
 (map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)
 (map n ":N" "<Cmd>e ~/notes/_notes.md<CR>" :silent)
 (map n ":T" "<Cmd>e ~/notes/_todo.md<CR>" :silent)
+(map n ":X" "<Cmd>e ~/.config/tmux/tmux.conf<CR>" :silent)
 (map n ":A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
 (map n ":U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
 
-;;
-;; Grab file name
-;;
+;; Document/file name
+;; ------------------
 (map i :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
 (map c :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(map n :yd ":<c-u>let @\"='<c-r>=expand(\"%:t:r:r:r\")<CR>'<CR>" :silent)
-(map n :yD ":<c-u>let @\"='<c-r>=expand(\"%:p\")<CR>'<CR>" :silent)
+(map n :yd yank-doc :silent)
 
-;;
 ;; Toggle options
-;;
+;; --------------
 (map n :gon "<Cmd>set number!<CR>" :silent)
 (map n :goc "<Cmd>set cursorline!<CR>" :silent)
 (map n :gow "<Cmd>set wrap!<CR>" :silent)
 (map n :gol "<Cmd>set hlsearch!<CR>" :silent)
 (map n :goi "<Cmd>set ignorecase!<CR>" :silent)
 
-;;
 ;; Avoid typo
-;;
+;; ----------
 (map x :K :k)
 (map x :J :j)
 (vim.cmd "cnoreabbrev ~? ~/")

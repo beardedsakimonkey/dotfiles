@@ -66,20 +66,37 @@ local function eval_form(root_3f)
   local text = vim.treesitter.get_node_text(form, bufnr)
   return repl.callback(repl_bufnr, text)
 end
+local function goto_require()
+  local form = get_outer_form(0, 0)
+  local form_text = vim.treesitter.get_node_text(form, 0)
+  local _3fmod_name = form_text:match("%(require [\":]?([^)]+):?%)")
+  if (nil ~= _3fmod_name) then
+    local basename = _3fmod_name:gsub("%.", "/")
+    local paths = {("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}
+    local found = vim.api.nvim__get_runtime(paths, false, {is_lua = true})
+    if (#found > 0) then
+      return vim.cmd(("edit " .. vim.fn.fnameescape(found[1])))
+    else
+      return nil
+    end
+  else
+    return nil
+  end
+end
 vim["opt_local"]["expandtab"] = true
 vim["opt_local"]["commentstring"] = ";; %s"
 vim["opt_local"]["comments"] = "n:;"
 vim["opt_local"]["keywordprg"] = ":help"
 vim["opt_local"]["iskeyword"] = "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94"
-vim["opt_local"]["autoindent"] = true
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
-local function _6_()
+local function _8_()
   return eval_form(false)
 end
-vim.keymap.set("n", ",ee", _6_, {buffer = true})
-local function _7_()
+vim.keymap.set("n", ",ee", _8_, {buffer = true})
+local function _9_()
   return eval_form(true)
 end
-vim.keymap.set("n", ",er", _7_, {buffer = true})
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | setl autoindent< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er"))
+vim.keymap.set("n", ",er", _9_, {buffer = true})
+vim.keymap.set("n", "gd", goto_require, {buffer = true})
+return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))

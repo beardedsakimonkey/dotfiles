@@ -13,6 +13,8 @@ local function _1_()
     return "console.log($0)"
   elseif (_2_ == "rescript") then
     return "Js.log($0)"
+  elseif (_2_ == "rust") then
+    return "println!(\"$0\");"
   else
     return nil
   end

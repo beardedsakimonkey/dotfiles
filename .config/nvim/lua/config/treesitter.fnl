@@ -17,7 +17,7 @@
                                            :update :R
                                            :goto_node :<cr>
                                            :show_help "?"}}
-                :textobjects {:select {:enable true
+                :textobjects {:select {:enable false
                                        :lookahead true
                                        :keymaps {:af "@function.outer"
                                                  :if "@function.inner"

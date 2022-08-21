@@ -59,6 +59,18 @@
   (local text (vim.treesitter.get_node_text form bufnr))
   (repl.callback repl-bufnr text))
 
+(fn goto-require []
+  (local form (get-outer-form 0 0))
+  (local form-text (vim.treesitter.get_node_text form 0))
+  (local ?mod-name (form-text:match "%(require [\":]?([^)]+):?%)"))
+  (when (not= nil ?mod-name)
+    ;; Adapted from `vim._load_package`
+    (local basename (?mod-name:gsub "%." "/"))
+    (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
+    (local found (vim.api.nvim__get_runtime paths false {:is_lua true}))
+    (when (> (length found) 0)
+      (vim.cmd (.. "edit " (vim.fn.fnameescape (. found 1)))))))
+
 ;; NOTE: not setting 'lisp' so that nvim-surround doesn't format
 
 ;; fnlfmt: skip
@@ -68,9 +80,10 @@
                     (opt-local keywordprg ":help")
                     (opt-local iskeyword
                                "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94")
-                    (opt-local autoindent)
+                    ;; (opt-local autoindent)
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
                     (map n ",ee" #(eval-form false) :buffer)
-                    (map n ",er" #(eval-form true) :buffer))
+                    (map n ",er" #(eval-form true) :buffer)
+                    (map n "gd" goto-require :buffer))
 

@@ -105,4 +105,5 @@
 (link markdownH1 Title)
 (link markdownH2 Statement)
 (hi markdownUrl  fg=SlateBlue)
+(hi markdownCode bg=AntiqueWhite2)
 

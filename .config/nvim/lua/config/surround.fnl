@@ -17,7 +17,7 @@
 
 (nvim-surround.setup cfg)
 
-;; (fn select-quote [char]
+;; (fn _select-quote [char]
 ;;   (local {: get_nearest_selections} (require :nvim-surround.utils))
 ;;   (local selections (get_nearest_selections char))
 ;;   (when selections
@@ -27,12 +27,16 @@
 ;;     (vim.cmd "normal! v")
 ;;     (vim.api.nvim_win_set_cursor 0 [(. right 1) (- (. right 2) 2)])))
 
-;; (fn _i []
-;;   (local char (vim.fn.nr2char (vim.fn.getchar)))
-;;   (when (or (. cfg.delimiters.pairs char) (. cfg.delimiters.separators char)
-;;             (. cfg.delimiters.aliases char))
-;;     (select-quote char)))
+;; (fn handler [_motion _mode _char]
+;;   (vim.api.nvim_win_set_cursor 0 0)
+;;   (vim.cmd "norm! j"))
 
-;; TODO: visual mode, repeat
-;; (map o :i i)
+;; (fn ai [_motion _mode]
+;;   (local _txtobj (vim.fn.nr2char (vim.fn.getchar)))
+;;   "<Cmd>lua require('config.surround').handler()<CR>")
+
+;; (map o :i #(ai :i :o) :expr)
+;; (map o :a #(ai :a :o) :expr)
+
+;; {: handler}
 

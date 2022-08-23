@@ -290,9 +290,9 @@
 ;; --------------
 (map n :gon "<Cmd>set number!<CR>" :silent)
 (map n :goc "<Cmd>set cursorline!<CR>" :silent)
-(map n :gow "<Cmd>set wrap!<CR>" :silent)
-(map n :gol "<Cmd>set hlsearch!<CR>" :silent)
-(map n :goi "<Cmd>set ignorecase!<CR>" :silent)
+(map n :gow "<Cmd>set wrap!<Bar>set wrap?<CR>" :silent)
+(map n :gol "<Cmd>set hlsearch!<Bar>set hlsearch?<CR>" :silent)
+(map n :goi "<Cmd>set ignorecase!<Bar>set ignorecase?<CR>" :silent)
 
 ;; Avoid typo
 ;; ----------

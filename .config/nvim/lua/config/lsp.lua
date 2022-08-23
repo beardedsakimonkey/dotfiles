@@ -20,4 +20,5 @@ end
 vim.diagnostic.config({virtual_text = {prefix = "\226\151\143"}})
 local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}}
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, cfg)
-return lspconfig.clangd.setup({})
+lspconfig.clangd.setup({})
+return lspconfig.rls.setup({})

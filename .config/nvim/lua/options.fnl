@@ -6,6 +6,7 @@
 ;; s10    → Items with contents occupying more then 10 KiB are skipped
 ;; h      → Disable the effect of 'hlsearch' when loading the shada file
 (opt shada "!,'10000,<50,s10,h")
+(opt sessionoptions [:help :tabpages :winsize :curdir :folds])
 
 (opt lazyredraw)
 ;; Avoid confusing <esc>-key with <a-…>
@@ -63,7 +64,6 @@
 (opt wrap false)
 
 (opt number)
-(opt sessionoptions [:help :tabpages :winsize :curdir :folds])
 (opt showmode false)
 (opt showcmd false)
 (opt textwidth 80)

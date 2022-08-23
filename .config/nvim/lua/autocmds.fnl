@@ -1,3 +1,4 @@
+(local {: s\ : f\ : f-exists?} (require :util))
 (import-macros {: autocmd : augroup : opt-local} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
@@ -5,14 +6,18 @@
 ;; Adapted from gpanders' config
 (fn on-fnl-err [output]
   (let [lines (vim.split output "\n")
-        {: items} (vim.fn.getqflist {:efm "%C%[%^^]%#,%E%>Parse error in %f:%l,%E%>Compile error in %f:%l,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
+        {: items} (vim.fn.getqflist {:efm "%C%[%^^]%#,%E%>Parse error in %f:%l:%c,%E%>Compile error in %f:%l:%c,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
                                      : lines})]
     (each [_ v (ipairs items)]
       (set v.text (v.text:gsub "^\n" "")))
     (local results (vim.diagnostic.fromqflist items))
     (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)
+
+    (fn no-codes [s]
+      (s:gsub "\027%[[0-9]m" ""))
+
     ;; Don't echo until nvim has rendered diagnostics
-    (vim.schedule #(vim.api.nvim_echo [[output :WarningMsg]] true {}))))
+    (vim.schedule #(vim.api.nvim_echo [[(no-codes output) :WarningMsg]] true {}))))
 
 (fn write-file [text filename]
   (local handle (assert (io.open filename :w+)))
@@ -43,31 +48,32 @@
         compile? (and ?root (not (vim.endswith src :macros.fnl)))
         buf (tonumber (vim.fn.expand :<abuf>))]
     (vim.diagnostic.reset ns buf)
-    (if compile?
-        (let [cmd (.. "fennel --plugin ~/bin/linter.fnl --globals 'vim' --compile "
-                      (vim.fn.shellescape src))]
-          ;; Change dir so macros.fnl gets read
-          (when ?root
-            (vim.cmd (.. "lcd " (vim.fn.fnameescape ?root))))
-          (local output (vim.fn.system cmd))
-          (if (not= 0 vim.v.shell_error)
-              (do
-                ;; Instruct formatter to avoid formatting
-                (vim.api.nvim_buf_set_var buf :comp_err true)
-                (on-fnl-err output))
-              (do
-                (vim.api.nvim_buf_set_var buf :comp_err false)
-                (write-file output dest)))
-          (when (and (= 0 vim.v.shell_error) (= ?root config-dir))
-            (if (not (vim.startswith src :after/ftplugin))
-                (vim.cmd (.. "luafile " (vim.fn.fnameescape dest))))
-            (if (= src :lua/plugins.fnl) (vim.cmd :PackerCompile)))
-          (when (= src :colors/navajo.fnl)
-            (vim.cmd (.. "luafile " (vim.fn.fnameescape dest)))
-            (if vim.g.colors_name
-                (vim.cmd (.. "colorscheme " vim.g.colors_name))))
-          (when ?root
-            (vim.cmd "lcd -"))))))
+    (when compile?
+      (local linter (.. (os.getenv :HOME) :/bin/linter.fnl))
+      (local cmd (: "fennel %s --globals 'vim' --compile %s" :format
+                    (if (f-exists? linter)
+                        (.. "--plugin " (s\ linter))
+                        "") (s\ src)))
+      ;; Change dir so macros.fnl gets read
+      (when ?root
+        (vim.cmd (.. "lcd " (f\ ?root))))
+      (local output (vim.fn.system cmd))
+      (local err? (not= 0 vim.v.shell_error))
+      ;; Instruct formatter to avoid formatting
+      (vim.api.nvim_buf_set_var buf :comp_err err?)
+      (if err?
+          (on-fnl-err output)
+          (do
+            (write-file output dest)
+            (when (= config-dir ?root)
+              (when (not (vim.startswith src :after/ftplugin))
+                (vim.cmd (.. "luafile " (f\ dest))))
+              (when (= :lua/plugins.fnl src)
+                (vim.cmd :PackerCompile))
+              (when (and (= :colors/navajo.fnl src) vim.g.colors_name)
+                (vim.cmd (.. "colorscheme " vim.g.colors_name))))))
+      (when ?root
+        (vim.cmd "lcd -")))))
 
 (fn handle-large-buffer []
   (local size (vim.fn.getfsize (vim.fn.expand :<afile>)))
@@ -77,18 +83,18 @@
 (fn maybe-make-executable []
   (local first-line (. (vim.api.nvim_buf_get_lines 0 0 1 false) 1))
   (when (first-line:match "^#!%S+")
-    (local path (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
+    (local path (s\ (vim.fn.expand "<afile>:p")))
     ;; NOTE: libuv operations say that the file doesn't exist yet..
     (vim.cmd (.. "sil !chmod +x " path))))
 
 (fn maybe-create-directories []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
-        new (vim.fn.fnameescape (vim.fn.expand "<afile>:p:h"))]
+        new (f\ (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
 
 (fn source-tmux-cfg []
-  (local file (vim.fn.shellescape (vim.fn.expand "<afile>:p")))
+  (local file (s\ (vim.fn.expand "<afile>:p")))
   (vim.fn.system (.. "tmux source-file " file)))
 
 (fn setup-formatoptions []
@@ -129,6 +135,9 @@
     (when (not= nil ?data)
       (local lines (vim.split (strip-trailing-newline ?data) "\n"))
       (vim.schedule (fn []
+                      ;; FIXME: this doesn't handle when chunks end in the
+                      ;; middle of a line. maybe just batch everything into a
+                      ;; single buf_set_lines
                       (local start (if vim.bo.modified -1 0))
                       (vim.api.nvim_buf_set_lines 0 start -1 false lines)))))
 
@@ -156,7 +165,7 @@ int main(int argc, char *argv[]) {
   (local zsh
          (.. (os.getenv :HOME)
              :/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh))
-  (if (vim.loop.fs_access zsh :R)
+  (if (f-exists? zsh)
       (do
         (local cmd (.. "source " zsh " && fast-theme "
                        (vim.fn.expand "<afile>:p")))

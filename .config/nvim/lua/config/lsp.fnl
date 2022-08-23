@@ -26,4 +26,5 @@
      (vim.tbl_extend :force lspconfig.util.default_config cfg))
 
 (lspconfig.clangd.setup {})
+(lspconfig.rls.setup {})
 

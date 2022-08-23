@@ -1,19 +1,19 @@
 (local nvim-surround (require :nvim-surround))
 (import-macros {: map : opt-local} :macros)
 
-(local cfg
-       {:surrounds {:l {:add (fn []
-                               (local clipboard
-                                      (: (vim.fn.getreg "+") :gsub "\n" ""))
-                               [["["] [(.. "](" clipboard ")")]])
-                        :find "%b[]%b()"
-                        :delete "^(%[)().-(%]%b())()$"
-                        :change {:target "^()()%b[]%((.-)()%)$"
-                                 :replacement (fn []
-                                                (local clipboard
-                                                       (: (vim.fn.getreg "+")
-                                                          :gsub "\n" ""))
-                                                [[""] [clipboard]])}}}})
+(local cfg {:surrounds {:l {:add (fn []
+                                   (local clipboard
+                                          (: (vim.fn.getreg "+") :gsub "\n" ""))
+                                   [["["] [(.. "](" clipboard ")")]])
+                            :find "%b[]%b()"
+                            :delete "^(%[)().-(%]%b())()$"
+                            :change {:target "^()()%b[]%((.-)()%)$"
+                                     :replacement (fn []
+                                                    (local clipboard
+                                                           (: (vim.fn.getreg "+")
+                                                              :gsub "\n" ""))
+                                                    [[""] [clipboard]])}}}
+            :indent_lines false})
 
 (nvim-surround.setup cfg)
 

@@ -1,4 +1,5 @@
 vim["opt"]["shada"] = "!,'10000,<50,s10,h"
+vim["opt"]["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
 vim["opt"]["lazyredraw"] = true
 vim["opt"]["ttimeoutlen"] = 0
 vim["opt"]["timeoutlen"] = 3000
@@ -46,7 +47,6 @@ vim["opt"]["sidescrolloff"] = 2
 vim["opt"]["virtualedit"] = "block"
 vim["opt"]["wrap"] = false
 vim["opt"]["number"] = true
-vim["opt"]["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
 vim["opt"]["showmode"] = false
 vim["opt"]["showcmd"] = false
 vim["opt"]["textwidth"] = 80

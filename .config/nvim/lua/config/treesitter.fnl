@@ -1,7 +1,7 @@
 (local configs (require :nvim-treesitter.configs))
 (import-macros {: map} :macros)
 
-(configs.setup {:ensure_installed [:query :javascript :glsl :lua :fennel]
+(configs.setup {:ensure_installed [:query :javascript :lua :fennel]
                 :highlight {:enable true}
                 :playground {:enable true
                              :disable {}

@@ -1,3 +1,4 @@
+(local {: f-exists?} (require :util))
 (import-macros {: with-undo-ftplugin : opt-local : map : undo-ftplugin} :macros)
 
 (vim.cmd "inoreabbrev <buffer> lambda λ")
@@ -5,13 +6,18 @@
 
 ;; fennel-repl
 (when (= :prompt (vim.opt.buftype:get))
+  (vim.api.nvim_clear_autocmds {:event :BufEnter :buffer 0})
   (map n :<CR> :<Cmd>startinsert<CR><CR> :buffer)
-  (undo-ftplugin "sil! nun <buffer> <CR>"))
+  (map i :<C-p> "pumvisible() ? '<C-p>' : '<C-x><C-l><C-p>'" :buffer :expr)
+  (map i :<C-n> "pumvisible() ? '<C-n>' : '<C-x><C-l><C-n>'" :buffer :expr)
+  (undo-ftplugin "sil! nun <buffer> <CR>")
+  (undo-ftplugin "sil! nun <buffer> <C-p>")
+  (undo-ftplugin "sil! nun <buffer> <C-n>"))
 
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.fnl$" :.lua))
-  (if (vim.loop.fs_access to :R)
+  (if (f-exists? to)
       (vim.cmd (.. "edit " (vim.fn.fnameescape to)))
       (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
 
@@ -77,15 +83,11 @@
           (vim.cmd (.. "edit " (vim.fn.fnameescape path))))
         (vim.api.nvim_err_writeln (.. "Cannot find module " basename)))))
 
-;; NOTE: Avoid 'lisp' so that nvim-surround doesn't format
-
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)
                     (opt-local commentstring ";; %s")
-                    (opt-local comments "n:;")
                     (opt-local keywordprg ":help")
-                    (opt-local iskeyword
-                               "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94")
+                    (opt-local iskeyword -= ["." ":"])
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
                     (map n ",ee" #(eval-form false) :buffer)

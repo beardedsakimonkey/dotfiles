@@ -1,14 +1,21 @@
+local _local_1_ = require("util")
+local f_exists_3f = _local_1_["f-exists?"]
 vim.cmd("inoreabbrev <buffer> lambda \206\187")
 vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | unabbrev <buffer> lambda"))
 if ("prompt" == (vim.opt.buftype):get()) then
+  vim.api.nvim_clear_autocmds({event = "BufEnter", buffer = 0})
   vim.keymap.set("n", "<CR>", "<Cmd>startinsert<CR><CR>", {buffer = true})
+  vim.keymap.set("i", "<C-p>", "pumvisible() ? '<C-p>' : '<C-x><C-l><C-p>'", {buffer = true, expr = true})
+  vim.keymap.set("i", "<C-n>", "pumvisible() ? '<C-n>' : '<C-x><C-l><C-n>'", {buffer = true, expr = true})
   vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <CR>"))
+  vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <C-p>"))
+  vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <C-n>"))
 else
 end
 local function goto_lua()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.fnl$", ".lua")
-  if vim.loop.fs_access(to, "R") then
+  if f_exists_3f(to) then
     return vim.cmd(("edit " .. vim.fn.fnameescape(to)))
   else
     return vim.api.nvim_err_writeln(("Cannot read file " .. to))
@@ -60,13 +67,13 @@ local function eval_form(root_3f)
   end
   local bufnr = vim.fn.winbufnr(winid)
   local form
-  local _5_
+  local _6_
   if root_3f then
-    _5_ = get_root_form
+    _6_ = get_root_form
   else
-    _5_ = get_outer_form
+    _6_ = get_outer_form
   end
-  form = _5_(winid, bufnr)
+  form = _6_(winid, bufnr)
   local text = vim.treesitter.get_node_text(form, bufnr)
   return repl.callback(repl_bufnr, text)
 end
@@ -97,18 +104,20 @@ local function goto_require()
 end
 vim["opt_local"]["expandtab"] = true
 vim["opt_local"]["commentstring"] = ";; %s"
-vim["opt_local"]["comments"] = "n:;"
 vim["opt_local"]["keywordprg"] = ":help"
-vim["opt_local"]["iskeyword"] = "!,$,%,#,*,+,-,/,<,=,>,?,_,a-z,A-Z,48-57,128-247,124,126,38,94"
+do
+  do end (vim.opt_local.iskeyword):remove(".")
+  do end (vim.opt_local.iskeyword):remove(":")
+end
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
-local function _10_()
+local function _11_()
   return eval_form(false)
 end
-vim.keymap.set("n", ",ee", _10_, {buffer = true})
-local function _11_()
+vim.keymap.set("n", ",ee", _11_, {buffer = true})
+local function _12_()
   return eval_form(true)
 end
-vim.keymap.set("n", ",er", _11_, {buffer = true})
+vim.keymap.set("n", ",er", _12_, {buffer = true})
 vim.keymap.set("n", "gd", goto_require, {buffer = true})
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl comments< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))
+return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))

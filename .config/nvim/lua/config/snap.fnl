@@ -56,7 +56,9 @@
 (fn help []
   (snap.run (with-defaults {:prompt :Help>
                             :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
-                            ;; The built-in help select function doesn't handle splits
+                            ;; The built-in help select function doesn't handle
+                            ;; splits. Note that it won't split if a help buffer
+                            ;; is currently visible.
                             :select (fn _help-select [selection _winnr type]
                                       (let [cmd (match type
                                                   :vsplit "vert "

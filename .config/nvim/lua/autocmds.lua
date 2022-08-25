@@ -1,7 +1,10 @@
 local _local_1_ = require("util")
 local s_5c = _local_1_["s\\"]
 local f_5c = _local_1_["f\\"]
+local _24HOME = _local_1_["$HOME"]
+local _24TMUX = _local_1_["$TMUX"]
 local f_exists_3f = _local_1_["f-exists?"]
+local system = _local_1_["system"]
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function on_fnl_err(output)
   local lines = vim.split(output, "\n")
@@ -56,7 +59,7 @@ local function compile_fennel()
   local buf = tonumber(vim.fn.expand("<abuf>"))
   vim.diagnostic.reset(ns, buf)
   if compile_3f then
-    local linter = (os.getenv("HOME") .. "/bin/linter.fnl")
+    local linter = (_24HOME .. "/bin/linter.fnl")
     local cmd
     local _7_
     if f_exists_3f(linter) then
@@ -148,44 +151,31 @@ local function update_user_js()
   end
   return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _21_)
 end
-local function strip_trailing_newline(str)
-  if ("\n" == str:sub(-1)) then
-    return str:sub(1, -2)
-  else
-    return str
-  end
-end
 local function edit_url()
-  local stdout = vim.loop.new_pipe()
-  local stderr = vim.loop.new_pipe()
-  local function on_exit(code, signal)
-    if (0 ~= code) then
-      return print(string.format("spawn failed (exit code %d, signal %d)", code, signal))
+  local buf = tonumber(vim.fn.expand("<abuf>"))
+  local function strip_trailing_newline(str)
+    if ("\n" == str:sub(-1)) then
+      return str:sub(1, -2)
     else
-      return nil
+      return str
     end
   end
-  vim.loop.spawn("curl", {stdio = {nil, stdout, stderr}, args = {"--location", "--silent", "--show-error", vim.fn.expand("<afile>")}}, on_exit)
-  local function on_stdout_2ferr(_3ferr, _3fdata)
-    assert(not _3ferr, _3ferr)
-    if (nil ~= _3fdata) then
-      local lines = vim.split(strip_trailing_newline(_3fdata), "\n")
-      local function _24_()
-        local start
-        if vim.bo.modified then
-          start = -1
-        else
-          start = 0
-        end
-        return vim.api.nvim_buf_set_lines(0, start, -1, false, lines)
+  local function cb(stdout, stderr, exit_code)
+    local lines
+    local function _23_()
+      if (0 == exit_code) then
+        return stdout
+      else
+        return stderr
       end
-      return vim.schedule(_24_)
-    else
-      return nil
     end
+    lines = vim.split(strip_trailing_newline(_23_()), "\n")
+    local function _24_()
+      return vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+    end
+    return vim.schedule(_24_)
   end
-  vim.loop.read_start(stdout, on_stdout_2ferr)
-  return vim.loop.read_start(stderr, on_stdout_2ferr)
+  return system({"curl", "--location", "--silent", "--show-error", vim.fn.expand("<afile>")}, cb)
 end
 local function template_h()
   local file_name = vim.fn.expand("<afile>:t")
@@ -197,7 +187,7 @@ local function template_c()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, "\n"))
 end
 local function fast_theme()
-  local zsh = (os.getenv("HOME") .. "/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh")
+  local zsh = (_24HOME .. "/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh")
   if f_exists_3f(zsh) then
     local cmd = ("source " .. zsh .. " && fast-theme " .. vim.fn.expand("<afile>:p"))
     local output = vim.fn.system(cmd)
@@ -210,31 +200,53 @@ local function fast_theme()
     return vim.api.nvim_err_writeln("zsh script not found")
   end
 end
+local sh_repeat_3f = false
+local function _27_()
+  sh_repeat_3f = not sh_repeat_3f
+  local function _28_()
+    if sh_repeat_3f then
+      return "enabled"
+    else
+      return "disabled"
+    end
+  end
+  return print("shell repeat", _28_())
+end
+vim.keymap.set("n", "g.", _27_, {})
+local function cargo_run()
+  local is_tmux_3f = (nil ~= _24TMUX)
+  if (is_tmux_3f and sh_repeat_3f) then
+    return vim.fn.system("tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")
+  else
+    return nil
+  end
+end
 vim.api.nvim_create_augroup("my/autocmds", {clear = true})
-local _29_ = "my/autocmds"
-vim.api.nvim_create_autocmd("BufReadPre", {callback = handle_large_buffer, group = _29_, pattern = "*"})
-vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group = _29_, pattern = "*"})
-vim.api.nvim_create_autocmd({"BufWritePre", "FileWritePre"}, {callback = maybe_create_directories, group = _29_, pattern = "*"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = fast_theme, group = _29_, pattern = "*/.zsh/overlay.ini"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = compile_fennel, group = _29_, pattern = "*.fnl"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux_cfg, group = _29_, pattern = "*tmux.conf"})
-vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _29_, pattern = "*/.config/nvim/plugin/*.vim"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = update_user_js, group = _29_, pattern = "user-overrides.js"})
-local function _30_()
+local _30_ = "my/autocmds"
+vim.api.nvim_create_autocmd("BufReadPre", {callback = handle_large_buffer, group = _30_, pattern = "*"})
+vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group = _30_, pattern = "*"})
+vim.api.nvim_create_autocmd({"BufWritePre", "FileWritePre"}, {callback = maybe_create_directories, group = _30_, pattern = "*"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = fast_theme, group = _30_, pattern = "*/.zsh/overlay.ini"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = compile_fennel, group = _30_, pattern = "*.fnl"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = cargo_run, group = _30_, pattern = "*.rs"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux_cfg, group = _30_, pattern = "*tmux.conf"})
+vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _30_, pattern = "*/.config/nvim/plugin/*.vim"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = update_user_js, group = _30_, pattern = "user-overrides.js"})
+local function _31_()
   return vim.api.nvim_create_autocmd("BufWritePost", {buffer = 0, callback = maybe_make_executable, group = "my/autocmds", once = true})
 end
-vim.api.nvim_create_autocmd("BufNewFile", {callback = _30_, group = _29_, pattern = "*"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = edit_url, group = _29_, pattern = {"http://*", "https://*"}})
-local function _31_()
+vim.api.nvim_create_autocmd("BufNewFile", {callback = _31_, group = _30_, pattern = "*"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = edit_url, group = _30_, pattern = {"http://*", "https://*"}})
+local function _32_()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
 end
-vim.api.nvim_create_autocmd("BufNewFile", {callback = _31_, group = _29_, pattern = "*.sh"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = template_h, group = _29_, pattern = "*.h"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = template_c, group = _29_, pattern = "main.c"})
-vim.api.nvim_create_autocmd("VimResized", {command = "wincmd =", group = _29_, pattern = "*"})
-vim.api.nvim_create_autocmd({"FocusGained", "BufEnter"}, {command = "checktime", group = _29_, pattern = "*"})
-local function _32_()
+vim.api.nvim_create_autocmd("BufNewFile", {callback = _32_, group = _30_, pattern = "*.sh"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = template_h, group = _30_, pattern = "*.h"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = template_c, group = _30_, pattern = "main.c"})
+vim.api.nvim_create_autocmd("VimResized", {command = "wincmd =", group = _30_, pattern = "*"})
+vim.api.nvim_create_autocmd({"FocusGained", "BufEnter"}, {command = "checktime", group = _30_, pattern = "*"})
+local function _33_()
   return vim.highlight.on_yank({on_visual = false})
 end
-vim.api.nvim_create_autocmd("TextYankPost", {callback = _32_, group = _29_, pattern = "*"})
-return _29_
+vim.api.nvim_create_autocmd("TextYankPost", {callback = _33_, group = _30_, pattern = "*"})
+return _30_

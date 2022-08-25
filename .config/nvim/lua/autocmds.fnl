@@ -1,5 +1,5 @@
-(local {: s\ : f\ : f-exists?} (require :util))
-(import-macros {: autocmd : augroup : opt-local} :macros)
+(local {: s\ : f\ : $HOME : $TMUX : f-exists? : system} (require :util))
+(import-macros {: autocmd : augroup : opt-local : map} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
 
@@ -49,7 +49,7 @@
         buf (tonumber (vim.fn.expand :<abuf>))]
     (vim.diagnostic.reset ns buf)
     (when compile?
-      (local linter (.. (os.getenv :HOME) :/bin/linter.fnl))
+      (local linter (.. $HOME :/bin/linter.fnl))
       (local cmd (: "fennel %s --globals 'vim' --compile %s" :format
                     (if (f-exists? linter)
                         (.. "--plugin " (s\ linter))
@@ -110,39 +110,20 @@
                     (assert (= 0 code))
                     (print "Updated user.js"))))
 
-(fn strip-trailing-newline [str]
-  (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
-
 (fn edit-url []
-  (local stdout (vim.loop.new_pipe))
-  (local stderr (vim.loop.new_pipe))
+  (local buf (tonumber (vim.fn.expand :<abuf>)))
 
-  (fn on-exit [code signal]
-    (if (not= 0 code)
-        (print (string.format "spawn failed (exit code %d, signal %d)" code
-                              signal))))
+  (fn strip-trailing-newline [str]
+    (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
 
-  (vim.loop.spawn :curl
-                  {:stdio [nil stdout stderr]
-                   :args [; follow redirects
-                          :--location
-                          :--silent
-                          :--show-error
-                          (vim.fn.expand :<afile>)]} on-exit)
+  (fn cb [stdout stderr exit-code]
+    (local lines (-> (if (= 0 exit-code) stdout stderr)
+                     (strip-trailing-newline)
+                     (vim.split "\n")))
+    (vim.schedule #(vim.api.nvim_buf_set_lines buf 0 -1 true lines)))
 
-  (fn on-stdout/err [?err ?data]
-    (assert (not ?err) ?err)
-    (when (not= nil ?data)
-      (local lines (vim.split (strip-trailing-newline ?data) "\n"))
-      (vim.schedule (fn []
-                      ;; FIXME: this doesn't handle when chunks end in the
-                      ;; middle of a line. maybe just batch everything into a
-                      ;; single buf_set_lines
-                      (local start (if vim.bo.modified -1 0))
-                      (vim.api.nvim_buf_set_lines 0 start -1 false lines)))))
-
-  (vim.loop.read_start stdout on-stdout/err)
-  (vim.loop.read_start stderr on-stdout/err))
+  (system [:curl :--location :--silent :--show-error (vim.fn.expand :<afile>)]
+          cb))
 
 (macro set-lines [lines]
   `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
@@ -163,7 +144,7 @@ int main(int argc, char *argv[]) {
 
 (fn fast-theme []
   (local zsh
-         (.. (os.getenv :HOME)
+         (.. $HOME
              :/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh))
   (if (f-exists? zsh)
       (do
@@ -174,6 +155,17 @@ int main(int argc, char *argv[]) {
           (vim.api.nvim_err_writeln output)))
       (vim.api.nvim_err_writeln "zsh script not found")))
 
+(var sh-repeat? false)
+(map n :g.
+     (fn []
+       (set sh-repeat? (not sh-repeat?))
+       (print "shell repeat" (if sh-repeat? :enabled :disabled))))
+
+(fn cargo-run []
+  (local is-tmux? (not= nil $TMUX))
+  (when (and is-tmux? sh-repeat?)
+    (vim.fn.system "tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")))
+
 ;; fnlfmt: skip
 (augroup :my/autocmds
          (autocmd BufReadPre * handle-large-buffer)
@@ -181,6 +173,7 @@ int main(int argc, char *argv[]) {
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
          (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufWritePost *.fnl compile-fennel)
+         (autocmd BufWritePost *.rs cargo-run)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
          (autocmd BufWritePost user-overrides.js update-user-js)

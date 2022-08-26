@@ -8,8 +8,8 @@
                  :reverse true
                  :prompt ""})
 
-(fn with-defaults [tbl]
-  (vim.tbl_extend :force {} defaults tbl))
+(fn with-defaults [...]
+  (vim.tbl_extend :force {} defaults ...))
 
 ;; Unlike the built-in buffers producer, this filters out the current buffer and
 ;; sorts buffers by last used.
@@ -47,8 +47,7 @@
 
 ;; TODO: Maybe just execute a command so that we can easily redo it.
 (fn visual-grep []
-  (snap.run (with-defaults (vim.tbl_extend :force {} grep-cfg
-                                           {:initial_filter (get-selected-text)}))))
+  (snap.run (with-defaults grep-cfg {:initial_filter (get-selected-text)})))
 
 (fn grep []
   (snap.run (with-defaults grep-cfg)))
@@ -59,7 +58,7 @@
                             ;; The built-in help select function doesn't handle
                             ;; splits. Note that it won't split if a help buffer
                             ;; is currently visible.
-                            :select (fn _help-select [selection _winnr type]
+                            :select (fn [selection _winnr type]
                                       (let [cmd (match type
                                                   :vsplit "vert "
                                                   :split "belowright "

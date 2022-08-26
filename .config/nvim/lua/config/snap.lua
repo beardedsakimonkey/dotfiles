@@ -1,7 +1,7 @@
 local snap = require("snap")
 local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, consumer = "fzy", reverse = true, prompt = ""}
-local function with_defaults(tbl)
-  return vim.tbl_extend("force", {}, defaults, tbl)
+local function with_defaults(...)
+  return vim.tbl_extend("force", {}, defaults, ...)
 end
 local function get_buffers(request)
   local function _1_()
@@ -34,24 +34,24 @@ local function get_selected_text()
 end
 local grep_cfg = {producer = snap.get("consumer.limit")(10000, snap.get("producer.ripgrep.vimgrep")), select = (snap.get("select.vimgrep")).select, multiselect = (snap.get("select.vimgrep")).multiselect, views = {snap.get("preview.vimgrep")}, prompt = "Grep>"}
 local function visual_grep()
-  return snap.run(with_defaults(vim.tbl_extend("force", {}, grep_cfg, {initial_filter = get_selected_text()})))
+  return snap.run(with_defaults(grep_cfg, {initial_filter = get_selected_text()}))
 end
 local function grep()
   return snap.run(with_defaults(grep_cfg))
 end
 local function help()
-  local function _help_select(selection, _winnr, type)
+  local function _5_(selection, _winnr, type)
     local cmd
     do
-      local _5_ = type
-      if (_5_ == "vsplit") then
+      local _6_ = type
+      if (_6_ == "vsplit") then
         cmd = "vert "
-      elseif (_5_ == "split") then
+      elseif (_6_ == "split") then
         cmd = "belowright "
-      elseif (_5_ == "tab") then
+      elseif (_6_ == "tab") then
         cmd = "tab "
       elseif true then
-        local _ = _5_
+        local _ = _6_
         cmd = ""
       else
         cmd = nil
@@ -59,32 +59,32 @@ local function help()
     end
     return vim.api.nvim_command((cmd .. "help " .. tostring(selection)))
   end
-  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _help_select, views = {snap.get("preview.help")}}))
+  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _5_, views = {snap.get("preview.help")}}))
 end
 local function get_oldfiles()
   local blacklist = {}
-  local function _7_(file)
+  local function _8_(file)
     return not blacklist[file]
   end
-  local function _8_(file)
+  local function _9_(file)
     if not file then
       return false
     else
       local not_wildignored
-      local function _9_()
+      local function _10_()
         return (0 == vim.fn.empty(vim.fn.glob(file)))
       end
-      not_wildignored = _9_
+      not_wildignored = _10_
       local not_dir
-      local function _10_()
+      local function _11_()
         return (0 == vim.fn.isdirectory(file))
       end
-      not_dir = _10_
+      not_dir = _11_
       local not_manpage
-      local function _11_()
+      local function _12_()
         return not vim.startswith(file, "man://")
       end
-      not_manpage = _11_
+      not_manpage = _12_
       local keep = (not_wildignored() and not_dir() and not_manpage())
       if (keep and (nil ~= file:match("%.fnl$"))) then
         blacklist[file:gsub("%.fnl$", ".lua")] = true
@@ -93,7 +93,7 @@ local function get_oldfiles()
       return keep
     end
   end
-  return vim.tbl_filter(_7_, vim.tbl_filter(_8_, vim.v.oldfiles))
+  return vim.tbl_filter(_8_, vim.tbl_filter(_9_, vim.v.oldfiles))
 end
 local function oldfiles()
   return snap.sync(get_oldfiles)

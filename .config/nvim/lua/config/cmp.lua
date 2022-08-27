@@ -28,4 +28,5 @@ local function _4_()
     return cmp.complete()
   end
 end
-return cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = _2_, ["<C-k>"] = _4_}, experimental = {ghost_text = true}})
+cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = _2_, ["<C-k>"] = _4_}, experimental = {ghost_text = true}})
+return cmp.setup.filetype({"neorepl"}, {enabled = false})

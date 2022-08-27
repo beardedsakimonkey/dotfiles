@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
        (set sh-repeat? (not sh-repeat?))
        (print "shell repeat" (if sh-repeat? :enabled :disabled))))
 
-(fn cargo-run []
+(fn repeat-shell-cmd []
   (local is-tmux? (not= nil $TMUX))
   (when (and is-tmux? sh-repeat?)
     (vim.fn.system "tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")))
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
          (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufWritePost *.fnl compile-fennel)
-         (autocmd BufWritePost *.rs cargo-run)
+         (autocmd BufWritePost *.rs repeat-shell-cmd)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
          (autocmd BufWritePost user-overrides.js update-user-js)

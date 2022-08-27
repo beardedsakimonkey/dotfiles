@@ -26,3 +26,5 @@
                                   (cmp.complete))}
             :experimental {:ghost_text true}})
 
+(cmp.setup.filetype [:neorepl] {:enabled false})
+

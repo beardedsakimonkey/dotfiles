@@ -39,6 +39,8 @@
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
       :kylechui/nvim-surround {:config "require'config.surround'"}
+      :gaoDean/autolist.nvim {:config "require('autolist').setup({})"}
+      :ii14/neorepl.nvim {:opt true :cmd :Repl}
       ;;
       ;; Treesitter
       ;;

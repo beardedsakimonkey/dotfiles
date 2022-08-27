@@ -213,7 +213,7 @@ local function _27_()
   return print("shell repeat", _28_())
 end
 vim.keymap.set("n", "g.", _27_, {})
-local function cargo_run()
+local function repeat_shell_cmd()
   local is_tmux_3f = (nil ~= _24TMUX)
   if (is_tmux_3f and sh_repeat_3f) then
     return vim.fn.system("tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")
@@ -228,7 +228,7 @@ vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group =
 vim.api.nvim_create_autocmd({"BufWritePre", "FileWritePre"}, {callback = maybe_create_directories, group = _30_, pattern = "*"})
 vim.api.nvim_create_autocmd("BufWritePost", {callback = fast_theme, group = _30_, pattern = "*/.zsh/overlay.ini"})
 vim.api.nvim_create_autocmd("BufWritePost", {callback = compile_fennel, group = _30_, pattern = "*.fnl"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = cargo_run, group = _30_, pattern = "*.rs"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = repeat_shell_cmd, group = _30_, pattern = "*.rs"})
 vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux_cfg, group = _30_, pattern = "*tmux.conf"})
 vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _30_, pattern = "*/.config/nvim/plugin/*.vim"})
 vim.api.nvim_create_autocmd("BufWritePost", {callback = update_user_js, group = _30_, pattern = "user-overrides.js"})

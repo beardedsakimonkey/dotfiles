@@ -49,29 +49,40 @@
         buf (tonumber (vim.fn.expand :<abuf>))]
     (vim.diagnostic.reset ns buf)
     (when compile?
-      (local linter (.. $HOME :/bin/linter.fnl))
-      (local cmd (: "fennel %s --globals 'vim' --compile %s" :format
-                    (if (f-exists? linter)
-                        (.. "--plugin " (s\ linter))
-                        "") (s\ src)))
       ;; Change dir so macros.fnl gets read
       (when ?root
         (vim.cmd (.. "lcd " (f\ ?root))))
-      (local output (vim.fn.system cmd))
-      (local err? (not= 0 vim.v.shell_error))
-      ;; Instruct formatter to avoid formatting
-      (vim.api.nvim_buf_set_var buf :comp_err err?)
-      (if err?
-          (on-fnl-err output)
-          (do
-            (write-file output dest)
-            (when (= config-dir ?root)
-              (when (not (vim.startswith src :after/ftplugin))
-                (vim.cmd (.. "luafile " (f\ dest))))
-              (when (= :lua/plugins.fnl src)
-                (vim.cmd :PackerCompile))
-              (when (and (= :colors/navajo.fnl src) vim.g.colors_name)
-                (vim.cmd (.. "colorscheme " vim.g.colors_name))))))
+      ;; Compile with an in-process `fennel` so that the compilation environment
+      ;; matches the runtime environment. This allows us to use plugins without having
+      ;; to configure globals and package.path.
+      (local fennel (require :fennel))
+      (local linter (.. $HOME :/bin/linter.fnl))
+      (local plugins (if (f-exists? linter)
+                         ;; Adapted from launcher.fnl
+                         [(fennel.dofile linter
+                                         {:env :_COMPILER
+                                          :useMetadata true
+                                          :compiler-env _G})]
+                         []))
+      (local fnl-str (-> (vim.api.nvim_buf_get_lines buf 0 -1 true)
+                         (table.concat "\n")))
+      (match (xpcall #(fennel.compile-string fnl-str {:filename src : plugins})
+                     fennel.traceback)
+        (true output) (do
+                        (vim.api.nvim_buf_set_var buf :comp_err false)
+                        (write-file output dest)
+                        (when (= config-dir ?root)
+                          (when (not (vim.startswith src :after/ftplugin))
+                            (vim.cmd (.. "luafile " (f\ dest))))
+                          (when (= :lua/plugins.fnl src)
+                            (vim.cmd :PackerCompile))
+                          (when (and (= :colors/navajo.fnl src)
+                                     vim.g.colors_name)
+                            (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
+        (_ msg) (do
+                  ;; Instruct formatter to avoid formatting
+                  (vim.api.nvim_buf_set_var buf :comp_err true)
+                  (on-fnl-err msg)))
       (when ?root
         (vim.cmd "lcd -")))))
 

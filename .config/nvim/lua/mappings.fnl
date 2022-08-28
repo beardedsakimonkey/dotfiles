@@ -115,8 +115,8 @@
       (ts-substitute)
       (plain-substitute)))
 
-(fn yank-doc []
-  (local txt (vim.fn.expand "%:t:r:r:r"))
+(fn yank-doc [exp]
+  (local txt (vim.fn.expand exp))
   (vim.fn.setreg "\"" txt :c)
   (vim.fn.setreg "+" txt :c))
 
@@ -284,7 +284,8 @@
 ;; ------------------
 (map i :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
 (map c :<C-d> "<c-r>=expand(\"%:t:r:r:r\")<CR>")
-(map n :yd yank-doc :silent)
+(map n :yd #(yank-doc "%:t:r:r:r") :silent)
+(map n :yD #(yank-doc "%:p") :silent)
 
 ;; Toggle options
 ;; --------------

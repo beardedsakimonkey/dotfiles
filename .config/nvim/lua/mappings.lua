@@ -133,8 +133,8 @@ local function substitute()
     return plain_substitute()
   end
 end
-local function yank_doc()
-  local txt = vim.fn.expand("%:t:r:r:r")
+local function yank_doc(exp)
+  local txt = vim.fn.expand(exp)
   vim.fn.setreg("\"", txt, "c")
   return vim.fn.setreg("+", txt, "c")
 end
@@ -284,7 +284,14 @@ vim.keymap.set("n", ":A", "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>", {silen
 vim.keymap.set("n", ":U", "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>", {silent = true})
 vim.keymap.set("i", "<C-d>", "<c-r>=expand(\"%:t:r:r:r\")<CR>", {})
 vim.keymap.set("c", "<C-d>", "<c-r>=expand(\"%:t:r:r:r\")<CR>", {})
-vim.keymap.set("n", "yd", yank_doc, {silent = true})
+local function _23_()
+  return yank_doc("%:t:r:r:r")
+end
+vim.keymap.set("n", "yd", _23_, {silent = true})
+local function _24_()
+  return yank_doc("%:p")
+end
+vim.keymap.set("n", "yD", _24_, {silent = true})
 vim.keymap.set("n", "gon", "<Cmd>set number!<CR>", {silent = true})
 vim.keymap.set("n", "goc", "<Cmd>set cursorline!<CR>", {silent = true})
 vim.keymap.set("n", "gow", "<Cmd>set wrap!<Bar>set wrap?<CR>", {silent = true})

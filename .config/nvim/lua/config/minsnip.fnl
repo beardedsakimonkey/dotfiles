@@ -8,7 +8,7 @@
                        :fennel "(print $0)"
                        :javascript "console.log($0)"
                        :rescript "Js.log($0)"
-                       :rust "println!(\"$0\");")})
+                       :rust "println!(\"$0\")")})
 
 (fn expand-snippet []
   (if (not (minsnip.jump)) (vim.api.nvim_input :<C-l>)))

@@ -25,8 +25,7 @@
       ;;
       :beardedsakimonkey/packer.nvim {}
       :neovim/nvim-lspconfig {:config "require'config.lsp'"}
-      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"
-                                    :branch :config}
+      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
@@ -39,7 +38,6 @@
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
       :kylechui/nvim-surround {:config "require'config.surround'"}
-      :gaoDean/autolist.nvim {:config "require('autolist').setup({})"}
       :ii14/neorepl.nvim {:opt true :cmd :Repl}
       ;;
       ;; Treesitter
@@ -64,8 +62,9 @@
       ;; Vimscript
       ;;
       :farmergreg/vim-lastplace {:commit :cef9d62}
+      :AndrewRadev/undoquit.vim {:commit :74d2a1f}
       :mbbill/undotree {:opt true :cmd :UndotreeToggle}
-      :tommcdo/vim-exchange {:opt true :keys :cx}
+      :tommcdo/vim-exchange {:opt true :keys [[:n :cx] [:v :X]]}
       :dstein64/vim-startuptime {:opt true :cmd :StartupTime}
       :AndrewRadev/linediff.vim {:config "require'config.linediff'"
                                  :opt true
@@ -73,7 +72,6 @@
       :tommcdo/vim-lion {:opt true
                          :keys [:gl :gL]
                          :config "vim.g.lion_squeeze_spaces = 1"}
-      :AndrewRadev/undoquit.vim {:config "require'config.undoquit'"}
       :tpope/vim-commentary {}
       :tpope/vim-repeat {}
       ;;

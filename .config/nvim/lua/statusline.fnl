@@ -6,7 +6,7 @@
 (fn M.statusline []
   (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))]
     (.. "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
-        "%{expand('%:t')}%* "
+        "%{&buftype == 'nofile' ? '[Scratch]' : expand('%:t')}%* "
         "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}"
         "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}"
         "%="

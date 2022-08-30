@@ -21,6 +21,6 @@ vim.g.did_load_filetypes = 0
 vim.cmd("syntax enable")
 require("mappings")
 require("options")
-require("plugins")
 require("autocmds")
+require("plugins")
 return require("statusline")

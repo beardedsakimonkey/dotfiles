@@ -10,11 +10,11 @@
 
 (fn goto-require []
   (local ts-utils (require :nvim-treesitter.ts_utils))
-  (local cursor-node (ts-utils.get_node_at_cursor 0))
+  (local cursor-node (ts-utils.get_node_at_cursor 0 false))
   (local form-text (vim.treesitter.get_node_text cursor-node 0))
   (local ?mod-name (form-text:match "[\"']([^\"']+)[\"']"))
   (when (not= nil ?mod-name)
-    ;; Adapted from `vim._load_package`
+    ;; Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
     (local basename (?mod-name:gsub "%." "/"))
     (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
     (local found (vim.api.nvim__get_runtime paths false {:is_lua true}))

@@ -3,19 +3,21 @@
 
 (local ts-spec ai.gen_spec.treesitter)
 (ai.setup {:n_lines 50
-           :mappings {:goto_right "g]"
-                      :inside_last :il
+           :mappings {:goto_right ""
+                      :goto_left ""
                       :inside :i
                       :around :a
-                      :around_next :an
                       :inside_next :in
-                      :goto_left "g["
-                      :around_last :al}
+                      :inside_last :il
+                      :around_last :al
+                      :around_next :an}
            :custom_textobjects {:F (ts-spec {:a "@function.outer"
                                              :i "@function.inner"})
                                 :f (ts-spec {:a "@call.outer" :i "@call.inner"})
                                 :B (ts-spec {:a "@block.outer"
                                              :i "@block.inner"})
+                                ;; :a (ts-spec {:a "@parameter.outer"
+                                ;;              :i "@parameter.inner"})
                                 :o (ts-spec {:a ["@conditional.outer"
                                                  "@loop.outer"]
                                              :i ["@conditional.inner"
@@ -27,7 +29,7 @@
                                              :col (-> (vim.fn.getline "$")
                                                       (: :len)
                                                       (+ 1))})
-                                     {: to : from})}
+                                     {: from : to})}
            :search_method :cover_or_next})
 
 (local ts-input surround.gen_spec.input.treesitter)

@@ -12,10 +12,6 @@
   (buf_keymap :gt "<Cmd>lua vim.lsp.buf.type_definition()<CR>")
   (buf_keymap :gr "<Cmd>lua vim.lsp.buf.rename()<CR>")
   (buf_keymap :ga "<Cmd>lua vim.lsp.buf.code_action()<CR>")
-  (buf_keymap :ge "<Cmd>lua vim.diagnostic.open_float()<CR>")
-  (buf_keymap "[d" "<Cmd>lua vim.diagnostic.goto_prev()<CR>")
-  (buf_keymap "]d" "<Cmd>lua vim.diagnostic.goto_next()<CR>")
-  (buf_keymap :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>")
   (buf_keymap :<space>w "<Cmd>lua vim.lsp.buf.formatting()<CR>"))
 
 (vim.diagnostic.config {:virtual_text {:prefix "●"}})

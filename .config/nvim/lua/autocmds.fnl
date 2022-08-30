@@ -10,14 +10,14 @@
                                      : lines})]
     (each [_ v (ipairs items)]
       (set v.text (v.text:gsub "^\n" "")))
-    (local results (vim.diagnostic.fromqflist items))
-    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) results)
+    (local diagnostics (vim.diagnostic.fromqflist items))
+    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) diagnostics)
 
     (fn no-codes [s]
       (s:gsub "\027%[[0-9]m" ""))
 
     ;; Don't echo until nvim has rendered diagnostics
-    (vim.schedule #(vim.api.nvim_echo [[(no-codes output) :WarningMsg]] true {}))))
+    (vim.schedule #(vim.notify (no-codes output) vim.log.levels.WARN))))
 
 (fn write-file [text filename]
   (local handle (assert (io.open filename :w+)))

@@ -75,7 +75,8 @@
                               :gh udir.toggle_hidden_files
                               :T toggle-sort
                               :C #(cd :cd)
-                              :L #(cd :lcd)}})
+                              :L #(cd :lcd)}
+                    :sort default-sort})
 
 (map n "-" :<Cmd>Udir<CR>)
 

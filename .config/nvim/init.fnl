@@ -33,7 +33,9 @@
 
 (require :mappings)
 (require :options)
-(require :plugins)
+;; Setup autocmds before plugins so that fennel compilation happens before
+;; formatting.
 (require :autocmds)
+(require :plugins)
 (require :statusline)
 

@@ -79,7 +79,7 @@
   (local ts-utils (require :nvim-treesitter.ts_utils))
   (local locals (require :nvim-treesitter.locals))
   (local bufnr (vim.api.nvim_get_current_buf))
-  (local cursor-node (ts-utils.get_node_at_cursor))
+  (local cursor-node (ts-utils.get_node_at_cursor 0 false))
 
   (fn complete-rename [new-name]
     (when (and new-name (> (length new-name) 0))
@@ -110,7 +110,7 @@
 
 (fn substitute []
   (local parsers (require :nvim-treesitter.parsers))
-  (local ts-enabled (parsers.has_parser))
+  (local ts-enabled (parsers.has_parser nil))
   (if ts-enabled
       (ts-substitute)
       (plain-substitute)))
@@ -271,6 +271,7 @@
 (map n ":V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
+(map n ":R" "<Cmd>e $VIMRUNTIME<CR>" :silent)
 (map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)
 (map n ":N" "<Cmd>e ~/notes/_notes.md<CR>" :silent)
 (map n ":T" "<Cmd>e ~/notes/_todo.md<CR>" :silent)
@@ -294,6 +295,13 @@
 (map n :gow "<Cmd>set wrap!<Bar>set wrap?<CR>" :silent)
 (map n :gol "<Cmd>set hlsearch!<Bar>set hlsearch?<CR>" :silent)
 (map n :goi "<Cmd>set ignorecase!<Bar>set ignorecase?<CR>" :silent)
+
+;; Diagnostics
+;; -----------
+(map n :ge "<Cmd>lua vim.diagnostic.open_float()<CR>" :silent)
+(map n "[d" "<Cmd>lua vim.diagnostic.goto_prev()<CR>" :silent)
+(map n "]d" "<Cmd>lua vim.diagnostic.goto_next()<CR>" :silent)
+(map n :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>" :silent)
 
 ;; Avoid typo
 ;; ----------

@@ -33,7 +33,7 @@ local function get_root_node(node)
 end
 local function get_root_form(winid, _bufnr)
   local ts_utils = require("nvim-treesitter.ts_utils")
-  local cursor_node = ts_utils.get_node_at_cursor(winid)
+  local cursor_node = ts_utils.get_node_at_cursor(winid, false)
   return get_root_node(cursor_node)
 end
 local function form_3f(node, bufnr)
@@ -53,7 +53,7 @@ local function get_outer_form_2a(node, bufnr)
 end
 local function get_outer_form(winid, bufnr)
   local ts_utils = require("nvim-treesitter.ts_utils")
-  local cursor_node = ts_utils.get_node_at_cursor(winid)
+  local cursor_node = ts_utils.get_node_at_cursor(winid, false)
   return get_outer_form_2a(cursor_node, bufnr)
 end
 local function eval_form(root_3f)
@@ -90,7 +90,7 @@ local function goto_require()
       local lua_path = found[1]
       local fnl_path = lua_path:gsub("%.lua$", ".fnl")
       local path
-      if vim.loop.fs_access(fnl_path, "R") then
+      if f_exists_3f(fnl_path) then
         path = fnl_path
       else
         path = lua_path

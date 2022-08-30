@@ -31,7 +31,7 @@
 
 (fn get-root-form [winid _bufnr]
   (local ts-utils (require :nvim-treesitter.ts_utils))
-  (local cursor-node (ts-utils.get_node_at_cursor winid))
+  (local cursor-node (ts-utils.get_node_at_cursor winid false))
   (get-root-node cursor-node))
 
 (fn form? [node bufnr]
@@ -47,7 +47,7 @@
 
 (fn get-outer-form [winid bufnr]
   (local ts-utils (require :nvim-treesitter.ts_utils))
-  (local cursor-node (ts-utils.get_node_at_cursor winid))
+  (local cursor-node (ts-utils.get_node_at_cursor winid false))
   ;; Walk up the syntax tree until we hit a node that is wrapped in `()`
   (get-outer-form* cursor-node bufnr))
 
@@ -72,14 +72,15 @@
   (local form-text (vim.treesitter.get_node_text form 0))
   (local ?mod-name (form-text:match "%(require [\":]?([^)]+)\"?%)"))
   (when (not= nil ?mod-name)
-    ;; Adapted from `vim._load_package`
+    ;; Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
     (local basename (?mod-name:gsub "%." "/"))
     (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
     (local found (vim.api.nvim__get_runtime paths false {:is_lua true}))
+    ;; TODO: Fallback to package.path
     (if (> (length found) 0)
         (let [lua-path (. found 1)
               fnl-path (lua-path:gsub "%.lua$" :.fnl)
-              path (if (vim.loop.fs_access fnl-path :R) fnl-path lua-path)]
+              path (if (f-exists? fnl-path) fnl-path lua-path)]
           (vim.cmd (.. "edit " (f\ path))))
         (vim.api.nvim_err_writeln (.. "Cannot find module " basename)))))
 

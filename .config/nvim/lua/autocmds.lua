@@ -13,13 +13,13 @@ local function on_fnl_err(output)
   for _, v in ipairs(items) do
     v.text = (v.text):gsub("^\n", "")
   end
-  local results = vim.diagnostic.fromqflist(items)
-  vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), results)
+  local diagnostics = vim.diagnostic.fromqflist(items)
+  vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), diagnostics)
   local function no_codes(s)
     return s:gsub("\27%[[0-9]m", "")
   end
   local function _3_()
-    return vim.api.nvim_echo({{no_codes(output), "WarningMsg"}}, true, {})
+    return vim.notify(no_codes(output), vim.log.levels.WARN)
   end
   return vim.schedule(_3_)
 end

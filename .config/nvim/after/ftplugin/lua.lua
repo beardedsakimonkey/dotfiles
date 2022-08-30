@@ -12,7 +12,7 @@ local function goto_fnl()
 end
 local function goto_require()
   local ts_utils = require("nvim-treesitter.ts_utils")
-  local cursor_node = ts_utils.get_node_at_cursor(0)
+  local cursor_node = ts_utils.get_node_at_cursor(0, false)
   local form_text = vim.treesitter.get_node_text(cursor_node, 0)
   local _3fmod_name = form_text:match("[\"']([^\"']+)[\"']")
   if (nil ~= _3fmod_name) then

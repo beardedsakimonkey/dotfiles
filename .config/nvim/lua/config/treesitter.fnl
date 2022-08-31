@@ -17,8 +17,16 @@
                                            :update :R
                                            :goto_node :<cr>
                                            :show_help "?"}}
-                ;; Using nvim-treesitter-textobjects for mini.ai/surround
-                :textobjects {:enable false}
+                :textobjects {:select {:enable true
+                                       :lookahead true
+                                       :keymaps {:aF "@function.outer"
+                                                 :iF "@function.inner"
+                                                 :af "@call.outer"
+                                                 :if "@call.inner"
+                                                 :aB "@block.outer"
+                                                 :iB "@block.inner"
+                                                 :aa "@parameter.outer"
+                                                 :ia "@parameter.inner"}}}
                 :query_linter {:enable true
                                :use_virtual_text true
                                :lint_events [:BufWrite :BufEnter]}})

@@ -14,6 +14,9 @@ local function on_fnl_err(output)
     v.text = (v.text):gsub("^\n", "")
   end
   local diagnostics = vim.diagnostic.fromqflist(items)
+  for _, d in ipairs(diagnostics) do
+    d.col = (1 + d.col)
+  end
   vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), diagnostics)
   local function no_codes(s)
     return s:gsub("\27%[[0-9]m", "")
@@ -41,7 +44,7 @@ local function tbl_find(pred_3f, seq)
 end
 local function compile_fennel()
   local config_dir = (vim.fn.stdpath("config") .. "/")
-  local roots = {config_dir, (vim.fn.stdpath("data") .. "/site/pack/packer/start/nvim-udir/"), (vim.fn.stdpath("data") .. "/site/pack/packer/start/snap/"), (vim.fn.stdpath("data") .. "/site/pack/packer/opt/nvim-antifennel/")}
+  local roots = {config_dir, (vim.fn.stdpath("data") .. "/site/pack/packer/start/nvim-udir/"), (vim.fn.stdpath("data") .. "/site/pack/packer/start/snap/"), "/Users/tim/code/test/", (vim.fn.stdpath("data") .. "/site/pack/packer/opt/nvim-antifennel/")}
   local src = vim.fn.expand("<afile>:p")
   local _3froot
   local function _5_(_241)
@@ -55,7 +58,7 @@ local function compile_fennel()
     src0 = src
   end
   local dest = src0:gsub(".fnl$", ".lua")
-  local compile_3f = (_3froot and not vim.endswith(src0, "macros.fnl"))
+  local compile_3f = (_3froot and not vim.endswith(src0, "macros.fnl") and not vim.endswith(src0, "linter.fnl"))
   local buf = tonumber(vim.fn.expand("<abuf>"))
   vim.diagnostic.reset(ns, buf)
   if compile_3f then
@@ -64,7 +67,7 @@ local function compile_fennel()
     else
     end
     local fennel = require("fennel")
-    local linter = (_24HOME .. "/bin/linter.fnl")
+    local linter = (vim.fn.stdpath("config") .. "/linter.fnl")
     local plugins
     if f_exists_3f(linter) then
       plugins = {fennel.dofile(linter, {env = "_COMPILER", useMetadata = true, ["compiler-env"] = _G})}

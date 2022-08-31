@@ -11,6 +11,9 @@
     (each [_ v (ipairs items)]
       (set v.text (v.text:gsub "^\n" "")))
     (local diagnostics (vim.diagnostic.fromqflist items))
+    ;; qflist columns are 1-indexed
+    (each [_ d (ipairs diagnostics)]
+      (set d.col (+ 1 d.col)))
     (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) diagnostics)
 
     (fn no-codes [s]
@@ -36,6 +39,7 @@
         roots [config-dir
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-udir/)
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)
+               :/Users/tim/code/test/
                (.. (vim.fn.stdpath :data)
                    :/site/pack/packer/opt/nvim-antifennel/)]
         src (vim.fn.expand "<afile>:p")
@@ -45,7 +49,8 @@
                 (src:sub (+ 1 (length ?root)))
                 src)
         dest (src:gsub :.fnl$ :.lua)
-        compile? (and ?root (not (vim.endswith src :macros.fnl)))
+        compile? (and ?root (not (vim.endswith src :macros.fnl))
+                      (not (vim.endswith src :linter.fnl)))
         buf (tonumber (vim.fn.expand :<abuf>))]
     (vim.diagnostic.reset ns buf)
     (when compile?
@@ -56,7 +61,7 @@
       ;; matches the runtime environment. This allows us to use plugins without having
       ;; to configure globals and package.path.
       (local fennel (require :fennel))
-      (local linter (.. $HOME :/bin/linter.fnl))
+      (local linter (.. (vim.fn.stdpath :config) :/linter.fnl))
       (local plugins (if (f-exists? linter)
                          ;; Adapted from launcher.fnl
                          [(fennel.dofile linter

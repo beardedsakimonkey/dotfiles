@@ -37,6 +37,7 @@
                                     :opt true
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
+      :kylechui/nvim-surround {:config "require'config.surround'"}
       :echasnovski/mini.nvim {:config "require'config.mini'"}
       :ii14/neorepl.nvim {:opt true :cmd :Repl}
       ;;

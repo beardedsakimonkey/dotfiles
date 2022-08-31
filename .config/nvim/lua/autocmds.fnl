@@ -182,6 +182,12 @@ int main(int argc, char *argv[]) {
   (when (and is-tmux? sh-repeat?)
     (vim.fn.system "tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")))
 
+(fn source-lua []
+  (local name (vim.fn.expand "<afile>:p"))
+  (when (and (vim.startswith name (vim.fn.stdpath :config))
+             (= nil (name:match :after/ftplugin)))
+    (vim.cmd (.. "luafile " (f\ name)))))
+
 ;; fnlfmt: skip
 (augroup :my/autocmds
          (autocmd BufReadPre * handle-large-buffer)
@@ -189,6 +195,7 @@ int main(int argc, char *argv[]) {
          (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
          (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufWritePost *.fnl compile-fennel)
+         (autocmd BufWritePost *.lua source-lua)
          (autocmd BufWritePost *.rs repeat-shell-cmd)
          (autocmd BufWritePost *tmux.conf source-tmux-cfg)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")

@@ -1,7 +1,7 @@
 local _local_1_ = require("util")
-local f_exists_3f = _local_1_["f-exists?"]
+local exists_3f = _local_1_["exists?"]
 local path = (vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim")
-local bootstrap_3f = not f_exists_3f(path)
+local bootstrap_3f = not exists_3f(path)
 if bootstrap_3f then
   os.execute(("git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim " .. path))
   do end (vim.opt.runtimepath):prepend((vim.fn.stdpath("data") .. "/site/pack/*/start/*," .. vim.o.runtimepath))

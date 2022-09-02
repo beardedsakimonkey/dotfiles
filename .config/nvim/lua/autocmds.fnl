@@ -1,7 +1,13 @@
-(local {: s\ : f\ : $HOME : $TMUX : f-exists? : system} (require :util))
+(local {: s\ : f\ : $HOME : $TMUX : exists? : system} (require :util))
 (import-macros {: autocmd : augroup : opt-local : map} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
+
+(fn source-lua []
+  (local name (vim.fn.expand "<afile>:p"))
+  (when (and (vim.startswith name (vim.fn.stdpath :config))
+             (= nil (name:match :after/ftplugin)))
+    (vim.cmd (.. "luafile " (f\ name)))))
 
 ;; Adapted from gpanders' config
 (fn on-fnl-err [output]
@@ -62,7 +68,7 @@
       ;; to configure globals and package.path.
       (local fennel (require :fennel))
       (local linter (.. (vim.fn.stdpath :config) :/linter.fnl))
-      (local plugins (if (f-exists? linter)
+      (local plugins (if (exists? linter)
                          ;; Adapted from launcher.fnl
                          [(fennel.dofile linter
                                          {:env :_COMPILER
@@ -103,13 +109,13 @@
     ;; NOTE: libuv operations say that the file doesn't exist yet..
     (vim.cmd (.. "sil !chmod +x " path))))
 
-(fn maybe-create-directories []
+(fn create-missing-dirs []
   (let [afile (vim.fn.expand :<afile>)
         create? (not (afile:match "://"))
         new (f\ (vim.fn.expand "<afile>:p:h"))]
     (if create? (vim.fn.mkdir new :p))))
 
-(fn source-tmux-cfg []
+(fn source-tmux []
   (local file (s\ (vim.fn.expand "<afile>:p")))
   (vim.fn.system (.. "tmux source-file " file)))
 
@@ -162,7 +168,7 @@ int main(int argc, char *argv[]) {
   (local zsh
          (.. $HOME
              :/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh))
-  (if (f-exists? zsh)
+  (if (exists? zsh)
       (do
         (local cmd (.. "source " zsh " && fast-theme "
                        (vim.fn.expand "<afile>:p")))
@@ -182,24 +188,18 @@ int main(int argc, char *argv[]) {
   (when (and is-tmux? sh-repeat?)
     (vim.fn.system "tmux if -F -t '{last}' '#{m:*sh,#{pane_current_command}}' \"send-keys -t '{last}' Up Enter\"")))
 
-(fn source-lua []
-  (local name (vim.fn.expand "<afile>:p"))
-  (when (and (vim.startswith name (vim.fn.stdpath :config))
-             (= nil (name:match :after/ftplugin)))
-    (vim.cmd (.. "luafile " (f\ name)))))
-
 ;; fnlfmt: skip
 (augroup :my/autocmds
          (autocmd BufReadPre * handle-large-buffer)
          (autocmd FileType * setup-formatoptions)
-         (autocmd [BufWritePre FileWritePre] * maybe-create-directories)
-         (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
-         (autocmd BufWritePost *.fnl compile-fennel)
+         (autocmd [BufWritePre FileWritePre] * create-missing-dirs)
          (autocmd BufWritePost *.lua source-lua)
-         (autocmd BufWritePost *.rs repeat-shell-cmd)
-         (autocmd BufWritePost *tmux.conf source-tmux-cfg)
+         (autocmd BufWritePost *.fnl compile-fennel)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
+         (autocmd BufWritePost *.rs repeat-shell-cmd)
+         (autocmd BufWritePost *tmux.conf source-tmux)
          (autocmd BufWritePost user-overrides.js update-user-js)
+         (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
          (autocmd BufNewFile [http://* https://*] edit-url)
          (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))

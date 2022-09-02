@@ -4,7 +4,7 @@
 (local $HOME (os.getenv :HOME))
 (local $TMUX (os.getenv :TMUX))
 
-(fn f-exists? [path]
+(fn exists? [path]
   ;; Passing "" as the mode corresponds to access(2)'s F_OK
   (= true (vim.loop.fs_access path "")))
 
@@ -21,8 +21,7 @@
   (fn on-exit [exit-code _signal]
     (cb stdout stderr exit-code))
 
-  (local cmd (table.remove cmd-parts 1))
-  (local args cmd-parts)
+  (local [cmd & args] cmd-parts)
   (vim.loop.spawn cmd {:stdio [nil stdout-pipe stderr-pipe] : args} on-exit)
 
   (fn on-stdout/err [stdout? ?err ?data]
@@ -35,5 +34,5 @@
   (vim.loop.read_start stdout-pipe (partial on-stdout/err true))
   (vim.loop.read_start stderr-pipe (partial on-stdout/err false)))
 
-{: s\ : f\ : $HOME : $TMUX : f-exists? : system}
+{: s\ : f\ : $HOME : $TMUX : exists? : system}
 

@@ -1,10 +1,10 @@
 local _local_1_ = require("util")
-local f_exists_3f = _local_1_["f-exists?"]
+local exists_3f = _local_1_["exists?"]
 local f_5c = _local_1_["f\\"]
 local function goto_fnl()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.lua$", ".fnl")
-  if f_exists_3f(to) then
+  if exists_3f(to) then
     return vim.cmd(("edit " .. f_5c(to)))
   else
     return vim.api.nvim_err_writeln(("Cannot read file " .. to))

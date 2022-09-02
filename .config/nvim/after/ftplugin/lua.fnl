@@ -1,10 +1,10 @@
-(local {: f-exists? : f\} (require :util))
+(local {: exists? : f\} (require :util))
 (import-macros {: opt-local : map : with-undo-ftplugin} :macros)
 
 (fn goto-fnl []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.lua$" :.fnl))
-  (if (f-exists? to)
+  (if (exists? to)
       (vim.cmd (.. "edit " (f\ to)))
       (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
 

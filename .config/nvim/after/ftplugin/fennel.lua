@@ -1,5 +1,5 @@
 local _local_1_ = require("util")
-local f_exists_3f = _local_1_["f-exists?"]
+local exists_3f = _local_1_["exists?"]
 local f_5c = _local_1_["f\\"]
 vim.cmd("inoreabbrev <buffer> lambda \206\187")
 vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | unabbrev <buffer> lambda"))
@@ -16,7 +16,7 @@ end
 local function goto_lua()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.fnl$", ".lua")
-  if f_exists_3f(to) then
+  if exists_3f(to) then
     return vim.cmd(("edit " .. f_5c(to)))
   else
     return vim.api.nvim_err_writeln(("Cannot read file " .. to))
@@ -82,7 +82,7 @@ local function goto_require()
   local form = get_outer_form(0, 0)
   local form_text = vim.treesitter.get_node_text(form, 0)
   local _3fmod_name = form_text:match("%(require [\":]?([^)]+)\"?%)")
-  if (nil ~= _3fmod_name) then
+  if _3fmod_name then
     local basename = _3fmod_name:gsub("%.", "/")
     local paths = {("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}
     local found = vim.api.nvim__get_runtime(paths, false, {is_lua = true})
@@ -90,7 +90,7 @@ local function goto_require()
       local lua_path = found[1]
       local fnl_path = lua_path:gsub("%.lua$", ".fnl")
       local path
-      if f_exists_3f(fnl_path) then
+      if exists_3f(fnl_path) then
         path = fnl_path
       else
         path = lua_path

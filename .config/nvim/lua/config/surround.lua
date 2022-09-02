@@ -40,8 +40,8 @@ function get_selections(captures)
 
   local outer_matches = {}
   for _, capture in ipairs(captures.outer) do
-    local m = ts_query.get_capture_matches_recursively(0, capture, 'textobjects')
-    vim.list_extend(outer_matches, m)
+    local matches = ts_query.get_capture_matches_recursively(0, capture, 'textobjects')
+    vim.list_extend(outer_matches, matches)
   end
 
   local matched_node_pairs = vim.tbl_map(
@@ -51,8 +51,8 @@ function get_selections(captures)
       -- needed because query output is not quaranteed to come in order.
       local inner_matches = {}
       for _, capture in ipairs(captures.inner) do
-        local m = ts_query.get_capture_matches(0, capture, 'textobjects', outer_node)
-        vim.list_extend(inner_matches, m)
+        local matches = ts_query.get_capture_matches(0, capture, 'textobjects', outer_node)
+        vim.list_extend(inner_matches, matches)
       end
       local inner_nodes = vim.tbl_map(function(x) return x.node end, inner_matches)
       return { outer = outer_node, inner = get_biggest_node(inner_nodes) }

@@ -1,9 +1,9 @@
-(local {: f-exists?} (require :util))
+(local {: exists?} (require :util))
 (import-macros {: opt} :macros)
 
 ;; Install packer.nvim if needed.
 (local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
-(local bootstrap? (not (f-exists? path)))
+(local bootstrap? (not (exists? path)))
 (when bootstrap?
   (os.execute (.. "git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim "
                   path))

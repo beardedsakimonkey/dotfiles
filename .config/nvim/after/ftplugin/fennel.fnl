@@ -1,4 +1,4 @@
-(local {: f-exists? : f\} (require :util))
+(local {: exists? : f\} (require :util))
 (import-macros {: with-undo-ftplugin : opt-local : map : undo-ftplugin} :macros)
 
 (vim.cmd "inoreabbrev <buffer> lambda λ")
@@ -17,7 +17,7 @@
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.fnl$" :.lua))
-  (if (f-exists? to)
+  (if (exists? to)
       (vim.cmd (.. "edit " (f\ to)))
       (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
 
@@ -71,7 +71,7 @@
   (local form (get-outer-form 0 0))
   (local form-text (vim.treesitter.get_node_text form 0))
   (local ?mod-name (form-text:match "%(require [\":]?([^)]+)\"?%)"))
-  (when (not= nil ?mod-name)
+  (when ?mod-name
     ;; Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
     (local basename (?mod-name:gsub "%." "/"))
     (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
@@ -80,7 +80,7 @@
     (if (> (length found) 0)
         (let [lua-path (. found 1)
               fnl-path (lua-path:gsub "%.lua$" :.fnl)
-              path (if (f-exists? fnl-path) fnl-path lua-path)]
+              path (if (exists? fnl-path) fnl-path lua-path)]
           (vim.cmd (.. "edit " (f\ path))))
         (vim.api.nvim_err_writeln (.. "Cannot find module " basename)))))
 

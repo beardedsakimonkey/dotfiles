@@ -9,9 +9,7 @@ set wildcharm=<Tab>
 function! s:CmdlineTab() abort
   if getcmdtype() ==# ':'
     let token = matchstr(getcmdline()[:getcmdpos()-1], '[^ /]\+$')
-    let s = token !~# '[A-Z]'
     let &wildignorecase = token !~# '[A-Z]'
-    echom &wildignorecase
   endif
   return "\<Tab>"
 endfunction

@@ -1,4 +1,4 @@
-vim["opt"]["shada"] = "!,'10000,<50,s10,h"
+vim["opt"]["shada"] = "!,'20000,<5,s10,h"
 vim["opt"]["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
 vim["opt"]["lazyredraw"] = true
 vim["opt"]["ttimeoutlen"] = 0

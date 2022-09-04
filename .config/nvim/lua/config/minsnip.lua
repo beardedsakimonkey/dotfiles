@@ -1,4 +1,7 @@
 local minsnip = require("minsnip")
+local function join(seq)
+  return table.concat(seq, "\n")
+end
 local function _1_()
   local _2_ = vim.bo.filetype
   if (_2_ == "c") then
@@ -19,7 +22,15 @@ local function _1_()
     return nil
   end
 end
-minsnip.setup({cl = _1_})
+local function _4_()
+  local _5_ = vim.bo.filetype
+  if (_5_ == "lua") then
+    return join({"local dbg = require'debugger'", "dbg.auto_where = 10", "dbg()"})
+  else
+    return nil
+  end
+end
+minsnip.setup({cl = _1_, d = _4_})
 local function expand_snippet()
   if not minsnip.jump() then
     return vim.api.nvim_input("<C-l>")

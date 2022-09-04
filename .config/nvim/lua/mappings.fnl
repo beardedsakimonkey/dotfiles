@@ -184,9 +184,11 @@
 (map "" :<Space>d "<Cmd>call Kwbd(1)<CR>" :silent)
 (map "" :<Space>q "<Cmd>b#<CR>" :silent)
 (map n :g> :<Cmd>40messages<CR> :silent)
-;; Jump to where insert mode was last exited
+;; Go to last insert
 (map n :gi "g`^")
-;; Select previously changed/yanked text
+;; Go to last change
+(map n :g. "g`.")
+;; Select last changed/yanked text
 (map n :gs "g`[vg`]")
 (map n :gS "g'[Vg']")
 (map n :<space>z zoom-toggle :silent)

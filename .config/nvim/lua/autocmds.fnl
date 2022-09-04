@@ -1,5 +1,4 @@
 (local {: s\ : f\ : $HOME : $TMUX : exists? : system : find} (require :util))
-
 (import-macros {: autocmd : augroup : opt-local : map} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
@@ -126,8 +125,8 @@
 (fn update-user-js []
   (vim.loop.spawn "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh"
                   {:args [:-d :-s :-b]}
-                  (fn [code]
-                    (assert (= 0 code))
+                  (fn [exit]
+                    (assert (= 0 exit))
                     (print "Updated user.js"))))
 
 (fn edit-url []
@@ -139,8 +138,8 @@
   (fn strip-trailing-newline [str]
     (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
 
-  (fn cb [stdout stderr exit-code]
-    (local lines (-> (if (= 0 exit-code) stdout stderr)
+  (fn cb [stdout stderr exit]
+    (local lines (-> (if (= 0 exit) stdout stderr)
                      (strip-trailing-newline)
                      (vim.split "\n")))
     (vim.schedule #(vim.api.nvim_buf_set_lines buf 0 -1 true lines)))
@@ -155,7 +154,6 @@
         guard (string.upper (file-name:gsub "%." "_"))]
     (set-lines [(.. "#ifndef " guard) (.. "#define " guard) "" "#endif"])))
 
-;; fnlfmt: skip
 (fn template-c []
   (local str "#include <stdio.h>
 
@@ -178,10 +176,12 @@ int main(int argc, char *argv[]) {
       (vim.api.nvim_err_writeln "zsh script not found")))
 
 (var sh-repeat? false)
-(map n :g.
-     (fn []
-       (set sh-repeat? (not sh-repeat?))
-       (print "shell repeat" (if sh-repeat? :enabled :disabled))))
+(vim.api.nvim_create_user_command :ToggleShellRepeat
+                                  (fn []
+                                    (set sh-repeat? (not sh-repeat?))
+                                    (print "shell repeat"
+                                           (if sh-repeat? :enabled :disabled)))
+                                  {})
 
 (fn repeat-shell-cmd []
   (local is-tmux? (not= nil $TMUX))

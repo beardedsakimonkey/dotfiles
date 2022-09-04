@@ -155,8 +155,8 @@ local function setup_formatoptions()
   return (vim.opt_local.formatoptions):remove("o")
 end
 local function update_user_js()
-  local function _21_(code)
-    assert((0 == code))
+  local function _21_(exit)
+    assert((0 == exit))
     return print("Updated user.js")
   end
   return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _21_)
@@ -171,10 +171,10 @@ local function edit_url()
       return str
     end
   end
-  local function cb(stdout, stderr, exit_code)
+  local function cb(stdout, stderr, exit)
     local lines
     local function _23_()
-      if (0 == exit_code) then
+      if (0 == exit) then
         return stdout
       else
         return stderr
@@ -223,7 +223,7 @@ local function _27_()
   end
   return print("shell repeat", _28_())
 end
-vim.keymap.set("n", "g.", _27_, {})
+vim.api.nvim_create_user_command("ToggleShellRepeat", _27_, {})
 local function repeat_shell_cmd()
   local is_tmux_3f = (nil ~= _24TMUX)
   if (is_tmux_3f and sh_repeat_3f) then

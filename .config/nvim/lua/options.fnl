@@ -1,11 +1,11 @@
 (import-macros {: opt} :macros)
 
 ;; !      → Save and restore all-caps global variables
-;; '10000 → Marks will be remembered for the last 10000 files edited (also the number of `v:oldfiles` stored)
-;; <50    → Contents of registers (up to 50 lines each) will be remembered
+;; '20000 → Marks will be remembered for the last 20000 files edited (also the number of `v:oldfiles` stored)
+;; <5     → Contents of registers (up to 5 lines each) will be remembered
 ;; s10    → Items with contents occupying more then 10 KiB are skipped
 ;; h      → Disable the effect of 'hlsearch' when loading the shada file
-(opt shada "!,'10000,<50,s10,h")
+(opt shada "!,'20000,<5,s10,h")
 (opt sessionoptions [:help :tabpages :winsize :curdir :folds])
 
 (opt lazyredraw)

@@ -25,6 +25,8 @@
                                                  :if "@call.inner"
                                                  :aB "@block.outer"
                                                  :iB "@block.inner"
+                                                 :ao "@loop.outer"
+                                                 :io "@loop.inner"
                                                  :aa "@parameter.outer"
                                                  :ia "@parameter.inner"}}}
                 :query_linter {:enable true

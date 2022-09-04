@@ -171,6 +171,7 @@ end
 vim.keymap.set("n", "g'", _16_, {})
 vim.keymap.set("n", "<PageUp>", "<PageUp>:keepj norm! H<CR>", {silent = true})
 vim.keymap.set("n", "<PageDown>", "<PageDown>:keepj norm! L<CR>", {silent = true})
+vim.keymap.set("n", "/", "/\\V", {})
 vim.keymap.set({"n", "x"}, ";", ":", {})
 vim.keymap.set({"n", "x"}, ":", ";", {})
 vim.keymap.set("n", "`", "'", {})

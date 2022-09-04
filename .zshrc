@@ -406,6 +406,16 @@ cd() {
     fi
 }
 
+# Adapted from lacygoil's config
+cdl() {
+    local most_recent_dir=$(\
+        fd --type=d --max-depth=1 --exec stat -f '%Z %N' {} \
+      | sort --key=1,1 --numeric-sort --reverse --ignore-leading-blanks \
+      | head -n1 \
+      | awk '{ print $2 }')
+    cd "$most_recent_dir"
+}
+
 subup() {
     git submodule foreach "
     git fetch;

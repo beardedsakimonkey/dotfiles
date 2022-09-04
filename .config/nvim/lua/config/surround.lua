@@ -19,7 +19,7 @@ local pos_to_right = function(pos)
   return { line = pos.line, col = pos.col + 1 }
 end
 
-function get_biggest_node(nodes)
+local function get_biggest_node(nodes)
   local biggest_node, biggest_byte_count = nil, -math.huge
   for _, node in ipairs(nodes) do
     local _, _, start_byte = node:start()
@@ -32,7 +32,7 @@ function get_biggest_node(nodes)
   return biggest_node
 end
 
-function get_selections(captures)
+local function get_selections(captures)
   captures.inner = type(captures.inner) == "string" and { captures.inner } or captures.inner
   captures.outer = type(captures.outer) == "string" and { captures.outer } or captures.outer
 

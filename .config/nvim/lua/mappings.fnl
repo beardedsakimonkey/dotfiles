@@ -149,6 +149,7 @@
 (map n "g'" #(nav-change-list "g,"))
 (map n :<PageUp> "<PageUp>:keepj norm! H<CR>" :silent)
 (map n :<PageDown> "<PageDown>:keepj norm! L<CR>" :silent)
+(map n "/" "/\\V")
 
 ;; Rearrange some default mappings
 ;; -------------------------------

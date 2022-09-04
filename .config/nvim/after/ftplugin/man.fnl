@@ -9,6 +9,7 @@
                     (map n :d :<C-d> :buffer :nowait)
                     (map n :U :<C-b> :buffer :nowait)
                     (map n :D :<C-f> :buffer :nowait)
+                    ;; TODO: convert to `search()`
                     (map n :<Tab>
                          "/\\C\\%>1l\\f\\+([1-9][a-z]\\=)\\ze\\_.\\+\\%$<CR><Cmd>nohlsearch<CR>"
                          :buffer)

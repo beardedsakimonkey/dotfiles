@@ -40,4 +40,15 @@ local function system(cmd_parts, cb)
   end
   return vim.loop.read_start(stderr_pipe, _5_)
 end
-return {["s\\"] = s_5c, ["f\\"] = f_5c, ["$HOME"] = _24HOME, ["$TMUX"] = _24TMUX, ["exists?"] = exists_3f, system = system}
+local function find(pred_3f, seq)
+  local _3fres = nil
+  for _, v in ipairs(seq) do
+    if (nil ~= _3fres) then break end
+    if pred_3f(v) then
+      _3fres = v
+    else
+    end
+  end
+  return _3fres
+end
+return {["s\\"] = s_5c, ["f\\"] = f_5c, ["$HOME"] = _24HOME, ["$TMUX"] = _24TMUX, ["exists?"] = exists_3f, system = system, find = find}

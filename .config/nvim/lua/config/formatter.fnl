@@ -28,6 +28,9 @@
 (vim.api.nvim_create_user_command :FormatDisable #(set enabled false) {})
 (vim.api.nvim_create_user_command :FormatEnable #(set enabled true) {})
 
+(fn falsy [v]
+  (or (not v) (= "" v)))
+
 (augroup :my/formatter
          (autocmd BufWritePost [*.fnl *.go]
                   (fn [{: file : buf}]
@@ -36,6 +39,6 @@
                     ;; that would trigger a cascading BufWritePost and thus
                     ;; printing the compile error twice.
                     (when (and enabled (not excluded)
-                               (not (vim.fn.getbufvar buf :comp_err)))
+                               (falsy (vim.fn.getbufvar buf :comp_err)))
                       (format.format "" "" 1 -1 {:write true})))))
 

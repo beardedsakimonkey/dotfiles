@@ -1,4 +1,5 @@
 (local snap (require :snap))
+(local {: $HOME} (require :util))
 (import-macros {: map} :macros)
 
 (local defaults {:mappings {:enter-split [:<C-s>]
@@ -92,11 +93,39 @@
 (fn oldfiles []
   (snap.sync get-oldfiles))
 
+(fn ls [path]
+  (local dir (assert (vim.loop.fs_opendir path nil 1000)))
+  ;; NOTE: `fs_readdir` fails on empty directories
+  (local ?files (vim.loop.fs_readdir dir))
+  (assert (vim.loop.fs_closedir dir))
+  (or ?files []))
+
+(fn ls-rec! [path results]
+  (local files (ls path))
+  (local dirs [])
+  (each [_ {: name : type} (ipairs files)]
+    (when (not (vim.startswith name "."))
+      (local abs-path (.. path "/" name))
+      (if (= :directory type)
+          (table.insert dirs abs-path)
+          (table.insert results abs-path))))
+  (each [_ dir (ipairs dirs)]
+    (ls-rec! dir results)))
+
+(fn get-notes []
+  (local paths [])
+  (ls-rec! (.. $HOME :/notes) paths)
+  paths)
+
+(fn notes []
+  (snap.sync get-notes))
+
 (local file (snap.config.file:with defaults))
 
 (map n :<space>b (file {:producer buffers}))
 (map n :<space>o (file {:producer oldfiles}))
 (map n :<space>f (file {:producer :ripgrep.file}))
+(map n :<space>n (file {:producer notes}))
 (map n :<space>a grep)
 (map x :<space>a visual-grep)
 (map n :<space>h help)

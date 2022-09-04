@@ -1,4 +1,5 @@
-(local {: s\ : f\ : $HOME : $TMUX : exists? : system} (require :util))
+(local {: s\ : f\ : $HOME : $TMUX : exists? : system : find} (require :util))
+
 (import-macros {: autocmd : augroup : opt-local : map} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
@@ -33,67 +34,64 @@
   (handle:write text)
   (handle:close))
 
-(fn tbl_find [pred? seq]
-  (var ?res nil)
-  (each [_ v (ipairs seq) :until (not= nil ?res)]
-    (when (pred? v)
-      (set ?res v)))
-  ?res)
+(fn compile-fennel [src buf]
+  ;; Compile with an in-process `fennel` so that the compilation environment
+  ;; matches the runtime environment. This allows us to use plugins without having
+  ;; to configure globals and package.path.
+  (local fennel (require :fennel))
+  (local linter (.. (vim.fn.stdpath :config) :/linter.fnl))
+  (local plugins (if (exists? linter)
+                     ;; Adapted from launcher.fnl
+                     [(fennel.dofile linter
+                                     {:env :_COMPILER
+                                      :useMetadata true
+                                      :compiler-env _G})]
+                     []))
+  (local opts {:filename src : plugins :allowedGlobals []})
+  ;; Enable checking that globals exist
+  (each [global-name (pairs _G)]
+    (table.insert opts.allowedGlobals global-name))
+  (local fnl-str (-> (vim.api.nvim_buf_get_lines buf 0 -1 true)
+                     (table.concat "\n")))
+  (xpcall #(fennel.compile-string fnl-str opts) fennel.traceback))
 
-(fn compile-fennel []
-  (let [config-dir (.. (vim.fn.stdpath :config) "/")
+(fn build-fennel []
+  (let [buf (tonumber (vim.fn.expand :<abuf>))
+        config-dir (.. (vim.fn.stdpath :config) "/")
         roots [config-dir
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-udir/)
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)
                :/Users/tim/code/test/
                (.. (vim.fn.stdpath :data)
                    :/site/pack/packer/opt/nvim-antifennel/)]
-        src (vim.fn.expand "<afile>:p")
-        ?root (tbl_find #(vim.startswith src $1) roots)
+        src-abs (vim.fn.expand "<afile>:p")
+        ?root (find #(vim.startswith src-abs $1) roots)
         ;; Avoid abs path because it appears in output of `lambda`
-        src (if (and ?root (vim.startswith src ?root))
-                (src:sub (+ 1 (length ?root)))
-                src)
+        src (if (and ?root (vim.startswith src-abs ?root))
+                (src-abs:sub (+ 1 (length ?root)))
+                src-abs)
         dest (src:gsub :.fnl$ :.lua)
         compile? (and ?root (not (vim.endswith src :macros.fnl))
-                      (not (vim.endswith src :linter.fnl)))
-        buf (tonumber (vim.fn.expand :<abuf>))]
+                      (not (vim.endswith src :linter.fnl)))]
     (vim.diagnostic.reset ns buf)
     (when compile?
       ;; Change dir so macros.fnl gets read
       (when ?root
         (vim.cmd (.. "lcd " (f\ ?root))))
-      ;; Compile with an in-process `fennel` so that the compilation environment
-      ;; matches the runtime environment. This allows us to use plugins without having
-      ;; to configure globals and package.path.
-      (local fennel (require :fennel))
-      (local linter (.. (vim.fn.stdpath :config) :/linter.fnl))
-      (local plugins (if (exists? linter)
-                         ;; Adapted from launcher.fnl
-                         [(fennel.dofile linter
-                                         {:env :_COMPILER
-                                          :useMetadata true
-                                          :compiler-env _G})]
-                         []))
-      (local fnl-str (-> (vim.api.nvim_buf_get_lines buf 0 -1 true)
-                         (table.concat "\n")))
-      (match (xpcall #(fennel.compile-string fnl-str {:filename src : plugins})
-                     fennel.traceback)
-        (true output) (do
-                        (vim.api.nvim_buf_set_var buf :comp_err false)
-                        (write-file output dest)
-                        (when (= config-dir ?root)
-                          (when (not (vim.startswith src :after/ftplugin))
-                            (vim.cmd (.. "luafile " (f\ dest))))
-                          (when (= :lua/plugins.fnl src)
-                            (vim.cmd :PackerCompile))
-                          (when (and (= :colors/navajo.fnl src)
-                                     vim.g.colors_name)
-                            (vim.cmd (.. "colorscheme " vim.g.colors_name)))))
-        (_ msg) (do
-                  ;; Instruct formatter to avoid formatting
-                  (vim.api.nvim_buf_set_var buf :comp_err true)
-                  (on-fnl-err msg)))
+      (local (ok? output) (compile-fennel src buf))
+      ;; Instruct formatter to avoid formatting
+      (vim.api.nvim_buf_set_var buf :comp_err (not ok?))
+      (if (not ok?)
+          (on-fnl-err output)
+          (do
+            (write-file output dest)
+            (when (= config-dir ?root)
+              (when (not (vim.startswith src :after/ftplugin))
+                (vim.cmd (.. "luafile " (f\ dest))))
+              (when (= :lua/plugins.fnl src)
+                (vim.cmd :PackerCompile))
+              (when (and (= :colors/navajo.fnl src) vim.g.colors_name)
+                (vim.cmd (.. "colorscheme " vim.g.colors_name))))))
       (when ?root
         (vim.cmd "lcd -")))))
 
@@ -134,6 +132,9 @@
 
 (fn edit-url []
   (local buf (tonumber (vim.fn.expand :<abuf>)))
+  (var afile (vim.fn.expand :<afile>))
+  ;; (set afile (afile:gsub "^https://github%.com/"
+  ;;                        "https://raw.githubusercontent.com/"))
 
   (fn strip-trailing-newline [str]
     (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
@@ -144,8 +145,7 @@
                      (vim.split "\n")))
     (vim.schedule #(vim.api.nvim_buf_set_lines buf 0 -1 true lines)))
 
-  (system [:curl :--location :--silent :--show-error (vim.fn.expand :<afile>)]
-          cb))
+  (system [:curl :--location :--silent :--show-error afile] cb))
 
 (macro set-lines [lines]
   `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
          (autocmd FileType * setup-formatoptions)
          (autocmd [BufWritePre FileWritePre] * create-missing-dirs)
          (autocmd BufWritePost *.lua source-lua)
-         (autocmd BufWritePost *.fnl compile-fennel)
+         (autocmd BufWritePost *.fnl build-fennel)
          (autocmd BufWritePost */.config/nvim/plugin/*.vim "source <afile>:p")
          (autocmd BufWritePost *.rs repeat-shell-cmd)
          (autocmd BufWritePost *tmux.conf source-tmux)

@@ -34,5 +34,12 @@
   (vim.loop.read_start stdout-pipe (partial on-stdout/err true))
   (vim.loop.read_start stderr-pipe (partial on-stdout/err false)))
 
-{: s\ : f\ : $HOME : $TMUX : exists? : system}
+(fn find [pred? seq]
+  (var ?res nil)
+  (each [_ v (ipairs seq) :until (not= nil ?res)]
+    (when (pred? v)
+      (set ?res v)))
+  ?res)
+
+{: s\ : f\ : $HOME : $TMUX : exists? : system : find}
 

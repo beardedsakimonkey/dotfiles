@@ -37,8 +37,8 @@
     (when changed
       (let [;; Escape backslashes
             changed (vim.tbl_map #(vim.fn.escape $1 "\\") changed)
-            ;; Put the last changed text inside the search register, so that we can refer
             pat (table.concat changed "\\n")]
+        ;; Put the last changed text inside the search register, so that we can refer
         ;; to it with the text-object `gn`
         (vim.fn.setreg "/" (.. "\\V" pat) :c)
         (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))

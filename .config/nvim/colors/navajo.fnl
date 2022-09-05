@@ -99,13 +99,12 @@
 
 (hi   FennelSymbol fg=Black)
 
-(link TSConstBuiltin Constant)
-;; (hi TSError fg=none bg=#dda296)
-
 (link markdownH1 Title)
 (link markdownH2 Statement)
 (hi markdownUrl  fg=#0645ad :underline)
 (hi markdownCode bg=#dbd8ce)
 
+(link TSConstBuiltin Constant)
+;; (hi TSError fg=none bg=#dda296)
 (link TSURI markdownUrl)
 (link TSLiteral markdownCode)

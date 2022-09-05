@@ -47,4 +47,3 @@ function! s:highlight(cmd) abort
         call matchadd('SpecialKey', '[A-Za-z0-9[:graph:]]\{2}\s\+\zs\S\+\ze\s\+\d\+')
     endif
 endfunction
-

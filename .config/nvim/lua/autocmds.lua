@@ -68,7 +68,7 @@ local function build_fennel()
   local function _7_(_241)
     return vim.startswith(src_abs, _241)
   end
-  _3froot = find(_7_, roots)
+  _3froot = find(roots, _7_)
   local src
   if (_3froot and vim.startswith(src_abs, _3froot)) then
     src = src_abs:sub((1 + #_3froot))
@@ -162,7 +162,7 @@ local function update_user_js()
   return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _21_)
 end
 local function edit_url()
-  local buf = tonumber(vim.fn.expand("<abuf>"))
+  local abuf = tonumber(vim.fn.expand("<abuf>"))
   local afile = vim.fn.expand("<afile>")
   local function strip_trailing_newline(str)
     if ("\n" == str:sub(-1)) then
@@ -182,7 +182,7 @@ local function edit_url()
     end
     lines = vim.split(strip_trailing_newline(_23_()), "\n")
     local function _24_()
-      return vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+      return vim.api.nvim_buf_set_lines(abuf, 0, -1, true, lines)
     end
     return vim.schedule(_24_)
   end

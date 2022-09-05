@@ -31,11 +31,16 @@
 ;; See :h syntax-loading
 (vim.cmd "syntax enable")
 
-(require :mappings)
-(require :options)
-;; Setup autocmds before plugins so that fennel compilation happens before
+(fn require-safe [mod]
+  (local (ok? msg) (pcall require mod))
+  (when (not ok?)
+    (vim.api.nvim_err_writeln (: "Config error in %s: %s" :format mod msg))))
+
+(require-safe :mappings)
+(require-safe :options)
+;; NOTE: Setup autocmds before plugins so that fennel compilation happens before
 ;; formatting.
-(require :autocmds)
-(require :plugins)
-(require :statusline)
+(require-safe :autocmds)
+(require-safe :plugins)
+(require-safe :statusline)
 

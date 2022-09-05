@@ -42,6 +42,7 @@
   (local plugins (if (exists? linter)
                      ;; Adapted from launcher.fnl
                      [(fennel.dofile linter
+                                     ;; Makes compiler-scoped values available
                                      {:env :_COMPILER
                                       :useMetadata true
                                       :compiler-env _G})]
@@ -64,7 +65,7 @@
                (.. (vim.fn.stdpath :data)
                    :/site/pack/packer/opt/nvim-antifennel/)]
         src-abs (vim.fn.expand "<afile>:p")
-        ?root (find #(vim.startswith src-abs $1) roots)
+        ?root (find roots #(vim.startswith src-abs $1))
         ;; Avoid abs path because it appears in output of `lambda`
         src (if (and ?root (vim.startswith src-abs ?root))
                 (src-abs:sub (+ 1 (length ?root)))
@@ -130,8 +131,8 @@
                     (print "Updated user.js"))))
 
 (fn edit-url []
-  (local buf (tonumber (vim.fn.expand :<abuf>)))
-  (var afile (vim.fn.expand :<afile>))
+  (local abuf (tonumber (vim.fn.expand :<abuf>)))
+  (local afile (vim.fn.expand :<afile>))
   ;; (set afile (afile:gsub "^https://github%.com/"
   ;;                        "https://raw.githubusercontent.com/"))
 
@@ -142,7 +143,7 @@
     (local lines (-> (if (= 0 exit) stdout stderr)
                      (strip-trailing-newline)
                      (vim.split "\n")))
-    (vim.schedule #(vim.api.nvim_buf_set_lines buf 0 -1 true lines)))
+    (vim.schedule #(vim.api.nvim_buf_set_lines abuf 0 -1 true lines)))
 
   (system [:curl :--location :--silent :--show-error afile] cb))
 

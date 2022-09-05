@@ -18,18 +18,17 @@ local function some_3f(list, pred_3f)
   return found
 end
 local excludes = {"/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/", "/Users/tim/.config/nvim/colors/"}
-local enabled = true
 local function _3_()
-  enabled = false
+  vim.g.FORMAT_ENABLED = false
   return nil
 end
 vim.api.nvim_create_user_command("FormatDisable", _3_, {})
 local function _4_()
-  enabled = true
+  vim.g.FORMAT_ENABLED = true
   return nil
 end
 vim.api.nvim_create_user_command("FormatEnable", _4_, {})
-local function falsy(v)
+local function falsy_3f(v)
   return (not v or ("" == v))
 end
 vim.api.nvim_create_augroup("my/formatter", {clear = true})
@@ -43,7 +42,7 @@ local function _8_(_6_)
     return vim.startswith(file, _241)
   end
   excluded = some_3f(excludes, _9_)
-  if (enabled and not excluded and falsy(vim.fn.getbufvar(buf, "comp_err"))) then
+  if (vim.g.FORMAT_ENABLED and not excluded and falsy_3f(vim.fn.getbufvar(buf, "comp_err"))) then
     return format.format("", "", 1, -1, {write = true})
   else
     return nil

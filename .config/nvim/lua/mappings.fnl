@@ -37,8 +37,8 @@
     (when changed
       (let [;; Escape backslashes
             changed (vim.tbl_map #(vim.fn.escape $1 "\\") changed)
+            ;; Put the last changed text inside the search register, so that we can refer
             pat (table.concat changed "\\n")]
-        ;; Put the last changed text inside the search register, so that we can refer
         ;; to it with the text-object `gn`
         (vim.fn.setreg "/" (.. "\\V" pat) :c)
         (vim.cmd "exe \"norm! cgn\\<c-@>\"")))))
@@ -273,6 +273,7 @@
 ;; ---------
 (map n ":V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
+(map n ":F" "<Cmd>e ~/.config/nvim/after/ftplugin/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
 (map n ":R" "<Cmd>e $VIMRUNTIME<CR>" :silent)
 (map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)
@@ -298,6 +299,9 @@
 (map n :gow "<Cmd>set wrap!<Bar>set wrap?<CR>" :silent)
 (map n :gol "<Cmd>set hlsearch!<Bar>set hlsearch?<CR>" :silent)
 (map n :goi "<Cmd>set ignorecase!<Bar>set ignorecase?<CR>" :silent)
+(map n :gof
+     "<Cmd>let g:FORMAT_ENABLED = !get(g:, 'FORMAT_ENABLED', 1)<Bar>let g:FORMAT_ENABLED<CR>"
+     :silent)
 
 ;; Diagnostics
 ;; -----------

@@ -1,4 +1,4 @@
-vim["opt"]["shada"] = "!,'20000,<5,s10,h"
+vim["opt"]["shada"] = "!,'20000,<0,s10,:100,/10,@10,f0,h"
 vim["opt"]["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"}
 vim["opt"]["lazyredraw"] = true
 vim["opt"]["ttimeoutlen"] = 0
@@ -18,6 +18,7 @@ vim["opt"]["splitright"] = true
 vim["opt"]["splitbelow"] = true
 vim["opt"]["winminheight"] = 0
 vim["opt"]["winminwidth"] = 0
+vim["opt"]["expandtab"] = true
 vim["opt"]["autoindent"] = true
 vim["opt"]["shiftround"] = true
 vim["opt"]["smarttab"] = true

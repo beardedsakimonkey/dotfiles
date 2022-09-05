@@ -104,6 +104,8 @@
 
 (link markdownH1 Title)
 (link markdownH2 Statement)
-(hi markdownUrl  fg=SlateBlue)
+(hi markdownUrl  fg=#0645ad :underline)
 (hi markdownCode bg=#dbd8ce)
 
+(link TSURI markdownUrl)
+(link TSLiteral markdownCode)

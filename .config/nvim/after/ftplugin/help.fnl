@@ -8,7 +8,7 @@
                     (map n :d :<C-d> :buffer :nowait)
                     (map n :U :<C-b> :buffer :nowait)
                     (map n :D :<C-f> :buffer :nowait)
-                    (map n :<Tab> "<Cmd>call search('\\v[\\|\*]\\S{-}[\\|\\*]')<CR>"
+                    (map n :<Tab> "<Cmd>call search('\\v[\\|\\*']\\S{-}[\\|\\*']')<CR>"
                          :buffer :silent)
                     (map n :<S-Tab>
                          "<Cmd>call search('\\v[\\|\\*]\\S{-}[\\|\\*]', 'b')<CR>" :buffer

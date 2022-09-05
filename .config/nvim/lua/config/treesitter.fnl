@@ -1,7 +1,12 @@
 (local configs (require :nvim-treesitter.configs))
+(local highlight (require :nvim-treesitter.highlight))
 (import-macros {: map} :macros)
 
-(configs.setup {:ensure_installed [:query :javascript :lua :fennel]
+(configs.setup {:ensure_installed [:javascript
+                                   :lua
+                                   :fennel
+                                   :markdown
+                                   :markdown_inline]
                 :highlight {:enable true}
                 :playground {:enable true
                              :disable {}
@@ -35,4 +40,8 @@
 
 ;; From nvim-treesitter/playground
 (map n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)
+
+;; Custom '@' captures used in after/queries/*
+(highlight.set_custom_captures {:text.title1 :markdownH1
+                                :text.title2 :markdownH2})
 

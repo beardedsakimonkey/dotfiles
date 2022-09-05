@@ -23,12 +23,10 @@
 (local excludes [:/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/
                  :/Users/tim/.config/nvim/colors/])
 
-(var enabled true)
+(vim.api.nvim_create_user_command :FormatDisable #(set vim.g.FORMAT_ENABLED false) {})
+(vim.api.nvim_create_user_command :FormatEnable #(set vim.g.FORMAT_ENABLED true) {})
 
-(vim.api.nvim_create_user_command :FormatDisable #(set enabled false) {})
-(vim.api.nvim_create_user_command :FormatEnable #(set enabled true) {})
-
-(fn falsy [v]
+(fn falsy? [v]
   (or (not v) (= "" v)))
 
 (augroup :my/formatter
@@ -38,7 +36,7 @@
                     ;; If compilation failed, we don't want to format, because
                     ;; that would trigger a cascading BufWritePost and thus
                     ;; printing the compile error twice.
-                    (when (and enabled (not excluded)
-                               (falsy (vim.fn.getbufvar buf :comp_err)))
+                    (when (and vim.g.FORMAT_ENABLED (not excluded)
+                               (falsy? (vim.fn.getbufvar buf :comp_err)))
                       (format.format "" "" 1 -1 {:write true})))))
 

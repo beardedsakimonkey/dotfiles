@@ -1,7 +1,7 @@
 .PHONY: compile
 .SILENT: compile
 
-SRC_FILES := $(basename $(shell find . -type f -name "*.fnl" -not -name "macros.fnl" | cut -d'/' -f2-))
+SRC_FILES := $(basename $(shell find . -type f -name "*.fnl" -not -name "macros.fnl" -not -name "linter.fnl" | cut -d'/' -f2-))
 
 compile:
 	for f in $(SRC_FILES); do \

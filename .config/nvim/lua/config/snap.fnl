@@ -1,5 +1,5 @@
 (local snap (require :snap))
-(local {: $HOME} (require :util))
+(local {: $HOME : exists?} (require :util))
 (import-macros {: map} :macros)
 
 (local defaults {:mappings {:enter-split [:<C-s>]
@@ -113,9 +113,11 @@
     (ls-rec! dir results)))
 
 (fn get-notes []
-  (local paths [])
-  (ls-rec! (.. $HOME :/notes) paths)
-  paths)
+  (local ret [])
+  (local dir (.. $HOME :/notes))
+  (assert (exists? dir))
+  (ls-rec! dir ret)
+  ret)
 
 (fn notes []
   (snap.sync get-notes))

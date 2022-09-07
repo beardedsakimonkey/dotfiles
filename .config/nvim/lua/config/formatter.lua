@@ -2,13 +2,13 @@ local formatter = require("formatter")
 local format = require("formatter.format")
 local _local_1_ = require("util")
 local some_3f = _local_1_["some?"]
+local _24HOME = _local_1_["$HOME"]
 local function fnlfmt()
   return {exe = "fnlfmt", args = {vim.api.nvim_buf_get_name(0)}, stdin = true}
 end
 local _local_2_ = require("formatter.filetypes.go")
 local gofmt = _local_2_["gofmt"]
 formatter.setup({filetype = {fennel = {fnlfmt}, go = {gofmt}}})
-local excludes = {"/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/", "/Users/tim/.config/nvim/colors/"}
 local function _3_()
   vim.g.format_enabled = false
   return nil
@@ -22,6 +22,7 @@ vim.api.nvim_create_user_command("FormatEnable", _4_, {})
 local function falsy_3f(v)
   return (not v or ("" == v))
 end
+local excludes = {(_24HOME .. "/.local/share/nvim/site/pack/mine/start/snap/lua/"), (vim.fn.stdpath("config") .. "/colors/")}
 vim.api.nvim_create_augroup("my/formatter", {clear = true})
 local _5_ = "my/formatter"
 local function _8_(_6_)

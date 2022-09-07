@@ -1,6 +1,6 @@
 (local formatter (require :formatter))
 (local format (require :formatter.format))
-(local {: some?} (require :util))
+(local {: some? : $HOME} (require :util))
 (import-macros {: augroup : autocmd : opt} :macros)
 
 ;; NOTE: Use :FormatWrite to format this file. (I believe the augroup gets
@@ -14,9 +14,6 @@
 ;; NOTE: YOU MUST UPDATE plugins.fnl WHEN ADDING NEW FILETYPES.
 (formatter.setup {:filetype {:fennel [fnlfmt] :go [gofmt]}})
 
-(local excludes [:/Users/tim/.local/share/nvim/site/pack/mine/start/snap/lua/
-                 :/Users/tim/.config/nvim/colors/])
-
 (vim.api.nvim_create_user_command :FormatDisable
                                   #(set vim.g.format_enabled false) {})
 
@@ -25,6 +22,9 @@
 
 (fn falsy? [v]
   (or (not v) (= "" v)))
+
+(local excludes [(.. $HOME :/.local/share/nvim/site/pack/mine/start/snap/lua/)
+                 (.. (vim.fn.stdpath :config) :/colors/)])
 
 (augroup :my/formatter
          (autocmd BufWritePost [*.fnl *.go]

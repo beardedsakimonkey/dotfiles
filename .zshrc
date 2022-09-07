@@ -408,12 +408,14 @@ cd() {
 
 # Adapted from lacygoil's config
 cdl() {
+    emulate -L zsh
     local most_recent_dir=$(\
         fd --type=d --max-depth=1 --exec stat -f '%Z %N' {} \
       | sort --key=1,1 --numeric-sort --reverse --ignore-leading-blanks \
       | head -n1 \
-      | awk '{ print $2 }')
-    cd "$most_recent_dir"
+      | awk '{ print $2 }' \
+    )
+    builtin cd "$most_recent_dir"
 }
 
 subup() {

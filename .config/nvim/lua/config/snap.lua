@@ -1,6 +1,7 @@
 local snap = require("snap")
 local _local_1_ = require("util")
 local _24HOME = _local_1_["$HOME"]
+local exists_3f = _local_1_["exists?"]
 local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, consumer = "fzy", reverse = true, prompt = ""}
 local function with_defaults(...)
   return vim.tbl_extend("force", {}, defaults, ...)
@@ -129,9 +130,11 @@ local function ls_rec_21(path, results)
   return nil
 end
 local function get_notes()
-  local paths = {}
-  ls_rec_21((_24HOME .. "/notes"), paths)
-  return paths
+  local ret = {}
+  local dir = (_24HOME .. "/notes")
+  assert(exists_3f(dir))
+  ls_rec_21(dir, ret)
+  return ret
 end
 local function notes()
   return snap.sync(get_notes)

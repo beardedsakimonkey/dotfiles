@@ -10,12 +10,12 @@ local _local_2_ = require("formatter.filetypes.go")
 local gofmt = _local_2_["gofmt"]
 formatter.setup({filetype = {fennel = {fnlfmt}, go = {gofmt}}})
 local function _3_()
-  vim.g.format_enabled = false
+  vim.g.format_disabled = true
   return nil
 end
 vim.api.nvim_create_user_command("FormatDisable", _3_, {})
 local function _4_()
-  vim.g.format_enabled = true
+  vim.g.format_disabled = false
   return nil
 end
 vim.api.nvim_create_user_command("FormatEnable", _4_, {})
@@ -34,7 +34,7 @@ local function _8_(_6_)
     return vim.startswith(file, _241)
   end
   excluded = some_3f(excludes, _9_)
-  if (vim.g.format_enabled and not excluded and falsy_3f(vim.fn.getbufvar(buf, "comp_err"))) then
+  if (not vim.g.format_disabled and not excluded and falsy_3f(vim.fn.getbufvar(buf, "comp_err"))) then
     return format.format("", "", 1, -1, {write = true})
   else
     return nil

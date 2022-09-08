@@ -1,6 +1,6 @@
 (local snap (require :snap))
 (local {: $HOME : exists?} (require :util))
-(import-macros {: map} :macros)
+(import-macros {: map : command} :macros)
 
 (local defaults {:mappings {:enter-split [:<C-s>]
                             :enter-vsplit [:<C-l>]
@@ -32,13 +32,6 @@
 (fn buffers [request]
   (snap.sync (get-buffers request)))
 
-(fn get-selected-text []
-  (local reg (vim.fn.getreg "\""))
-  (vim.cmd "normal! y")
-  (local text (vim.fn.trim (vim.fn.getreg "@")))
-  (vim.fn.setreg "\"" reg)
-  text)
-
 (local grep-cfg {:producer ((snap.get :consumer.limit) 10000
                                                        (snap.get :producer.ripgrep.vimgrep))
                  :select (. (snap.get :select.vimgrep) :select)
@@ -47,8 +40,8 @@
                  :prompt :Grep>})
 
 ;; TODO: Maybe just execute a command so that we can easily redo it.
-(fn visual-grep []
-  (snap.run (with-defaults grep-cfg {:initial_filter (get-selected-text)})))
+(fn visual-grep [{: args}]
+  (snap.run (with-defaults grep-cfg {:initial_filter args})))
 
 (fn grep []
   (snap.run (with-defaults grep-cfg)))
@@ -129,6 +122,7 @@
 (map n :<space>f (file {:producer :ripgrep.file}))
 (map n :<space>n (file {:producer notes}))
 (map n :<space>a grep)
-(map x :<space>a visual-grep)
+(command :Grep visual-grep {:nargs "+"})
+(map x :<space>a "\"vy:Grep <C-r>v<CR>")
 (map n :<space>h help)
 

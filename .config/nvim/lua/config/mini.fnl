@@ -1,3 +1,6 @@
+;; https://github.com/echasnovski/mini.nvim/issues/123
+;; mini's searching is inferior to native a/i behavior in some ways
+
 ;; (local ai (require :mini.ai))
 ;; (local surround (require :mini.surround))
 

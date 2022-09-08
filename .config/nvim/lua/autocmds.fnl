@@ -1,5 +1,5 @@
 (local {: s\ : f\ : $HOME : $TMUX : exists? : system : find} (require :util))
-(import-macros {: autocmd : augroup : opt-local : map} :macros)
+(import-macros {: autocmd : augroup : opt-local : map : command} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
 
@@ -177,12 +177,10 @@ int main(int argc, char *argv[]) {
       (vim.api.nvim_err_writeln "zsh script not found")))
 
 (var sh-repeat? false)
-(vim.api.nvim_create_user_command :ToggleShellRepeat
-                                  (fn []
-                                    (set sh-repeat? (not sh-repeat?))
-                                    (print "shell repeat"
-                                           (if sh-repeat? :enabled :disabled)))
-                                  {})
+(command :ToggleShellRepeat
+         (fn []
+           (set sh-repeat? (not sh-repeat?))
+           (print "shell repeat" (if sh-repeat? :enabled :disabled))))
 
 (fn repeat-shell-cmd []
   (local is-tmux? (not= nil $TMUX))

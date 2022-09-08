@@ -1,7 +1,7 @@
 (local formatter (require :formatter))
 (local format (require :formatter.format))
 (local {: some? : $HOME} (require :util))
-(import-macros {: augroup : autocmd : opt} :macros)
+(import-macros {: augroup : autocmd : opt : command} :macros)
 
 ;; NOTE: Use :FormatWrite to format this file. (I believe the augroup gets
 ;; cleared on write before the autocmd executes.)
@@ -14,11 +14,8 @@
 ;; NOTE: YOU MUST UPDATE plugins.fnl WHEN ADDING NEW FILETYPES.
 (formatter.setup {:filetype {:fennel [fnlfmt] :go [gofmt]}})
 
-(vim.api.nvim_create_user_command :FormatDisable
-                                  #(set vim.g.format_enabled false) {})
-
-(vim.api.nvim_create_user_command :FormatEnable
-                                  #(set vim.g.format_enabled true) {})
+(command :FormatDisable #(set vim.g.format_disabled true))
+(command :FormatEnable #(set vim.g.format_disabled false))
 
 (fn falsy? [v]
   (or (not v) (= "" v)))
@@ -33,7 +30,7 @@
                     ;; If compilation failed, we don't want to format, because
                     ;; that would trigger a cascading BufWritePost and thus
                     ;; printing the compile error twice.
-                    (when (and vim.g.format_enabled (not excluded)
+                    (when (and (not vim.g.format_disabled) (not excluded)
                                (falsy? (vim.fn.getbufvar buf :comp_err)))
                       (format.format "" "" 1 -1 {:write true})))))
 

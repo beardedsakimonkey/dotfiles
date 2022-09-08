@@ -28,7 +28,7 @@ local function on_fnl_err(output)
   end
   vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), diagnostics)
   local function no_codes(s)
-    return s:gsub("\27%[[0-9]m", "")
+    return s:gsub("%[[0-9]m", "")
   end
   local function _4_()
     return vim.notify(no_codes(output), vim.log.levels.WARN)
@@ -194,7 +194,7 @@ local function template_h()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
 local function template_c()
-  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\9printf(\"hi\\n\");\n}"
+  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\tprintf(\"hi\\n\");\n}"
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, "\n"))
 end
 local function fast_theme()

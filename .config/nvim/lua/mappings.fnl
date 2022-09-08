@@ -300,7 +300,7 @@
 (map n :gol "<Cmd>set hlsearch!<Bar>set hlsearch?<CR>" :silent)
 (map n :goi "<Cmd>set ignorecase!<Bar>set ignorecase?<CR>" :silent)
 (map n :gof
-     "<Cmd>let g:format_enabled = !get(g:, 'format_enabled', 1)<Bar>let g:format_enabled<CR>"
+     "<Cmd>let g:format_disabled = !get(g:, 'format_disabled', 0)<Bar>let g:format_disabled<CR>"
      :silent)
 
 ;; Diagnostics

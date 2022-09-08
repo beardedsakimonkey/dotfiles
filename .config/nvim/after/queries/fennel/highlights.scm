@@ -19,6 +19,6 @@
 ;; My macros
 ((symbol) @function.macro
  (#any-of? @function.macro
-  "map" "augroup" "autocmd" "opt" "opt-local" "map" "undo-ftplugin" "with-undo-ftplugin"))
+  "map" "command" "augroup" "autocmd" "opt" "opt-local" "map" "undo-ftplugin" "with-undo-ftplugin"))
 
 (ERROR) @error

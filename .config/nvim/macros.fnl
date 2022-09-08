@@ -71,6 +71,12 @@
                    (tostring modes)))
   `(vim.keymap.set ,modes ,lhs ,rhs ,opts))
 
+(fn command [name cmd ?opts]
+  (when _G.undo-cmds
+    (table.insert _G.undo-cmds (.. "sil! delc -buffer " name)))
+  (local opts (or ?opts {}))
+  `(vim.api.nvim_create_user_command ,name ,cmd ,opts))
+
 (fn undo-ftplugin [...]
   (let [cmd (.. " | " (table.concat [...] " | "))]
     `(vim.api.nvim_buf_set_var 0 :undo_ftplugin
@@ -93,6 +99,7 @@
  : opt
  : opt-local
  : map
+ : command
  : undo-ftplugin
  : with-undo-ftplugin}
 

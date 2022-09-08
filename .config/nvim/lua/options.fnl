@@ -53,6 +53,7 @@
 (opt modeline false)
 (opt shortmess :filnxtToOfaTWIcFS)
 (opt fillchars {:eob " "})
+(opt list)
 
 (opt scrolloff 2)
 (opt sidescrolloff 2)

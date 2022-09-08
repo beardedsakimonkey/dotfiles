@@ -36,8 +36,15 @@ local function on_fnl_err(output)
   return vim.schedule(_4_)
 end
 local function write_file(text, filename)
+  local function append_newline(str)
+    if ("\n" == str:sub(-1)) then
+      return str
+    else
+      return (str .. "\n")
+    end
+  end
   local handle = assert(io.open(filename, "w+"))
-  handle:write(text)
+  handle:write(append_newline(text))
   return handle:close()
 end
 local function compile_fennel(src, buf)
@@ -54,10 +61,10 @@ local function compile_fennel(src, buf)
     table.insert(opts.allowedGlobals, global_name)
   end
   local fnl_str = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, true), "\n")
-  local function _6_()
+  local function _7_()
     return fennel["compile-string"](fnl_str, opts)
   end
-  return xpcall(_6_, fennel.traceback)
+  return xpcall(_7_, fennel.traceback)
 end
 local function build_fennel()
   local buf = tonumber(vim.fn.expand("<abuf>"))
@@ -65,10 +72,10 @@ local function build_fennel()
   local roots = {config_dir, (vim.fn.stdpath("data") .. "/site/pack/packer/start/nvim-udir/"), (vim.fn.stdpath("data") .. "/site/pack/packer/start/snap/"), "/Users/tim/code/test/", (vim.fn.stdpath("data") .. "/site/pack/packer/opt/nvim-antifennel/")}
   local src_abs = vim.fn.expand("<afile>:p")
   local _3froot
-  local function _7_(_241)
+  local function _8_(_241)
     return vim.startswith(src_abs, _241)
   end
-  _3froot = find(roots, _7_)
+  _3froot = find(roots, _8_)
   local src
   if (_3froot and vim.startswith(src_abs, _3froot)) then
     src = src_abs:sub((1 + #_3froot))
@@ -155,11 +162,11 @@ local function setup_formatoptions()
   return (vim.opt_local.formatoptions):remove("o")
 end
 local function update_user_js()
-  local function _21_(exit)
+  local function _22_(exit)
     assert((0 == exit))
     return print("Updated user.js")
   end
-  return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _21_)
+  return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _22_)
 end
 local function edit_url()
   local abuf = tonumber(vim.fn.expand("<abuf>"))
@@ -173,18 +180,18 @@ local function edit_url()
   end
   local function cb(stdout, stderr, exit)
     local lines
-    local function _23_()
+    local function _24_()
       if (0 == exit) then
         return stdout
       else
         return stderr
       end
     end
-    lines = vim.split(strip_trailing_newline(_23_()), "\n")
-    local function _24_()
+    lines = vim.split(strip_trailing_newline(_24_()), "\n")
+    local function _25_()
       return vim.api.nvim_buf_set_lines(abuf, 0, -1, true, lines)
     end
-    return vim.schedule(_24_)
+    return vim.schedule(_25_)
   end
   return system({"curl", "--location", "--silent", "--show-error", afile}, cb)
 end
@@ -212,18 +219,18 @@ local function fast_theme()
   end
 end
 local sh_repeat_3f = false
-local function _27_()
+local function _28_()
   sh_repeat_3f = not sh_repeat_3f
-  local function _28_()
+  local function _29_()
     if sh_repeat_3f then
       return "enabled"
     else
       return "disabled"
     end
   end
-  return print("shell repeat", _28_())
+  return print("shell repeat", _29_())
 end
-vim.api.nvim_create_user_command("ToggleShellRepeat", _27_, {})
+vim.api.nvim_create_user_command("ToggleShellRepeat", _28_, {})
 local function repeat_shell_cmd()
   local is_tmux_3f = (nil ~= _24TMUX)
   if (is_tmux_3f and sh_repeat_3f) then
@@ -233,32 +240,32 @@ local function repeat_shell_cmd()
   end
 end
 vim.api.nvim_create_augroup("my/autocmds", {clear = true})
-local _30_ = "my/autocmds"
-vim.api.nvim_create_autocmd("BufReadPre", {callback = handle_large_buffer, group = _30_, pattern = "*"})
-vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group = _30_, pattern = "*"})
-vim.api.nvim_create_autocmd({"BufWritePre", "FileWritePre"}, {callback = create_missing_dirs, group = _30_, pattern = "*"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = source_lua, group = _30_, pattern = "*.lua"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = build_fennel, group = _30_, pattern = "*.fnl"})
-vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _30_, pattern = "*/.config/nvim/plugin/*.vim"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = repeat_shell_cmd, group = _30_, pattern = "*.rs"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux, group = _30_, pattern = "*tmux.conf"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = update_user_js, group = _30_, pattern = "user-overrides.js"})
-vim.api.nvim_create_autocmd("BufWritePost", {callback = fast_theme, group = _30_, pattern = "*/.zsh/overlay.ini"})
-local function _31_()
+local _31_ = "my/autocmds"
+vim.api.nvim_create_autocmd("BufReadPre", {callback = handle_large_buffer, group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd("FileType", {callback = setup_formatoptions, group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd({"BufWritePre", "FileWritePre"}, {callback = create_missing_dirs, group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = source_lua, group = _31_, pattern = "*.lua"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = build_fennel, group = _31_, pattern = "*.fnl"})
+vim.api.nvim_create_autocmd("BufWritePost", {command = "source <afile>:p", group = _31_, pattern = "*/.config/nvim/plugin/*.vim"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = repeat_shell_cmd, group = _31_, pattern = "*.rs"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = source_tmux, group = _31_, pattern = "*tmux.conf"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = update_user_js, group = _31_, pattern = "user-overrides.js"})
+vim.api.nvim_create_autocmd("BufWritePost", {callback = fast_theme, group = _31_, pattern = "*/.zsh/overlay.ini"})
+local function _32_()
   return vim.api.nvim_create_autocmd("BufWritePost", {buffer = 0, callback = maybe_make_executable, group = "my/autocmds", once = true})
 end
-vim.api.nvim_create_autocmd("BufNewFile", {callback = _31_, group = _30_, pattern = "*"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = edit_url, group = _30_, pattern = {"http://*", "https://*"}})
-local function _32_()
+vim.api.nvim_create_autocmd("BufNewFile", {callback = _32_, group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = edit_url, group = _31_, pattern = {"http://*", "https://*"}})
+local function _33_()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {"#!/bin/bash"})
 end
-vim.api.nvim_create_autocmd("BufNewFile", {callback = _32_, group = _30_, pattern = "*.sh"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = template_h, group = _30_, pattern = "*.h"})
-vim.api.nvim_create_autocmd("BufNewFile", {callback = template_c, group = _30_, pattern = "main.c"})
-vim.api.nvim_create_autocmd("VimResized", {command = "wincmd =", group = _30_, pattern = "*"})
-vim.api.nvim_create_autocmd({"FocusGained", "BufEnter"}, {command = "checktime", group = _30_, pattern = "*"})
-local function _33_()
+vim.api.nvim_create_autocmd("BufNewFile", {callback = _33_, group = _31_, pattern = "*.sh"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = template_h, group = _31_, pattern = "*.h"})
+vim.api.nvim_create_autocmd("BufNewFile", {callback = template_c, group = _31_, pattern = "main.c"})
+vim.api.nvim_create_autocmd("VimResized", {command = "wincmd =", group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd({"FocusGained", "BufEnter"}, {command = "checktime", group = _31_, pattern = "*"})
+local function _34_()
   return vim.highlight.on_yank({on_visual = false})
 end
-vim.api.nvim_create_autocmd("TextYankPost", {callback = _33_, group = _30_, pattern = "*"})
-return _30_
+vim.api.nvim_create_autocmd("TextYankPost", {callback = _34_, group = _31_, pattern = "*"})
+return _31_

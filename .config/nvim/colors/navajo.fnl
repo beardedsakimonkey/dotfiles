@@ -44,6 +44,7 @@
 (hi   Constant     fg=#BD00BD      bg=none)
 (hi   Special      fg=DodgerBlue4  bg=none)
 (hi   String       fg=DarkGreen    bg=none)
+(hi   Whitespace   fg=#bab28f   bg=#d1cec2)
 (hi   Directory    fg=Blue3        bg=none)
 (hi   SignColumn   fg=none         bg=#c9c5b5)
 (hi   Todo         fg=Burlywood4   bg=none :bold)

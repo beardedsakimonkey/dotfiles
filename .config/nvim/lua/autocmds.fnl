@@ -29,8 +29,13 @@
     (vim.schedule #(vim.notify (no-codes output) vim.log.levels.WARN))))
 
 (fn write-file [text filename]
+  (fn append-newline [str]
+    (if (= "\n" (str:sub -1))
+        str
+        (.. str "\n")))
+
   (local handle (assert (io.open filename :w+)))
-  (handle:write text)
+  (handle:write (append-newline text))
   (handle:close))
 
 (fn compile-fennel [src buf]

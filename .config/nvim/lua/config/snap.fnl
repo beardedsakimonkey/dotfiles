@@ -39,7 +39,6 @@
                  :views [(snap.get :preview.vimgrep)]
                  :prompt :Grep>})
 
-;; TODO: Maybe just execute a command so that we can easily redo it.
 (fn visual-grep [{: args}]
   (snap.run (with-defaults grep-cfg {:initial_filter args})))
 

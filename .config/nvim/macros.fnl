@@ -1,23 +1,18 @@
-(fn autocmd [group event pattern cmd ...]
-  (each [_ opt (ipairs [...])]
-    (assert-compile (or (= opt :++once) (= opt :++nested))
-                    (.. "Invalid opt: " opt)))
-  (local opts (collect [_ opt (ipairs [...])]
-                opt
-                true))
-  (local (?pattern ?buffer)
-         (if (sequence? pattern)
-             (values (icollect [_ v (ipairs pattern)]
-                       (tostring v)) nil)
-             (let [pat (tostring pattern)]
-               (match (string.match pat "^<buffer=?(%d*)>$")
-                 nil (values pat nil)
-                 "" (values nil 0)
-                 num (values nil num)))))
+(fn autocmd [group event ?pattern cmd ?opts]
+  (local opts (or ?opts {}))
   (local event (if (sequence? event)
                    (icollect [_ v (ipairs event)]
                      (tostring v))
                    (tostring event)))
+  ;; Can be `nil` for buf-local autocmds
+  (local ?pattern (if (sequence? ?pattern)
+                      (icollect [_ v (ipairs ?pattern)]
+                        (tostring v))
+                      (= :nil (tostring ?pattern))
+                      (do
+                        (assert-compile opts.buffer "need buffer")
+                        nil)
+                      (tostring ?pattern)))
   (local (?command ?callback)
          (if (= :string (type cmd))
              (values cmd nil)
@@ -25,16 +20,17 @@
   `(vim.api.nvim_create_autocmd ,event
                                 {:group ,group
                                  :pattern ,?pattern
-                                 :buffer ,?buffer
+                                 :buffer ,opts.buffer
                                  :command ,?command
                                  :callback ,?callback
-                                 :once ,opts.++once
-                                 :nested ,opts.++nested}))
+                                 :once ,opts.once
+                                 :nested ,opts.nested}))
 
 (fn augroup [name ...]
   `(do
      (vim.api.nvim_create_augroup ,name {:clear true})
-     (doto ,name ,...)))
+     (doto ,name
+       ,...)))
 
 (fn opt* [opt option ?value-or-eq ?value]
   (when _G.undo-cmds
@@ -102,4 +98,3 @@
  : command
  : undo-ftplugin
  : with-undo-ftplugin}
-

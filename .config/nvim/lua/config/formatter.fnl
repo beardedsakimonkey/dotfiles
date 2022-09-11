@@ -1,13 +1,21 @@
 (local formatter (require :formatter))
 (local format (require :formatter.format))
-(local {: some? : $HOME} (require :util))
+(local {: s\ : some? : $HOME} (require :util))
 (import-macros {: augroup : autocmd : opt : command} :macros)
 
 ;; NOTE: Use :FormatWrite to format this file. (I believe the augroup gets
 ;; cleared on write before the autocmd executes.)
 
+(fn remove-last-line [text]
+  (when (= "" (. text (length text)))
+    (table.remove text))
+  text)
+
 (fn fnlfmt []
-  {:exe :fnlfmt :args [(vim.api.nvim_buf_get_name 0)] :stdin true})
+  {:exe :fnlfmt
+   :args [(s\ (vim.api.nvim_buf_get_name 0))]
+   :stdin true
+   :transform remove-last-line})
 
 (local {: gofmt} (require :formatter.filetypes.go))
 
@@ -33,4 +41,3 @@
                     (when (and (not vim.g.format_disabled) (not excluded)
                                (falsy? (vim.fn.getbufvar buf :comp_err)))
                       (format.format "" "" 1 -1 {:write true})))))
-

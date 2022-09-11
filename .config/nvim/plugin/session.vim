@@ -273,11 +273,11 @@ fu s:where_do_we_save() abort
         else
             return s:last_used_session
         endif
-    elseif isdirectory(s:file)
-        echohl ErrorMsg
-        echo 'provide the name of a session file; not a directory'
-        echohl NONE
-        return ''
+    " elseif isdirectory(s:file)
+    "     echohl ErrorMsg
+    "     echo 'provide the name of a session file; not a directory'
+    "     echohl NONE
+    "     return ''
     else
         return s:file =~# '/'
            \ ?     fnamemodify(s:file, ':p')

@@ -271,7 +271,8 @@
 
 ;; Bookmarks
 ;; ---------
-(map n ":V" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
+(map n ":V" "<Cmd>e ~/.config/nvim/<CR>" :silent)
+(map n ":L" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
 (map n ":F" "<Cmd>e ~/.config/nvim/after/ftplugin/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
@@ -284,6 +285,13 @@
 (map n ":U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)
+
+;; Text objects
+;; ------------
+(map [x o] :il "<Cmd>norm! g_v^<CR>" :silent)
+(map [x o] :al "<Cmd>norm! $v0<CR>" :silent)
+(map x :id "<Cmd>norm! G$Vgg0<CR>" :silent)
+(map o :id "<Cmd>norm! GVgg<CR>" :silent)
 
 ;; Document/file name
 ;; ------------------
@@ -316,4 +324,3 @@
 (map x :J :j)
 (vim.cmd "cnoreabbrev ~? ~/")
 (vim.cmd "cnoreabbrev <expr> man getcmdtype() is# \":\" && getcmdpos() == 4 ? 'vert Man' : 'man'")
-

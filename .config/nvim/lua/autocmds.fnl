@@ -1,4 +1,6 @@
-(local {: s\ : f\ : $HOME : $TMUX : exists? : system : find} (require :util))
+(local {: s\ : f\ : $HOME : $TMUX : exists? : system : find : FF-PROFILE}
+       (require :util))
+
 (import-macros {: autocmd : augroup : opt-local : map : command} :macros)
 
 (local ns (vim.api.nvim_create_namespace :my/autocmds))
@@ -129,17 +131,16 @@
   (opt-local formatoptions -= [:r :o]))
 
 (fn update-user-js []
-  (vim.loop.spawn "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh"
-                  {:args [:-d :-s :-b]}
+  (vim.loop.spawn (.. FF-PROFILE :updater.sh) {:args [:-d :-s :-b]}
                   (fn [exit]
                     (assert (= 0 exit))
                     (print "Updated user.js"))))
 
 (fn edit-url []
   (local abuf (tonumber (vim.fn.expand :<abuf>)))
-  (local afile (vim.fn.expand :<afile>))
-  ;; (set afile (afile:gsub "^https://github%.com/"
-  ;;                        "https://raw.githubusercontent.com/"))
+  (local url (-> (vim.fn.expand :<afile>)
+                 (: :gsub "^https://github%.com/(.-)/blob/(.*)"
+                    "https://raw.githubusercontent.com/%1/%2")))
 
   (fn strip-trailing-newline [str]
     (if (= "\n" (str:sub -1)) (str:sub 1 -2) str))
@@ -150,7 +151,7 @@
                      (vim.split "\n")))
     (vim.schedule #(vim.api.nvim_buf_set_lines abuf 0 -1 true lines)))
 
-  (system [:curl :--location :--silent :--show-error afile] cb))
+  (system [:curl :--location :--silent :--show-error url] cb))
 
 (macro set-lines [lines]
   `(vim.api.nvim_buf_set_lines 0 0 -1 true ,lines))
@@ -204,7 +205,7 @@ int main(int argc, char *argv[]) {
          (autocmd BufWritePost *tmux.conf source-tmux)
          (autocmd BufWritePost user-overrides.js update-user-js)
          (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
-         (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost <buffer> maybe-make-executable :++once))
+         (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost nil maybe-make-executable {:once true :buffer 0}))
          (autocmd BufNewFile [http://* https://*] edit-url)
          (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))
          (autocmd BufNewFile *.h template-h)
@@ -212,4 +213,3 @@ int main(int argc, char *argv[]) {
          (autocmd VimResized * "wincmd =")
          (autocmd [FocusGained BufEnter] * :checktime)
          (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false})))
-

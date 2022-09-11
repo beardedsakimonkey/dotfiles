@@ -43,4 +43,4 @@
 (require-safe :autocmds)
 (require-safe :plugins)
 (require-safe :statusline)
-
+(require-safe :commands)

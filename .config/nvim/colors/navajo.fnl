@@ -44,7 +44,7 @@
 (hi   Constant     fg=#BD00BD      bg=none)
 (hi   Special      fg=DodgerBlue4  bg=none)
 (hi   String       fg=DarkGreen    bg=none)
-(hi   Whitespace   fg=#bab28f   bg=#d1cec2)
+(hi   Whitespace   fg=#bab28f      bg=#d1cec2)
 (hi   Directory    fg=Blue3        bg=none)
 (hi   SignColumn   fg=none         bg=#c9c5b5)
 (hi   Todo         fg=Burlywood4   bg=none :bold)
@@ -61,7 +61,7 @@
 (hi   TabLineFill  bg=MistyRose4)
 (hi   VertSplit    fg=#CDCABD      bg=MistyRose4)
 (hi   CursorLine   bg=#ccc5b5)
-(hi   Underlined   fg=#BD00BD :underline)
+(hi   Underlined   fg=#BD00BD      :underline)
 (link CursorLineNr LineNr)
 (link SpecialKey   Directory)
 
@@ -100,12 +100,12 @@
 
 (hi   FennelSymbol fg=Black)
 
-(link markdownH1 Title)
-(link markdownH2 Statement)
-(hi markdownUrl  fg=#0645ad :underline)
-(hi markdownCode bg=#dbd8ce)
+(link markdownH1   Title)
+(link markdownH2   Statement)
+(hi   markdownUrl  fg=#0645ad :underline)
+(hi   markdownCode bg=#dbd8ce)
 
-(link TSConstBuiltin Constant)
 ;; (hi TSError fg=none bg=#dda296)
-(link TSURI markdownUrl)
-(link TSLiteral markdownCode)
+(link TSConstBuiltin Constant)
+(link TSURI          markdownUrl)
+(link TSLiteral      markdownCode)

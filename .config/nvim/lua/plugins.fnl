@@ -7,8 +7,7 @@
 (when bootstrap?
   (os.execute (.. "git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim "
                   path))
-  (opt runtimepath ^= (.. (vim.fn.stdpath :data) "/site/pack/*/start/*,"
-                          vim.o.runtimepath)))
+  (opt runtimepath ^= (.. (vim.fn.stdpath :data) :/site/pack/*/start/*)))
 
 (local packer (require :packer))
 
@@ -85,4 +84,3 @@
 
 (when bootstrap?
   (packer.sync))
-

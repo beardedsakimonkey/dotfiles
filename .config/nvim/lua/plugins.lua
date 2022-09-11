@@ -4,7 +4,7 @@ local path = (vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim")
 local bootstrap_3f = not exists_3f(path)
 if bootstrap_3f then
   os.execute(("git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim " .. path))
-  do end (vim.opt.runtimepath):prepend((vim.fn.stdpath("data") .. "/site/pack/*/start/*," .. vim.o.runtimepath))
+  do end (vim.opt.runtimepath):prepend((vim.fn.stdpath("data") .. "/site/pack/*/start/*"))
 else
 end
 local packer = require("packer")

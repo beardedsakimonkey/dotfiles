@@ -2,13 +2,18 @@
 (local highlight (require :nvim-treesitter.highlight))
 (import-macros {: map} :macros)
 
+(fn large-buf? [_lang bufnr]
+  (local size (vim.fn.getfsize (vim.fn.bufname bufnr)))
+  (or (> size (* 1024 1024)) (= size -2)))
+
 (configs.setup {:ensure_installed [:javascript
                                    :lua
                                    :fennel
                                    :markdown
                                    :markdown_inline]
-                :highlight {:enable true}
+                :highlight {:enable true :disable large-buf?}
                 :playground {:enable true
+                             :disable {}
                              :disable {}
                              :updatetime 25
                              :persist_queries false
@@ -23,6 +28,7 @@
                                            :goto_node :<cr>
                                            :show_help "?"}}
                 :textobjects {:select {:enable true
+                                       :disable large-buf?
                                        :lookahead true
                                        :keymaps {:aF "@function.outer"
                                                  :iF "@function.inner"
@@ -44,4 +50,3 @@
 ;; Custom '@' captures used in after/queries/*
 (highlight.set_custom_captures {:text.title1 :markdownH1
                                 :text.title2 :markdownH2})
-

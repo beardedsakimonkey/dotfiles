@@ -366,6 +366,7 @@ makenvim() {
     [[ "${1}" = "debug" ]] && BUILD_TYPE="Debug"
     pushd ~/code/neovim && {
         rm -r build/;
+        git apply ~/code/neovim-patches/prompt_buffer_ignore_modified.patch;
         make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim ${EXTRA_FLAGS}" CMAKE_BUILD_TYPE=${BUILD_TYPE};
         make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install;
         popd;

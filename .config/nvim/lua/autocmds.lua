@@ -6,6 +6,7 @@ local _24TMUX = _local_1_["$TMUX"]
 local exists_3f = _local_1_["exists?"]
 local system = _local_1_["system"]
 local find = _local_1_["find"]
+local FF_PROFILE = _local_1_["FF-PROFILE"]
 local ns = vim.api.nvim_create_namespace("my/autocmds")
 local function source_lua()
   local name = vim.fn.expand("<afile>:p")
@@ -28,7 +29,7 @@ local function on_fnl_err(output)
   end
   vim.diagnostic.set(ns, tonumber(vim.fn.expand("<abuf>")), diagnostics)
   local function no_codes(s)
-    return s:gsub("%[[0-9]m", "")
+    return s:gsub("\27%[[0-9]m", "")
   end
   local function _4_()
     return vim.notify(no_codes(output), vim.log.levels.WARN)
@@ -166,11 +167,11 @@ local function update_user_js()
     assert((0 == exit))
     return print("Updated user.js")
   end
-  return vim.loop.spawn("/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/updater.sh", {args = {"-d", "-s", "-b"}}, _22_)
+  return vim.loop.spawn((FF_PROFILE .. "updater.sh"), {args = {"-d", "-s", "-b"}}, _22_)
 end
 local function edit_url()
   local abuf = tonumber(vim.fn.expand("<abuf>"))
-  local afile = vim.fn.expand("<afile>")
+  local url = vim.fn.expand("<afile>"):gsub("^https://github%.com/(.-)/blob/(.*)", "https://raw.githubusercontent.com/%1/%2")
   local function strip_trailing_newline(str)
     if ("\n" == str:sub(-1)) then
       return str:sub(1, -2)
@@ -193,7 +194,7 @@ local function edit_url()
     end
     return vim.schedule(_25_)
   end
-  return system({"curl", "--location", "--silent", "--show-error", afile}, cb)
+  return system({"curl", "--location", "--silent", "--show-error", url}, cb)
 end
 local function template_h()
   local file_name = vim.fn.expand("<afile>:t")
@@ -201,7 +202,7 @@ local function template_h()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
 local function template_c()
-  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\tprintf(\"hi\\n\");\n}"
+  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\9printf(\"hi\\n\");\n}"
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, "\n"))
 end
 local function fast_theme()

@@ -109,6 +109,8 @@ vim["opt_local"]["keywordprg"] = ":help"
 do
   do end (vim.opt_local.iskeyword):remove(".")
   do end (vim.opt_local.iskeyword):remove(":")
+  do end (vim.opt_local.iskeyword):remove("]")
+  do end (vim.opt_local.iskeyword):remove("[")
 end
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})

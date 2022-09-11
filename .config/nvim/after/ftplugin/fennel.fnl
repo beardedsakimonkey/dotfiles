@@ -88,10 +88,9 @@
 (with-undo-ftplugin (opt-local expandtab)
                     (opt-local commentstring ";; %s")
                     (opt-local keywordprg ":help")
-                    (opt-local iskeyword -= ["." ":"])
+                    (opt-local iskeyword -= ["." ":" "]" "["])
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
                     (map n ",ee" #(eval-form false) :buffer)
                     (map n ",er" #(eval-form true) :buffer)
                     (map n "gd" goto-require :buffer))
-

@@ -44,5 +44,7 @@
 (fn some? [seq pred?]
   (not= nil (find seq pred?)))
 
-{: s\ : f\ : $HOME : $TMUX : exists? : system : find : some?}
+(local FF-PROFILE
+       "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/")
 
+{: s\ : f\ : $HOME : $TMUX : exists? : system : find : some? : FF-PROFILE}

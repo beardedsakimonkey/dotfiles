@@ -3,20 +3,22 @@
 
 (lightspeed.setup {:jump_to_unique_chars {:safety_timeout 400}
                    :match_only_the_start_of_same_char_seqs true
-                   :limit_ft_matches 5})
+                   :limit_ft_matches 6})
 
 ;; Prevent lightspeed from creating mappings for `s`
 (map ["" x] :s :s)
 ;; No need to unmap `S` since it already has a custom mapping
 
-;; "Teleport"
-(map n :t :<Plug>Lightspeed_s :remap)
-(map n :T :<Plug>Lightspeed_S :remap)
+;; Repeat f/t with f/t
+(vim.cmd "
+augroup my/lightspeed | autocmd!
+  autocmd User LightspeedFtEnter let g:lightspeed_active = 1
+  autocmd User LightspeedFtLeave unlet! g:lightspeed_active
+augroup END
 
-(map n :f :<Plug>Lightspeed_f :remap)
-(map n :F :<Plug>Lightspeed_F :remap)
+nmap <expr> f exists('g:lightspeed_active') ? \"<Plug>Lightspeed_;_ft\" : \"<Plug>Lightspeed_f\"
+nmap <expr> F exists('g:lightspeed_active') ? \"<Plug>Lightspeed_,_ft\" : \"<Plug>Lightspeed_F\"
 
-;; Go to next result from f/t (use , for going to prev results)
-(pcall #(vim.keymap.del :n "'"))
-(map n "'" "<Plug>Lightspeed_;_ft" :remap)
-
+nmap <expr> t exists('g:lightspeed_active') ? \"<Plug>Lightspeed_;_ft\" : \"<Plug>Lightspeed_t\"
+nmap <expr> T exists('g:lightspeed_active') ? \"<Plug>Lightspeed_,_ft\" : \"<Plug>Lightspeed_T\"
+")

@@ -1,3 +1,4 @@
+;; TODO: Why does this require take 8ms?
 (local lspconfig (require :lspconfig))
 
 (fn on_attach [_client bufnr]
@@ -23,4 +24,3 @@
 
 (lspconfig.clangd.setup {})
 (lspconfig.rls.setup {})
-

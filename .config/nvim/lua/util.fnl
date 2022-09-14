@@ -1,9 +1,3 @@
-(local s\ vim.fn.shellescape)
-(local f\ vim.fn.fnameescape)
-
-(local $HOME (os.getenv :HOME))
-(local $TMUX (os.getenv :TMUX))
-
 (fn exists? [path]
   ;; Passing "" as the mode corresponds to access(2)'s F_OK
   (= true (vim.loop.fs_access path "")))
@@ -46,5 +40,11 @@
 
 (local FF-PROFILE
        "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/")
+
+(local s\ vim.fn.shellescape)
+(local f\ vim.fn.fnameescape)
+
+(local $HOME (os.getenv :HOME))
+(local $TMUX (os.getenv :TMUX))
 
 {: s\ : f\ : $HOME : $TMUX : exists? : system : find : some? : FF-PROFILE}

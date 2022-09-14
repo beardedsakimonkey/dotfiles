@@ -15,10 +15,12 @@
                 :d #(match vim.bo.filetype
                       :lua (join ["local dbg = require'debugger'"
                                   "dbg.auto_where = 10"
-                                  "dbg()"]))})
+                                  "dbg()"]))
+                :table #(join ["| $0 |    |    |"
+                               "| -- | -- | -- |"
+                               "|    |    |    |"])})
 
 (fn expand-snippet []
   (if (not (minsnip.jump)) (vim.api.nvim_input :<C-l>)))
 
 (map i :<C-l> expand-snippet)
-

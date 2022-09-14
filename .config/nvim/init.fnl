@@ -1,25 +1,18 @@
-(set vim.g.loaded_vimball 1)
-(set vim.g.loaded_vimballPlugin 1)
-
-(set vim.g.loaded_tar 1)
-(set vim.g.loaded_tarPlugin 1)
-
-(set vim.g.loaded_zip 1)
-(set vim.g.loaded_zipPlugin 1)
-
+;; In $VIMRUNTIME/plugin/
+(set vim.g.loaded_matchit 1)
 (set vim.g.loaded_netrw 1)
 (set vim.g.loaded_netrwPlugin 1)
-
-(set vim.g.loaded_matchit 1)
-(set vim.g.loaded_tutor_mode_plugin 1)
+(set vim.g.loaded_remote_plugins 1)
+(set vim.g.loaded_spellfile_plugin 1)
 (set vim.g.loaded_2html_plugin 1)
-(set vim.g.did_install_default_menus 1)
+(set vim.g.loaded_tutor_mode_plugin 1)
 
-(set vim.g.loaded_python_provider 0)
-(set vim.g.loaded_python3_provider 0)
-(set vim.g.loaded_perl_provider 0)
-(set vim.g.loaded_ruby_provider 0)
-(set vim.g.loaded_node_provider 0)
+;; In $VIMRUNTIME/autoload/provider/
+(set vim.g.loaded_node_provider 1)
+(set vim.g.loaded_perl_provider 1)
+(set vim.g.loaded_python_provider 1)
+(set vim.g.loaded_python3_provider 1)
+(set vim.g.loaded_ruby_provider 1)
 
 (vim.cmd "colorscheme navajo")
 
@@ -38,8 +31,7 @@
 
 (require-safe :mappings)
 (require-safe :options)
-;; NOTE: Setup autocmds before plugins so that fennel compilation happens before
-;; formatting.
+;; Setup autocmds before plugins so fennel compile happens before formatting.
 (require-safe :autocmds)
 (require-safe :plugins)
 (require-safe :statusline)

@@ -1,7 +1,3 @@
-local s_5c = vim.fn.shellescape
-local f_5c = vim.fn.fnameescape
-local _24HOME = os.getenv("HOME")
-local _24TMUX = os.getenv("TMUX")
 local function exists_3f(path)
   return (true == vim.loop.fs_access(path, ""))
 end
@@ -55,4 +51,8 @@ local function some_3f(seq, pred_3f)
   return (nil ~= find(seq, pred_3f))
 end
 local FF_PROFILE = "/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/"
+local s_5c = vim.fn.shellescape
+local f_5c = vim.fn.fnameescape
+local _24HOME = os.getenv("HOME")
+local _24TMUX = os.getenv("TMUX")
 return {["s\\"] = s_5c, ["f\\"] = f_5c, ["$HOME"] = _24HOME, ["$TMUX"] = _24TMUX, ["exists?"] = exists_3f, system = system, find = find, ["some?"] = some_3f, ["FF-PROFILE"] = FF_PROFILE}

@@ -30,7 +30,10 @@ local function _4_()
     return nil
   end
 end
-minsnip.setup({cl = _1_, d = _4_})
+local function _7_()
+  return join({"| $0 |    |    |", "| -- | -- | -- |", "|    |    |    |"})
+end
+minsnip.setup({cl = _1_, d = _4_, table = _7_})
 local function expand_snippet()
   if not minsnip.jump() then
     return vim.api.nvim_input("<C-l>")

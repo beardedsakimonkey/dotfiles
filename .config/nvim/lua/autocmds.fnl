@@ -212,4 +212,6 @@ int main(int argc, char *argv[]) {
          (autocmd BufNewFile main.c template-c)
          (autocmd VimResized * "wincmd =")
          (autocmd [FocusGained BufEnter] * :checktime)
-         (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false})))
+         (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
+         (autocmd TermOpen * "startinsert | set nonu")
+         (autocmd TermClose * "exec 'bd! ' .. expand('<abuf>')"))

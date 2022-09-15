@@ -67,4 +67,3 @@
 (opt cursorline)
 
 ;; (opt jumpoptions :view)
-

@@ -213,5 +213,5 @@ int main(int argc, char *argv[]) {
          (autocmd VimResized * "wincmd =")
          (autocmd [FocusGained BufEnter] * :checktime)
          (autocmd TextYankPost * #(vim.highlight.on_yank {:on_visual false}))
-         (autocmd TermOpen * "startinsert | set nonu")
+         (autocmd TermOpen * "set nonumber | startinsert")
          (autocmd TermClose * "exec 'bd! ' .. expand('<abuf>')"))

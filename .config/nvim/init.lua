@@ -1,3 +1,14 @@
+local _local_1_ = require("util")
+local exists_3f = _local_1_["exists?"]
+local path = (vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim")
+if not exists_3f(path) then
+  os.execute(("git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim " .. path))
+  do end (vim.opt.runtimepath):prepend((vim.fn.stdpath("data") .. "/site/pack/*/start/*"))
+  require("plugins")
+  local packer = require("packer")
+  packer.sync()
+else
+end
 vim.g.loaded_matchit = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -25,6 +36,5 @@ end
 require_safe("mappings")
 require_safe("options")
 require_safe("autocmds")
-require_safe("plugins")
 require_safe("statusline")
 return require_safe("commands")

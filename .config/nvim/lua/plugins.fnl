@@ -1,14 +1,3 @@
-(local {: exists?} (require :util))
-(import-macros {: opt} :macros)
-
-;; Install packer.nvim if needed.
-(local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
-(local bootstrap? (not (exists? path)))
-(when bootstrap?
-  (os.execute (.. "git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim "
-                  path))
-  (opt runtimepath ^= (.. (vim.fn.stdpath :data) :/site/pack/*/start/*)))
-
 (local packer (require :packer))
 
 (fn use [pkgs]
@@ -39,6 +28,8 @@
       :kylechui/nvim-surround {:config "require'config.surround'"}
       :echasnovski/mini.nvim {:config "require'config.mini'"}
       :ii14/neorepl.nvim {:opt true :cmd :Repl}
+      ;; TODO: Doesn't work for fennel
+      ;; :monkoose/matchparen.nvim {:config "require'matchparen'.setup()"}
       ;;
       ;; Treesitter
       ;;
@@ -81,6 +72,3 @@
       :bakpakin/fennel.vim {:opt true :ft :fennel}
       :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}
       :beardedsakimonkey/nvim-antifennel {:opt true :cmd :Antifennel}})
-
-(when bootstrap?
-  (packer.sync))

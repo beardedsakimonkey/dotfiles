@@ -1,3 +1,16 @@
+(local {: exists?} (require :util))
+(import-macros {: opt} :macros)
+
+;; Install packer.nvim if needed.
+(local path (.. (vim.fn.stdpath :data) :/site/pack/packer/start/packer.nvim))
+(when (not (exists? path))
+  (os.execute (.. "git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim "
+                  path))
+  (opt runtimepath ^= (.. (vim.fn.stdpath :data) :/site/pack/*/start/*))
+  (require :plugins)
+  (local packer (require :packer))
+  (packer.sync))
+
 ;; In $VIMRUNTIME/plugin/
 (set vim.g.loaded_matchit 1)
 (set vim.g.loaded_netrw 1)
@@ -31,8 +44,6 @@
 
 (require-safe :mappings)
 (require-safe :options)
-;; Setup autocmds before plugins so fennel compile happens before formatting.
 (require-safe :autocmds)
-(require-safe :plugins)
 (require-safe :statusline)
 (require-safe :commands)

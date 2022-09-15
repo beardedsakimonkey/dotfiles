@@ -221,7 +221,7 @@ autoload -U colors && colors
 PROMPT="
 "
 PROMPT+="%F{black}${SSH_TTY:+ssh:}"
-PROMPT+="%F{black}%B%50<..<%~%<<"
+PROMPT+="%F{black}%B%90<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{8}.%F{red})❯%b%f "
 
@@ -297,7 +297,8 @@ fi
 if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
     unalias a s sd sf d f z zz
-    alias d='fasd_cd -d'
+    # alias d='fasd_cd -d'
+    # NOTE: requires 'msgpack' pip package
     alias vs='fasd_cdv -f -B shada'
     alias vd='fasd_cdv -d -B shada'
     alias va='fasd_cdv -a -B shada'
@@ -337,7 +338,7 @@ fi
 alias sudo='\sudo '
 alias sudoedit='sudo -e'
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
-alias ls='\ls -FG'
+alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
 alias at='ls -At'
 

@@ -1,32 +1,61 @@
+;; TODO:
+;;  - better checking of module fields
+;;    - follow destructres
+;;    - somehow avoid staleness issues
+;;  - better arity-check
+;;    - follow destructres
+;;    - arity-check local function
+;;  - better checking of unused locals
+;;    - handle destructuring, e.g. `(local [a] 1)`
+;;    - support `let` and `import-macros`
+
+(local inspect (require :inspect))
+
+;; -- destrucutre --------------------------------------------------------------
+
 (fn descend [target [part & parts]]
   (if (= nil part) target
       (= :table (type target)) (match (. target part)
                                  new-target (descend new-target parts))
       target))
 
-(fn set-set-meta [to scope opts]
-  (when (not (or opts.declaration (multi-sym? to)))
-    (if (sym? to)
-        (tset scope.symmeta (tostring to) :set true)
-        (each [_ sub (ipairs to)]
-          (set-set-meta sub scope opts)))))
+(fn require? [rhs]
+  (and (list? rhs) (sym? (. rhs 1)) (= :require (tostring (. rhs 1)))
+       (= :string (type (. rhs 2)))))
 
-(fn save-meta [from to scope opts]
-  "When destructuring, save module name if local is bound to a `require' call.
-  Doesn't do any linting on its own; just saves the data for other linters."
-  (when (and (sym? to) (not (multi-sym? to)) (list? from) (sym? (. from 1))
-             (= :require (tostring (. from 1))) (= :string (type (. from 2))))
-    (let [meta (. scope.symmeta (tostring to))]
-      (set meta.required (tostring (. from 2)))))
-  (set-set-meta to scope opts))
+;; (fn rec* [node path cb]
+;;   (each [k v (pairs node)]
+;;     (when (sym? v)
+;;       (cb (.. path "." k) v))))
+
+;; (fn rec [node cb]
+;;   (rec* node "" cb))
+
+;; When destructuring a `require`, save symmeta for the created bindings. Also
+;; perform existence checks on the destructured fields.
+(fn on-destructure [rhs lhs scope opts]
+  (when (require? rhs)
+    (when (sym? lhs)
+      (local meta (. scope.symmeta (tostring lhs)))
+      (set meta.required (tostring (. rhs 2))))
+    ;; (when (table? lhs)
+    ;;   (rec lhs "" #(print $1 $2))
+    ;; (each [k v (pairs lhs)]
+    ;;   (table.insert path k)
+    ;;   (print k (inspect v))
+    ;;   (when (sym? v)
+    ;;     (local meta (. scope.symmeta (tostring v)))
+    ;;     (set meta.required (tostring v))))
+    ))
+
+;; -- symbol-to-expression -----------------------------------------------------
 
 (fn has-fields? [module-name parts]
   (local module (and module-name (require module-name)))
   (local target (descend module parts))
   (or (= nil module) (not= nil target)))
 
-(fn check-module-fields [symbol scope]
-  "When referring to a field in a local that's a module, make sure it exists."
+(fn on-symbol-to-expression [symbol scope]
   (let [[module-local & parts] (or (multi-sym? symbol) [])
         module-name (-?> scope.symmeta (. (tostring module-local))
                          (. :required))
@@ -41,12 +70,10 @@
                                    (or field "?") (or module-name "?"))
                     symbol)))
 
+;; -- call ---------------------------------------------------------------------
+
 (fn arity-check? [module module-name]
-  (or (-?> module getmetatable (. :arity-check?)) (pcall debug.getlocal #nil 1)
-      ; PUC 5.1 can't use debug.getlocal for this
-      ;; I don't love this method of configuration but it gets the job done.
-      (match (and module-name os os.getenv (os.getenv :FENNEL_LINT_MODULES))
-        module-pattern (module-name:find module-pattern))))
+  (or (-?> module getmetatable (. :arity-check?)) (pcall debug.getlocal #nil 1)))
 
 (fn min-arity [target nparams]
   (match (debug.getlocal target nparams)
@@ -55,7 +82,6 @@
                   nparams)
     _ nparams))
 
-;; TODO: cleanup
 (fn getfn [v]
   (if (= :function (type v)) [v false]
       (let [mt (getmetatable v)]
@@ -63,8 +89,7 @@
                  (= :function (type mt.__call))) [mt.__call true]
             [v false]))))
 
-(fn arity-check-call [[f & args] scope]
-  "Perform static arity checks on static function calls in a module."
+(fn on-call [[f & args] scope]
   (let [last-arg (. args (length args))
         arity (if (: (tostring f) :find ":") ; method
                   (+ (length args) 1) (length args))
@@ -88,51 +113,12 @@
                                                     :format f arity min)
                                                  f))))))
 
-;; ;; Note that this will only check unused args inside functions and let blocks,
-;; ;; not top-level locals of a chunk.
-;; (fn check-unused [ast scope]
-;;   (each [symname (pairs scope.symmeta)]
-;;     (let [meta (. scope.symmeta symname)]
-;;       (assert-compile (or meta.used (symname:find "^_"))
-;;                       (string.format "unused local %s" (or symname :?)) ast)
-;;       (assert-compile (or (not meta.var) meta.set)
-;;                       (string.format "%s declared as var but never set"
-;;                                      symname) ast))))
-
-;; NOTE: `inspect` is found in /usr/local/share/lua/5.1/inspect.lua
-;; (local inspect (require :inspect))
-
-;; (fn remove-all-metatables [item path]
-;;   (when (not= (. path (length path)) inspect.METATABLE)
-;;     item))
+;; -- check-unused -------------------------------------------------------------
 
 (fn local? [ast name]
   (and (= :table (type ast)) (= :table (type (. ast 1)))
        (or (= :local (. ast 1 1)) (= :var (. ast 1 1)))
        (= :table (type (. ast 2))) (= name (. ast 2 1))))
-
-;; Example ast (non-sequential elements removed):
-;;
-;; {
-;;   {
-;;     "fn",
-;;   },
-;;   {
-;;   },
-;;   {
-;;     {
-;;       "dir",
-;;     }
-;;   },
-;;   {
-;;     {
-;;       "local",
-;;     },
-;;     {
-;;       "bar",
-;;     }, 1,
-;;   },
-;; }
 
 (fn find-local [ast name]
   (if (or (not ast) (not= :table (type ast)))
@@ -151,29 +137,19 @@
 ;; matches the unused local. For the `chunk` hook, the `ast` is the bottom most
 ;; node for some reason. Maybe fennel mutates `ast` before calling the hook?
 
-;; FIXME: Doesn't handle destructuring, e.g. `(local [a] 1)`. Also doesn't
-;; support `let` or `import-macros`.
-
 (fn check-unused [ast scope]
   (each [symname (pairs scope.symmeta)]
     (local valid? (or (. scope.symmeta symname :used) (symname:find "^_")))
     (when (not valid?)
       (local name (or symname "?"))
       (assert-compile false (: "unused local %s" :format name)
-                      (or (find-local ast name) ast)))
-    ;; (when (not valid?)
-    ;;   (assert-compile valid?
-    ;;                   (: "%s," :format
-    ;;                      (inspect ast {:process remove-all-metatables}))
-    ;;                   ast))
-    ))
+                      (or (find-local ast name) ast)))))
 
-{:destructure save-meta
- :symbol-to-expression check-module-fields
- :call arity-check-call
+{:destructure on-destructure
+ :symbol-to-expression on-symbol-to-expression
+ :call on-call
  :fn check-unused
  :do check-unused
  :chunk check-unused
  :name :my/linter
- :versions [:1.0.0 :1.1.0 :1.2.0 :1.3.0]}
-
+ :versions [:1.3.0]}

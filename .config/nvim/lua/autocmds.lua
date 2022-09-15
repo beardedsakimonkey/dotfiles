@@ -269,6 +269,6 @@ local function _34_()
   return vim.highlight.on_yank({on_visual = false})
 end
 vim.api.nvim_create_autocmd("TextYankPost", {callback = _34_, group = _31_, pattern = "*"})
-vim.api.nvim_create_autocmd("TermOpen", {command = "startinsert | set nonu", group = _31_, pattern = "*"})
+vim.api.nvim_create_autocmd("TermOpen", {command = "set nonumber | startinsert", group = _31_, pattern = "*"})
 vim.api.nvim_create_autocmd("TermClose", {command = "exec 'bd! ' .. expand('<abuf>')", group = _31_, pattern = "*"})
 return _31_

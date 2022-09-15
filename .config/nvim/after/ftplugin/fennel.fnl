@@ -14,12 +14,16 @@
   (undo-ftplugin "sil! nun <buffer> <C-p>")
   (undo-ftplugin "sil! nun <buffer> <C-n>"))
 
+;; -- goto-lua -----------------------------------------------------------------
+
 (fn goto-lua []
   (local from (vim.fn.expand "%:p"))
   (local to (from:gsub "%.fnl$" :.lua))
   (if (exists? to)
       (vim.cmd (.. "edit " (f\ to)))
       (vim.api.nvim_err_writeln (.. "Cannot read file " to))))
+
+;; -- eval-form ----------------------------------------------------------------
 
 (fn get-root-node [node]
   (var parent node)
@@ -48,8 +52,10 @@
 (fn get-outer-form [winid bufnr]
   (local ts-utils (require :nvim-treesitter.ts_utils))
   (local cursor-node (ts-utils.get_node_at_cursor winid false))
-  ;; Walk up the syntax tree until we hit a node that is wrapped in `()`
-  (get-outer-form* cursor-node bufnr))
+  (if (= :comment (cursor-node:type))
+      cursor-node
+      ;; Walk up the syntax tree until we hit a node that is wrapped in `()`
+      (get-outer-form* cursor-node bufnr)))
 
 ;; NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
 ;; drawn until entering insert mode. (`init_prompt()` in edit.c)
@@ -67,22 +73,49 @@
   (local text (vim.treesitter.get_node_text form bufnr))
   (repl.callback repl-bufnr text))
 
-(fn goto-require []
+;; -- goto-require -------------------------------------------------------------
+
+(fn convert-to-fnl [lua-path]
+  (local fnl-path (lua-path:gsub "%.lua$" :.fnl))
+  (if (exists? fnl-path) fnl-path lua-path))
+
+(fn search-packagepath [basename]
+  (local paths (package.path:gsub "%?" basename))
+  (var ?found nil)
+  (each [path (paths:gmatch "[^;]+") :until ?found]
+    (when (exists? path)
+      (set ?found path)))
+  ?found)
+
+(fn search-runtimepath [basename]
+  ;; Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
+  (local [?path]
+         (vim.api.nvim__get_runtime [(.. :lua/ basename :.lua)
+                                     (.. :lua/ basename :/init.lua)]
+                                    false {:is_lua true}))
+  ?path)
+
+(fn get-basename []
   (local form (get-outer-form 0 0))
   (local form-text (vim.treesitter.get_node_text form 0))
   (local ?mod-name (form-text:match "%(require [\":]?([^)]+)\"?%)"))
-  (when ?mod-name
-    ;; Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
-    (local basename (?mod-name:gsub "%." "/"))
-    (local paths [(.. :lua/ basename :.lua) (.. :lua/ basename :/init.lua)])
-    (local found (vim.api.nvim__get_runtime paths false {:is_lua true}))
-    ;; TODO: Fallback to package.path
-    (if (> (length found) 0)
-        (let [lua-path (. found 1)
-              fnl-path (lua-path:gsub "%.lua$" :.fnl)
-              path (if (exists? fnl-path) fnl-path lua-path)]
-          (vim.cmd (.. "edit " (f\ path))))
-        (vim.api.nvim_err_writeln (.. "Cannot find module " basename)))))
+  (if ?mod-name
+      (?mod-name:gsub "%." "/")
+      nil))
+
+(fn goto-require []
+  (local ?basename (get-basename))
+  (if ?basename
+      (do
+        (var ?path (or (search-runtimepath ?basename)
+                       (search-packagepath ?basename)))
+        (if ?path
+            (vim.cmd (.. "edit " (f\ (convert-to-fnl ?path))))
+            (vim.api.nvim_err_writeln (.. "Could not find module for "
+                                          ?basename))))
+      (vim.api.nvim_err_writeln "Could not parse form. Is it a require?")))
+
+;; -----------------------------------------------------------------------------
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local expandtab)

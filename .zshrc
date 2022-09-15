@@ -297,7 +297,7 @@ fi
 if [ -n "$(command -v fasd)" ]; then
     eval "$(fasd --init posix-alias zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
     unalias a s sd sf d f z zz
-    # alias d='fasd_cd -d'
+    alias j='fasd_cd -d'
     # NOTE: requires 'msgpack' pip package
     alias vs='fasd_cdv -f -B shada'
     alias vd='fasd_cdv -d -B shada'

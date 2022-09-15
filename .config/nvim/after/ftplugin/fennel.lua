@@ -54,7 +54,11 @@ end
 local function get_outer_form(winid, bufnr)
   local ts_utils = require("nvim-treesitter.ts_utils")
   local cursor_node = ts_utils.get_node_at_cursor(winid, false)
-  return get_outer_form_2a(cursor_node, bufnr)
+  if ("comment" == cursor_node:type()) then
+    return cursor_node
+  else
+    return get_outer_form_2a(cursor_node, bufnr)
+  end
 end
 local function eval_form(root_3f)
   local repl = require("fennel-repl")
@@ -68,39 +72,62 @@ local function eval_form(root_3f)
   end
   local bufnr = vim.fn.winbufnr(winid)
   local form
-  local _6_
+  local _7_
   if root_3f then
-    _6_ = get_root_form
+    _7_ = get_root_form
   else
-    _6_ = get_outer_form
+    _7_ = get_outer_form
   end
-  form = _6_(winid, bufnr)
+  form = _7_(winid, bufnr)
   local text = vim.treesitter.get_node_text(form, bufnr)
   return repl.callback(repl_bufnr, text)
 end
-local function goto_require()
+local function convert_to_fnl(lua_path)
+  local fnl_path = lua_path:gsub("%.lua$", ".fnl")
+  if exists_3f(fnl_path) then
+    return fnl_path
+  else
+    return lua_path
+  end
+end
+local function search_packagepath(basename)
+  local paths = (package.path):gsub("%?", basename)
+  local _3ffound = nil
+  for path in paths:gmatch("[^;]+") do
+    if _3ffound then break end
+    if exists_3f(path) then
+      _3ffound = path
+    else
+    end
+  end
+  return _3ffound
+end
+local function search_runtimepath(basename)
+  local _local_11_ = vim.api.nvim__get_runtime({("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}, false, {is_lua = true})
+  local _3fpath = _local_11_[1]
+  return _3fpath
+end
+local function get_basename()
   local form = get_outer_form(0, 0)
   local form_text = vim.treesitter.get_node_text(form, 0)
   local _3fmod_name = form_text:match("%(require [\":]?([^)]+)\"?%)")
   if _3fmod_name then
-    local basename = _3fmod_name:gsub("%.", "/")
-    local paths = {("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}
-    local found = vim.api.nvim__get_runtime(paths, false, {is_lua = true})
-    if (#found > 0) then
-      local lua_path = found[1]
-      local fnl_path = lua_path:gsub("%.lua$", ".fnl")
-      local path
-      if exists_3f(fnl_path) then
-        path = fnl_path
-      else
-        path = lua_path
-      end
-      return vim.cmd(("edit " .. f_5c(path)))
-    else
-      return vim.api.nvim_err_writeln(("Cannot find module " .. basename))
-    end
+    return _3fmod_name:gsub("%.", "/")
   else
     return nil
+  end
+end
+local function goto_require()
+  local _3fbasename = get_basename()
+  if _3fbasename then
+    local _3fpath = (search_runtimepath(_3fbasename) or search_packagepath(_3fbasename))
+    if _3fpath then
+      return vim.cmd(("edit " .. f_5c(convert_to_fnl(_3fpath))))
+    else
+      return vim.api.nvim_err_writeln(("Could not find module for " .. _3fbasename))
+    end
+  else
+    return vim.api.nvim_err_writeln("Could not parse form. Is it a require?")
   end
 end
 vim["opt_local"]["expandtab"] = true
@@ -114,13 +141,13 @@ do
 end
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
-local function _11_()
+local function _15_()
   return eval_form(false)
 end
-vim.keymap.set("n", ",ee", _11_, {buffer = true})
-local function _12_()
+vim.keymap.set("n", ",ee", _15_, {buffer = true})
+local function _16_()
   return eval_form(true)
 end
-vim.keymap.set("n", ",er", _12_, {buffer = true})
+vim.keymap.set("n", ",er", _16_, {buffer = true})
 vim.keymap.set("n", "gd", goto_require, {buffer = true})
 return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))

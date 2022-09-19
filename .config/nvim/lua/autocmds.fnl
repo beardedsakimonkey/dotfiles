@@ -45,7 +45,7 @@
   ;; matches the runtime environment. This allows us to use plugins without having
   ;; to configure globals and package.path.
   (local fennel (require :fennel))
-  (local linter (.. (vim.fn.stdpath :config) :/linter.fnl))
+  (local linter :/Users/tim/code/fennel-linter/linter.fnl)
   (local plugins (if (exists? linter)
                      ;; Adapted from launcher.fnl
                      [(fennel.dofile linter
@@ -53,7 +53,9 @@
                                      {:env :_COMPILER
                                       :useMetadata true
                                       :compiler-env _G})]
-                     []))
+                     (do
+                       (vim.api.nvim_err_writeln "Linter missing")
+                       [])))
   (local opts {:filename src : plugins :allowedGlobals []})
   ;; Enable checking that globals exist
   (each [global-name (pairs _G)]

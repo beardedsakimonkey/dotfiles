@@ -23,7 +23,7 @@
            (some? files #(= fnl $1.name)))
     :js (let [res (string.gsub file.name :js$ :res)]
           (some? files #(= res $1.name)))
-    _ (endswith-any file.name [:.bs.js :.o])))
+    _ (or (endswith-any file.name [:.bs.js :.o]) (= :.git file.name))))
 
 (fn cd [cmd]
   (local store (require :udir.store))
@@ -79,4 +79,3 @@
                     :sort default-sort})
 
 (map n "-" :<Cmd>Udir<CR>)
-

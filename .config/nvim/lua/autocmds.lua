@@ -50,11 +50,12 @@ local function write_file(text, filename)
 end
 local function compile_fennel(src, buf)
   local fennel = require("fennel")
-  local linter = (vim.fn.stdpath("config") .. "/linter.fnl")
+  local linter = "/Users/tim/code/fennel-linter/linter.fnl"
   local plugins
   if exists_3f(linter) then
     plugins = {fennel.dofile(linter, {env = "_COMPILER", useMetadata = true, ["compiler-env"] = _G})}
   else
+    vim.api.nvim_err_writeln("Linter missing")
     plugins = {}
   end
   local opts = {filename = src, plugins = plugins, allowedGlobals = {}}

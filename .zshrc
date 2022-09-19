@@ -262,6 +262,7 @@ export CORRECT_IGNORE=_*,.*
 
 export WASMTIME_HOME="$HOME/.wasmtime"
 export PATH="$WASMTIME_HOME/bin:$PATH"
+export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 #
 # Third-party
@@ -300,7 +301,7 @@ if [ -n "$(command -v fasd)" ]; then
     alias j='fasd_cd -d'
     # NOTE: requires 'msgpack' pip package
     alias vs='fasd_cdv -f -B shada'
-    alias vd='fasd_cdv -d -B shada'
+    alias vj='fasd_cdv -d -B shada'
     alias va='fasd_cdv -a -B shada'
 
     fasd_cdv() {
@@ -341,6 +342,7 @@ alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
 alias at='ls -At'
+alias temp="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
 
 alias gj='git-jump'
 alias gs='git status'
@@ -354,11 +356,12 @@ alias gp='git push'
 alias gb='git branch'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
-alias rtorrent='\rtorrent -n -o import=~/.config/rtorrent/rtorrent.rc'
-alias ydl='youtube-dl'
-alias mdl='megadl'
+alias ydl='yt-dlp'
 alias dl='aria2c'
 alias peek='git-peek'
+
+alias re='./node_modules/.bin/rescript build'
+alias rew='./node_modules/.bin/rescript build -w'
 
 makenvim() {
     local EXTRA_FLAGS
@@ -433,6 +436,19 @@ subup() {
     fi
     true
 "
+}
+
+d() {
+    case $1 in
+        i) dtach -A /tmp/weechat.sock weechat ;;
+        m) dtach -A /tmp/music.sock mpv --vid=no --shuffle ~/Soulseek\ Downloads/**/*.mp3 ;;
+        a) dtach -a /tmp/aria.sock ;;
+        *) dtach -A /tmp/$1.sock $1 ;;
+    esac
+}
+
+music() {
+    mpv --vid=no --shuffle --loop-playlist=inf "/Volumes/T7 Shield/music/${1:-jazz}"
 }
 
 #

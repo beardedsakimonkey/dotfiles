@@ -107,8 +107,8 @@
   (local ?basename (get-basename))
   (if ?basename
       (do
-        (var ?path (or (search-runtimepath ?basename)
-                       (search-packagepath ?basename)))
+        (local ?path (or (search-runtimepath ?basename)
+                         (search-packagepath ?basename)))
         (if ?path
             (vim.cmd (.. "edit " (f\ (convert-to-fnl ?path))))
             (vim.api.nvim_err_writeln (.. "Could not find module for "

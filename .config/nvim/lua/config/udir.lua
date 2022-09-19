@@ -39,7 +39,7 @@ local function is_file_hidden(file, files, _cwd)
     return some_3f(files, _5_)
   elseif true then
     local _ = _3_
-    return endswith_any(file.name, {".bs.js", ".o"})
+    return (endswith_any(file.name, {".bs.js", ".o"}) or (".git" == file.name))
   else
     return nil
   end

@@ -24,3 +24,13 @@
 
 (lspconfig.clangd.setup {})
 (lspconfig.rls.setup {})
+
+;; (local configs (require :lspconfig.configs))
+;; (set configs.fennel-ls
+;;       {:default_config {:filetypes [:fennel]
+;;                         :cmd [:/Users/tim/code/fennel-ls/fennel-ls]
+;;                         :root_dir (fn [dir]
+;;                                     (lspconfig.util.find_git_ancestor dir))
+;;                         :settings {}}})
+
+;; (lspconfig.fennel-ls.setup (vim.lsp.protocol.make_client_capabilities))

@@ -1,5 +1,7 @@
 local udir = require("udir")
 local u = require("udir.util")
+local _local_1_ = require("util")
+local some_3f = _local_1_["some?"]
 local function endswith_any(str, suffixes)
   local found = false
   for _, suf in ipairs(suffixes) do
@@ -11,38 +13,27 @@ local function endswith_any(str, suffixes)
   end
   return found
 end
-local function some_3f(list, pred_3f)
-  local found = false
-  for _, v in ipairs(list) do
-    if found then break end
-    if pred_3f(v) then
-      found = true
-    else
-    end
-  end
-  return found
-end
 local function is_file_hidden(file, files, _cwd)
+  local hidden_3f = false
   local ext = string.match(file.name, "%.(%w-)$")
-  local _3_ = ext
-  if (_3_ == "lua") then
+  if ("lua" == ext) then
     local fnl = string.gsub(file.name, "lua$", "fnl")
-    local function _4_(_241)
+    local function _3_(_241)
       return (fnl == _241.name)
     end
-    return some_3f(files, _4_)
-  elseif (_3_ == "js") then
+    hidden_3f = (hidden_3f or some_3f(files, _3_))
+  else
+  end
+  if ("js" == ext) then
     local res = string.gsub(file.name, "js$", "res")
     local function _5_(_241)
       return (res == _241.name)
     end
-    return some_3f(files, _5_)
-  elseif true then
-    local _ = _3_
-    return (endswith_any(file.name, {".bs.js", ".o"}) or (".git" == file.name))
+    hidden_3f = (hidden_3f or some_3f(files, _5_))
   else
-    return nil
   end
+  hidden_3f = (hidden_3f or endswith_any(file.name, {".bs.js", ".o"}) or (".git" == file.name))
+  return hidden_3f
 end
 local function cd(cmd)
   local store = require("udir.store")

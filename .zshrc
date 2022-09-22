@@ -441,14 +441,16 @@ subup() {
 d() {
     case $1 in
         i) dtach -A /tmp/weechat.sock weechat ;;
-        m) dtach -A /tmp/music.sock mpv --vid=no --shuffle ~/Soulseek\ Downloads/**/*.mp3 ;;
+        m)
+            if [[ -S /tmp/music.sock ]]; then
+                dtach -a /tmp/music.sock
+            else
+                dtach -c /tmp/music.sock mpv --vid=no --shuffle "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
+            fi
+            ;;
         a) dtach -a /tmp/aria.sock ;;
         *) dtach -A /tmp/$1.sock $1 ;;
     esac
-}
-
-music() {
-    mpv --vid=no --shuffle --loop-playlist=inf "/Volumes/T7 Shield/music/${1:-jazz}"
 }
 
 #

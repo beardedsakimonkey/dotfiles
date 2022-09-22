@@ -1,5 +1,6 @@
 (local udir (require :udir))
 (local u (require :udir.util))
+(local {: some?} (require :util))
 (import-macros {: map} :macros)
 
 (fn endswith-any [str suffixes]
@@ -9,21 +10,18 @@
       (set found true)))
   found)
 
-(fn some? [list pred?]
-  (var found false)
-  (each [_ v (ipairs list) :until found]
-    (when (pred? v)
-      (set found true)))
-  found)
-
 (fn is-file-hidden [file files _cwd]
+  (var hidden? false)
   (local ext (string.match file.name "%.(%w-)$"))
-  (match ext
-    :lua (let [fnl (string.gsub file.name :lua$ :fnl)]
-           (some? files #(= fnl $1.name)))
-    :js (let [res (string.gsub file.name :js$ :res)]
-          (some? files #(= res $1.name)))
-    _ (or (endswith-any file.name [:.bs.js :.o]) (= :.git file.name))))
+  (when (= :lua ext)
+    (local fnl (string.gsub file.name :lua$ :fnl))
+    (set hidden? (or hidden? (some? files #(= fnl $1.name)))))
+  (when (= :js ext)
+    (local res (string.gsub file.name :js$ :res))
+    (set hidden? (or hidden? (some? files #(= res $1.name)))))
+  (set hidden? (or hidden? (endswith-any file.name [:.bs.js :.o])
+                   (= :.git file.name)))
+  hidden?)
 
 (fn cd [cmd]
   (local store (require :udir.store))

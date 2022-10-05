@@ -1,3 +1,5 @@
+;; extends
+
 ;; nvim-treesitter's capture groups only include @text.title for titles, so we
 ;; make custom capture groups to highlight different level headings differently.
 ;;

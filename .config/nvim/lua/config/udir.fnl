@@ -43,14 +43,12 @@
                          (= :directory $1.type))))
 
 (local default-sort udir.config.sort)
-(var default-sort? true)
 
 (fn toggle-sort []
-  (local sort (if default-sort?
-                  sort-by-mtime
-                  default-sort))
-  (set default-sort? (not default-sort?))
-  (tset udir.config :sort sort)
+  (local new-sort (if (= udir.config.sort sort-by-mtime)
+                      default-sort
+                      sort-by-mtime))
+  (tset udir.config :sort new-sort)
   (udir.reload))
 
 (tset udir :config {:is_file_hidden is-file-hidden

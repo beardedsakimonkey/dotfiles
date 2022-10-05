@@ -5,7 +5,7 @@
 (local defaults {:mappings {:enter-split [:<C-s>]
                             :enter-vsplit [:<C-l>]
                             :next [:<C-v>]}
-                 :consumer :fzy
+                 :consumer (require :snap.consumer.fzy)
                  :reverse true
                  :prompt ""})
 
@@ -47,7 +47,7 @@
 
 (fn help []
   (snap.run (with-defaults {:prompt :Help>
-                            :producer ((snap.get :consumer.fzy) (snap.get :producer.vim.help))
+                            :producer ((require :snap.consumer.fzy) (require :snap.producer.vim.help))
                             ;; The built-in help select function doesn't handle
                             ;; splits. Note that it won't split if a help buffer
                             ;; is currently visible.
@@ -124,4 +124,3 @@
 (command :Grep visual-grep {:nargs "+"})
 (map x :<space>a "\"vy:Grep <C-r>v<CR>")
 (map n :<space>h help)
-

@@ -66,16 +66,14 @@ local function sort_by_mtime(files)
   return table.sort(files, _9_)
 end
 local default_sort = udir.config.sort
-local default_sort_3f = true
 local function toggle_sort()
-  local sort
-  if default_sort_3f then
-    sort = sort_by_mtime
+  local new_sort
+  if (udir.config.sort == sort_by_mtime) then
+    new_sort = default_sort
   else
-    sort = default_sort
+    new_sort = sort_by_mtime
   end
-  default_sort_3f = not default_sort_3f
-  udir.config["sort"] = sort
+  udir.config["sort"] = new_sort
   return udir.reload()
 end
 local function _12_()

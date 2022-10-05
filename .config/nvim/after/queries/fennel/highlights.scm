@@ -1,3 +1,5 @@
+;; extends
+
 ;; Highlight keyword-style strings (e.g. `:foo`) as keyword
 ((string) @keyword (#match? @keyword "^:"))
 

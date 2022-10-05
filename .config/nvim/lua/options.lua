@@ -3,7 +3,6 @@ vim["opt"]["sessionoptions"] = {"help", "tabpages", "winsize", "curdir", "folds"
 vim["opt"]["lazyredraw"] = true
 vim["opt"]["ttimeoutlen"] = 0
 vim["opt"]["timeoutlen"] = 3000
-vim["opt"]["mouse"] = "a"
 vim["opt"]["synmaxcol"] = 500
 vim["opt"]["termguicolors"] = true
 vim["opt"]["confirm"] = true
@@ -53,4 +52,5 @@ vim["opt"]["showmode"] = false
 vim["opt"]["showcmd"] = false
 vim["opt"]["textwidth"] = 80
 vim["opt"]["cursorline"] = true
+vim["opt"]["jumpoptions"] = "view"
 return nil

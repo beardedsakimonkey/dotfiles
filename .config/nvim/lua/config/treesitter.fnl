@@ -6,8 +6,10 @@
   (local size (vim.fn.getfsize (vim.fn.bufname bufnr)))
   (or (> size (* 1024 1024)) (= size -2)))
 
+;; Enable treesitter highlighting for lua
+(set vim.g.ts_highlight_lua true)
+
 (configs.setup {:ensure_installed [:javascript
-                                   :lua
                                    :fennel
                                    :markdown
                                    :markdown_inline]

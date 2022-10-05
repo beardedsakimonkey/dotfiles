@@ -27,15 +27,10 @@
 (set vim.g.loaded_python3_provider 1)
 (set vim.g.loaded_ruby_provider 1)
 
-(vim.cmd "colorscheme navajo")
-
-;; Enable filetype.lua
-(set vim.g.do_filetype_lua 1)
-;; Disable filetype.vim
-(set vim.g.did_load_filetypes 0)
+(vim.cmd.colorscheme :navajo)
 
 ;; See :h syntax-loading
-(vim.cmd "syntax enable")
+(vim.cmd.syntax :enable)
 
 (fn require-safe [mod]
   (local (ok? msg) (pcall require mod))

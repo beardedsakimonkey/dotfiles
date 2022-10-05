@@ -28,7 +28,7 @@
 (fn falsy? [v]
   (or (not v) (= "" v)))
 
-(local excludes [(.. $HOME :/.local/share/nvim/site/pack/mine/start/snap/lua/)
+(local excludes [(.. $HOME :/.local/share/nvim/site/pack/packer/start/snap/lua/)
                  (.. (vim.fn.stdpath :config) :/colors/)])
 
 (augroup :my/formatter

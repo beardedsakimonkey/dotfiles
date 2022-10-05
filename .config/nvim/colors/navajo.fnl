@@ -32,6 +32,7 @@
 (hi   Visual       fg=fg           bg=OliveDrab2)
 (hi   Search       fg=none         bg=#ffd787)
 (hi   IncSearch    fg=White        bg=#BD00BD)
+(link CurSearch    IncSearch)
 (hi   WarningMsg   fg=Red4         bg=none :bold)
 (hi   ErrorMsg     fg=White        bg=IndianRed3)
 (hi   PreProc      fg=DeepPink4    bg=none)

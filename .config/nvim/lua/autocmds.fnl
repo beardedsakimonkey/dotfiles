@@ -3,7 +3,7 @@
 
 (import-macros {: autocmd : augroup : opt-local : map : command} :macros)
 
-(local ns (vim.api.nvim_create_namespace :my/autocmds))
+(local ns-fnldiag (vim.api.nvim_create_namespace :my/fnldiag))
 
 (fn source-lua []
   (local name (vim.fn.expand "<afile>:p"))
@@ -12,6 +12,7 @@
     (vim.cmd (.. "luafile " (f\ name)))))
 
 ;; Adapted from gpanders' config
+
 (fn on-fnl-err [output]
   (let [lines (vim.split output "\n")
         {: items} (vim.fn.getqflist {:efm "%C%[%^^]%#,%E%>Parse error in %f:%l:%c,%E%>Compile error in %f:%l:%c,%-Z%p^%.%#,%C%\\s%#%m,%-G* %.%#"
@@ -22,7 +23,8 @@
     ;; qflist columns are 1-indexed
     (each [_ d (ipairs diagnostics)]
       (set d.col (+ 1 d.col)))
-    (vim.diagnostic.set ns (tonumber (vim.fn.expand :<abuf>)) diagnostics)
+    (vim.diagnostic.set ns-fnldiag (tonumber (vim.fn.expand :<abuf>))
+                        diagnostics)
 
     (fn no-codes [s]
       (s:gsub "\027%[[0-9]m" ""))
@@ -82,7 +84,7 @@
         dest (src:gsub :.fnl$ :.lua)
         compile? (and ?root (not (vim.endswith src :macros.fnl))
                       (not (vim.endswith src :linter.fnl)))]
-    (vim.diagnostic.reset ns buf)
+    (vim.diagnostic.reset ns-fnldiag buf)
     (when compile?
       ;; Change dir so macros.fnl gets read
       (when ?root
@@ -90,8 +92,11 @@
       (local (ok? output) (compile-fennel src buf))
       ;; Instruct formatter to avoid formatting
       (vim.api.nvim_buf_set_var buf :comp_err (not ok?))
+      ;; Highlight TSError nodes
+      (vim.api.nvim_set_hl 0 :TSError (if ok? {} {:bg "#dda296"}))
       (if (not ok?)
-          (on-fnl-err output)
+          (do
+            (on-fnl-err output))
           (do
             (write-file output dest)
             (when (= config-dir ?root)

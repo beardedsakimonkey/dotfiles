@@ -2,7 +2,7 @@ local snap = require("snap")
 local _local_1_ = require("util")
 local _24HOME = _local_1_["$HOME"]
 local exists_3f = _local_1_["exists?"]
-local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, consumer = "fzy", reverse = true, prompt = ""}
+local defaults = {mappings = {["enter-split"] = {"<C-s>"}, ["enter-vsplit"] = {"<C-l>"}, next = {"<C-v>"}}, consumer = require("snap.consumer.fzy"), reverse = true, prompt = ""}
 local function with_defaults(...)
   return vim.tbl_extend("force", {}, defaults, ...)
 end
@@ -57,7 +57,7 @@ local function help()
     end
     return vim.api.nvim_command((cmd .. "help " .. tostring(selection)))
   end
-  return snap.run(with_defaults({prompt = "Help>", producer = snap.get("consumer.fzy")(snap.get("producer.vim.help")), select = _8_, views = {snap.get("preview.help")}}))
+  return snap.run(with_defaults({prompt = "Help>", producer = require("snap.consumer.fzy")(require("snap.producer.vim.help")), select = _8_, views = {snap.get("preview.help")}}))
 end
 local function get_oldfiles()
   local blacklist = {}

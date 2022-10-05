@@ -30,7 +30,7 @@ vim.api.nvim_create_user_command("FormatEnable", _5_, {})
 local function falsy_3f(v)
   return (not v or ("" == v))
 end
-local excludes = {(_24HOME .. "/.local/share/nvim/site/pack/mine/start/snap/lua/"), (vim.fn.stdpath("config") .. "/colors/")}
+local excludes = {(_24HOME .. "/.local/share/nvim/site/pack/packer/start/snap/lua/"), (vim.fn.stdpath("config") .. "/colors/")}
 vim.api.nvim_create_augroup("my/formatter", {clear = true})
 local _6_ = "my/formatter"
 local function _9_(_7_)

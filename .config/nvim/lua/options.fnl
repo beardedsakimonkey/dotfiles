@@ -8,7 +8,6 @@
 (opt ttimeoutlen 0)
 (opt timeoutlen 3000)
 
-(opt mouse :a)
 (opt synmaxcol 500)
 (opt termguicolors)
 
@@ -66,4 +65,4 @@
 (opt textwidth 80)
 (opt cursorline)
 
-;; (opt jumpoptions :view)
+(opt jumpoptions :view)

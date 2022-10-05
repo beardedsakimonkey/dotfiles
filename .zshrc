@@ -369,13 +369,27 @@ makenvim() {
     local BUILD_TYPE="RelWithDebInfo"
     [[ "${1}" = "debug" ]] && BUILD_TYPE="Debug"
     pushd ~/code/neovim && {
-        rm -r build/;
+        make distclean;
         git apply ~/code/neovim-patches/prompt_buffer_ignore_modified.patch;
         make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/local/nvim ${EXTRA_FLAGS}" CMAKE_BUILD_TYPE=${BUILD_TYPE};
         make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install;
         popd;
     }
     tput bel
+}
+
+makefennel() {
+    pushd ~/code/fennel && {
+            git apply ~/code/fennel-patches/chunk_hook_ast.patch;
+            make && \
+            pushd ~/code/fnlfmt && {
+                make clean; \
+                make fennel fennel.lua && \
+                make;
+                popd;
+            }
+            popd;
+        }
 }
 
 # `compdef` doesn't seem to work on aliases

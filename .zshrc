@@ -347,7 +347,8 @@ alias temp="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
 alias gj='git-jump'
 alias gs='git status'
 alias gl='git log'
-alias gd="git diff -- ':!*.lua'"
+# alias gd="git diff -- ':!*.lua'"
+alias gd='git diff'
 alias gdt='git difftool'
 alias ga='git add'
 alias gc='git commit'
@@ -459,7 +460,7 @@ d() {
             if [[ -S /tmp/music.sock ]]; then
                 dtach -a /tmp/music.sock
             else
-                dtach -c /tmp/music.sock mpv --vid=no --shuffle "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
+                dtach -c /tmp/music.sock mpv --vid=no "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
             fi
             ;;
         a) dtach -a /tmp/aria.sock ;;

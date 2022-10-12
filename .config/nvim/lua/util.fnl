@@ -4,6 +4,7 @@
 
 ;; Use this over `vim.fn.system` if you want to avoid blocking the main thread.
 ;; Usage: (system [:curl :-i :google.com] (fn [stdout stderr exit-code] ...))
+;; TODO: consider using array buffer (https://www.lua.org/pil/11.6.html)
 (fn system [cmd-parts cb]
   (local stdout-pipe (vim.loop.new_pipe))
   (local stderr-pipe (vim.loop.new_pipe))

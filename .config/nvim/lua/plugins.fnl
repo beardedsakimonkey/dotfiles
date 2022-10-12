@@ -12,13 +12,14 @@
       ;; Neovim
       ;;
       :beardedsakimonkey/packer.nvim {}
-      :neovim/nvim-lspconfig {:config "require'config.lsp'"}
       :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
+      :beardedsakimonkey/nvim-ufind {:config "require'config.ufind'"}
+      :neovim/nvim-lspconfig {:config "require'config.lsp'"}
       :mhartington/formatter.nvim {:config "require'config.formatter'"
                                    :opt true
                                    :ft [:fennel :go]}
+      :mfussenegger/nvim-lint {:config "require'config.lint'"}
       :ggandor/lightspeed.nvim {:config "require'config.lightspeed'"}
-      :beardedsakimonkey/snap {:config "require'config.snap'"}
       :jose-elias-alvarez/minsnip.nvim {:config "require'config.minsnip'"
                                         :commit :6ae2f32}
       :norcalli/nvim-colorizer.lua {:setup "require'config.colorizer'"
@@ -26,7 +27,7 @@
                                     :cmd :ColorizerAttachToBuffer}
       :Darazaki/indent-o-matic {:commit :f7d4382}
       :kylechui/nvim-surround {:config "require'config.surround'"}
-      :echasnovski/mini.nvim {:config "require'config.mini'"}
+      ;; :echasnovski/mini.nvim {:config "require'config.mini'"}
       :ii14/neorepl.nvim {:opt true :cmd :Repl}
       ;; TODO: Doesn't work for fennel
       ;; :monkoose/matchparen.nvim {:config "require'matchparen'.setup()"}

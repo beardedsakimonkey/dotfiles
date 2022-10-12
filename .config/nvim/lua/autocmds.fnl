@@ -71,6 +71,7 @@
         config-dir (.. (vim.fn.stdpath :config) "/")
         roots [config-dir
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-udir/)
+               ;; (.. (vim.fn.stdpath :data) :/site/pack/packer/start/nvim-ufind/)
                (.. (vim.fn.stdpath :data) :/site/pack/packer/start/snap/)
                :/Users/tim/code/test/
                (.. (vim.fn.stdpath :data)
@@ -93,7 +94,7 @@
       ;; Instruct formatter to avoid formatting
       (vim.api.nvim_buf_set_var buf :comp_err (not ok?))
       ;; Highlight TSError nodes
-      (vim.api.nvim_set_hl 0 :TSError (if ok? {} {:bg "#dda296"}))
+      ;; (vim.api.nvim_set_hl 0 :TSError (if ok? {} {:bg "#dda296"}))
       (if (not ok?)
           (do
             (on-fnl-err output))

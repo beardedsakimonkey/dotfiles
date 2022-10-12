@@ -99,6 +99,8 @@
 (hi   SnapPosition fg=#BD00BD bg=none :bold)
 (link SnapPrompt   Comment)
 
+(link UfindMatch SnapPosition)
+
 (hi   FennelSymbol fg=Black)
 
 (link markdownH1   Title)

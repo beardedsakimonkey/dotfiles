@@ -2,8 +2,6 @@
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local scrolloff 0)
-                    ;; https://github.com/neovim/tree-sitter-vimdoc/issues
-                    (opt-local conceallevel 0)
                     (map n :q :<Cmd>q<CR> :buffer)
                     ;; Adapted from gpanders' config
                     (map n :u :<C-u> :buffer :nowait)

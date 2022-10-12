@@ -124,6 +124,7 @@
                     (opt-local iskeyword -= ["." ":" "]" "["])
                     (map n "]f" goto-lua :buffer)
                     (map n "[f" goto-lua :buffer)
+                    (map x ",a" ":Antifennel<CR>" :buffer)
                     (map n ",ee" #(eval-form false) :buffer)
                     (map n ",er" #(eval-form true) :buffer)
                     (map n "gd" goto-require :buffer))

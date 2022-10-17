@@ -1,5 +1,4 @@
 (local configs (require :nvim-treesitter.configs))
-(local highlight (require :nvim-treesitter.highlight))
 (import-macros {: map} :macros)
 
 (fn large-buf? [_lang bufnr]
@@ -12,7 +11,8 @@
 (configs.setup {:ensure_installed [:javascript
                                    :fennel
                                    :markdown
-                                   :markdown_inline]
+                                   :markdown_inline
+                                   :query]
                 :highlight {:enable true :disable large-buf?}
                 :playground {:enable true
                              :disable {}
@@ -42,13 +42,11 @@
                                                  ;; :io "@loop.inner"
                                                  :aa "@parameter.outer"
                                                  :ia "@parameter.inner"}}}
+                ;; :refactor {:smart_rename {:enable true
+                ;;                           :keymaps {:smart_rename :gR}}}
                 :query_linter {:enable true
                                :use_virtual_text true
                                :lint_events [:BufWrite :BufEnter]}})
 
 ;; From nvim-treesitter/playground
 (map n :gy :<Cmd>TSHighlightCapturesUnderCursor<CR>)
-
-;; Custom '@' captures used in after/queries/*
-(highlight.set_custom_captures {:text.title1 :markdownH1
-                                :text.title2 :markdownH2})

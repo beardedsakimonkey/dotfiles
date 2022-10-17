@@ -140,34 +140,37 @@ local function grep(query)
     if (0 ~= exit) then
       return vim.notify(("Grep failed:" .. stderr), vim.log.levels.ERROR)
     else
-      local function _21_(cmd, item)
-        local found_3f, _, matched_filename, matched_line_nr = item:find("^([^:]+):(%d+):")
-        if found_3f then
-          return vim.cmd((cmd .. " " .. vim.fn.fnameescape(matched_filename) .. "|" .. matched_line_nr))
-        else
-          return print("pattern match failed")
+      local function _21_()
+        local function _22_(cmd, item)
+          local found_3f, _, matched_filename, matched_line_nr = item:find("^([^:]+):(%d+):")
+          if found_3f then
+            return vim.cmd((cmd .. " " .. vim.fn.fnameescape(matched_filename) .. "|" .. matched_line_nr))
+          else
+            return print("pattern match failed")
+          end
         end
+        return ufind.open(vim.split(stdout, "\n", {trimempty = true}), {delimiter = ":", on_complete = _22_})
       end
-      return ufind.open(vim.split(stdout, "\n"), {on_complete = _21_})
+      return vim.schedule(_21_)
     end
   end
-  return system({"rg", "--vimgrep", "-M", 200, "--no-heading", "--no-column", "--", query0, _3fpath}, vim.schedule_wrap(cb))
+  return system({"rg", "--vimgrep", "-M", 200, "--no-heading", "--no-line-number", "--no-column", "--", query0, _3fpath}, cb)
 end
-local function visual_grep(_24_)
-  local _arg_25_ = _24_
-  local args = _arg_25_["args"]
+local function visual_grep(_25_)
+  local _arg_26_ = _25_
+  local args = _arg_26_["args"]
   return grep(args)
 end
 local function grep_expr()
   local dir_3f = (vim.fn.isdirectory(vim.fn.expand("%:p")) == 1)
-  local function _26_()
+  local function _27_()
     if dir_3f then
       return " %<Left><Left>"
     else
       return ""
     end
   end
-  return (":<C-u>Grep " .. _26_())
+  return (":<C-u>Grep " .. _27_())
 end
 vim.keymap.set("n", "<space>o", oldfiles, {})
 vim.keymap.set("n", "<space>f", find, {})

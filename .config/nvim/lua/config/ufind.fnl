@@ -112,19 +112,30 @@
     (if (not= 0 exit)
         (vim.notify (.. "Grep failed:" stderr) vim.log.levels.ERROR)
         (do
-          (ufind.open (vim.split stdout "\n")
-                      {:on_complete (fn [cmd item]
-                                      (local (found? _ matched-filename
-                                                     matched-line-nr)
-                                             (item:find "^([^:]+):(%d+):"))
-                                      (if found?
-                                          (vim.cmd (.. cmd " "
-                                                       (vim.fn.fnameescape matched-filename)
-                                                       "|" matched-line-nr))
-                                          (print "pattern match failed")))}))))
+          (vim.schedule #(ufind.open (vim.split stdout "\n" {:trimempty true})
+                                     {:delimiter ":"
+                                      :on_complete (fn [cmd item]
+                                                     (local (found? _
+                                                                    matched-filename
+                                                                    matched-line-nr)
+                                                            (item:find "^([^:]+):(%d+):"))
+                                                     (if found?
+                                                         (vim.cmd (.. cmd " "
+                                                                      (vim.fn.fnameescape matched-filename)
+                                                                      "|"
+                                                                      matched-line-nr))
+                                                         (print "pattern match failed")))})))))
 
-  (system [:rg :--vimgrep :-M 200 :--no-heading :--no-column "--" query ?path]
-          (vim.schedule_wrap cb)))
+  (system [:rg
+           :--vimgrep
+           :-M
+           200
+           :--no-heading
+           :--no-line-number
+           :--no-column
+           "--"
+           query
+           ?path] cb))
 
 (fn visual-grep [{: args}]
   (grep args))

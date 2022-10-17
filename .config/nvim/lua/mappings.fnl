@@ -233,7 +233,8 @@
 
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
 (map x :<space>s "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
-(map n :S substitute)
+(map n :R substitute)
+(map n :gr :R)
 
 ;; Alt key
 ;; -------
@@ -281,7 +282,6 @@
 (map n ":N" "<Cmd>e ~/notes/_notes.md<CR>" :silent)
 (map n ":T" "<Cmd>e ~/notes/_todo.md<CR>" :silent)
 (map n ":X" "<Cmd>e ~/.config/tmux/tmux.conf<CR>" :silent)
-(map n ":A" "<Cmd>e ~/.config/alacritty/alacritty.yml<CR>" :silent)
 (map n ":U"
      "<Cmd>e ~/Library/Application\\ Support/Firefox/Profiles/2a6723nr.default-release/user.js<CR>"
      :silent)

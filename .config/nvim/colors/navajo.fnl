@@ -23,8 +23,8 @@
   `(vim.api.nvim_set_hl 0 ,(tostring name) ,cfg))
 
 (macro link [from to]
-  (local cfg {:link (tostring to)})
-  `(vim.api.nvim_set_hl 0 ,(tostring from) ,cfg))
+  (local cfg {:link to})
+  `(vim.api.nvim_set_hl 0 ,from ,cfg))
 
 (hi   Cursor       fg=White        bg=Black)
 (hi   Normal       fg=Black        bg=#CDCABD)
@@ -32,7 +32,7 @@
 (hi   Visual       fg=fg           bg=OliveDrab2)
 (hi   Search       fg=none         bg=#ffd787)
 (hi   IncSearch    fg=White        bg=#BD00BD)
-(link CurSearch    IncSearch)
+(link :CurSearch    :IncSearch)
 (hi   WarningMsg   fg=Red4         bg=none :bold)
 (hi   ErrorMsg     fg=White        bg=IndianRed3)
 (hi   PreProc      fg=DeepPink4    bg=none)
@@ -45,7 +45,7 @@
 (hi   Constant     fg=#BD00BD      bg=none)
 (hi   Special      fg=DodgerBlue4  bg=none)
 (hi   String       fg=DarkGreen    bg=none)
-(hi   Whitespace   fg=#bab28f      bg=#d1cec2)
+(hi   Whitespace   fg=#bab28f      bg=#d1cec2) ;; trail listchar
 (hi   Directory    fg=Blue3        bg=none)
 (hi   SignColumn   fg=none         bg=#c9c5b5)
 (hi   Todo         fg=Burlywood4   bg=none :bold)
@@ -63,8 +63,8 @@
 (hi   VertSplit    fg=#CDCABD      bg=MistyRose4)
 (hi   CursorLine   bg=#ccc5b5)
 (hi   Underlined   fg=#BD00BD      :underline)
-(link CursorLineNr LineNr)
-(link SpecialKey   Directory)
+(link :CursorLineNr :LineNr)
+(link :SpecialKey   :Directory)
 
 (hi User1 fg=AntiqueWhite2 bg=MistyRose4 :bold)
 (hi User2 fg=Black         bg=OliveDrab2)
@@ -93,22 +93,25 @@
 (vim.cmd "sign define DiagnosticSignInfo  text=● texthl=DiagnosticSignInfo  linehl= numhl=")
 (vim.cmd "sign define DiagnosticSignHint  text=● texthl=DiagnosticSignHint  linehl= numhl=")
 
-(link UdirExecutable PreProc)
+(link :UdirExecutable :PreProc)
 
 (hi   SnapSelect   bg=#ccc5b5 :bold)
 (hi   SnapPosition fg=#BD00BD bg=none :bold)
-(link SnapPrompt   Comment)
+(link :SnapPrompt   :Comment)
 
-(link UfindMatch SnapPosition)
+(link :UfindMatch :SnapPosition)
 
 (hi   FennelSymbol fg=Black)
 
-(link markdownH1   Title)
-(link markdownH2   Statement)
+(link :markdownH1   :Title)
+(link :markdownH2   :Statement)
 (hi   markdownUrl  fg=#0645ad :underline)
 (hi   markdownCode bg=#dbd8ce)
+;; Custom '@' captures used in after/queries/*
+(link "@text.title1" :markdownH1)
+(link "@text.title2" :markdownH2)
 
 ;; (hi TSError fg=none bg=#dda296)
-(link TSConstBuiltin Constant)
-(link TSURI          markdownUrl)
-(link TSLiteral      markdownCode)
+(link "@constant.builtin" :Constant)
+(link :TSURI          :markdownUrl)
+(link :TSLiteral      :markdownCode)

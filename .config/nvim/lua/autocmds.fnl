@@ -146,6 +146,7 @@
 
 (fn edit-url []
   (local abuf (tonumber (vim.fn.expand :<abuf>)))
+  (vim.api.nvim_buf_set_option abuf :buftype :nofile)
   (local url (-> (vim.fn.expand :<afile>)
                  (: :gsub "^https://github%.com/(.-)/blob/(.*)"
                     "https://raw.githubusercontent.com/%1/%2")))

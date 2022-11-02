@@ -176,6 +176,7 @@
 (map n :cn :cgn :silent)
 (map [n x] :Z :zzzH)
 (map n :Q "@q")
+(map n :<A-LeftMouse> :<nop>)
 (map n :<CR> :<Cmd>w<CR> :silent)
 (map "" :<C-q> :<Cmd>q<CR> :silent)
 (map n :<space>l :<Cmd>vsplit<CR> :silent)
@@ -267,8 +268,8 @@
 ;; Adapted from lacygoill's vimrc.
 (map "" "]n" "/\\v^[<\\|=>]{7}<CR>zvzz" :silent)
 (map "" "[n" "?\\v^[<\\|=>]{7}<CR>zvzz" :silent)
-(map n "[e" #(move-line :up))
-(map n "]e" #(move-line :down))
+(map n "[d" #(move-line :up))
+(map n "]d" #(move-line :down))
 
 ;; Bookmarks
 ;; ---------
@@ -314,8 +315,8 @@
 ;; Diagnostics
 ;; -----------
 (map n :ge "<Cmd>lua vim.diagnostic.open_float()<CR>" :silent)
-(map n "[d" "<Cmd>lua vim.diagnostic.goto_prev()<CR>" :silent)
-(map n "]d" "<Cmd>lua vim.diagnostic.goto_next()<CR>" :silent)
+(map n "[e" "<Cmd>lua vim.diagnostic.goto_prev()<CR>" :silent)
+(map n "]e" "<Cmd>lua vim.diagnostic.goto_next()<CR>" :silent)
 (map n :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>" :silent)
 
 ;; Avoid typo

@@ -53,8 +53,7 @@
       ;;
       ;; Vimscript
       ;;
-      :farmergreg/vim-lastplace {:commit :cef9d62}
-      :AndrewRadev/undoquit.vim {:commit :74d2a1f}
+      ;; :farmergreg/vim-lastplace {:commit :cef9d62}
       :mbbill/undotree {:opt true :cmd :UndotreeToggle}
       :tommcdo/vim-exchange {:opt true :keys [[:n :cx] [:v :X]]}
       :dstein64/vim-startuptime {:opt true :cmd :StartupTime}

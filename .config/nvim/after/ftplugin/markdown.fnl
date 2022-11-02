@@ -7,4 +7,3 @@
                     (opt-local expandtab)
                     (opt-local conceallevel 3)
                     (opt-local textwidth 100))
-

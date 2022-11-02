@@ -13,8 +13,23 @@ local function on_attach(_client, bufnr)
   buf_keymap("ga", "<Cmd>lua vim.lsp.buf.code_action()<CR>")
   return buf_keymap("<space>w", "<Cmd>lua vim.lsp.buf.formatting()<CR>")
 end
-vim.diagnostic.config({virtual_text = {prefix = "\226\151\143"}})
+vim.diagnostic.config({signs = false, virtual_text = false})
 local cfg = {on_attach = on_attach, flags = {debounce_text_changes = 150}}
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, cfg)
 lspconfig.clangd.setup({})
-return lspconfig.rls.setup({})
+lspconfig.rls.setup({})
+local root_files = {".luarc.json", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml"}
+local function _1_(fname)
+  local util = require("lspconfig.util")
+  local root = (util.root_pattern(unpack(root_files))(fname) or util.root_pattern("lua/")(fname))
+  if (root and (root == vim.env.HOME)) then
+    return nil
+  else
+  end
+  if (root and (root ~= vim.env.HOME)) then
+    return root
+  else
+  end
+  return util.find_git_ancestor(fname)
+end
+return lspconfig.sumneko_lua.setup({root_dir = _1_, settings = {Lua = {telemetry = {enable = false}, diagnostics = {globals = {"vim"}}, workspace = {library = vim.api.nvim_get_runtime_file("", true)}, runtime = {version = "LuaJIT"}}}})

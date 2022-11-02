@@ -134,7 +134,9 @@
 
 (fn setup-formatoptions []
   (opt-local formatoptions += :jcn)
-  (when (not= :markdown (vim.fn.expand :<amatch>))
+  ;; FIXME: this is cancer
+  (when (and (not= :markdown (vim.fn.expand :<amatch>)
+                   (not= :gitcommit (vim.fn.expand :<amatch>))))
     (opt-local formatoptions -= :t))
   (opt-local formatoptions -= [:r :o]))
 

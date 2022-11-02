@@ -3,6 +3,7 @@ local _local_1_ = require("util")
 local _24HOME = _local_1_["$HOME"]
 local exists_3f = _local_1_["exists?"]
 local system = _local_1_["system"]
+local f_5c = _local_1_["f\\"]
 local function oldfiles()
   local blacklist = {}
   local oldfiles0
@@ -61,7 +62,7 @@ local function find()
   end
   local function on_complete(cmd, item)
     if ("file" == item.type) then
-      return vim.cmd((cmd .. " " .. vim.fn.fnameescape(item.name)))
+      return vim.cmd((cmd .. " " .. f_5c(item.name)))
     else
       local function _10_()
         return ufind.open(ls((cwd .. "/" .. item.name)), {on_complete = on_complete})
@@ -92,7 +93,7 @@ local function ls_rec_21(path, results)
       if ("directory" == type) then
         table.insert(dirs, abs_path)
       else
-        table.insert(results, abs_path)
+        table.insert(results, {path = abs_path, base = name})
       end
     else
     end
@@ -107,25 +108,31 @@ local function notes()
   local dir = (_24HOME .. "/notes")
   assert(exists_3f(dir))
   ls_rec_21(dir, notes0)
-  return ufind.open(notes0, nil)
+  local function _17_(_241)
+    return _241.base
+  end
+  local function _18_(_241, _242)
+    return vim.cmd((_241 .. " " .. f_5c(_242.path)))
+  end
+  return ufind.open(notes0, {get_value = _17_, on_complete = _18_})
 end
 local function buffers()
   local buffers0
   do
     local origin_buf = vim.api.nvim_win_get_buf(0)
     local bufs
-    local function _17_(_241)
+    local function _19_(_241)
       return (("" ~= vim.fn.bufname(_241)) and not vim.startswith(vim.fn.bufname(_241), "man://") and (vim.fn.buflisted(_241) == 1) and (vim.fn.bufexists(_241) == 1) and (_241 ~= origin_buf))
     end
-    bufs = vim.tbl_filter(_17_, vim.api.nvim_list_bufs())
-    local function _18_(_241, _242)
+    bufs = vim.tbl_filter(_19_, vim.api.nvim_list_bufs())
+    local function _20_(_241, _242)
       return ((vim.fn.getbufinfo(_241))[1].lastused > (vim.fn.getbufinfo(_242))[1].lastused)
     end
-    table.sort(bufs, _18_)
-    local function _19_(_241)
+    table.sort(bufs, _20_)
+    local function _21_(_241)
       return vim.fn.bufname(_241)
     end
-    buffers0 = vim.tbl_map(_19_, bufs)
+    buffers0 = vim.tbl_map(_21_, bufs)
   end
   return ufind.open(buffers0, nil)
 end
@@ -140,37 +147,37 @@ local function grep(query)
     if (0 ~= exit) then
       return vim.notify(("Grep failed:" .. stderr), vim.log.levels.ERROR)
     else
-      local function _21_()
-        local function _22_(cmd, item)
-          local found_3f, _, matched_filename, matched_line_nr = item:find("^([^:]+):(%d+):")
+      local function _23_()
+        local function _24_(cmd, item)
+          local found_3f, _, matched_filename, matched_line_nr = item:find("^([^:]-):(%d+):")
           if found_3f then
-            return vim.cmd((cmd .. " " .. vim.fn.fnameescape(matched_filename) .. "|" .. matched_line_nr))
+            return vim.cmd((cmd .. " " .. f_5c(matched_filename) .. "|" .. matched_line_nr))
           else
             return print("pattern match failed")
           end
         end
-        return ufind.open(vim.split(stdout, "\n", {trimempty = true}), {delimiter = ":", on_complete = _22_})
+        return ufind.open(vim.split(stdout, "\n", {trimempty = true}), {pattern = "^([^:]-):%d+:(.*)$", on_complete = _24_})
       end
-      return vim.schedule(_21_)
+      return vim.schedule(_23_)
     end
   end
-  return system({"rg", "--vimgrep", "-M", 200, "--no-heading", "--no-line-number", "--no-column", "--", query0, _3fpath}, cb)
+  return system({"rg", "--vimgrep", "-M", 200, "--no-heading", "--no-column", "--", query0, _3fpath}, cb)
 end
-local function visual_grep(_25_)
-  local _arg_26_ = _25_
-  local args = _arg_26_["args"]
+local function visual_grep(_27_)
+  local _arg_28_ = _27_
+  local args = _arg_28_["args"]
   return grep(args)
 end
 local function grep_expr()
   local dir_3f = (vim.fn.isdirectory(vim.fn.expand("%:p")) == 1)
-  local function _27_()
+  local function _29_()
     if dir_3f then
       return " %<Left><Left>"
     else
       return ""
     end
   end
-  return (":<C-u>Grep " .. _27_())
+  return (":<C-u>Grep " .. _29_())
 end
 vim.keymap.set("n", "<space>o", oldfiles, {})
 vim.keymap.set("n", "<space>f", find, {})

@@ -1,9 +1,9 @@
 (local configs (require :nvim-treesitter.configs))
 (import-macros {: map} :macros)
 
-(fn large-buf? [_lang bufnr]
+(fn large-buf? [lang bufnr]
   (local size (vim.fn.getfsize (vim.fn.bufname bufnr)))
-  (or (> size (* 1024 1024)) (= size -2)))
+  (or (> size (* 1024 1024)) (= size -2) (= lang :markdown)))
 
 ;; Enable treesitter highlighting for lua
 (set vim.g.ts_highlight_lua true)

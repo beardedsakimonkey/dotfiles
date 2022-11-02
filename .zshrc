@@ -357,7 +357,7 @@ alias gp='git push'
 alias gb='git branch'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
-alias ydl='yt-dlp'
+# alias ydl='yt-dlp'
 alias dl='aria2c'
 alias peek='git-peek'
 
@@ -430,10 +430,11 @@ cd() {
 cdl() {
     emulate -L zsh
     local most_recent_dir=$(\
-        fd --type=d --max-depth=1 --exec stat -f '%Z %N' {} \
-      | sort --key=1,1 --numeric-sort --reverse --ignore-leading-blanks \
-      | head -n1 \
-      | awk '{ print $2 }' \
+        # sort by mtime
+        stat -f '%m %N' * \
+        | sort --key=1,1 --numeric-sort --reverse \
+        | head -n1 \
+        | awk '{ print $2 }' \
     )
     builtin cd "$most_recent_dir"
 }
@@ -456,16 +457,25 @@ subup() {
 d() {
     case $1 in
         i) dtach -A /tmp/weechat.sock weechat ;;
-        m)
+        m|ms)
             if [[ -S /tmp/music.sock ]]; then
                 dtach -a /tmp/music.sock
             else
-                dtach -c /tmp/music.sock mpv --vid=no "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
+                if [[ $1 == "ms" ]]; then
+                    shuffle="--shuffle"
+                fi
+                dtach -c /tmp/music.sock mpv --vid=no $shuffle "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
             fi
             ;;
         a) dtach -a /tmp/aria.sock ;;
         *) dtach -A /tmp/$1.sock $1 ;;
     esac
+}
+
+ydl() {
+    emulate -L zsh
+    local url="${1:s/piped.kavin.rocks/youtube.com}"
+    yt-dlp $url ${@:2}
 }
 
 #

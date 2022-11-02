@@ -1,5 +1,5 @@
 (local ufind (require :ufind))
-(local {: $HOME : exists? : system} (require :util))
+(local {: $HOME : exists? : system : f\} (require :util))
 (import-macros {: map : command} :macros)
 
 (fn oldfiles []
@@ -55,7 +55,7 @@
 
   (fn on_complete [cmd item]
     (if (= :file item.type)
-        (vim.cmd (.. cmd " " (vim.fn.fnameescape item.name)))
+        (vim.cmd (.. cmd " " (f\ item.name)))
         ;; Not sure why `schedule` is needed, but without it, we won't
         ;; startinsert.
         (vim.schedule #(ufind.open (ls (.. cwd "/" item.name)) {: on_complete}))))
@@ -77,7 +77,7 @@
       (local abs-path (.. path "/" name))
       (if (= :directory type)
           (table.insert dirs abs-path)
-          (table.insert results abs-path))))
+          (table.insert results {:path abs-path :base name}))))
   (each [_ dir (ipairs dirs)]
     (ls-rec! dir results)))
 
@@ -86,7 +86,9 @@
   (local dir (.. $HOME :/notes))
   (assert (exists? dir))
   (ls-rec! dir notes)
-  (ufind.open notes nil))
+  (ufind.open notes
+              {:get_value #$.base
+               :on_complete #(vim.cmd (.. $1 " " (f\ $2.path)))}))
 
 (fn buffers []
   (local buffers (let [origin-buf (vim.api.nvim_win_get_buf 0)
@@ -113,29 +115,21 @@
         (vim.notify (.. "Grep failed:" stderr) vim.log.levels.ERROR)
         (do
           (vim.schedule #(ufind.open (vim.split stdout "\n" {:trimempty true})
-                                     {:delimiter ":"
+                                     {:pattern "^([^:]-):%d+:(.*)$"
                                       :on_complete (fn [cmd item]
                                                      (local (found? _
                                                                     matched-filename
                                                                     matched-line-nr)
-                                                            (item:find "^([^:]+):(%d+):"))
+                                                            (item:find "^([^:]-):(%d+):"))
                                                      (if found?
                                                          (vim.cmd (.. cmd " "
-                                                                      (vim.fn.fnameescape matched-filename)
+                                                                      (f\ matched-filename)
                                                                       "|"
                                                                       matched-line-nr))
                                                          (print "pattern match failed")))})))))
 
-  (system [:rg
-           :--vimgrep
-           :-M
-           200
-           :--no-heading
-           :--no-line-number
-           :--no-column
-           "--"
-           query
-           ?path] cb))
+  (system [:rg :--vimgrep :-M 200 :--no-heading :--no-column "--" query ?path]
+          cb))
 
 (fn visual-grep [{: args}]
   (grep args))

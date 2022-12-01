@@ -228,7 +228,7 @@
      :silent)
 
 (map x :g/ "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
-(map n :<RightMouse>
+(map [n x] :<RightMouse>
      "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>"
      :silent)
 
@@ -276,7 +276,7 @@
 (map n ":V" "<Cmd>e ~/.config/nvim/<CR>" :silent)
 (map n ":L" "<Cmd>e ~/.config/nvim/lua/<CR>" :silent)
 (map n ":C" "<Cmd>e ~/.config/nvim/lua/config/<CR>" :silent)
-(map n ":F" "<Cmd>e ~/.config/nvim/after/ftplugin/<CR>" :silent)
+(map n ":A" "<Cmd>e ~/.config/nvim/after/ftplugin/<CR>" :silent)
 (map n ":P" "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>" :silent)
 (map n ":R" "<Cmd>e $VIMRUNTIME<CR>" :silent)
 (map n ":Z" "<Cmd>e ~/.zshrc<CR>" :silent)

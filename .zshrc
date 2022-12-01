@@ -357,7 +357,7 @@ alias gp='git push'
 alias gb='git branch'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
-# alias ydl='yt-dlp'
+alias ydl='yt-dlp'
 alias dl='aria2c'
 alias peek='git-peek'
 
@@ -464,7 +464,7 @@ d() {
                 if [[ $1 == "ms" ]]; then
                     shuffle="--shuffle"
                 fi
-                dtach -c /tmp/music.sock mpv --vid=no $shuffle "$(fd --type=d --max-depth=1 . '/Volumes/T7 Shield/music' | fzy)"
+                dtach -c /tmp/music.sock mpv --vid=no $shuffle "$(fd --type=d . '/Volumes/T7 Shield/music' | fzy)"
             fi
             ;;
         a) dtach -a /tmp/aria.sock ;;
@@ -472,10 +472,16 @@ d() {
     esac
 }
 
-ydl() {
-    emulate -L zsh
-    local url="${1:s/piped.kavin.rocks/youtube.com}"
-    yt-dlp $url ${@:2}
+# https://www.cyberciti.biz/faq/linux-unix-convert-hex-to-decimal-number/
+h2d(){
+  echo "ibase=16; $@"|bc
+}
+d2h(){
+  echo "obase=16; $@"|bc
+}
+
+showmagnet() {
+    aria2c --bt-metadata-only=true --bt-save-metadata=true $@
 }
 
 #

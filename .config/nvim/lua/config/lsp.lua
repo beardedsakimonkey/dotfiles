@@ -32,4 +32,4 @@ local function _1_(fname)
   end
   return util.find_git_ancestor(fname)
 end
-return lspconfig.sumneko_lua.setup({root_dir = _1_, settings = {Lua = {telemetry = {enable = false}, diagnostics = {globals = {"vim"}}, workspace = {library = vim.api.nvim_get_runtime_file("", true)}, runtime = {version = "LuaJIT"}}}})
+return lspconfig.sumneko_lua.setup({root_dir = _1_, settings = {Lua = {telemetry = {enable = false}, diagnostics = {globals = {"vim"}}, completion = {keywordSnippet = false}, workspace = {library = vim.api.nvim_get_runtime_file("", true)}, runtime = {version = "LuaJIT"}}}})

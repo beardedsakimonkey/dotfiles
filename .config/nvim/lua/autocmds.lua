@@ -55,7 +55,6 @@ local function compile_fennel(src, buf)
   if exists_3f(linter) then
     plugins = {fennel.dofile(linter, {env = "_COMPILER", useMetadata = true, ["compiler-env"] = _G})}
   else
-    vim.api.nvim_err_writeln("Linter missing")
     plugins = {}
   end
   local opts = {filename = src, plugins = plugins, allowedGlobals = {}}
@@ -204,7 +203,7 @@ local function template_h()
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, {("#ifndef " .. guard), ("#define " .. guard), "", "#endif"})
 end
 local function template_c()
-  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n\9printf(\"hi\\n\");\n}"
+  local str = "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    printf(\"hi\\n\");\n}"
   return vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, "\n"))
 end
 local function fast_theme()

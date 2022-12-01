@@ -1,188 +1,98 @@
-local ufind = require("ufind")
-local _local_1_ = require("util")
-local _24HOME = _local_1_["$HOME"]
-local exists_3f = _local_1_["exists?"]
-local system = _local_1_["system"]
-local f_5c = _local_1_["f\\"]
-local function oldfiles()
-  local blacklist = {}
-  local oldfiles0
-  local function _2_(file)
-    return not blacklist[file]
-  end
-  local function _3_(file)
-    if not file then
-      return false
-    else
-      local not_wildignored
-      local function _4_()
-        return (0 == vim.fn.empty(vim.fn.glob(file)))
-      end
-      not_wildignored = _4_
-      local not_dir
-      local function _5_()
-        return (0 == vim.fn.isdirectory(file))
-      end
-      not_dir = _5_
-      local not_manpage
-      local function _6_()
-        return not vim.startswith(file, "man://")
-      end
-      not_manpage = _6_
-      local keep = (not_wildignored() and not_dir() and not_manpage())
-      if (keep and (nil ~= file:match("%.fnl$"))) then
-        blacklist[file:gsub("%.fnl$", ".lua")] = true
-      else
-      end
-      return keep
-    end
-  end
-  oldfiles0 = vim.tbl_filter(_2_, vim.tbl_filter(_3_, vim.v.oldfiles))
-  return ufind.open(oldfiles0, nil)
+local ufind = require'ufind'
+
+local function cfg(t)
+    return vim.tbl_deep_extend('keep', t or {}, {
+        layout = { border = 'single' },
+        keymaps = { open_vsplit = '<C-l>' },
+    })
 end
-local uv = vim.loop
-local function find()
-  local cwd = vim.loop.cwd()
-  local function ls(path)
-    local ret = {}
-    do
-      local fs_2_auto = assert(uv.fs_scandir(path))
-      local done_3f_3_auto = false
-      while not done_3f_3_auto do
-        local name, type = uv.fs_scandir_next(fs_2_auto)
-        if not name then
-          done_3f_3_auto = true
-          assert(not type)
+
+local function on_complete_grep(cmd, lines)
+    for i, line in ipairs(lines) do
+        local found, _, fname, linenr = line:find('^([^:]-):(%d+):')
+        if found then
+            if i == #lines then
+                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(fname) .. '|' .. linenr)
+            else  -- create the buffer
+                local buf = vim.fn.bufnr(fname, true)
+                vim.bo[buf].buflisted = true
+            end
         else
-          table.insert(ret, {name = name, type = type})
+            print('regex fail for line: ', line)
         end
-      end
     end
-    return ret
-  end
-  local function on_complete(cmd, item)
-    if ("file" == item.type) then
-      return vim.cmd((cmd .. " " .. f_5c(item.name)))
-    else
-      local function _10_()
-        return ufind.open(ls((cwd .. "/" .. item.name)), {on_complete = on_complete})
-      end
-      return vim.schedule(_10_)
-    end
-  end
-  local function _12_(_241)
-    return _241.name
-  end
-  return ufind.open(ls(cwd), {get_value = _12_, on_complete = on_complete})
 end
-local function ls(path)
-  local dir = assert(vim.loop.fs_opendir(path, nil, 1000))
-  local _3ffiles = vim.loop.fs_readdir(dir)
-  assert(vim.loop.fs_closedir(dir))
-  return (_3ffiles or {})
+
+local function live_grep()
+    ufind.open_live('rg --vimgrep --no-column --fixed-strings --color=ansi -- ', cfg{
+        ansi = true,
+        on_complete = on_complete_grep,
+    })
 end
-local function ls_rec_21(path, results)
-  local files = ls(path)
-  local dirs = {}
-  for _, _13_ in ipairs(files) do
-    local _each_14_ = _13_
-    local name = _each_14_["name"]
-    local type = _each_14_["type"]
-    if not vim.startswith(name, ".") then
-      local abs_path = (path .. "/" .. name)
-      if ("directory" == type) then
-        table.insert(dirs, abs_path)
-      else
-        table.insert(results, {path = abs_path, base = name})
-      end
-    else
-    end
-  end
-  for _, dir in ipairs(dirs) do
-    ls_rec_21(dir, results)
-  end
-  return nil
+
+local function find()
+    ufind.open_live('fd --color=always --type=file --', cfg{ansi = true})
 end
-local function notes()
-  local notes0 = {}
-  local dir = (_24HOME .. "/notes")
-  assert(exists_3f(dir))
-  ls_rec_21(dir, notes0)
-  local function _17_(_241)
-    return _241.base
-  end
-  local function _18_(_241, _242)
-    return vim.cmd((_241 .. " " .. f_5c(_242.path)))
-  end
-  return ufind.open(notes0, {get_value = _17_, on_complete = _18_})
-end
+
 local function buffers()
-  local buffers0
-  do
-    local origin_buf = vim.api.nvim_win_get_buf(0)
-    local bufs
-    local function _19_(_241)
-      return (("" ~= vim.fn.bufname(_241)) and not vim.startswith(vim.fn.bufname(_241), "man://") and (vim.fn.buflisted(_241) == 1) and (vim.fn.bufexists(_241) == 1) and (_241 ~= origin_buf))
-    end
-    bufs = vim.tbl_filter(_19_, vim.api.nvim_list_bufs())
-    local function _20_(_241, _242)
-      return ((vim.fn.getbufinfo(_241))[1].lastused > (vim.fn.getbufinfo(_242))[1].lastused)
-    end
-    table.sort(bufs, _20_)
-    local function _21_(_241)
-      return vim.fn.bufname(_241)
-    end
-    buffers0 = vim.tbl_map(_21_, bufs)
-  end
-  return ufind.open(buffers0, nil)
+    ufind.open(require'ufind.source.buffers'(), cfg{})
 end
-local function grep(query)
-  local query0, _3fpath = nil, nil
-  if query:match("%%$") then
-    query0, _3fpath = query:sub(1, -3), vim.fn.expand("%:p")
-  else
-    query0, _3fpath = query, nil
-  end
-  local function cb(stdout, stderr, exit)
-    if (0 ~= exit) then
-      return vim.notify(("Grep failed:" .. stderr), vim.log.levels.ERROR)
-    else
-      local function _23_()
-        local function _24_(cmd, item)
-          local found_3f, _, matched_filename, matched_line_nr = item:find("^([^:]-):(%d+):")
-          if found_3f then
-            return vim.cmd((cmd .. " " .. f_5c(matched_filename) .. "|" .. matched_line_nr))
-          else
-            return print("pattern match failed")
-          end
+
+local function oldfiles()
+    ufind.open(require'ufind.source.oldfiles'(), cfg{})
+end
+
+local function notes()
+    ufind.open('fd --color=always --type=file "" ' .. os.getenv'HOME' .. '/notes', cfg{
+        ansi = true
+    })
+end
+
+local function interactive_find()
+    local function ls(path)
+        return 'fd -- "" ' .. path
+    end
+    local function on_complete(cmd, line)
+        local info = vim.loop.fs_stat(line)
+        local is_dir = info and info.type == 'directory' or false
+        if is_dir then
+            vim.schedule(function()
+                ufind.open(ls(line), cfg{on_complete = on_complete})
+            end)
+        else
+            vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(line))
         end
-        return ufind.open(vim.split(stdout, "\n", {trimempty = true}), {pattern = "^([^:]-):%d+:(.*)$", on_complete = _24_})
-      end
-      return vim.schedule(_23_)
     end
-  end
-  return system({"rg", "--vimgrep", "-M", 200, "--no-heading", "--no-column", "--", query0, _3fpath}, cb)
+    local cwd = vim.loop.cwd()
+    ufind.open(ls(cwd), cfg{
+        on_complete = on_complete
+    })
 end
-local function visual_grep(_27_)
-  local _arg_28_ = _27_
-  local args = _arg_28_["args"]
-  return grep(args)
-end
-local function grep_expr()
-  local dir_3f = (vim.fn.isdirectory(vim.fn.expand("%:p")) == 1)
-  local function _29_()
-    if dir_3f then
-      return " %<Left><Left>"
-    else
-      return ""
+
+vim.keymap.set('n', '<space>b', buffers)
+vim.keymap.set('n', '<space>o', oldfiles)
+vim.keymap.set('n', '<space>f', find)
+vim.keymap.set('n', '<space>F', interactive_find)
+vim.keymap.set('n', '<space>n', notes)
+vim.keymap.set('n', '<space>x', live_grep)
+
+local function grep(query)
+    local path = ''
+    if vim.endswith(query, '%') then
+        query = query:sub(1, -3)
+        path = vim.fn.expand('%:p')
     end
-  end
-  return (":<C-u>Grep " .. _29_())
+    local cmd = 'rg --vimgrep --no-column --fixed-strings --color=ansi -- '
+    ufind.open(cmd .. query .. ' ' .. path, cfg{
+        pattern = '^([^:]-):%d+:(.*)$',
+        ansi = true,
+        on_complete = on_complete_grep,
+    })
 end
-vim.keymap.set("n", "<space>o", oldfiles, {})
-vim.keymap.set("n", "<space>f", find, {})
-vim.keymap.set("n", "<space>n", notes, {})
-vim.keymap.set("n", "<space>b", buffers, {})
-vim.keymap.set("n", "<space>a", grep_expr, {expr = true})
-vim.api.nvim_create_user_command("Grep", visual_grep, {nargs = "+"})
-return vim.keymap.set("x", "<space>a", "\"vy:Grep <C-r>v<CR>", {})
+
+vim.api.nvim_create_user_command('Grep', function(o) grep(o.args) end, {nargs = '+'})
+vim.keymap.set('x', '<space>a', '\"vy:Grep <C-r>v<CR>', {})
+vim.keymap.set('n', '<space>a', function()
+    local is_dir = vim.fn.isdirectory(vim.fn.expand('%:p')) == 1
+    return ':<C-u>Grep ' .. (is_dir and ' %<Left><Left>' or '')
+end, {expr = true})

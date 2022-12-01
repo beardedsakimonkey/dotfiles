@@ -1,3 +1,4 @@
+require("impatient")
 local _local_1_ = require("util")
 local exists_3f = _local_1_["exists?"]
 local path = (vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim")
@@ -24,7 +25,11 @@ vim.g.loaded_ruby_provider = 1
 vim.cmd.colorscheme("navajo")
 vim.cmd.syntax("enable")
 local function require_safe(mod)
-  local ok_3f, msg = pcall(require, mod)
+  local ok_3f, msg = nil, nil
+  local function _3_()
+    return require(mod)
+  end
+  ok_3f, msg = xpcall(_3_, debug.traceback)
   if not ok_3f then
     return vim.api.nvim_err_writeln(("Config error in %s: %s"):format(mod, msg))
   else

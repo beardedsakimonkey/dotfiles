@@ -30,7 +30,8 @@ local function goto_require()
   end
 end
 vim["opt_local"]["keywordprg"] = ":help"
+vim["opt_local"]["textwidth"] = 100
 vim.keymap.set("n", "]f", goto_fnl, {buffer = true})
 vim.keymap.set("n", "[f", goto_fnl, {buffer = true})
 vim.keymap.set("n", "gd", goto_require, {buffer = true})
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl keywordprg< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> gd"))
+return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl keywordprg< | setl textwidth< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> gd"))

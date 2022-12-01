@@ -18,6 +18,19 @@
   (buf_keymap :<space>w "<Cmd>lua vim.lsp.buf.formatting()<CR>"))
 
 (vim.diagnostic.config {:virtual_text false
+                        ;; :float {:suffix (fn [diagnostic]
+                        ;;                   (values (if diagnostic.code
+                        ;;                               (: " [%s]" :format
+                        ;;                                  diagnostic.code)
+                        ;;                               "")
+                        ;;                           :DiagnosticWarn))}
+                        ;; :format (fn [diag]
+                        ;;           (if diag.code
+                        ;;               (string.format "%s [%s]"
+                        ;;                              diag.message
+                        ;;                              diag.code)
+                        ;;               diag.message))
+                        ;; }
                         ;; {:prefix "●"}
                         :signs false})
 
@@ -48,8 +61,12 @@
                                                        (not= root vim.env.HOME))
                                               (lua "return root"))
                                             (util.find_git_ancestor fname)))
+                              ;; See https://github.com/sumneko/lua-language-server/wiki/Settings
                               :settings {:Lua {:telemetry {:enable false}
                                                :diagnostics {:globals [:vim]}
+                                               ;; cmp doesn't support lsp snippets
+                                               ;; without using certain plugins
+                                               :completion {:keywordSnippet false}
                                                :workspace {:library (vim.api.nvim_get_runtime_file ""
                                                                                                    true)}
                                                :runtime {:version :LuaJIT}}}})

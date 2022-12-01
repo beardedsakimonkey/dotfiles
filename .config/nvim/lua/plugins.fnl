@@ -12,35 +12,28 @@
       ;; Neovim
       ;;
       :beardedsakimonkey/packer.nvim {}
-      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"}
+      :lewis6991/impatient.nvim {}
+      :beardedsakimonkey/nvim-udir {:config "require'config.udir'"
+                                    :branch :develop}
       :beardedsakimonkey/nvim-ufind {:config "require'config.ufind'"}
       :neovim/nvim-lspconfig {:config "require'config.lsp'"}
-      :mhartington/formatter.nvim {:config "require'config.formatter'"
-                                   :opt true
-                                   :ft [:fennel :go]}
+      :mhartington/formatter.nvim {:config "require'config.formatter'"}
       :mfussenegger/nvim-lint {:config "require'config.lint'"}
       :ggandor/lightspeed.nvim {:config "require'config.lightspeed'"}
       :jose-elias-alvarez/minsnip.nvim {:config "require'config.minsnip'"
                                         :commit :6ae2f32}
-      :norcalli/nvim-colorizer.lua {:setup "require'config.colorizer'"
-                                    :opt true
-                                    :cmd :ColorizerAttachToBuffer}
+      :norcalli/nvim-colorizer.lua {:setup "require'config.colorizer'"}
       :Darazaki/indent-o-matic {:commit :f7d4382}
       :kylechui/nvim-surround {:config "require'config.surround'"}
-      ;; :echasnovski/mini.nvim {:config "require'config.mini'"}
-      :ii14/neorepl.nvim {:opt true :cmd :Repl}
-      ;; TODO: Doesn't work for fennel
-      ;; :monkoose/matchparen.nvim {:config "require'matchparen'.setup()"}
+      :ii14/neorepl.nvim {}
+      :Wansmer/treesj {:config "require'config.treesj'"}
+      :folke/neodev.nvim {}
       ;;
       ;; Treesitter
       ;;
       :nvim-treesitter/nvim-treesitter {:config "require'config.treesitter'"
                                         :run ":TSUpdate"}
-      :nvim-treesitter/playground {:opt true
-                                   :ft :query
-                                   :cmd [:TSPlaygroundToggle
-                                         :TSHighlightCapturesUnderCursor]
-                                   :after :nvim-treesitter}
+      :nvim-treesitter/playground {:after :nvim-treesitter}
       :nvim-treesitter/nvim-treesitter-textobjects {:after :nvim-treesitter}
       ;;
       ;; Completion
@@ -53,22 +46,17 @@
       ;;
       ;; Vimscript
       ;;
-      ;; :farmergreg/vim-lastplace {:commit :cef9d62}
-      :mbbill/undotree {:opt true :cmd :UndotreeToggle}
-      :tommcdo/vim-exchange {:opt true :keys [[:n :cx] [:v :X]]}
-      :dstein64/vim-startuptime {:opt true :cmd :StartupTime}
-      :AndrewRadev/linediff.vim {:config "require'config.linediff'"
-                                 :opt true
-                                 :keys [[:v :D]]}
-      :tommcdo/vim-lion {:opt true
-                         :keys [:gl :gL]
-                         :config "vim.g.lion_squeeze_spaces = 1"}
+      :mbbill/undotree {}
+      :tommcdo/vim-exchange {}
+      :dstein64/vim-startuptime {}
+      :AndrewRadev/linediff.vim {:config "require'config.linediff'"}
+      :tommcdo/vim-lion {:config "vim.g.lion_squeeze_spaces = 1"}
       :tpope/vim-commentary {}
       :tpope/vim-repeat {}
       ;;
       ;; Languages
       ;;
-      :rescript-lang/vim-rescript {:disable true :opt true :ft :rescript}
-      :bakpakin/fennel.vim {:opt true :ft :fennel}
-      :gpanders/fennel-repl.nvim {:opt true :cmd :FennelRepl :ft :fennel}
-      :beardedsakimonkey/nvim-antifennel {:opt true :cmd :Antifennel}})
+      ;; :rescript-lang/vim-rescript {}
+      :bakpakin/fennel.vim {}
+      :gpanders/fennel-repl.nvim {}
+      :beardedsakimonkey/nvim-antifennel {}})

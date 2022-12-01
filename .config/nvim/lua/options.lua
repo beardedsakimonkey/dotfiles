@@ -43,6 +43,7 @@ do end (vim)["opt"]["modeline"] = false
 vim["opt"]["shortmess"] = "filnxtToOfaTWIcFS"
 vim["opt"]["fillchars"] = {eob = " "}
 vim["opt"]["list"] = true
+vim["opt"]["colorcolumn"] = "+0"
 vim["opt"]["scrolloff"] = 2
 vim["opt"]["sidescrolloff"] = 2
 vim["opt"]["virtualedit"] = "block"

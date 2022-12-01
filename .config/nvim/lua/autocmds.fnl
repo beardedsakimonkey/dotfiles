@@ -55,9 +55,7 @@
                                      {:env :_COMPILER
                                       :useMetadata true
                                       :compiler-env _G})]
-                     (do
-                       (vim.api.nvim_err_writeln "Linter missing")
-                       [])))
+                     []))
   (local opts {:filename src : plugins :allowedGlobals []})
   ;; Enable checking that globals exist
   (each [global-name (pairs _G)]
@@ -176,7 +174,7 @@
   (local str "#include <stdio.h>
 
 int main(int argc, char *argv[]) {
-\tprintf(\"hi\\n\");
+    printf(\"hi\\n\");
 }")
   (set-lines (vim.split str "\n")))
 
@@ -218,6 +216,9 @@ int main(int argc, char *argv[]) {
          (autocmd BufWritePost */.zsh/overlay.ini fast-theme)
          (autocmd BufNewFile * #(autocmd :my/autocmds BufWritePost nil maybe-make-executable {:once true :buffer 0}))
          (autocmd BufNewFile [http://* https://*] edit-url)
+         ;; TODO: use BufEnter and check if file is empty instead of using
+         ;; BufNewFile so that if we use the template when creating a file via
+         ;; ufind.
          (autocmd BufNewFile *.sh #(set-lines ["#!/bin/bash"]))
          (autocmd BufNewFile *.h template-h)
          (autocmd BufNewFile main.c template-c)

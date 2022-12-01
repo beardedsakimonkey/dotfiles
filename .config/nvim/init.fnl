@@ -1,3 +1,5 @@
+(require :impatient)
+
 (local {: exists?} (require :util))
 (import-macros {: opt} :macros)
 
@@ -33,7 +35,7 @@
 (vim.cmd.syntax :enable)
 
 (fn require-safe [mod]
-  (local (ok? msg) (pcall require mod))
+  (local (ok? msg) (xpcall #(require mod) debug.traceback))
   (when (not ok?)
     (vim.api.nvim_err_writeln (: "Config error in %s: %s" :format mod msg))))
 

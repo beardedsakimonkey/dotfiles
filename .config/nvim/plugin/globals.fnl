@@ -13,3 +13,6 @@
   (print-ORIG (unpack args)))
 
 (set _G.print print-PATCHED)
+(set _G.P (fn [...]
+            (print-PATCHED ...)
+            ...))

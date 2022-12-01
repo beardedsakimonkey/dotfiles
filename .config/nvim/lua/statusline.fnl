@@ -4,11 +4,13 @@
 
 ;; fnlfmt: skip
 (fn M.statusline []
-  (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))]
+  (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))
+        issues (if current-win (length (vim.diagnostic.get 0)) 0)]
     (.. "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
         "%{&buftype == 'nofile' ? '[Scratch]' : expand('%:t')}%* "
         "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}"
         "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}"
+        (if (> issues 0) (.. "✘ " issues) "")
         "%="
         (if current-win "%6*%{session#status()}%* " ""))))
 
@@ -37,4 +39,3 @@
 (opt tabline "%!v:lua.require'statusline'.tabline()")
 
 M
-

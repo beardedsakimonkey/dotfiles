@@ -15,18 +15,21 @@ local function get_bufnrs()
   return vim.tbl_keys(visible_bufs)
 end
 local function _2_()
+  return nil
+end
+local function _3_()
   if cmp.visible() then
     return cmp.select_next_item()
   else
     return cmp.complete()
   end
 end
-local function _4_()
+local function _5_()
   if cmp.visible() then
     return cmp.select_prev_item()
   else
     return cmp.complete()
   end
 end
-cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = _2_, ["<C-k>"] = _4_}, experimental = {ghost_text = true}})
+cmp.setup({sources = {{name = "buffer", option = {get_bufnrs = get_bufnrs}}, {name = "path"}, {name = "nvim_lua"}, {name = "nvim_lsp"}}, snippet = {expand = _2_}, mapping = {["<Tab>"] = cmp.mapping.confirm({select = true}), ["<C-j>"] = _3_, ["<C-k>"] = _5_}, experimental = {ghost_text = true}})
 return cmp.setup.filetype({"neorepl"}, {enabled = false})

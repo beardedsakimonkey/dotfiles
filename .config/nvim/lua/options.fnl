@@ -53,6 +53,7 @@
 (opt shortmess :filnxtToOfaTWIcFS)
 (opt fillchars {:eob " "})
 (opt list)
+(opt colorcolumn :+0)
 
 (opt scrolloff 2)
 (opt sidescrolloff 2)

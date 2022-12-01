@@ -25,7 +25,7 @@
 
 ;; fnlfmt: skip
 (with-undo-ftplugin (opt-local keywordprg ":help")
+                    (opt-local textwidth 100)
                     (map n "]f" goto-fnl :buffer)
                     (map n "[f" goto-fnl :buffer)
                     (map n "gd" goto-require :buffer))
-

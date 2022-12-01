@@ -37,7 +37,7 @@
 (hi   ErrorMsg     fg=White        bg=IndianRed3)
 (hi   PreProc      fg=DeepPink4    bg=none)
 (hi   Comment      fg=Burlywood4   bg=none)
-(hi   Identifier   fg=Blue3        bg=none)
+(hi   Identifier   fg=Black        bg=none)
 (hi   Function     fg=Black)
 (hi   LineNr       fg=Burlywood4)
 (hi   Statement    fg=MidnightBlue bg=none)
@@ -64,8 +64,10 @@
 (hi   VertSplit    fg=#CDCABD      bg=MistyRose4)
 (hi   CursorLine   bg=#ccc5b5)
 (hi   Underlined   fg=#BD00BD      :underline)
+(hi   ColorColumn  bg=#ccb3a9)
 (link :CursorLineNr :LineNr)
 (link :SpecialKey   :Directory)
+;; (link :FloatBorder  :Normal)
 
 (hi User1 fg=AntiqueWhite2 bg=MistyRose4 :bold)
 (hi User2 fg=Black         bg=OliveDrab2)
@@ -101,6 +103,7 @@
 (link :SnapPrompt   :Comment)
 
 (link :UfindMatch :SnapPosition)
+(link :UfindCursorLine :DiffChange)
 
 (hi   FennelSymbol fg=Black)
 
@@ -115,7 +118,7 @@
 ;; (hi TSError fg=none bg=#dda296)
 (link "@constant.builtin" :Constant)
 (hi "@function" fg=Black :bold)
-(link "@function.call" :Normal)
+(hi "@function.call" fg=Blue3)
 (link "@keyword.operator":PreProc)
 (link "@keyword.return"  :PreProc)
 ;; (link "@repeat"          :PreProc)

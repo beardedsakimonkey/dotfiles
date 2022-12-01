@@ -19,6 +19,7 @@
                       {:name :path}
                       {:name :nvim_lua}
                       {:name :nvim_lsp}]
+            :snippet {:expand #nil}
             :mapping {:<Tab> (cmp.mapping.confirm {:select true})
                       :<C-j> #(if (cmp.visible) (cmp.select_next_item)
                                   (cmp.complete))
@@ -27,4 +28,3 @@
             :experimental {:ghost_text true}})
 
 (cmp.setup.filetype [:neorepl] {:enabled false})
-

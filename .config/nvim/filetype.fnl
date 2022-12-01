@@ -1,5 +1,6 @@
-(vim.filetype.add {:extension {:re :reason
-                               :rei :reason
+(vim.filetype.add {:extension {:re :ocaml
+                               :rei :ocaml
+                               :res :ocaml
                                :flow :javascript
                                :vert :glsl
                                :frag :glsl}

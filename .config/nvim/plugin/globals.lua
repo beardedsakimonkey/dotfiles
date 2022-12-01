@@ -15,4 +15,9 @@ local function print_PATCHED(...)
   return print_ORIG(unpack(args))
 end
 _G.print = print_PATCHED
+local function _2_(...)
+  print_PATCHED(...)
+  return ...
+end
+_G.P = _2_
 return nil

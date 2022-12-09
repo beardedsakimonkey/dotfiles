@@ -29,7 +29,12 @@
                                            :update :R
                                            :goto_node :<cr>
                                            :show_help "?"}}
-                :textobjects {:select {:enable true
+                :textobjects {:move {:enable true
+                                     :disable large-buf?
+                                     :set_jumps false
+                                     :goto_next_end {"]a" "@parameter.inner"}
+                                     :goto_previous_start {"[a" "@parameter.inner"}}
+                              :select {:enable true
                                        :disable large-buf?
                                        :lookahead true
                                        :keymaps {:aF "@function.outer"

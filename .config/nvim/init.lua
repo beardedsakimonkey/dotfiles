@@ -22,7 +22,7 @@ vim.g.loaded_perl_provider = 1
 vim.g.loaded_python_provider = 1
 vim.g.loaded_python3_provider = 1
 vim.g.loaded_ruby_provider = 1
-vim.cmd.colorscheme("navajo")
+vim.cmd.colorscheme("papyrus")
 vim.cmd.syntax("enable")
 local function require_safe(mod)
   local ok_3f, msg = nil, nil

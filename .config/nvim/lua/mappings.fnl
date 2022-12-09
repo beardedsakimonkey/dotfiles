@@ -74,8 +74,15 @@
       (vim.cmd "try | wincmd p | catch | entry")
       (vim.cmd (.. "try | wincmd " dir " | catch | endtry"))))
 
+(fn plain-rename []
+  (local cword (vim.fn.expand :<cword>))
+  (vim.fn.setreg "/" (.. "\\<" cword "\\>") :c)
+  (local keys (vim.api.nvim_replace_termcodes ":%s///g<left><left>" true false
+                                              true))
+  (vim.api.nvim_feedkeys keys :n false))
+
 ;; Adapted from nvim-treesitter-refactor
-(fn ts-substitute []
+(fn ts-rename []
   (local ts-utils (require :nvim-treesitter.ts_utils))
   (local locals (require :nvim-treesitter.locals))
   (local bufnr (vim.api.nvim_get_current_buf))
@@ -101,19 +108,18 @@
       ;; NOTE: can eventually use `:h command-preview` on neovim 0.8+
       (vim.ui.input {:default "" :prompt "New name: "} complete-rename)))
 
-(fn plain-substitute []
-  (local cword (vim.fn.expand :<cword>))
-  (vim.fn.setreg "/" (.. "\\<" cword "\\>") :c)
-  (local keys (vim.api.nvim_replace_termcodes ":%s///g<left><left>" true false
-                                              true))
-  (vim.api.nvim_feedkeys keys :n false))
+(fn lsp-rename []
+  ;; (vim.lsp.buf.rename)
+  (vim.api.nvim_feedkeys ":IncRename " :n false))
 
-(fn substitute []
+(fn rename []
   (local parsers (require :nvim-treesitter.parsers))
   (local ts-enabled (parsers.has_parser nil))
-  (if ts-enabled
-      (ts-substitute)
-      (plain-substitute)))
+  (local lsp-enabled
+         (not (vim.tbl_isempty (vim.lsp.get_active_clients {:bufnr 0}))))
+  (if lsp-enabled (lsp-rename)
+      ts-enabled (ts-rename)
+      (plain-rename)))
 
 (fn yank-doc [exp]
   (local txt (vim.fn.expand exp))
@@ -234,7 +240,7 @@
 
 (map n :<Space>s "ms:<C-u>%s///g<left><left>")
 (map x :<space>s "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
-(map n :R substitute)
+(map n :R rename)
 (map n :gr :R)
 
 ;; Alt key
@@ -318,6 +324,13 @@
 (map n "[e" "<Cmd>lua vim.diagnostic.goto_prev()<CR>" :silent)
 (map n "]e" "<Cmd>lua vim.diagnostic.goto_next()<CR>" :silent)
 (map n :gl "<Cmd>lua vim.diagnostic.setloclist()<CR>" :silent)
+
+;; Folds
+;; -----
+(map n :zk :zc :silent)
+(map n :zK :zC :silent)
+(map n :zj :zo :silent)
+(map n :zJ :zO :silent)
 
 ;; Avoid typo
 ;; ----------

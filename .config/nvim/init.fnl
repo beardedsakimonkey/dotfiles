@@ -29,7 +29,7 @@
 (set vim.g.loaded_python3_provider 1)
 (set vim.g.loaded_ruby_provider 1)
 
-(vim.cmd.colorscheme :navajo)
+(vim.cmd.colorscheme :papyrus)
 
 ;; See :h syntax-loading
 (vim.cmd.syntax :enable)

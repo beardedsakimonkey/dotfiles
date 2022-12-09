@@ -7,6 +7,5 @@
   (vim.cmd ":ColorizerAttachToBuffer"))
 
 (augroup :my/colorizer
-         (autocmd BufEnter [rgb.txt navajo.fnl] ":ColorizerAttachToBuffer")
-         (autocmd BufWritePost [rgb.txt navajo.fnl] reload-colorizer))
-
+         (autocmd BufEnter [rgb.txt papyrus.fnl] ":ColorizerAttachToBuffer")
+         (autocmd BufWritePost [rgb.txt papyrus.fnl] reload-colorizer))

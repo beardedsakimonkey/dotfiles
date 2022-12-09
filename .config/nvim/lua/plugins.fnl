@@ -13,6 +13,7 @@
       ;;
       :beardedsakimonkey/packer.nvim {}
       :lewis6991/impatient.nvim {}
+      :smjonas/inc-rename.nvim {:config "require('inc_rename').setup({preview_empty_name = true})"}
       :beardedsakimonkey/nvim-udir {:config "require'config.udir'"
                                     :branch :develop}
       :beardedsakimonkey/nvim-ufind {:config "require'config.ufind'"}

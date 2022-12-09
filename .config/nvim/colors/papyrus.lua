@@ -4,13 +4,13 @@ if (1 == vim.fn.exists("syntax_on")) then
   vim.cmd("syntax reset")
 else
 end
-vim.g.colors_name = "navajo"
+vim.g.colors_name = "papyrus"
 vim.api.nvim_set_hl(0, "Cursor", {bg = "Black", fg = "White"})
 vim.api.nvim_set_hl(0, "Normal", {bg = "#CDCABD", fg = "Black"})
 vim.api.nvim_set_hl(0, "NonText", {bg = "#C5C2B5", fg = "none"})
 vim.api.nvim_set_hl(0, "Visual", {bg = "OliveDrab2", fg = "fg"})
 vim.api.nvim_set_hl(0, "Search", {bg = "#ffd787", fg = "none"})
-vim.api.nvim_set_hl(0, "IncSearch", {bg = "#BD00BD", fg = "White"})
+vim.api.nvim_set_hl(0, "IncSearch", {bg = "LightSalmon", fg = "Black"})
 vim.api.nvim_set_hl(0, "CurSearch", {link = "IncSearch"})
 vim.api.nvim_set_hl(0, "WarningMsg", {bg = "none", bold = 1, fg = "Red4"})
 vim.api.nvim_set_hl(0, "ErrorMsg", {bg = "IndianRed3", fg = "White"})

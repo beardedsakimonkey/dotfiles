@@ -5,9 +5,10 @@
 ;; fnlfmt: skip
 (fn M.statusline []
   (let [current-win (= vim.g.statusline_winid (vim.fn.win_getid))
-        issues (if current-win (length (vim.diagnostic.get 0)) 0)]
+        buf (vim.api.nvim_win_get_buf vim.g.statusline_winid)
+        issues (length (vim.diagnostic.get buf))]
     (.. "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
-        "%{&buftype == 'nofile' ? '[Scratch]' : expand('%:t')}%* "
+        "%{&buftype == 'nofile' ? '[Nofile]' : expand('%:t')}%* "
         "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}"
         "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}"
         (if (> issues 0) (.. "✘ " issues) "")

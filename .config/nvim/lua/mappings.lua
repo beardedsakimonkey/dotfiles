@@ -87,7 +87,13 @@ local function navigate(dir)
     return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
   end
 end
-local function ts_substitute()
+local function plain_rename()
+  local cword = vim.fn.expand("<cword>")
+  vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
+  local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
+  return vim.api.nvim_feedkeys(keys, "n", false)
+end
+local function ts_rename()
   local ts_utils = require("nvim-treesitter.ts_utils")
   local locals = require("nvim-treesitter.locals")
   local bufnr = vim.api.nvim_get_current_buf()
@@ -118,19 +124,19 @@ local function ts_substitute()
     return vim.ui.input({default = "", prompt = "New name: "}, complete_rename)
   end
 end
-local function plain_substitute()
-  local cword = vim.fn.expand("<cword>")
-  vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
-  local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
-  return vim.api.nvim_feedkeys(keys, "n", false)
+local function lsp_rename()
+  return vim.api.nvim_feedkeys(":IncRename ", "n", false)
 end
-local function substitute()
+local function rename()
   local parsers = require("nvim-treesitter.parsers")
   local ts_enabled = parsers.has_parser(nil)
-  if ts_enabled then
-    return ts_substitute()
+  local lsp_enabled = not vim.tbl_isempty(vim.lsp.get_active_clients({bufnr = 0}))
+  if lsp_enabled then
+    return lsp_rename()
+  elseif ts_enabled then
+    return ts_rename()
   else
-    return plain_substitute()
+    return plain_rename()
   end
 end
 local function yank_doc(exp)
@@ -243,7 +249,7 @@ vim.keymap.set("x", "g/", "\"vy:let @/='<c-r>v'<Bar>set hls<CR>", {})
 vim.keymap.set({"n", "x"}, "<RightMouse>", "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
 vim.keymap.set("n", "<Space>s", "ms:<C-u>%s///g<left><left>", {})
 vim.keymap.set("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>", {})
-vim.keymap.set("n", "R", substitute, {})
+vim.keymap.set("n", "R", rename, {})
 vim.keymap.set("n", "gr", "R", {})
 vim.keymap.set("!", "<A-h>", "<Left>", {})
 vim.keymap.set("!", "<A-l>", "<Right>", {})
@@ -312,6 +318,10 @@ vim.keymap.set("n", "ge", "<Cmd>lua vim.diagnostic.open_float()<CR>", {silent = 
 vim.keymap.set("n", "[e", "<Cmd>lua vim.diagnostic.goto_prev()<CR>", {silent = true})
 vim.keymap.set("n", "]e", "<Cmd>lua vim.diagnostic.goto_next()<CR>", {silent = true})
 vim.keymap.set("n", "gl", "<Cmd>lua vim.diagnostic.setloclist()<CR>", {silent = true})
+vim.keymap.set("n", "zk", "zc", {silent = true})
+vim.keymap.set("n", "zK", "zC", {silent = true})
+vim.keymap.set("n", "zj", "zo", {silent = true})
+vim.keymap.set("n", "zJ", "zO", {silent = true})
 vim.keymap.set("x", "K", "k", {})
 vim.keymap.set("x", "J", "j", {})
 vim.cmd("cnoreabbrev ~? ~/")

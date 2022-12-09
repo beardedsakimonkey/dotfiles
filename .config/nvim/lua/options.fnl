@@ -44,10 +44,11 @@
 (opt wildignore [:*.o :*/node_modules/*])
 (opt fileignorecase false)
 
-(opt foldtext "v:folddashes.getline(v:foldstart)")
-(opt foldmethod :indent)
+;; (opt foldtext "v:folddashes.getline(v:foldstart)")
+(opt foldmethod :expr)
 (opt foldlevelstart 99)
 (vim.opt.foldopen:remove :block)
+(opt foldexpr "nvim_treesitter#foldexpr()")
 
 (opt modeline false)
 (opt shortmess :filnxtToOfaTWIcFS)

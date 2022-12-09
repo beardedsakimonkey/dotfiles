@@ -6,7 +6,7 @@
 (when (= 1 (vim.fn.exists :syntax_on))
   (vim.cmd "syntax reset"))
 
-(set vim.g.colors_name :navajo)
+(set vim.g.colors_name :papyrus)
 
 (macro hi [name ...]
   (local cfg
@@ -31,7 +31,7 @@
 (hi   NonText      fg=none         bg=#C5C2B5)
 (hi   Visual       fg=fg           bg=OliveDrab2)
 (hi   Search       fg=none         bg=#ffd787)
-(hi   IncSearch    fg=White        bg=#BD00BD)
+(hi   IncSearch    fg=Black        bg=LightSalmon)
 (link :CurSearch    :IncSearch)
 (hi   WarningMsg   fg=Red4         bg=none :bold)
 (hi   ErrorMsg     fg=White        bg=IndianRed3)

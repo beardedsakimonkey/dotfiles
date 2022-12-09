@@ -7,8 +7,8 @@
 
   ;; NOTE: Diagnostic mappings are in mappings.fnl because they aren't
   ;; necessarily associated with an lsp.
-  (buf_keymap :gD "<Cmd>lua vim.lsp.buf.declaration()<CR>zz")
-  (buf_keymap :gd "<Cmd>lua vim.lsp.buf.definition()<CR>zz")
+  (buf_keymap :gD "<Cmd>lua vim.lsp.buf.declaration()<CR>")
+  (buf_keymap :gd "<Cmd>lua vim.lsp.buf.definition()<CR>")
   (buf_keymap :gh "<Cmd>lua vim.lsp.buf.hover()<CR>")
   (buf_keymap :gm "<Cmd>lua vim.lsp.buf.implementation()<CR>")
   (buf_keymap :gs "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
@@ -34,6 +34,13 @@
                         ;; {:prefix "●"}
                         :signs false})
 
+(local textDocument/definition vim.lsp.handlers.textDocument/definition)
+(fn location-handler [...]
+  (textDocument/definition ...)
+  (vim.cmd "normal! zz"))
+
+(set vim.lsp.handlers.textDocument/definition location-handler)
+
 (local cfg {: on_attach :flags {:debounce_text_changes 150}})
 
 (set lspconfig.util.default_config
@@ -54,13 +61,8 @@
                                                          ((util.root_pattern :lua/) fname))]
                                             ;; Don't scan the home directory
                                             ;; https://github.com/sumneko/lua-language-server/wiki/FAQ#why-is-the-server-scanning-the-wrong-folder
-                                            (when (and root
-                                                       (= root vim.env.HOME))
-                                              (lua "return nil"))
-                                            (when (and root
-                                                       (not= root vim.env.HOME))
-                                              (lua "return root"))
-                                            (util.find_git_ancestor fname)))
+                                            (when (not= root vim.env.HOME)
+                                              root)))
                               ;; See https://github.com/sumneko/lua-language-server/wiki/Settings
                               :settings {:Lua {:telemetry {:enable false}
                                                :diagnostics {:globals [:vim]}

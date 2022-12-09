@@ -35,11 +35,11 @@ vim["opt"]["wildmenu"] = true
 vim["opt"]["wildignorecase"] = true
 vim["opt"]["wildignore"] = {"*.o", "*/node_modules/*"}
 vim["opt"]["fileignorecase"] = false
-vim["opt"]["foldtext"] = "v:folddashes.getline(v:foldstart)"
-vim["opt"]["foldmethod"] = "indent"
+vim["opt"]["foldmethod"] = "expr"
 vim["opt"]["foldlevelstart"] = 99
 do end (vim.opt.foldopen):remove("block")
-do end (vim)["opt"]["modeline"] = false
+do end (vim)["opt"]["foldexpr"] = "nvim_treesitter#foldexpr()"
+vim["opt"]["modeline"] = false
 vim["opt"]["shortmess"] = "filnxtToOfaTWIcFS"
 vim["opt"]["fillchars"] = {eob = " "}
 vim["opt"]["list"] = true

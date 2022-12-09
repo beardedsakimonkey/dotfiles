@@ -1,4 +1,5 @@
 local ufind = require'ufind'
+local uv = vim.loop
 
 local function cfg(t)
     return vim.tbl_deep_extend('keep', t or {}, {
@@ -31,7 +32,9 @@ local function live_grep()
 end
 
 local function find()
-    ufind.open_live('fd --color=always --type=file --', cfg{ansi = true})
+    ufind.open_live('fd --color=always --fixed-strings --max-results=100 --type=file --', cfg{
+        ansi = true,
+    })
 end
 
 local function buffers()
@@ -50,22 +53,40 @@ end
 
 local function interactive_find()
     local function ls(path)
-        return 'fd -- "" ' .. path
+        local paths = {[1] = path .. '/..'}
+        for name in vim.fs.dir(path) do
+            table.insert(paths, path .. '/' .. name)
+        end
+        return paths
     end
-    local function on_complete(cmd, line)
-        local info = vim.loop.fs_stat(line)
+    local function get_highlights(line)
+        local col_start = line:find('/([^/]+)$')
+        if col_start then
+            return {
+                {col_start = 0, col_end = col_start, hl_group = 'Comment'},
+            }
+        else
+            return {}
+        end
+    end
+    local function on_complete(cmd, lines)
+        local line = assert(uv.fs_realpath(lines[1]))
+        local info = uv.fs_stat(line)
         local is_dir = info and info.type == 'directory' or false
         if is_dir then
             vim.schedule(function()
-                ufind.open(ls(line), cfg{on_complete = on_complete})
+                ufind.open(ls(line), cfg{
+                    on_complete = on_complete,
+                    get_highlights = get_highlights,
+                })
             end)
         else
             vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(line))
         end
     end
-    local cwd = vim.loop.cwd()
-    ufind.open(ls(cwd), cfg{
-        on_complete = on_complete
+    ufind.open(ls(uv.cwd()), cfg{
+        on_complete = on_complete,
+        get_highlights = get_highlights,
     })
 end
 

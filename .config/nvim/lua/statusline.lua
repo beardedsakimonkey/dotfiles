@@ -1,40 +1,36 @@
 local M = {}
 M.statusline = function()
   local current_win = (vim.g.statusline_winid == vim.fn.win_getid())
-  local issues
-  if current_win then
-    issues = #vim.diagnostic.get(0)
-  else
-    issues = 0
-  end
-  local function _2_()
+  local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+  local issues = #vim.diagnostic.get(buf)
+  local function _1_()
     if (issues > 0) then
       return ("\226\156\152 " .. issues)
     else
       return ""
     end
   end
-  local function _3_()
+  local function _2_()
     if current_win then
       return "%6*%{session#status()}%* "
     else
       return ""
     end
   end
-  return ("%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*" .. "%{&buftype == 'nofile' ? '[Scratch]' : expand('%:t')}%* " .. "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}" .. "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}" .. _2_() .. "%=" .. _3_())
+  return ("%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*" .. "%{&buftype == 'nofile' ? '[Nofile]' : expand('%:t')}%* " .. "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}" .. "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}" .. _1_() .. "%=" .. _2_())
 end
 vim["opt"]["statusline"] = "%!v:lua.require'statusline'.statusline()"
 M.tabline = function()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
-    local function _4_()
+    local function _3_()
       if (i == vim.fn.tabpagenr()) then
         return "%#TabLineSel#"
       else
         return "%#TabLine#"
       end
     end
-    s = (s .. _4_() .. "%" .. i .. "T %{v:lua.require'statusline'.tablabel(" .. i .. ")}")
+    s = (s .. _3_() .. "%" .. i .. "T %{v:lua.require'statusline'.tablabel(" .. i .. ")}")
   end
   return (s .. "%#TabLineFill#%T")
 end

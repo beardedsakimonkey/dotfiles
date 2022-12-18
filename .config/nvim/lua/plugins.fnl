@@ -16,7 +16,8 @@
       :smjonas/inc-rename.nvim {:config "require('inc_rename').setup({preview_empty_name = true})"}
       :beardedsakimonkey/nvim-udir {:config "require'config.udir'"
                                     :branch :develop}
-      :beardedsakimonkey/nvim-ufind {:config "require'config.ufind'"}
+      :beardedsakimonkey/nvim-ufind {:config "require'config.ufind'"
+                                     :branch :develop}
       :neovim/nvim-lspconfig {:config "require'config.lsp'"}
       :mhartington/formatter.nvim {:config "require'config.formatter'"}
       :mfussenegger/nvim-lint {:config "require'config.lint'"}
@@ -29,6 +30,8 @@
       :ii14/neorepl.nvim {}
       :Wansmer/treesj {:config "require'config.treesj'"}
       :folke/neodev.nvim {}
+      :sindrets/diffview.nvim {:config "require'config.diffview'"
+                               :requires :nvim-lua/plenary.nvim}
       ;;
       ;; Treesitter
       ;;

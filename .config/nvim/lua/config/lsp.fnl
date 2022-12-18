@@ -2,6 +2,10 @@
 (local lspconfig (require :lspconfig))
 
 (fn on_attach [_client bufnr]
+  ;; The built-in on_attach handler sets this to use the lsp server. But this
+  ;; means we can't gq on comments. So reset it.
+  (tset vim.bo bufnr :formatexpr "")
+
   (fn buf_keymap [lhs rhs]
     (vim.api.nvim_buf_set_keymap bufnr :n lhs rhs {:noremap true :silent true}))
 

@@ -218,8 +218,10 @@ autoload -Uz zcalc
 
 autoload -U colors && colors
 
-PROMPT="
-"
+# this makes view scroll down a line when quitting pager (e.g. git log)
+# PROMPT="
+# "
+PROMPT=
 PROMPT+="%F{black}${SSH_TTY:+ssh:}"
 PROMPT+="%F{black}%B%90<..<%~%<<"
 PROMPT+="%F{green}%(1j. *.)"
@@ -430,8 +432,8 @@ cd() {
 cdl() {
     emulate -L zsh
     local most_recent_dir=$(\
-        # sort by mtime
-        stat -f '%m %N' * \
+        # sort by ctime
+        stat -f '%c %N' * \
         | sort --key=1,1 --numeric-sort --reverse \
         | head -n1 \
         | awk '{ print $2 }' \

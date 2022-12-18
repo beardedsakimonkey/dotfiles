@@ -4,8 +4,8 @@
 (opt sessionoptions [:help :tabpages :winsize :curdir :folds])
 
 (opt lazyredraw)
-;; Avoid confusing <esc>-key with <a-…>
 (opt ttimeoutlen 0)
+;; Avoid confusing <esc>-key with <a-…>
 (opt timeoutlen 3000)
 
 (opt synmaxcol 500)
@@ -66,5 +66,7 @@
 (opt showcmd false)
 (opt textwidth 80)
 (opt cursorline)
+;; Don't echo anything when entering a floating window
+(opt ruler false)
 
 (opt jumpoptions :view)

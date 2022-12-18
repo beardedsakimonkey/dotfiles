@@ -1,5 +1,6 @@
 local lspconfig = require("lspconfig")
 local function on_attach(_client, bufnr)
+  vim.bo[bufnr]["formatexpr"] = ""
   local function buf_keymap(lhs, rhs)
     return vim.api.nvim_buf_set_keymap(bufnr, "n", lhs, rhs, {noremap = true, silent = true})
   end
@@ -13,7 +14,7 @@ local function on_attach(_client, bufnr)
   buf_keymap("ga", "<Cmd>lua vim.lsp.buf.code_action()<CR>")
   return buf_keymap("<space>w", "<Cmd>lua vim.lsp.buf.formatting()<CR>")
 end
-vim.diagnostic.config({virtual_text = false, signs = false})
+vim.diagnostic.config({signs = false, virtual_text = false})
 local textDocument_2fdefinition = vim.lsp.handlers["textDocument/definition"]
 local function location_handler(...)
   textDocument_2fdefinition(...)

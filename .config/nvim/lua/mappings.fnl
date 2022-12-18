@@ -206,6 +206,9 @@
 ;; Adapted from justinmk's vimrc
 (map x :I "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'" :expr)
 (map x :A "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'" :expr)
+;; Adapted from primeagen's vimrc
+(map x :J ":m '>+1<CR>gv=gv")
+(map x :K ":m '<-2<CR>gv=gv")
 
 ;; Command mode
 ;; ------------
@@ -334,7 +337,5 @@
 
 ;; Avoid typo
 ;; ----------
-(map x :K :k)
-(map x :J :j)
 (vim.cmd "cnoreabbrev ~? ~/")
 (vim.cmd "cnoreabbrev <expr> man getcmdtype() is# \":\" && getcmdpos() == 4 ? 'vert Man' : 'man'")

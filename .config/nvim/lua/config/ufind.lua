@@ -2,7 +2,7 @@ local ufind = require'ufind'
 local uv = vim.loop
 
 local function cfg(t)
-    return vim.tbl_deep_extend('keep', t or {}, {
+    return vim.tbl_deep_extend('keep', t, {
         layout = { border = 'single' },
         keymaps = { open_vsplit = '<C-l>' },
     })
@@ -10,10 +10,13 @@ end
 
 local function on_complete_grep(cmd, lines)
     for i, line in ipairs(lines) do
-        local found, _, fname, linenr = line:find('^([^:]-):(%d+):')
+        local found, _, fname, linenr, colnr = line:find('^([^:]-):(%d+):(%d+):')
         if found then
             if i == #lines then
-                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(fname) .. '|' .. linenr)
+                -- HACK: if we don't schedule, the cursor gets positioned one column to the left.
+                vim.schedule(function()
+                    vim.cmd(('%s +%s %s|norm! %s|'):format(cmd, linenr, vim.fn.fnameescape(fname), colnr))
+                end)
             else  -- create the buffer
                 local buf = vim.fn.bufnr(fname, true)
                 vim.bo[buf].buflisted = true
@@ -25,7 +28,7 @@ local function on_complete_grep(cmd, lines)
 end
 
 local function live_grep()
-    ufind.open_live('rg --vimgrep --no-column --fixed-strings --color=ansi -- ', cfg{
+    ufind.open_live('rg --vimgrep --column --fixed-strings --color=ansi -- ', cfg{
         ansi = true,
         on_complete = on_complete_grep,
     })
@@ -103,9 +106,9 @@ local function grep(query)
         query = query:sub(1, -3)
         path = vim.fn.expand('%:p')
     end
-    local cmd = 'rg --vimgrep --no-column --fixed-strings --color=ansi -- '
+    local cmd = 'rg --vimgrep --column --fixed-strings --color=ansi -- '
     ufind.open(cmd .. query .. ' ' .. path, cfg{
-        pattern = '^([^:]-):%d+:(.*)$',
+        scopes = '^([^:]-):%d+:%d+:(.*)$',
         ansi = true,
         on_complete = on_complete_grep,
     })

@@ -31,7 +31,7 @@
 (hi   NonText      fg=none         bg=#C5C2B5)
 (hi   Visual       fg=fg           bg=OliveDrab2)
 (hi   Search       fg=none         bg=#ffd787)
-(hi   IncSearch    fg=Black        bg=LightSalmon)
+(hi   IncSearch    fg=Black        bg=#ffc17a)
 (link :CurSearch    :IncSearch)
 (hi   WarningMsg   fg=Red4         bg=none :bold)
 (hi   ErrorMsg     fg=White        bg=IndianRed3)
@@ -46,7 +46,7 @@
 (hi   Constant     fg=#BD00BD      bg=none)
 (hi   Special      fg=DodgerBlue4  bg=none)
 (hi   String       fg=DarkGreen    bg=none)
-(hi   Whitespace   fg=#bab28f      bg=#d1cec2) ;; trail listchar
+(hi   Whitespace   fg=#bab28f) ;; trail listchar
 (hi   Directory    fg=Blue3        bg=none)
 (hi   SignColumn   fg=none         bg=#c9c5b5)
 (hi   Todo         fg=Burlywood4   bg=none :bold)
@@ -54,10 +54,6 @@
 (hi   Title        fg=DeepPink4    :bold)
 (hi   Pmenu        bg=#e5daa5)
 (hi   PmenuSel     bg=LightGoldenrod3)
-(hi   DiffAdd      fg=none         bg=#c6ddb1)
-(hi   DiffChange   fg=none         bg=#dbd09d)
-(hi   DiffText     fg=none         bg=#f4dc6e)
-(hi   DiffDelete   fg=none         bg=#dda296)
 (hi   StatusLine   fg=#CDCABD      bg=MistyRose4)
 (hi   StatusLineNC fg=#CDCABD      bg=#b2a99d)
 (hi   TabLineFill  bg=MistyRose4)
@@ -68,6 +64,11 @@
 (link :CursorLineNr :LineNr)
 (link :SpecialKey   :Directory)
 ;; (link :FloatBorder  :Normal)
+
+(hi   DiffAdd      fg=none         bg=#c6ddb1)
+(hi   DiffChange   fg=none         bg=#dbd09d)
+(hi   DiffText     fg=none         bg=#f4dc6e)
+(hi   DiffDelete   fg=none         bg=#dda296)
 
 (hi User1 fg=AntiqueWhite2 bg=MistyRose4 :bold)
 (hi User2 fg=Black         bg=OliveDrab2)
@@ -98,11 +99,7 @@
 
 (link :UdirExecutable :PreProc)
 
-(hi   SnapSelect   bg=#ccc5b5 :bold)
-(hi   SnapPosition fg=#BD00BD bg=none :bold)
-(link :SnapPrompt   :Comment)
-
-(link :UfindMatch :SnapPosition)
+(hi :UfindMatch fg=#BD00BD bg=none :bold)
 (link :UfindCursorLine :DiffChange)
 
 (hi   FennelSymbol fg=Black)

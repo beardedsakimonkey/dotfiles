@@ -53,5 +53,6 @@ vim["opt"]["showmode"] = false
 vim["opt"]["showcmd"] = false
 vim["opt"]["textwidth"] = 80
 vim["opt"]["cursorline"] = true
+vim["opt"]["ruler"] = false
 vim["opt"]["jumpoptions"] = "view"
 return nil

@@ -1,8 +1,10 @@
-local _local_1_ = require("util")
-local exists_3f = _local_1_["exists?"]
-local f_5c = _local_1_["f\\"]
+local exists = require("util").exists
+local fe = vim.fn.fnameescape
+
 vim.cmd("inoreabbrev <buffer> lambda \206\187")
 vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | unabbrev <buffer> lambda"))
+
+-- fennel-repl
 if ("prompt" == (vim.opt.buftype):get()) then
   vim.api.nvim_clear_autocmds({event = "BufEnter", buffer = 0})
   vim.keymap.set("n", "<CR>", "<Cmd>startinsert<CR><CR>", {buffer = true})
@@ -13,15 +15,21 @@ if ("prompt" == (vim.opt.buftype):get()) then
   vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | sil! nun <buffer> <C-n>"))
 else
 end
+
+-- goto-lua -----------------------------------------------------------------
+
 local function goto_lua()
   local from = vim.fn.expand("%:p")
   local to = from:gsub("%.fnl$", ".lua")
-  if exists_3f(to) then
-    return vim.cmd(("edit " .. f_5c(to)))
+  if exists(to) then
+    return vim.cmd(("edit " .. fe(to)))
   else
     return vim.api.nvim_err_writeln(("Cannot read file " .. to))
   end
 end
+
+-- eval-form ----------------------------------------------------------------
+
 local function get_root_node(node)
   local parent = node
   local result = node
@@ -31,39 +39,48 @@ local function get_root_node(node)
   end
   return result
 end
-local function get_root_form(winid, _bufnr)
+
+local function get_root_form(winid)
   local ts_utils = require("nvim-treesitter.ts_utils")
   local cursor_node = ts_utils.get_node_at_cursor(winid, false)
   return get_root_node(cursor_node)
 end
-local function form_3f(node, bufnr)
+
+local function is_form(node, bufnr)
   local text = vim.treesitter.get_node_text(node, bufnr)
   local first = text:sub(1, 1)
   local last = text:sub(-1)
-  return (("(" == first) and (")" == last))
+  return "(" == first and ")" == last
 end
-local function get_outer_form_2a(node, bufnr)
+
+local function get_outer_form_aux(node, bufnr)
   if not node then
     return nil
-  elseif form_3f(node, bufnr) then
+  elseif is_form(node, bufnr) then
     return node
   else
-    return get_outer_form_2a(node:parent(), bufnr)
+    -- Walk up the syntax tree until we hit a node that is wrapped in `()`
+    return get_outer_form_aux(node:parent(), bufnr)
   end
 end
+
 local function get_outer_form(winid, bufnr)
   local ts_utils = require("nvim-treesitter.ts_utils")
   local cursor_node = ts_utils.get_node_at_cursor(winid, false)
-  if ("comment" == cursor_node:type()) then
+  if "comment" == cursor_node:type() then
     return cursor_node
   else
-    return get_outer_form_2a(cursor_node, bufnr)
+    return get_outer_form_aux(cursor_node, bufnr)
   end
 end
-local function eval_form(root_3f)
+
+-- NOTE: After inserting lines into the prompt buffer, the prompt prefix is not
+-- drawn until entering insert mode. (`init_prompt()` in edit.c)
+local function eval_form(is_root)
   local repl = require("fennel-repl")
   local repl_bufnr = repl.open()
   local repl_focused = vim.startswith(vim.api.nvim_buf_get_name(repl_bufnr), "fennel-repl")
+  -- Initializing the repl moves us to a new win, so use the alt win
   local winid
   if not repl_focused then
     winid = vim.fn.win_getid(vim.fn.winnr("#"))
@@ -72,83 +89,79 @@ local function eval_form(root_3f)
   end
   local bufnr = vim.fn.winbufnr(winid)
   local form
-  local _7_
-  if root_3f then
-    _7_ = get_root_form
-  else
-    _7_ = get_outer_form
-  end
-  form = _7_(winid, bufnr)
+  form = (is_root and get_root_form or get_outer_form)(winid, bufnr)
   local text = vim.treesitter.get_node_text(form, bufnr)
-  return repl.callback(repl_bufnr, text)
+  repl.callback(repl_bufnr, text)
 end
+
+-- goto-require -------------------------------------------------------------
+
 local function convert_to_fnl(lua_path)
   local fnl_path = lua_path:gsub("%.lua$", ".fnl")
-  if exists_3f(fnl_path) then
+  if exists(fnl_path) then
     return fnl_path
   else
     return lua_path
   end
 end
+
 local function search_packagepath(basename)
   local paths = (package.path):gsub("%?", basename)
-  local _3ffound = nil
+  local found = nil
   for path in paths:gmatch("[^;]+") do
-    if _3ffound then break end
-    if exists_3f(path) then
-      _3ffound = path
+    if found then break end
+    if exists(path) then
+      found = path
     else
     end
   end
-  return _3ffound
+  return found
 end
+
 local function search_runtimepath(basename)
-  local _local_11_ = vim.api.nvim__get_runtime({("lua/" .. basename .. ".lua"), ("lua/" .. basename .. "/init.lua")}, false, {is_lua = true})
-  local _3fpath = _local_11_[1]
-  return _3fpath
+  -- Adapted from $VIMRUNTIME/lua/vim/_load_package.lua
+  local path = vim.api.nvim__get_runtime({
+    ("lua/" .. basename .. ".lua"),
+    ("lua/" .. basename .. "/init.lua")
+  }, false, {is_lua = true})[1]
+  return path
 end
+
 local function get_basename()
   local form = get_outer_form(0, 0)
   local form_text = vim.treesitter.get_node_text(form, 0)
-  local _3fmod_name = form_text:match("%(require [\":]?([^)]+)\"?%)")
-  if _3fmod_name then
-    return _3fmod_name:gsub("%.", "/")
-  else
-    return nil
+  local mod_name = form_text:match("%(require [\":]?([^)]+)\"?%)")
+  if mod_name then
+    return mod_name:gsub("%.", "/")
   end
 end
+
 local function goto_require()
-  local _3fbasename = get_basename()
-  if _3fbasename then
-    local _3fpath = (search_runtimepath(_3fbasename) or search_packagepath(_3fbasename))
-    if _3fpath then
-      return vim.cmd(("edit " .. f_5c(convert_to_fnl(_3fpath))))
+  local basename = get_basename()
+  if basename then
+    local path = (search_runtimepath(basename) or search_packagepath(basename))
+    if path then
+      vim.cmd("edit " .. fe(convert_to_fnl(path)))
     else
-      return vim.api.nvim_err_writeln(("Could not find module for " .. _3fbasename))
+      vim.api.nvim_err_writeln("Could not find module for " .. basename)
     end
   else
-    return vim.api.nvim_err_writeln("Could not parse form. Is it a require?")
+    vim.api.nvim_err_writeln("Could not parse form. Is it a require?")
   end
 end
+
 vim["opt_local"]["expandtab"] = true
 vim["opt_local"]["commentstring"] = ";; %s"
 vim["opt_local"]["keywordprg"] = ":help"
-do
-  do end (vim.opt_local.iskeyword):remove(".")
-  do end (vim.opt_local.iskeyword):remove(":")
-  do end (vim.opt_local.iskeyword):remove("]")
-  do end (vim.opt_local.iskeyword):remove("[")
-end
+vim.opt_local.iskeyword:remove(".")
+vim.opt_local.iskeyword:remove(":")
+vim.opt_local.iskeyword:remove("]")
+vim.opt_local.iskeyword:remove("[")
 vim.keymap.set("n", "]f", goto_lua, {buffer = true})
 vim.keymap.set("n", "[f", goto_lua, {buffer = true})
 vim.keymap.set("x", ",a", ":Antifennel<CR>", {buffer = true})
-local function _15_()
-  return eval_form(false)
-end
-vim.keymap.set("n", ",ee", _15_, {buffer = true})
-local function _16_()
-  return eval_form(true)
-end
-vim.keymap.set("n", ",er", _16_, {buffer = true})
+vim.keymap.set("n", ",ee", function() eval_form(false) end, {buffer = true})
+vim.keymap.set("n", ",er", function() eval_form(true) end, {buffer = true})
 vim.keymap.set("n", "gd", goto_require, {buffer = true})
-return vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,a | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))
+
+vim.api.nvim_buf_set_var(0, "undo_ftplugin", ((vim.b.undo_ftplugin or "exe") .. " | setl expandtab< | setl commentstring< | setl keywordprg< | setl iskeyword< | sil! nun <buffer> ]f | sil! nun <buffer> [f | sil! nun <buffer> ,a | sil! nun <buffer> ,ee | sil! nun <buffer> ,er | sil! nun <buffer> gd"))

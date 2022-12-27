@@ -1,95 +1,113 @@
 local udir = require("udir")
-local u = require("udir.util")
-local _local_1_ = require("util")
-local some_3f = _local_1_["some?"]
+local join_path = require("udir.util")["join-path"]
+
+local function find(tbl, fn)
+  for _, v in ipairs(tbl) do
+    if fn(v) then
+      return v
+    end
+  end
+end
+
+local function some(tbl, fn)
+  return find(tbl, fn) ~= nil
+end
+
 local function endswith_any(str, suffixes)
   local found = false
   for _, suf in ipairs(suffixes) do
     if found then break end
     if vim.endswith(str, suf) then
       found = true
-    else
     end
   end
   return found
 end
-local function is_file_hidden(file, files, _cwd)
-  local hidden_3f = false
+
+local function is_file_hidden(file, files)
+  local is_hidden = false
   local ext = string.match(file.name, "%.(%w-)$")
-  if ("lua" == ext) then
-    local fnl = string.gsub(file.name, "lua$", "fnl")
-    local function _3_(_241)
-      return (fnl == _241.name)
-    end
-    hidden_3f = (hidden_3f or some_3f(files, _3_))
-  else
-  end
-  if ("js" == ext) then
+  -- if "lua" == ext then
+  --   local fnl = string.gsub(file.name, "lua$", "fnl")
+  --   is_hidden = is_hidden or some(files, function(f)
+  --     return fnl == f.name
+  --   end)
+  -- end
+  if "js" == ext then
     local res = string.gsub(file.name, "js$", "res")
-    local function _5_(_241)
-      return (res == _241.name)
-    end
-    hidden_3f = (hidden_3f or some_3f(files, _5_))
-  else
+    is_hidden = is_hidden or some(files, function(f)
+      return res == f.name
+    end)
   end
-  hidden_3f = (hidden_3f or endswith_any(file.name, {".bs.js", ".o"}) or (".git" == file.name))
-  return hidden_3f
+  is_hidden = is_hidden or
+            endswith_any(file.name, {".bs.js", ".o"}) or
+            ".git" == file.name
+  return is_hidden
 end
+
 local function cd(cmd)
-  local store = require("udir.store")
+  local store = require"udir.store"
   local state = store.get()
-  vim.cmd((cmd .. " " .. vim.fn.fnameescape(state.cwd)))
-  return vim.cmd("pwd")
+  vim.cmd(cmd .. " " .. vim.fn.fnameescape(state.cwd))
+  vim.cmd("pwd")
 end
+
 local function sort_by_mtime(files)
   local store = require("udir.store")
-  local _local_7_ = store.get()
-  local cwd = _local_7_["cwd"]
+  local cwd = store.get().cwd
   local mtimes = {}
   for _, file in ipairs(files) do
-    local _3fstat = vim.loop.fs_stat(u["join-path"](cwd, file.name))
-    local mtime
-    if _3fstat then
-      mtime = _3fstat.mtime.sec
-    else
-      mtime = 0
-    end
-    mtimes[file.name] = mtime
+    --`fs_stat` fails in case of a broken symlink
+    local fstat = vim.loop.fs_stat(join_path(cwd, file.name))
+    mtimes[file.name] = fstat and fstat.mtime.sec or 0
   end
-  local function _9_(_241, _242)
-    if (("directory" == _241.type) == ("directory" == _242.type)) then
-      return (mtimes[_241.name] > mtimes[_242.name])
+  table.sort(files, function(a, b)
+    if ("directory" == a.type) == ("directory" == b.type) then
+      return mtimes[a.name] > mtimes[b.name]
     else
-      return ("directory" == _241.type)
+      return "directory" == a.type
     end
-  end
-  return table.sort(files, _9_)
+  end)
 end
+
 local default_sort = udir.config.sort
+
 local function toggle_sort()
   local new_sort
-  if (udir.config.sort == sort_by_mtime) then
+  if udir.config.sort == sort_by_mtime then
     new_sort = default_sort
   else
     new_sort = sort_by_mtime
   end
   udir.config["sort"] = new_sort
-  return udir.reload()
+  udir.reload()
 end
-local function _12_()
-  return udir.open("split")
-end
-local function _13_()
-  return udir.open("vsplit")
-end
-local function _14_()
-  return udir.open("tabedit")
-end
-local function _15_()
-  return cd("cd")
-end
-local function _16_()
-  return cd("lcd")
-end
-udir["config"] = {is_file_hidden = is_file_hidden, keymaps = {q = udir.quit, h = udir.up_dir, ["-"] = udir.up_dir, l = udir.open, ["<CR>"] = udir.open, i = udir.open, s = _12_, v = _13_, t = _14_, R = udir.reload, d = udir.delete, ["+"] = udir.create, m = udir.move, r = udir.move, c = udir.copy, gh = udir.toggle_hidden_files, T = toggle_sort, C = _15_, L = _16_}, sort = default_sort, show_hidden_files = false}
-return vim.keymap.set("n", "-", "<Cmd>Udir<CR>", {})
+
+udir.config = {
+  is_file_hidden = is_file_hidden,
+  keymaps = {
+    q = udir.quit,
+    h = udir.up_dir,
+    ["-"] = udir.up_dir,
+    l = udir.open,
+    ["<CR>"] = udir.open,
+    i = udir.open,
+    s = function() udir.open'split' end,
+    v = function() udir.open'vsplit' end,
+    t = function() udir.open'tabedit' end,
+    R = udir.reload,
+    d = udir.delete,
+    ["+"] = udir.create,
+    m = udir.move,
+    r = udir.move,
+    c = udir.copy,
+    gh = udir.toggle_hidden_files,
+    T = toggle_sort,
+    C = function() cd'cd' end,
+    L = function() cd'lcd' end,
+  },
+  sort = default_sort,
+  show_hidden_files = false,
+}
+
+vim.keymap.set("n", "-", "<Cmd>Udir<CR>", {})

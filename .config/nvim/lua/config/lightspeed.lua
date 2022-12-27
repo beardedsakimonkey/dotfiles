@@ -1,4 +1,0 @@
-local lightspeed = require("lightspeed")
-lightspeed.setup({jump_to_unique_chars = {safety_timeout = 400}, match_only_the_start_of_same_char_seqs = true, limit_ft_matches = 6})
-vim.keymap.set({"", "x"}, "s", "s", {})
-return vim.cmd("\naugroup my/lightspeed | autocmd!\n  autocmd User LightspeedFtEnter let g:lightspeed_active = 1\n  autocmd User LightspeedFtLeave unlet! g:lightspeed_active\naugroup END\n\nnmap <expr> f exists('g:lightspeed_active') ? \"<Plug>Lightspeed_;_ft\" : \"<Plug>Lightspeed_f\"\nnmap <expr> F exists('g:lightspeed_active') ? \"<Plug>Lightspeed_,_ft\" : \"<Plug>Lightspeed_F\"\n\nnmap <expr> t exists('g:lightspeed_active') ? \"<Plug>Lightspeed_;_ft\" : \"<Plug>Lightspeed_t\"\nnmap <expr> T exists('g:lightspeed_active') ? \"<Plug>Lightspeed_,_ft\" : \"<Plug>Lightspeed_T\"\n")

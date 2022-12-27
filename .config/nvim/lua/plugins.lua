@@ -1,14 +1,50 @@
-local packer = require("packer")
-local function use(pkgs)
-  local spec = {config = {}}
-  local function _1_(use0)
-    for name, opts in pairs(pkgs) do
-      opts[1] = name
-      use0(opts)
-    end
-    return nil
-  end
-  spec[1] = _1_
-  return packer.startup(spec)
-end
-return use({["beardedsakimonkey/packer.nvim"] = {}, ["lewis6991/impatient.nvim"] = {}, ["smjonas/inc-rename.nvim"] = {config = "require('inc_rename').setup({preview_empty_name = true})"}, ["beardedsakimonkey/nvim-udir"] = {config = "require'config.udir'", branch = "develop"}, ["beardedsakimonkey/nvim-ufind"] = {config = "require'config.ufind'", branch = "develop"}, ["neovim/nvim-lspconfig"] = {config = "require'config.lsp'"}, ["mhartington/formatter.nvim"] = {config = "require'config.formatter'"}, ["mfussenegger/nvim-lint"] = {config = "require'config.lint'"}, ["ggandor/lightspeed.nvim"] = {config = "require'config.lightspeed'"}, ["jose-elias-alvarez/minsnip.nvim"] = {config = "require'config.minsnip'", commit = "6ae2f32"}, ["norcalli/nvim-colorizer.lua"] = {setup = "require'config.colorizer'"}, ["Darazaki/indent-o-matic"] = {commit = "f7d4382"}, ["kylechui/nvim-surround"] = {config = "require'config.surround'"}, ["ii14/neorepl.nvim"] = {}, ["Wansmer/treesj"] = {config = "require'config.treesj'"}, ["folke/neodev.nvim"] = {}, ["sindrets/diffview.nvim"] = {config = "require'config.diffview'", requires = "nvim-lua/plenary.nvim"}, ["nvim-treesitter/nvim-treesitter"] = {config = "require'config.treesitter'", run = ":TSUpdate"}, ["nvim-treesitter/playground"] = {after = "nvim-treesitter"}, ["nvim-treesitter/nvim-treesitter-textobjects"] = {after = "nvim-treesitter"}, ["hrsh7th/nvim-cmp"] = {config = "require'config.cmp'"}, ["hrsh7th/cmp-buffer"] = {after = "nvim-cmp"}, ["hrsh7th/cmp-nvim-lua"] = {after = "nvim-cmp"}, ["hrsh7th/cmp-path"] = {after = "nvim-cmp"}, ["hrsh7th/cmp-nvim-lsp"] = {}, ["mbbill/undotree"] = {}, ["tommcdo/vim-exchange"] = {}, ["dstein64/vim-startuptime"] = {}, ["AndrewRadev/linediff.vim"] = {config = "require'config.linediff'"}, ["tommcdo/vim-lion"] = {config = "vim.g.lion_squeeze_spaces = 1"}, ["tpope/vim-commentary"] = {}, ["tpope/vim-repeat"] = {}, ["bakpakin/fennel.vim"] = {}, ["gpanders/fennel-repl.nvim"] = {}, ["beardedsakimonkey/nvim-antifennel"] = {}})
+require'paq'{
+    'savq/paq-nvim',
+    'lewis6991/impatient.nvim',
+    {'beardedsakimonkey/nvim-udir', branch = 'develop'},
+    {'beardedsakimonkey/nvim-ufind', branch = 'develop'},
+    'neovim/nvim-lspconfig',
+    'jose-elias-alvarez/minsnip.nvim',
+    'norcalli/nvim-colorizer.lua',
+    'Darazaki/indent-o-matic',
+    'kylechui/nvim-surround',
+    'folke/neodev.nvim',
+    'smjonas/inc-rename.nvim',
+    {'nvim-treesitter/nvim-treesitter', run = function() vim.cmd'TSUpdate' end},
+    'nvim-treesitter/playground',
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    'hrsh7th/nvim-cmp',
+    'hrsh7th/cmp-buffer',
+    'hrsh7th/cmp-nvim-lua',
+    'hrsh7th/cmp-path',
+    'hrsh7th/cmp-nvim-lsp',
+    -- vimscript
+    'rhysd/clever-f.vim',
+    'mbbill/undotree',
+    'tommcdo/vim-exchange',
+    'dstein64/vim-startuptime',
+    'AndrewRadev/linediff.vim',
+    'tommcdo/vim-lion',
+    'tpope/vim-commentary',
+    'tpope/vim-repeat',
+    -- language specific
+    'bakpakin/fennel.vim',
+    'gpanders/fennel-repl.nvim',
+}
+
+require'inc_rename'.setup({preview_empty_name = true})
+require'config.udir'
+require'config.ufind'
+require'config.lsp'
+require'config.minsnip'
+require'config.colorizer'
+require'config.surround'
+require'config.treesitter'
+require'config.cmp'
+
+-- linediff
+vim.g.linediff_buffer_type = "scratch"
+vim.keymap.set("x", "D", "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
+
+-- vim-lion
+vim.g.lion_squeeze_spaces = 1

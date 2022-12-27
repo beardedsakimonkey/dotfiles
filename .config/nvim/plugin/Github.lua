@@ -1,5 +1,3 @@
-local util = require'util'
-
 local function get_url(fname, stdout, stderr, exit)
     local branch = vim.fn.system('git branch --show-current'):match('%S+')
     assert(branch, 'no git branch')
@@ -15,7 +13,7 @@ end
 
 local function github_url()
     local fname = vim.fn.expand('%:p')
-    util.system({'git', 'remote', '-v'}, vim.schedule_wrap(function(stdout, stderr, exit)
+    require'util'.system({'git', 'remote', '-v'}, vim.schedule_wrap(function(stdout, stderr, exit)
         local ok, res = pcall(get_url, fname, stdout, stderr, exit)
         if not ok then
             vim.notify(res, vim.log.levels.WARN)

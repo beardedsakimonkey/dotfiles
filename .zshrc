@@ -344,7 +344,7 @@ alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
 alias at='ls -At'
-alias temp="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
+alias temperature="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
 
 alias gj='git-jump'
 alias gs='git status'

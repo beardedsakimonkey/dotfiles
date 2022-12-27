@@ -1,15 +1,6 @@
-require("impatient")
-local _local_1_ = require("util")
-local exists_3f = _local_1_["exists?"]
-local path = (vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim")
-if not exists_3f(path) then
-  os.execute(("git clone --depth=1 https://github.com/beardedsakimonkey/packer.nvim " .. path))
-  do end (vim.opt.runtimepath):prepend((vim.fn.stdpath("data") .. "/site/pack/*/start/*"))
-  require("plugins")
-  local packer = require("packer")
-  packer.sync()
-else
-end
+require 'impatient'
+
+-- In $VIMRUNTIME/plugin/
 vim.g.loaded_matchit = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -17,27 +8,28 @@ vim.g.loaded_remote_plugins = 1
 vim.g.loaded_spellfile_plugin = 1
 vim.g.loaded_2html_plugin = 1
 vim.g.loaded_tutor_mode_plugin = 1
+
+-- In $VIMRUNTIME/autoload/provider/
 vim.g.loaded_node_provider = 1
 vim.g.loaded_perl_provider = 1
 vim.g.loaded_python_provider = 1
 vim.g.loaded_python3_provider = 1
 vim.g.loaded_ruby_provider = 1
-vim.cmd.colorscheme("papyrus")
-vim.cmd.syntax("enable")
+
+vim.cmd 'colorscheme papyrus'
+vim.cmd 'syntax enable'  -- see :h syntax-loading
+
 local function require_safe(mod)
-  local ok_3f, msg = nil, nil
-  local function _3_()
-    return require(mod)
-  end
-  ok_3f, msg = xpcall(_3_, debug.traceback)
-  if not ok_3f then
-    return vim.api.nvim_err_writeln(("Config error in %s: %s"):format(mod, msg))
-  else
-    return nil
-  end
+    local ok, msg
+    ok, msg = xpcall(function() return require(mod) end, debug.traceback)
+    if not ok then
+        vim.api.nvim_err_writeln(('Config error in %s: %s'):format(mod, msg))
+    end
 end
-require_safe("mappings")
-require_safe("options")
-require_safe("autocmds")
-require_safe("statusline")
-return require_safe("commands")
+
+require_safe 'commands'
+require_safe 'autocmds'
+require_safe 'options'
+require_safe 'statusline'
+require_safe 'mappings'
+require_safe 'plugins'

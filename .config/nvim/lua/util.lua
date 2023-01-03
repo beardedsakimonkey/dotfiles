@@ -21,7 +21,10 @@ function M.system(cmd_parts, cb)
     local cmd = table.remove(cmd_parts, 1)
     local args = cmd_parts
 
-    vim.loop.spawn(cmd, {stdio = {nil, stdout_pipe, stderr_pipe}, args = args}, on_exit)
+    vim.loop.spawn(cmd, {
+        stdio = {nil, stdout_pipe, stderr_pipe},
+        args = args,
+    }, on_exit)
 
     local function on_stdouterr(is_stdout, err, data)
         assert(not err, err)

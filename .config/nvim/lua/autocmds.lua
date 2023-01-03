@@ -13,7 +13,7 @@ end
 local function setup_fo()
     vim.opt_local.formatoptions:append('jcn')
     local amatch = vim.fn.expand'<amatch>'
-    if  amatch ~= 'markdown' or amatch ~= 'gitcommit'  then
+    if amatch ~= 'markdown' or amatch ~= 'gitcommit'  then
         vim.opt_local.formatoptions:remove('t')
     end
     vim.opt_local.formatoptions:remove('r')
@@ -29,7 +29,10 @@ end
 
 local function source_lua()
     local name = vim.fn.expand'<afile>:p'
-    if vim.startswith(name, vim.fn.stdpath'config') and not name:match('after/ftplugin') then
+    if vim.startswith(name, vim.fn.stdpath'config') and
+        not name:match('after/ftplugin') and
+        not name:match('/lsp%.lua$') -- avoid spinning up a bunch of lsp servers
+        then
         vim.cmd('luafile ' .. fe(name))
     end
 end
@@ -70,7 +73,10 @@ end
 local function edit_url()
     local abuf = tonumber(vim.fn.expand'<abuf>') or 0
     vim.bo[abuf].buftype = 'nofile'
-    local url = vim.fn.expand'<afile>':gsub('^https://github%.com/(.-)/blob/(.*)', 'https://raw.githubusercontent.com/%1/%2')
+    local url = vim.fn.expand'<afile>':gsub(
+        '^https://github%.com/(.-)/blob/(.*)',
+        'https://raw.githubusercontent.com/%1/%2'
+    )
     local function strip_trailing_newline(str)
         if '\n' == str:sub(-1) then
             return str:sub(1, -2)
@@ -104,48 +110,39 @@ end
 
 local AUGROUP = 'my/autocmds'
 
-local function autocmd(event, opts)
-    vim.api.nvim_create_autocmd(event, vim.tbl_extend('keep', {group = AUGROUP}, opts))
+local function au(event, pattern, cmd, opts)
+    opts = opts or {}
+    opts.group = AUGROUP
+    opts.pattern = pattern
+    if type(cmd) == 'string' then
+        opts.command = cmd
+    else
+        opts.callback = cmd
+    end
+    vim.api.nvim_create_autocmd(event, opts)
 end
 
 vim.api.nvim_create_augroup(AUGROUP, {clear = true})
--- handle large buffers
-autocmd('BufReadPre', {callback = handle_large_buffer, pattern = '*'})
--- setup formatoptions
-autocmd('FileType', {callback = setup_fo, pattern = '*'})
--- create missing dirs
-autocmd({'BufWritePre', 'FileWritePre'}, {callback = create_missing_dirs, pattern = '*'})
--- source lua
-autocmd('BufWritePost', {callback = source_lua, pattern = '*.lua'})
--- source vim
-autocmd('BufWritePost', {command = 'source <afile>:p', pattern = '*/.config/nvim/plugin/*.vim'})
--- source tmux
-autocmd('BufWritePost', {callback = source_tmux, pattern = '*tmux.conf'})
--- update user.js
-autocmd('BufWritePost', {callback = update_user_js, pattern = 'user-overrides.js'})
--- zsh-fast-theme
-autocmd('BufWritePost', {callback = fast_theme, pattern = '*/.zsh/overlay.ini'})
--- make executable
-autocmd('BufNewFile', {callback = function()
-    autocmd('BufWritePost', {buffer = 0, callback = maybe_make_executable, once = true})
-end, pattern = '*'})
--- edit url
-autocmd('BufNewFile', {callback = edit_url, pattern = {'http://*', 'https://*'}})
--- *.sh template
-autocmd('BufNewFile', {callback = template_sh, pattern = '*.sh'})
--- *.h template
-autocmd('BufNewFile', {callback = template_h, pattern = '*.h'})
--- *.c template
-autocmd('BufNewFile', {callback = template_c, pattern = 'main.c'})
--- vimresized
-autocmd('VimResized', {command = 'wincmd =', pattern = '*'})
--- checktime
-autocmd({'FocusGained', 'BufEnter'}, {command = 'checktime', pattern = '*'})
--- highlight yank
-autocmd('TextYankPost', {callback = function()
+
+au('BufReadPre', '*', handle_large_buffer)                            -- handle large buffers
+au('FileType', '*', setup_fo)                                         -- setup formatoptions
+au({'BufWritePre', 'FileWritePre'}, '*', create_missing_dirs)         -- create missing dirs
+au('BufWritePost', '*.lua', source_lua)                               -- source lua
+au('BufWritePost', '*/.config/nvim/plugin/*.vim', 'source <afile>:p') -- source vim
+au('BufWritePost', '*tmux.conf', source_tmux)                         -- source tmux
+au('BufWritePost', 'user-overrides.js', update_user_js)               -- update user.js
+au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)                  -- zsh-fast-theme
+au('BufNewFile', '*', function()                                      -- make executable
+    au('BufWritePost', nil, maybe_make_executable, {buffer = 0, once = true})
+end)
+au('BufNewFile', {'http://*', 'https://*'}, edit_url)                 -- edit url
+au('BufNewFile', '*.sh', template_sh)                                 -- *.sh template
+au('BufNewFile', '*.h', template_h)                                   -- *.h template
+au('BufNewFile', 'main.c', template_c)                                -- *.c template
+au('VimResized', '*', 'wincmd =')                                     -- vimresized
+au({'FocusGained', 'BufEnter'}, '*', 'checktime')                     -- checktime
+au('TextYankPost', '*', function()                                    -- highlight yank
     vim.highlight.on_yank({on_visual = false})
-end, pattern = '*'})
--- termopen
-autocmd('TermOpen', {command = 'set nonumber | startinsert', pattern = '*'})
--- termclose
-autocmd('TermClose', {command = "exec 'bd! ' .. expand('<abuf>')", pattern = '*'})
+end)
+au('TermOpen', '*', 'set nonumber | startinsert')                     -- termopen
+au('TermClose', '*', "exec 'bd! ' .. expand('<abuf>')")               -- termclose

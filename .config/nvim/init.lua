@@ -20,8 +20,7 @@ vim.cmd 'colorscheme papyrus'
 vim.cmd 'syntax enable'  -- see :h syntax-loading
 
 local function require_safe(mod)
-    local ok, msg
-    ok, msg = xpcall(function() return require(mod) end, debug.traceback)
+    local ok, msg = xpcall(function() return require(mod) end, debug.traceback)
     if not ok then
         vim.api.nvim_err_writeln(('Config error in %s: %s'):format(mod, msg))
     end

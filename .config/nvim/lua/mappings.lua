@@ -1,11 +1,9 @@
 local function nav_change_list(cmd)
-    local _local_1_ = vim.api.nvim_win_get_cursor(0)
-    local line = _local_1_[1]
-    vim.cmd(("sil! normal! " .. cmd))
-    local _local_2_ = vim.api.nvim_win_get_cursor(0)
-    local line2 = _local_2_[1]
+    local line = vim.api.nvim_win_get_cursor(0)[1]
+    vim.cmd("sil! normal! " .. cmd)
+    local line2 = vim.api.nvim_win_get_cursor(0)[1]
     if line == line2 then
-        vim.cmd(("sil! normal! " .. cmd))
+        vim.cmd("sil! normal! " .. cmd)
     end
 end
 
@@ -49,25 +47,22 @@ end
 local function previous_window_in_same_direction(dir)
     local cnr = vim.fn.winnr()
     local pnr = vim.fn.winnr("#")
-    local _9_ = dir
-    if (_9_ == "h") then
+    if dir == "h" then
         local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
-        local rightedge_previous_window = ((vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr)) - 1)
-        return ((leftedge_current_window - 1) == (rightedge_previous_window + 1))
-    elseif (_9_ == "l") then
+        local rightedge_previous_window = vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr) - 1
+        return (leftedge_current_window - 1) == (rightedge_previous_window + 1)
+    elseif dir == "l" then
         local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
-        local rightedge_current_window = ((vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr)) - 1)
-        return ((leftedge_previous_window - 1) == (rightedge_current_window + 1))
-    elseif (_9_ == "j") then
+        local rightedge_current_window = vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr) - 1
+        return (leftedge_previous_window - 1) == (rightedge_current_window + 1)
+    elseif dir == "j" then
         local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
-        local bottomedge_current_window = ((vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr)) - 1)
-        return ((topedge_previous_window - 1) == (bottomedge_current_window + 1))
-    elseif (_9_ == "k") then
+        local bottomedge_current_window = vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr) - 1
+        return (topedge_previous_window - 1) == (bottomedge_current_window + 1)
+    elseif dir == "k" then
         local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
-        local bottomedge_previous_window = ((vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr)) - 1)
-        return ((topedge_current_window - 1) == (bottomedge_previous_window + 1))
-    else
-        return nil
+        local bottomedge_previous_window = vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr) - 1
+        return (topedge_current_window - 1) == (bottomedge_previous_window + 1)
     end
 end
 
@@ -75,7 +70,7 @@ local function navigate(dir)
     if previous_window_in_same_direction(dir) then
         return vim.cmd("try | wincmd p | catch | entry")
     else
-        return vim.cmd(("try | wincmd " .. dir .. " | catch | endtry"))
+        return vim.cmd("try | wincmd " .. dir .. " | catch | endtry")
     end
 end
 
@@ -275,7 +270,7 @@ map("", "]n", "/\\v^[<\\|=>]{7}<CR>zvzz", {silent = true})
 map("", "[n", "?\\v^[<\\|=>]{7}<CR>zvzz", {silent = true})
 local function move_line(dir)
     vim.cmd("keepj norm! mv")
-    vim.cmd("move " .. dir == 'up' and '--' or '+' .. vim.v.count1)
+    vim.cmd("move " .. (dir == 'up' and '--' or '+') .. vim.v.count1)
     vim.cmd("keepj norm! =`v")
 end
 map("n", "[d", function() move_line'up' end)
@@ -286,7 +281,7 @@ map("n", ":V", "<Cmd>e ~/.config/nvim/<CR>", {silent = true})
 map("n", ":L", "<Cmd>e ~/.config/nvim/lua/<CR>", {silent = true})
 map("n", ":C", "<Cmd>e ~/.config/nvim/lua/config/<CR>", {silent = true})
 map("n", ":A", "<Cmd>e ~/.config/nvim/after/ftplugin/<CR>", {silent = true})
-map("n", ":P", "<Cmd>e ~/.local/share/nvim/site/pack/packer/start/<CR>", {silent = true})
+map("n", ":P", "<Cmd>e ~/.local/share/nvim/site/pack/paqs/start/<CR>", {silent = true})
 map("n", ":R", "<Cmd>e $VIMRUNTIME<CR>", {silent = true})
 map("n", ":Z", "<Cmd>e ~/.zshrc<CR>", {silent = true})
 map("n", ":N", "<Cmd>e ~/notes/_notes.md<CR>", {silent = true})

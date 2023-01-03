@@ -1,6 +1,7 @@
 local M = {}
+
 M.statusline = function()
-  local current_win = (vim.g.statusline_winid == vim.fn.win_getid())
+  local current_win = vim.g.statusline_winid == vim.fn.win_getid()
   local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
   local issues = #vim.diagnostic.get(buf)
   local function _1_()
@@ -19,7 +20,9 @@ M.statusline = function()
   end
   return ("%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*" .. "%{&buftype == 'nofile' ? '[Nofile]' : expand('%:t')}%* " .. "%{&fileformat != 'unix' ? '[' . &fileformat . '] ' : ''}" .. "%{&fileencoding != 'utf-8' && &fileencoding != '' ? '[' . &fileencoding . '] ' : ''}" .. _1_() .. "%=" .. _2_())
 end
+
 vim["opt"]["statusline"] = "%!v:lua.require'statusline'.statusline()"
+
 M.tabline = function()
   local s = ""
   for i = 1, vim.fn.tabpagenr("$") do
@@ -34,6 +37,7 @@ M.tabline = function()
   end
   return (s .. "%#TabLineFill#%T")
 end
+
 M.tablabel = function(n)
   local buflist = vim.fn.tabpagebuflist(n)
   local modified = ""
@@ -47,5 +51,7 @@ M.tablabel = function(n)
   local name = vim.fn.fnamemodify(vim.fn.bufname(buflist[vim.fn.tabpagewinnr(n)]), ":t:s/^$/[No Name]/")
   return (modified .. name .. " ")
 end
+
 vim["opt"]["tabline"] = "%!v:lua.require'statusline'.tabline()"
+
 return M

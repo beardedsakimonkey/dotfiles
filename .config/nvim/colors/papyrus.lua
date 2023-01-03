@@ -9,6 +9,7 @@ vim.g.colors_name = 'papyrus'
 
 local hl = vim.api.nvim_set_hl
 
+---@diagnostic disable: param-type-mismatch
 hl(0, 'Cursor', {bg = 'Black', fg = 'White'})
 hl(0, 'Normal', {bg = '#CDCABD', fg = 'Black'})
 hl(0, 'NonText', {bg = '#C5C2B5', fg = 'none'})

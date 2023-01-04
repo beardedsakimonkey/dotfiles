@@ -2,7 +2,7 @@ local util = require'util'
 
 local se = vim.fn.shellescape
 
-local command = function(name, command, opts)
+local com = function(name, command, opts)
     vim.api.nvim_create_user_command(name, command, opts or {})
 end
 
@@ -34,12 +34,12 @@ local function github_url()
     end))
 end
 
-command('Scratch', 'call my#scratch(<q-args>, <q-mods>)', {nargs = 1, complete = 'command'})
-command('Messages', '<mods> Scratch messages', {nargs = 0})
-command('Marks', '<mods> Scratch marks <args>', {nargs = '?'})
-command('Highlight', '<mods> Scratch highlight <args>', {nargs = '?', complete = 'highlight'})
-command('Jumps', '<mods> Scratch jumps', {nargs = 0})
-command('Scriptnames', '<mods> Scratch scriptnames', {nargs = 0})
+com('Scratch', 'call my#scratch(<q-args>, <q-mods>)', {nargs = 1, complete = 'command'})
+com('Messages', '<mods> Scratch messages', {nargs = 0})
+com('Marks', '<mods> Scratch marks <args>', {nargs = '?'})
+com('Highlight', '<mods> Scratch highlight <args>', {nargs = '?', complete = 'highlight'})
+com('Jumps', '<mods> Scratch jumps', {nargs = 0})
+com('Scriptnames', '<mods> Scratch scriptnames', {nargs = 0})
 
-command('UpdateUserJs', update_userjs)
-command('GithubUrl', github_url)
+com('UpdateUserJs', update_userjs)
+com('GithubUrl', github_url)

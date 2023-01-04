@@ -44,6 +44,22 @@ function M.system(cmd_parts, cb)
     end)
 end
 
+function M.augroup(name)
+    vim.api.nvim_create_augroup(name, {clear = true})
+    local function au(event, pattern, cmd, opts)
+        opts = opts or {}
+        opts.group = AUGROUP
+        opts.pattern = pattern
+        if type(cmd) == 'string' then
+            opts.command = cmd
+        else
+            opts.callback = cmd
+        end
+        vim.api.nvim_create_autocmd(event, opts)
+    end
+    return au
+end
+
 M.FF_PROFILE = '/Users/tim/Library/Application Support/Firefox/Profiles/2a6723nr.default-release/'
 
 return M

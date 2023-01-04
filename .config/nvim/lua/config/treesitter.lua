@@ -1,46 +1,41 @@
-local configs = require('nvim-treesitter.configs')
+local configs = require'nvim-treesitter.configs'
 
-local function large_buf(lang, bufnr)
+local function disable(lang, bufnr)
     local size = vim.fn.getfsize(vim.fn.bufname(bufnr))
-    return size > (1024 * 1024) or size == -2 or lang == 'markdown'
+    local large_buf = size > (1024 * 1024) or size == -2
+    return large_buf or lang == 'markdown'
 end
 
 -- Enable treesitter highlighting for lua
 vim.g.ts_highlight_lua = true
 
 configs.setup({
-    ensure_installed = {'javascript', 'fennel', 'markdown', 'markdown_inline', 'query'},
-    highlight = {enable = true, disable = large_buf},
+    ensure_installed = {
+        'javascript',
+        'fennel',
+        'markdown',
+        'markdown_inline',
+        'query',
+    },
+    highlight = {
+        enable = true,
+        disable = disable,
+    },
     playground = {
         enable = true,
-        disable = {},
-        updatetime = 25,
-        keybindings = {
-            toggle_query_editor = 'o',
-            toggle_hl_groups = 'i',
-            toggle_injected_languages = 't',
-            toggle_anonymous_nodes = 'a',
-            toggle_language_display = 'I',
-            focus_language = 'f',
-            unfocus_language = 'F',
-            update = 'R',
-            goto_node = '<cr>',
-            show_help = '?',
-        },
-        persist_queries = false,
     },
     textobjects = {
         move = {
             enable = true,
-            disable = large_buf,
+            disable = disable,
             goto_next_end = {[']a'] = '@parameter.inner'},
             goto_previous_start = {['[a'] = '@parameter.inner'},
-            set_jumps = false,
+            set_jumps = false,  -- keepjumps
         },
         select = {
             enable = true,
-            disable = large_buf,
-            lookahead = true,
+            disable = disable,
+            lookahead = true,  -- jump to next textobject
             keymaps = {
                 aF = '@function.outer',
                 iF = '@function.inner',

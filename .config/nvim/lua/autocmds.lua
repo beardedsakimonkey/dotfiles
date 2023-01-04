@@ -11,14 +11,14 @@ local function handle_large_buffer()
 end
 
 local function setup_fo()
-    vim.opt.formatoptions = vim.opt.formatoptions
+    vim.opt.fo = vim.opt.fo
         + 'j' -- remove comment leader joining lines
         + 'c' -- auto-wrap comments
     local amatch = vim.fn.expand'<amatch>'
     if amatch ~= 'markdown' and amatch ~= 'gitcommit'  then
-        vim.opt.formatoptions = vim.opt.formatoptions - 't'  -- don't auto-wrap text
+        vim.opt.fo = vim.opt.fo - 't'  -- don't auto-wrap text
     end
-    vim.opt.formatoptions = vim.opt.formatoptions - 'o'  -- don't auto-insert comment leader on 'o'
+    vim.opt.fo = vim.opt.fo - 'o'  -- don't auto-insert comment leader on 'o'
 end
 
 local function source_lua()
@@ -74,21 +74,7 @@ local function edit_url()
     require'ufind.util'.spawn('curl', {'--location', '--silent', '--show-error', url}, on_stdout)
 end
 
-local AUGROUP = 'my/autocmds'
-
-local function au(event, pattern, cmd, opts)
-    opts = opts or {}
-    opts.group = AUGROUP
-    opts.pattern = pattern
-    if type(cmd) == 'string' then
-        opts.command = cmd
-    else
-        opts.callback = cmd
-    end
-    vim.api.nvim_create_autocmd(event, opts)
-end
-
-vim.api.nvim_create_augroup(AUGROUP, {clear = true})
+local au = util.augroup'my/autocmds'
 
 au('BufReadPre', '*', handle_large_buffer)
 au('FileType', '*', setup_fo)

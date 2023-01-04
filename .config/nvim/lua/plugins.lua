@@ -1,3 +1,4 @@
+local util = require'util'
 require 'paq' {
     {'beardedsakimonkey/nvim-udir', branch = 'develop'},
     {'beardedsakimonkey/nvim-ufind', branch = 'develop'},
@@ -5,12 +6,11 @@ require 'paq' {
     'tpope/vim-commentary',
     'tpope/vim-repeat',
     'neovim/nvim-lspconfig',
-    {'nvim-treesitter/nvim-treesitter', run = function() vim.cmd'TSUpdate' end},
+    {'nvim-treesitter/nvim-treesitter', run = function() vim.cmd 'TSUpdate' end},
     'nvim-treesitter/playground',
     'nvim-treesitter/nvim-treesitter-textobjects',
+    'kylechui/nvim-surround',
     {'savq/paq-nvim', pin = true},
-    {'kylechui/nvim-surround', pin = true},
-    {'jose-elias-alvarez/minsnip.nvim', pin = true},
     {'norcalli/nvim-colorizer.lua', pin = true},
     {'Darazaki/indent-o-matic', pin = true},
     {'hrsh7th/nvim-cmp', pin = true},
@@ -21,33 +21,30 @@ require 'paq' {
     {'rhysd/clever-f.vim', pin = true},
     {'tommcdo/vim-exchange', pin = true},
     {'AndrewRadev/linediff.vim', pin = true},
-    {'bakpakin/fennel.vim', pin = true},
-    -- 'tommcdo/vim-lion',
-    -- 'dstein64/vim-startuptime',
-    -- 'folke/neodev.nvim',
-    -- 'mbbill/undotree',
-    -- 'gpanders/fennel-repl.nvim',
-    -- 'beardedsakimonkey/nvim-antifennel',
-    -- {'smjonas/inc-rename.nvim', pin = true},
 }
 
 vim.api.nvim_create_user_command('PInstall', 'PaqInstall', {})
-vim.api.nvim_create_user_command('PUpdate', 'PaqLogClean | PaqUpdate | PaqLogOpen', {})
+vim.api.nvim_create_user_command('PUpdate', 'PaqLogClean | PaqUpdate', {})
 vim.api.nvim_create_user_command('PClean', 'PaqClean', {})
-vim.api.nvim_create_user_command('PSync', 'PaqLogClean | PaqSync | PaqLogOpen', {})
+vim.api.nvim_create_user_command('PSync', 'PaqLogClean | PaqSync', {})
+
+local au = util.augroup'my/plugins'
+
+au('User', 'PaqDoneUpdate', 'PaqLogOpen')
+au('User', 'PaqDoneSync', 'PaqLogOpen')
+au('BufNew', 'paq.log', 'nnoremap q <Cmd>:q<CR>')
 
 require 'config.udir'
 require 'config.ufind'
 require 'config.lsp'
-require 'config.minsnip'
 require 'config.colorizer'
 require 'config.surround'
 require 'config.treesitter'
 require 'config.cmp'
 
--- inc-rename
-require 'inc_rename'.setup({preview_empty_name = true})
-
 -- linediff
 vim.g.linediff_buffer_type = 'scratch'
 vim.keymap.set('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
+
+-- clever-f
+vim.g.clever_f_chars_match_any_signs = ';'

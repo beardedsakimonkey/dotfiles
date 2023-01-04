@@ -1,40 +1,37 @@
-local lspconfig = require('lspconfig')
+local lspconfig = require'lspconfig'
 
-local function on_attach(_, bufnr)
-    -- The built-in on_attach handler sets this to use the lsp server. But this
-    -- means we can't gq on comments. So reset it.
-    vim.bo[bufnr].formatexpr = ''
-    local function buf_keymap(lhs, rhs)
-        return vim.api.nvim_buf_set_keymap(bufnr, 'n', lhs, rhs, {noremap = true, silent = true})
-    end
-
-    -- NOTE: Diagnostic mappings are in mappings.fnl because they aren't
-    -- necessarily associated with an lsp.
-    buf_keymap('gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>')
-    buf_keymap('gd', '<Cmd>lua vim.lsp.buf.definition()<CR>')
-    buf_keymap('gh', '<Cmd>lua vim.lsp.buf.hover()<CR>')
-    buf_keymap('gm', '<Cmd>lua vim.lsp.buf.implementation()<CR>')
-    buf_keymap('gs', '<Cmd>lua vim.lsp.buf.signature_help()<CR>')
-    buf_keymap('gt', '<Cmd>lua vim.lsp.buf.type_definition()<CR>')
-    buf_keymap('gr', '<Cmd>lua vim.lsp.buf.rename()<CR>')
-    buf_keymap('ga', '<Cmd>lua vim.lsp.buf.code_action()<CR>')
-    buf_keymap('<space>w', '<Cmd>lua vim.lsp.buf.formatting()<CR>')
-end
-
-vim.diagnostic.config({signs = false, virtual_text = false})
-
-local textDocument_definition = vim.lsp.handlers['textDocument/definition']
-
-local function location_handler(...)
-    textDocument_definition(...)
-    vim.cmd('normal! zz')
-end
-
-vim.lsp.handlers['textDocument/definition'] = location_handler
+vim.diagnostic.config({
+    signs = false,
+    virtual_text = false,
+})
 
 lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
-    on_attach = on_attach,
-    flags = {debounce_text_changes = 150},
+    on_attach = function (_, bufnr)
+        -- The built-in on_attach handler sets this to use the lsp server. But this
+        -- means we can't gq on comments. So reset it.
+        vim.bo[bufnr].formatexpr = ''
+        local function map(lhs, rhs)
+            vim.api.nvim_buf_set_keymap(bufnr, 'n', lhs, rhs, {noremap = true, silent = true})
+        end
+        -- NOTE: Diagnostic mappings are in mappings.lua because they aren't
+        -- necessarily associated with an lsp.
+        map('gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>')
+        map('gd', '<Cmd>lua vim.lsp.buf.definition()<CR>')
+        map('gh', '<Cmd>lua vim.lsp.buf.hover()<CR>')
+        map('gm', '<Cmd>lua vim.lsp.buf.implementation()<CR>')
+        map('gs', '<Cmd>lua vim.lsp.buf.signature_help()<CR>')
+        map('gt', '<Cmd>lua vim.lsp.buf.type_definition()<CR>')
+        map('gr', '<Cmd>lua vim.lsp.buf.rename()<CR>')
+        map('ga', '<Cmd>lua vim.lsp.buf.code_action()<CR>')
+        map(',f', '<Cmd>lua vim.lsp.buf.format({async=true})<CR>')
+    end,
+    handlers = {
+        -- Center screen after jumping to location
+        ['textDocument/definition'] = function(...)
+            vim.lsp.handlers['textDocument/definition'](...)
+            vim.cmd 'norm! zz'
+        end,
+    },
 })
 
 lspconfig.clangd.setup({})

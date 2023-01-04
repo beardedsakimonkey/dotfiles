@@ -13,7 +13,6 @@ require 'paq' {
     {'jose-elias-alvarez/minsnip.nvim', pin = true},
     {'norcalli/nvim-colorizer.lua', pin = true},
     {'Darazaki/indent-o-matic', pin = true},
-    {'smjonas/inc-rename.nvim', pin = true},
     {'hrsh7th/nvim-cmp', pin = true},
     {'hrsh7th/cmp-buffer', pin = true},
     {'hrsh7th/cmp-nvim-lua', pin = true},
@@ -29,6 +28,7 @@ require 'paq' {
     -- 'mbbill/undotree',
     -- 'gpanders/fennel-repl.nvim',
     -- 'beardedsakimonkey/nvim-antifennel',
+    -- {'smjonas/inc-rename.nvim', pin = true},
 }
 
 vim.api.nvim_create_user_command('PInstall', 'PaqInstall', {})

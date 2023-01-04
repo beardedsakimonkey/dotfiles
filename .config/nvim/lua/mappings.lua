@@ -1,65 +1,64 @@
 local function nav_change_list(cmd)
     local line = vim.api.nvim_win_get_cursor(0)[1]
-    vim.cmd("sil! normal! " .. cmd)
+    vim.cmd('sil! normal! ' .. cmd)
     local line2 = vim.api.nvim_win_get_cursor(0)[1]
     if line == line2 then
-        vim.cmd("sil! normal! " .. cmd)
+        vim.cmd('sil! normal! ' .. cmd)
     end
 end
 
 -- Adapted from lacygoill's vimrc
 local function zoom_toggle()
-    if vim.fn.winnr("$") ~= 1 then
+    if vim.fn.winnr('$') ~= 1 then
         if vim.t.zoom_restore then
-            vim.cmd("exe t:zoom_restore")
-            vim.cmd("unlet t:zoom_restore")
+            vim.cmd 'exe t:zoom_restore'
+            vim.cmd 'unlet t:zoom_restore'
         else
             vim.t.zoom_restore = vim.fn.winrestcmd()
-            vim.cmd("wincmd |")
-            vim.cmd("wincmd _")
+            vim.cmd 'wincmd |'
+            vim.cmd 'wincmd _'
         end
     end
 end
 
 -- Adapted from lacygoill's vimrc
 local function repeat_last_edit()
-    local changed = vim.fn.getreg("\"", 1, 1)
+    local changed = vim.fn.getreg('"', 1, 1)
     if changed then
-        local changed0
         -- Escape backslashes
-        changed0 = vim.tbl_map(function(c)
-            return vim.fn.escape(c, "\\")
+        local changed_esc = vim.tbl_map(function(c)
+            return vim.fn.escape(c, '\\')
         end, changed)
-        local pat = table.concat(changed0, "\\n")
-        -- Put the last changed text inside the search register, so that we can refer
-        -- to it with the text-object `gn`
-        vim.fn.setreg("/", ("\\V" .. pat), "c")
-        vim.cmd("exe \"norm! cgn\\<c-@>\"")
+        local pat = table.concat(changed_esc, '\\n')
+        -- Put the last changed text inside the search register, so that we can refer to it with the
+        -- text-object `gn`
+        vim.fn.setreg('/', ('\\V' .. pat), 'c')
+        vim.cmd 'exe "norm! cgn\\<c-@>"'
     end
 end
 
 -- Adapted from lacygoill's vimrc
 local function search_in_visual_selection()
-    vim.api.nvim_input("/\\%V")
+    vim.api.nvim_input('/\\%V')
 end
 
 -- Adapted from lacygoill's vimrc
 local function previous_window_in_same_direction(dir)
     local cnr = vim.fn.winnr()
-    local pnr = vim.fn.winnr("#")
-    if dir == "h" then
+    local pnr = vim.fn.winnr('#')
+    if dir == 'h' then
         local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
         local rightedge_previous_window = vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr) - 1
         return (leftedge_current_window - 1) == (rightedge_previous_window + 1)
-    elseif dir == "l" then
+    elseif dir == 'l' then
         local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
         local rightedge_current_window = vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr) - 1
         return (leftedge_previous_window - 1) == (rightedge_current_window + 1)
-    elseif dir == "j" then
+    elseif dir == 'j' then
         local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
         local bottomedge_current_window = vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr) - 1
         return (topedge_previous_window - 1) == (bottomedge_current_window + 1)
-    elseif dir == "k" then
+    elseif dir == 'k' then
         local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
         local bottomedge_previous_window = vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr) - 1
         return (topedge_current_window - 1) == (bottomedge_previous_window + 1)
@@ -68,68 +67,17 @@ end
 
 local function navigate(dir)
     if previous_window_in_same_direction(dir) then
-        return vim.cmd("try | wincmd p | catch | entry")
+        return vim.cmd('try | wincmd p | catch | entry')
     else
-        return vim.cmd("try | wincmd " .. dir .. " | catch | endtry")
+        return vim.cmd('try | wincmd ' .. dir .. ' | catch | endtry')
     end
 end
 
-local function plain_rename()
+local function rename()
     local cword = vim.fn.expand("<cword>")
     vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
     local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
     return vim.api.nvim_feedkeys(keys, "n", false)
-end
-
--- Adapted from nvim-treesitter-refactor
-local function ts_rename()
-    local ts_utils = require("nvim-treesitter.ts_utils")
-    local locals = require("nvim-treesitter.locals")
-    local bufnr = vim.api.nvim_get_current_buf()
-    local cursor_node = ts_utils.get_node_at_cursor(0, false)
-    local function complete_rename(new_name)
-        if (new_name and (#new_name > 0)) then
-            local definition, scope = locals.find_definition(cursor_node, bufnr)
-            local nodes_to_rename = {}
-            nodes_to_rename[cursor_node:id()] = cursor_node
-            nodes_to_rename[definition:id()] = definition
-            for _, n in ipairs(locals.find_usages(definition, scope, bufnr)) do
-                nodes_to_rename[n:id()] = n
-            end
-            local edits = {}
-            for _, node in pairs(nodes_to_rename) do
-                local lsp_range = ts_utils.node_to_lsp_range(node)
-                local text_edit = {range = lsp_range, newText = new_name}
-                table.insert(edits, text_edit)
-            end
-            return vim.lsp.util.apply_text_edits(edits, bufnr, "utf-8")
-        else
-            return nil
-        end
-    end
-    if not cursor_node then
-        vim.api.nvim_err_writeln("No node to rename!")
-    else
-        vim.ui.input({default = "", prompt = "New name: "}, complete_rename)
-    end
-end
-
-local function lsp_rename()
-    -- vim.lsp.buf.rename()
-    vim.api.nvim_feedkeys(":IncRename ", "n", false)
-end
-
-local function rename()
-    local parsers = require("nvim-treesitter.parsers")
-    local ts_enabled = parsers.has_parser(nil)
-    local lsp_enabled = not vim.tbl_isempty(vim.lsp.get_active_clients({bufnr = 0}))
-    if lsp_enabled then
-        lsp_rename()
-    elseif ts_enabled then
-        ts_rename()
-    else
-        plain_rename()
-    end
 end
 
 local map = vim.keymap.set
@@ -171,8 +119,8 @@ map("n", "`", "'")
 map("n", "'", "`")
 map("", "H", "^")
 map("", "L", "$")
-map("", "(", "H", {silent = true})
-map("", ")", "L", {silent = true})
+map("", "(", "<Cmd>keepj norm! H<CR>", {silent = true})
+map("", ")", "<Cmd>keepj norm! L<CR>", {silent = true})
 map("n", "<Home>", "<Cmd>keepj norm! gg<CR>", {silent = true})
 map("n", "<End>", "<Cmd>keepj norm! G<CR>", {silent = true})
 map("n", "<C-s>", "<C-a>", {silent = true})

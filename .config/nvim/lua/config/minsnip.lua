@@ -7,7 +7,7 @@ end
 local function cl()
     local ft = vim.bo.filetype
     if ft == 'c' then
-        return 'printf("$0\n");'
+        return 'printf("$0\\n");'
     elseif ft == 'vim' then
         return 'echom $0'
     elseif ft == 'lua' then

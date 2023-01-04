@@ -11,20 +11,14 @@ local function handle_large_buffer()
 end
 
 local function setup_fo()
-    vim.opt_local.formatoptions:append('jcn')
+    vim.opt.formatoptions = vim.opt.formatoptions
+        + 'j' -- remove comment leader joining lines
+        + 'c' -- auto-wrap comments
     local amatch = vim.fn.expand'<amatch>'
-    if amatch ~= 'markdown' or amatch ~= 'gitcommit'  then
-        vim.opt_local.formatoptions:remove('t')
+    if amatch ~= 'markdown' and amatch ~= 'gitcommit'  then
+        vim.opt.formatoptions = vim.opt.formatoptions - 't'  -- don't auto-wrap text
     end
-    vim.opt_local.formatoptions:remove('r')
-    vim.opt_local.formatoptions:remove('o')
-end
-
-local function create_missing_dirs()
-    local afile = vim.fn.expand'<afile>'
-    if not afile:match('://') then
-        vim.fn.mkdir(fe(vim.fn.expand'<afile>:p:h'), 'p')
-    end
+    vim.opt.formatoptions = vim.opt.formatoptions - 'o'  -- don't auto-insert comment leader on 'o'
 end
 
 local function source_lua()
@@ -43,14 +37,15 @@ end
 
 local function update_user_js()
     local function on_exit(exit)
-        assert(0 == exit)
-        print('Updated user.js')
+        print(exit == 0 and 'Updated user.js' or ('exited nonzero: ' .. exit))
     end
+    print('Updating...')
     vim.loop.spawn(util.FF_PROFILE .. 'updater.sh', {args = {'-d', '-s', '-b'}}, on_exit)
 end
 
 local function fast_theme()
-    local zsh = os.getenv'HOME' .. '/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh'
+    local zsh = os.getenv'HOME'
+        .. '/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh'
     if util.exists(zsh) then
         local cmd = 'source ' .. zsh .. ' && fast-theme ' .. vim.fn.expand'<afile>:p'
         local output = vim.fn.system(cmd)
@@ -62,14 +57,6 @@ local function fast_theme()
     end
 end
 
-local function maybe_make_executable()
-    local first_line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]
-    if first_line:match('^#!%S+') then
-        local path = se(vim.fn.expand'<afile>:p')
-        vim.cmd('sil !chmod +x ' .. path)
-    end
-end
-
 local function edit_url()
     local abuf = tonumber(vim.fn.expand'<abuf>') or 0
     vim.bo[abuf].buftype = 'nofile'
@@ -77,35 +64,14 @@ local function edit_url()
         '^https://github%.com/(.-)/blob/(.*)',
         'https://raw.githubusercontent.com/%1/%2'
     )
-    local function strip_trailing_newline(str)
-        if '\n' == str:sub(-1) then
-            return str:sub(1, -2)
-        else
-            return str
-        end
-    end
-    local function cb(stdout, stderr, exit)
-        local lines = vim.split(strip_trailing_newline(exit == 0 and stdout or stderr), '\n')
+    local function on_stdout(chunk)
         vim.schedule(function()
-            vim.api.nvim_buf_set_lines(abuf, 0, -1, true, lines)
+            local lines = vim.api.nvim_buf_get_lines(abuf, 0, 1, false)
+            local is_empty = #lines == 1 and lines[1] == ''
+            vim.api.nvim_buf_set_lines(abuf, is_empty and 0 or -1, -1, true, vim.split(chunk, '\n'))
         end)
     end
-    util.system({'curl', '--location', '--silent', '--show-error', url}, cb)
-end
-
-local function template_sh()
-    vim.api.nvim_buf_set_lines(0, 0, -1, true, {'#!/bin/bash'})
-end
-
-local function template_h()
-    local file_name = vim.fn.expand'<afile>:t'
-    local guard = string.upper(file_name:gsub('%.', '_'))
-    vim.api.nvim_buf_set_lines(0, 0, -1, true, {('#ifndef ' .. guard), ('#define ' .. guard), '', '#endif'})
-end
-
-local function template_c()
-    local str = '#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    printf(\'hi\\n\');\n}'
-    vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(str, '\n'))
+    require'ufind.util'.spawn('curl', {'--location', '--silent', '--show-error', url}, on_stdout)
 end
 
 local AUGROUP = 'my/autocmds'
@@ -124,25 +90,16 @@ end
 
 vim.api.nvim_create_augroup(AUGROUP, {clear = true})
 
-au('BufReadPre', '*', handle_large_buffer)                            -- handle large buffers
-au('FileType', '*', setup_fo)                                         -- setup formatoptions
-au({'BufWritePre', 'FileWritePre'}, '*', create_missing_dirs)         -- create missing dirs
-au('BufWritePost', '*.lua', source_lua)                               -- source lua
-au('BufWritePost', '*/.config/nvim/plugin/*.vim', 'source <afile>:p') -- source vim
-au('BufWritePost', '*tmux.conf', source_tmux)                         -- source tmux
-au('BufWritePost', 'user-overrides.js', update_user_js)               -- update user.js
-au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)                  -- zsh-fast-theme
-au('BufNewFile', '*', function()                                      -- make executable
-    au('BufWritePost', nil, maybe_make_executable, {buffer = 0, once = true})
-end)
-au('BufNewFile', {'http://*', 'https://*'}, edit_url)                 -- edit url
-au('BufNewFile', '*.sh', template_sh)                                 -- *.sh template
-au('BufNewFile', '*.h', template_h)                                   -- *.h template
-au('BufNewFile', 'main.c', template_c)                                -- *.c template
-au('VimResized', '*', 'wincmd =')                                     -- vimresized
-au({'FocusGained', 'BufEnter'}, '*', 'checktime')                     -- checktime
-au('TextYankPost', '*', function()                                    -- highlight yank
-    vim.highlight.on_yank({on_visual = false})
-end)
-au('TermOpen', '*', 'set nonumber | startinsert')                     -- termopen
-au('TermClose', '*', "exec 'bd! ' .. expand('<abuf>')")               -- termclose
+au('BufReadPre', '*', handle_large_buffer)
+au('FileType', '*', setup_fo)
+au('BufWritePost', '*.lua', source_lua)
+au('BufWritePost', '*/.config/nvim/plugin/*.vim', 'source <afile>:p')
+au('BufWritePost', '*tmux.conf', source_tmux)
+au('BufWritePost', 'user-overrides.js', update_user_js)
+au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)
+au('BufNewFile', {'http://*', 'https://*'}, edit_url)
+au('VimResized', '*', 'wincmd =')
+au({'FocusGained', 'BufEnter'}, '*', 'checktime')
+au('TextYankPost', '*', function() vim.highlight.on_yank({on_visual = false}) end)
+au('TermOpen', '*', 'set nonumber | startinsert')
+au('TermClose', '*', "exec 'bd! ' .. expand('<abuf>')")

@@ -25,8 +25,7 @@ augroup END
 com -bar -nargs=? -complete=custom,s:suggest_sessions SClose  exe s:close()
 com -bar -nargs=? -complete=custom,s:suggest_sessions SDelete exe s:delete(<q-args>)
 com -bar -nargs=1 -complete=custom,s:suggest_sessions SRename exe s:rename(<q-args>)
-
-com -bar       -nargs=? -complete=custom,s:suggest_sessions SLoad  exe s:load(<q-args>)
+com -bar -nargs=? -complete=custom,s:suggest_sessions SLoad  exe s:load(<q-args>)
 com -bar -bang -nargs=? -complete=custom,s:suggest_sessions STrack exe s:handle_session(<bang>0, <q-args>)
 
 fu s:close() abort

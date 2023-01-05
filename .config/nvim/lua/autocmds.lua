@@ -1,8 +1,5 @@
 local util = require'util'
 
-local fe = vim.fn.fnameescape
-local se = vim.fn.shellescape
-
 local function handle_large_buffer()
     local size = vim.fn.getfsize(vim.fn.expand'<afile>')
     if size > (1024 * 1024) or size == -2 then
@@ -74,7 +71,7 @@ local function edit_url()
     require'ufind.util'.spawn('curl', {'--location', '--silent', '--show-error', url}, on_stdout)
 end
 
-local au = util.augroup'my/autocmds'
+local au = aug'my/autocmds'
 
 au('BufReadPre', '*', handle_large_buffer)
 au('FileType', '*', setup_fo)

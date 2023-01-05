@@ -1,8 +1,7 @@
 vim.opt.termguicolors = true
-vim.opt.shada = "!,'20000,<0,s10,:100,/10,@10,f0,h"
+vim.opt.shada = "!,'1024,<0,s8,:128,/8,@8,f0,h"
 vim.opt.sessionoptions = {'help', 'tabpages', 'winsize', 'curdir', 'folds'}
 
-vim.opt.lazyredraw = true
 vim.opt.ttimeoutlen = 0  -- avoid confusing <esc>-key with <a-…>
 vim.opt.timeoutlen = 3000
 vim.opt.synmaxcol = 500
@@ -11,9 +10,6 @@ vim.opt.confirm = true
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undofile = true
-if not vim.fn.isdirectory(vim.go.undodir) then
-    vim.fn.mkdir(vim.go.undodir)
-end
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -34,8 +30,8 @@ vim.opt.ignorecase = true
 vim.opt.infercase = true
 vim.opt.smartcase = true
 
-vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
-vim.opt.complete = {'.', 'i', 'w', 'b'}
+vim.opt.completeopt = {'menu'}
+vim.opt.complete = {'.', 'i'}
 vim.opt.wildmenu = true
 vim.opt.wildignorecase = true
 vim.opt.wildignore = {'*.o', '*/node_modules/*'}

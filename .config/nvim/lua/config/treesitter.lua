@@ -54,6 +54,3 @@ configs.setup({
         lint_events = {'BufWrite', 'BufEnter'},
     },
 })
-
--- From nvim-treesitter/playground
-vim.keymap.set('n', 'gy', '<Cmd>TSHighlightCapturesUnderCursor<CR>', {})

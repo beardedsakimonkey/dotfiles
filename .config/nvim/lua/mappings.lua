@@ -80,8 +80,6 @@ local function rename()
     return vim.api.nvim_feedkeys(keys, "n", false)
 end
 
-local map = vim.keymap.set
-
 -- Enhanced defaults
 map('n', 'j', 'gj')
 map('n', 'k', 'gk')
@@ -94,7 +92,7 @@ map('n', '<', '<<')
 map('n', '>', '>>')
 map('x', '<', '<gv')
 map('x', '>', '>gv')
-map({'n', 'x'}, 's', '\'_s')
+map('n', 's', '"_s')
 map('n', 'p', "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'", {expr = true})
 map('n', 'P', "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'", {expr = true})
 map('x', 'p', "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true})
@@ -130,6 +128,13 @@ map('n', '<C-l>', function() navigate'l' end, {silent = true})
 map('n', '<C-h>', function() navigate'h' end, {silent = true})
 map('n', '<C-j>', function() navigate'j' end, {silent = true})
 map('n', '<C-k>', function() navigate'k' end, {silent = true})
+map('n', 'zk', 'zc', {silent = true})
+map('n', 'zK', 'zC', {silent = true})
+map('n', 'zj', 'zo', {silent = true})
+map('n', 'zJ', 'zO', {silent = true})
+map('i', '<C-j>', '<C-n>')
+map('i', '<C-k>', '<C-p>')
+
 
 -- Miscellaneous
 map('n', 'cn', 'cgn', {silent = true})
@@ -263,12 +268,6 @@ map('n', 'ge', '<Cmd>lua vim.diagnostic.open_float()<CR>', {silent = true})
 map('n', '[e', '<Cmd>lua vim.diagnostic.goto_prev()<CR>', {silent = true})
 map('n', ']e', '<Cmd>lua vim.diagnostic.goto_next()<CR>', {silent = true})
 map('n', 'gl', '<Cmd>lua vim.diagnostic.setloclist()<CR>', {silent = true})
-
---Folds
-map('n', 'zk', 'zc', {silent = true})
-map('n', 'zK', 'zC', {silent = true})
-map('n', 'zj', 'zo', {silent = true})
-map('n', 'zJ', 'zO', {silent = true})
 
 -- Avoid typo
 vim.cmd 'cnoreabbrev ~? ~/'

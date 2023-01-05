@@ -117,6 +117,10 @@ end
 vim.api.nvim_create_user_command('Grep', function(o) grep(o.args) end, {nargs = '+'})
 vim.keymap.set('x', '<space>a', '\"vy:Grep <C-r>v<CR>', {})
 vim.keymap.set('n', '<space>a', function()
-    local is_dir = vim.fn.isdirectory(vim.fn.expand('%:p')) == 1
-    return ':<C-u>Grep ' .. (is_dir and ' %<Left><Left>' or '')
+    local path = ''
+    if vim.bo.ft == 'udir' then
+        -- can't rely on % because sometimes the bufname has '[1]'
+        path = ' ' .. require'udir.store'.get().cwd .. '<S-Left><Left>'
+    end
+    return ':<C-u>Grep ' .. path
 end, {expr = true})

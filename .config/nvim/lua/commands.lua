@@ -1,37 +1,28 @@
 local util = require'util'
 
-local se = vim.fn.shellescape
-
-local com = function(name, command, opts)
-    vim.api.nvim_create_user_command(name, command, opts or {})
-end
-
 local function update_userjs()
     vim.cmd(('botright new | terminal cd %s && ./updater.sh && ./prefsCleaner.sh')
         :format(se(util.FF_PROFILE)))
 end
 
 local function github_url()
-    local function cb(fname, stdout, stderr, exit)
+    local ok, res = pcall(function()
+        local remote_out = vim.fn.system('git remote get-url --push origin')
+        assert(vim.v.shell_error == 0, 'Not in a git repo?\n' .. remote_out)
+        local remote = remote_out
+                        :gsub('\n$', '')
+                        :gsub('.git$', '')
+                        :gsub('^git@github%.com:', 'https://github.com/')
+        local root = vim.fs.find('.git', {upward = true, type = 'directory'})[1]
+        local root_len = #root - 3 -- exclude trailing ".git"
         local branch = vim.fn.system('git branch --show-current'):match('%S+')
-        assert(branch, 'no git branch')
-        assert(exit == 0, 'Command exited with non-zero exit code\nstderr: ' .. stderr)
-        local line = vim.split(stdout, '\n')[1]
-        local url = vim.split(line, '%s', {plain=false})[2]
-        assert(url and vim.startswith(url, 'http'), 'Could not find url in line: ' .. line)
-        url = url:gsub('.git$', '')
-        local dir = vim.fs.find('.git', {upward = true, type = 'directory'})[1]
-        dir = dir:sub(1, -5)
-        return url .. '/blob/main/' .. fname:sub(#dir)
-    end
-    local fname = vim.fn.expand('%:p')
-    util.system({'git', 'remote', '-v'}, vim.schedule_wrap(function(stdout, stderr, exit)
-        local ok, res = pcall(cb, fname, stdout, stderr, exit)
-        if not ok then
-            vim.notify(res, vim.log.levels.WARN)
-        end
+        return remote .. '/blob/' .. branch .. '/' .. vim.fn.expand('%:p'):sub(root_len)
+    end)
+    if not ok then
+        vim.notify(res, vim.log.levels.WARN)
+    else
         print(res)
-    end))
+    end
 end
 
 com('Scratch', 'call my#scratch(<q-args>, <q-mods>)', {nargs = 1, complete = 'command'})

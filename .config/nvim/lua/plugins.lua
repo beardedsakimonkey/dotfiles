@@ -25,7 +25,7 @@ local function configure()
             vim.api.nvim_del_user_command(cmd)
             vim.cmd('pa ' .. pack)
             vim.cmd(cmd)
-        end, {})
+        end)
     end
 
     local function stub_map(mode, lhs, pack)

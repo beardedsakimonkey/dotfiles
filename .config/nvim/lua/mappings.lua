@@ -63,10 +63,9 @@ local function navigate(dir)
 end
 
 local function rename()
-    local cword = vim.fn.expand("<cword>")
-    vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
-    local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
-    vim.api.nvim_feedkeys(keys, "n", false)
+    local cword = vim.fn.expand('<cword>')
+    vim.fn.setreg('/', ("\\<" .. cword .. "\\>"), 'c')
+    vim.api.nvim_feedkeys('cgn', 'n', false)
 end
 
 local function yank_doc(exp)

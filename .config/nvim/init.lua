@@ -1,6 +1,5 @@
 require'impatient'
 require'globals'
-local util = require'util'
 
 -- In $VIMRUNTIME/plugin/
 vim.g.loaded_matchit = 1
@@ -21,9 +20,11 @@ vim.g.loaded_ruby_provider = 1
 vim.cmd 'colorscheme papyrus'
 vim.cmd 'syntax enable'  -- see :h syntax-loading
 
+local util = require'util'
 util.require_safe 'commands'
 util.require_safe 'autocmds'
 util.require_safe 'options'
 util.require_safe 'statusline'
 util.require_safe 'mappings'
 util.require_safe 'plugins'
+util.require_safe 'lsp'

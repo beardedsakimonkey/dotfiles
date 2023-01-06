@@ -1,4 +1,4 @@
-vim.filetype.add({
+vim.filetype.add{
     extension = {
         re = 'ocaml',
         rei = 'ocaml',
@@ -16,4 +16,4 @@ vim.filetype.add({
     pattern = {
         ['.*/zsh/functions/.*'] = 'zsh',
     },
-})
+}

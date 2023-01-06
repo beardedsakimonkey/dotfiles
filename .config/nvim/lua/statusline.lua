@@ -3,11 +3,13 @@ local M = {}
 M.statusline = function()
     local current_win = vim.g.statusline_winid == vim.fn.win_getid()
     local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+    local has_lsp = #vim.lsp.get_active_clients({bufnr = buf}) > 0
     local issues = #vim.diagnostic.get(buf)
     return "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
         .. "%{&bt=='nofile' ? '[Nofile]' : expand('%:t')}%* "
         .. "%{&ff!='unix' ? '[' . &ff . '] ' : ''}"
         .. "%{&fenc!='utf-8' && &fenc != '' ? '[' . &fenc . '] ' : ''}"
+        .. (has_lsp and issues == 0 and '✔' or '')
         .. (issues > 0 and '✘ ' .. issues or '')
         .. '%='
         .. (current_win and  '%6*%{session#status()}%* ' or '')

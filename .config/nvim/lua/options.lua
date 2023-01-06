@@ -1,5 +1,5 @@
 vim.opt.termguicolors = true
-vim.opt.shada = "!,'1024,<0,s8,:128,/8,@8,f0,h"
+vim.opt.shada = "!,'1024,<0,s8,:128,/8,@8,f0,h,r/tmp,rterm:,rman:"
 vim.opt.sessionoptions = {'help', 'tabpages', 'winsize', 'curdir', 'folds'}
 
 vim.opt.ttimeoutlen = 0  -- avoid confusing <esc>-key with <a-…>

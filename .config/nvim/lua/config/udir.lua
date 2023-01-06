@@ -89,4 +89,4 @@ udir.config = {
     show_hidden_files = false,
 }
 
-vim.keymap.set('n', '-', '<Cmd>Udir<CR>')
+map('n', '-', '<Cmd>Udir<CR>')

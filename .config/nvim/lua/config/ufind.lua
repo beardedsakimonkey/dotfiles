@@ -93,12 +93,12 @@ local function interactive_find()
     })
 end
 
-vim.keymap.set('n', '<space>b', buffers)
-vim.keymap.set('n', '<space>o', oldfiles)
-vim.keymap.set('n', '<space>f', find)
-vim.keymap.set('n', '<space>F', interactive_find)
-vim.keymap.set('n', '<space>n', notes)
-vim.keymap.set('n', '<space>x', live_grep)
+map('n', '<space>b', buffers)
+map('n', '<space>o', oldfiles)
+map('n', '<space>f', find)
+map('n', '<space>F', interactive_find)
+map('n', '<space>n', notes)
+map('n', '<space>x', live_grep)
 
 local function grep(query)
     local path = ''
@@ -115,8 +115,8 @@ local function grep(query)
 end
 
 vim.api.nvim_create_user_command('Grep', function(o) grep(o.args) end, {nargs = '+'})
-vim.keymap.set('x', '<space>a', '\"vy:Grep <C-r>v<CR>', {})
-vim.keymap.set('n', '<space>a', function()
+map('x', '<space>a', '\"vy:Grep <C-r>v<CR>')
+map('n', '<space>a', function()
     local path = ''
     if vim.bo.ft == 'udir' then
         -- can't rely on % because sometimes the bufname has '[1]'

@@ -3,7 +3,7 @@ local util = require'util'
 local function handle_large_buffer()
     local size = vim.fn.getfsize(vim.fn.expand'<afile>')
     if size > (1024 * 1024) or size == -2 then
-        vim.cmd('syntax clear')
+        vim.cmd 'syntax clear'
     end
 end
 

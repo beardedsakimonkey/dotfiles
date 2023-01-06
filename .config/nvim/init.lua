@@ -1,5 +1,4 @@
-require'impatient'
-require'globals'
+pcall(require, 'impatient')
 
 -- In $VIMRUNTIME/plugin/
 vim.g.loaded_matchit = 1
@@ -20,11 +19,18 @@ vim.g.loaded_ruby_provider = 1
 vim.cmd 'colorscheme papyrus'
 vim.cmd 'syntax enable'  -- see :h syntax-loading
 
-local util = require'util'
-util.require_safe 'commands'
-util.require_safe 'autocmds'
-util.require_safe 'options'
-util.require_safe 'statusline'
-util.require_safe 'mappings'
-util.require_safe 'plugins'
-util.require_safe 'lsp'
+function _G.require_safe(mod)
+    local ok, msg = xpcall(function() return require(mod) end, debug.traceback)
+    if not ok then
+        vim.api.nvim_err_writeln(('Error requiring %s: %s'):format(mod, msg))
+    end
+end
+
+require_safe 'globals'
+require_safe 'commands'
+require_safe 'autocmds'
+require_safe 'options'
+require_safe 'statusline'
+require_safe 'mappings'
+require_safe 'plugins'
+require_safe 'lsp'

@@ -38,46 +38,41 @@ local function repeat_last_edit()
 end
 
 -- Adapted from lacygoill's vimrc
-local function search_in_visual_selection()
-    vim.api.nvim_input('/\\%V')
-end
-
--- Adapted from lacygoill's vimrc
-local function previous_window_in_same_direction(dir)
+local function navigate(dir)
+    local prev_win_same_dir -- previous window in same direction
     local cnr = vim.fn.winnr()
     local pnr = vim.fn.winnr('#')
     if dir == 'h' then
         local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
         local rightedge_previous_window = vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr) - 1
-        return (leftedge_current_window - 1) == (rightedge_previous_window + 1)
+        prev_win_same_dir =  (leftedge_current_window - 1) == (rightedge_previous_window + 1)
     elseif dir == 'l' then
         local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
         local rightedge_current_window = vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr) - 1
-        return (leftedge_previous_window - 1) == (rightedge_current_window + 1)
+        prev_win_same_dir = (leftedge_previous_window - 1) == (rightedge_current_window + 1)
     elseif dir == 'j' then
         local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
         local bottomedge_current_window = vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr) - 1
-        return (topedge_previous_window - 1) == (bottomedge_current_window + 1)
+        prev_win_same_dir = (topedge_previous_window - 1) == (bottomedge_current_window + 1)
     elseif dir == 'k' then
         local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
         local bottomedge_previous_window = vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr) - 1
-        return (topedge_current_window - 1) == (bottomedge_previous_window + 1)
+        prev_win_same_dir = (topedge_current_window - 1) == (bottomedge_previous_window + 1)
     end
-end
-
-local function navigate(dir)
-    if previous_window_in_same_direction(dir) then
-        return vim.cmd('try | wincmd p | catch | entry')
-    else
-        return vim.cmd('try | wincmd ' .. dir .. ' | catch | endtry')
-    end
+    vim.cmd('try | wincmd ' .. (prev_win_same_dir and 'p' or dir) .. ' | catch | entry')
 end
 
 local function rename()
     local cword = vim.fn.expand("<cword>")
     vim.fn.setreg("/", ("\\<" .. cword .. "\\>"), "c")
     local keys = vim.api.nvim_replace_termcodes(":%s///g<left><left>", true, false, true)
-    return vim.api.nvim_feedkeys(keys, "n", false)
+    vim.api.nvim_feedkeys(keys, "n", false)
+end
+
+local function yank_doc(exp)
+    local txt = vim.fn.expand(exp)
+    vim.fn.setreg('"', txt, 'c')
+    vim.fn.setreg('+', txt, 'c')
 end
 
 -- Enhanced defaults
@@ -85,8 +80,6 @@ map('n', 'j', 'gj')
 map('n', 'k', 'gk')
 map('n', '<Down>', 'gj')
 map('n', '<Up>', 'gk')
-map('n', '<c-e>', '<c-e><c-e>')
-map('n', '<c-y>', '<c-y><c-y>')
 map('', '<C-g>', 'g<C-g>')
 map('n', '<', '<<')
 map('n', '>', '>>')
@@ -104,11 +97,12 @@ map('n', '*', '*zzzv', {silent = true})
 map('n', '#', '#zzzv', {silent = true})
 map('n', 'g*', 'g*zzzv', {silent = true})
 map('n', 'g#', 'g#zzzv', {silent = true})
-map('n', 'g;', function() nav_change_list('g;') end)
-map('n', "g'", function() nav_change_list('g,') end)
+map('n', 'g;', function() nav_change_list'g;' end)
+map('n', "g'", function() nav_change_list'g,' end)
 map('n', '<PageUp>', '<PageUp>:keepj norm! H<CR>', {silent = true})
 map('n', '<PageDown>', '<PageDown>:keepj norm! L<CR>', {silent = true})
 map('n', '/', '/\\V')
+map('x', '/', function() vim.api.nvim_input('/\\%V') end) -- search in visual selection
 
 -- Rearrange some default mappings
 map({'n', 'x'}, ';', ':')
@@ -156,8 +150,7 @@ map('n', 'gS', "g'[Vg']")
 map('n', '<space>z', zoom_toggle, {silent = true})
 map('x', '.', ':norm! .<CR>', {silent = true})
 map('n', '<space>.', repeat_last_edit)
-map('x', '/', search_in_visual_selection)
-map('x', '<space>y', '\'*y')
+map('x', '<space>y', '"*y', {silent = true})
 -- Adapted from justinmk's vimrc
 map('x', 'I', "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'", {expr = true})
 map('x', 'A', "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'", {expr = true})
@@ -245,16 +238,11 @@ map({'x', 'o'}, 'al', '<Cmd>norm! $v0<CR>', {silent = true})
 map('x', 'id', '<Cmd>norm! G$Vgg0<CR>', {silent = true})
 map('o', 'id', '<Cmd>norm! GVgg<CR>', {silent = true})
 
--- Document/file name
-map('i', '<C-d>', '<c-r>=expand("%:t:r:r:r")<CR>')
-map('c', '<C-d>', '<c-r>=expand("%:t:r:r:r")<CR>')
-local function yank_doc(exp)
-    local txt = vim.fn.expand(exp)
-    vim.fn.setreg('"', txt, 'c')
-    vim.fn.setreg('+', txt, 'c')
-end
-map('n', 'yd', function() yank_doc('%:t:r:r:r') end, {silent = true})
-map('n', 'yD', function() yank_doc('%:p') end, {silent = true})
+-- File name
+map('i', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
+map('c', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
+map('n', 'yo', function() yank_doc('%:t:r:r:r') end, {silent = true})
+map('n', 'yO', function() yank_doc('%:p') end, {silent = true})
 
 -- Toggle options
 map('n', 'gon', '<Cmd>set number!<CR>', {silent = true})

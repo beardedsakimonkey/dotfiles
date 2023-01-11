@@ -8,7 +8,7 @@ local function setup()
         'tpope/vim-commentary',
         'tpope/vim-repeat',
         'kylechui/nvim-surround',
-        'beardedsakimonkey/paq-nvim',
+        'savq/paq-nvim',
         {'Darazaki/indent-o-matic',     pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
         {'rhysd/clever-f.vim',          pin=true},

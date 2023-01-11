@@ -9,13 +9,9 @@ let g:loaded_session = 1
 
 augroup my_session | au!
     au StdInReadPost * let s:read_stdin = 1
-
     au VimEnter * ++nested call s:load_session_on_vimenter()
-
     au BufWinEnter * exe s:track(0)
-
     au TabClosed * call timer_start(0, { -> execute('exe ' .. string(function('s:track', [0])) .. '()') })
-
     au VimLeavePre * exe s:track(1)
         \ | if get(g:, 'MY_LAST_SESSION', '') isnot# ''
         \ |     call writefile([g:MY_LAST_SESSION], $HOME..'/.local/share/nvim/session/last')

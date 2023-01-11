@@ -10,7 +10,6 @@ local function cfg(t)
     assert(t.name)  -- `name` is used by the default `reuse_client` predicate
     return vim.tbl_deep_extend('keep', t, {
         handlers = {
-            -- Center screen after jumping to location
             ['textDocument/definition'] = function(...)
                 vim.lsp.handlers['textDocument/definition'](...)
                 vim.cmd 'norm! zz'

@@ -1,5 +1,4 @@
-local udir = require'udir'
-local join_path = require'udir.util'['join-path']
+local cfg = require'udir.config'
 
 local function find(tbl, fn)
     for _, v in ipairs(tbl) do
@@ -42,7 +41,7 @@ local function sort_by_mtime(files)
     local mtimes = {}
     for _, file in ipairs(files) do
         --`fs_stat` fails in case of a broken symlink
-        local fstat = vim.loop.fs_stat(join_path(cwd, file.name))
+        local fstat = vim.loop.fs_stat(cwd .. '/' .. file.name)
         mtimes[file.name] = fstat and fstat.mtime.sec or 0
     end
     table.sort(files, function(a, b)
@@ -54,39 +53,17 @@ local function sort_by_mtime(files)
     end)
 end
 
-local default_sort = udir.config.sort
-
 local function toggle_sort()
-    local new_sort = udir.config.sort == sort_by_mtime and default_sort or sort_by_mtime
-    udir.config.sort = new_sort
+    cfg.sort = cfg.sort ~= sort_by_mtime and sort_by_mtime or nil
     udir.reload()
 end
 
-udir.config = {
-    is_file_hidden = is_file_hidden,
-    keymaps = {
-        q = udir.quit,
-        h = udir.up_dir,
-        ['-'] = udir.up_dir,
-        l = udir.open,
-        ['<CR>'] = udir.open,
-        i = udir.open,
-        s = function() udir.open 'split' end,
-        v = function() udir.open 'vsplit' end,
-        t = function() udir.open 'tabedit' end,
-        R = udir.reload,
-        d = udir.delete,
-        ['+'] = udir.create,
-        m = udir.move,
-        r = udir.move,
-        c = udir.copy,
-        gh = udir.toggle_hidden_files,
-        T = toggle_sort,
-        C = function() cd 'cd' end,
-        L = function() cd 'lcd' end,
-    },
-    sort = default_sort,
-    show_hidden_files = false,
-}
+cfg.show_hidden_files = false
+cfg.keymaps.i = "<Cmd>lua require'udir'.open()<CR>"
+cfg.keymaps.r = "<Cmd>lua require'udir'.move()<CR>"
+cfg.keymaps.gh = "<Cmd>lua require'udir'.toggle_hidden_files()<CR>"
+cfg.keymaps.C = toggle_sort
+cfg.keymaps.C = function() cd 'cd' end
+cfg.keymaps.L = function() cd 'lcd' end
 
 map('n', '-', '<Cmd>Udir<CR>')

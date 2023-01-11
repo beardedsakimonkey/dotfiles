@@ -65,7 +65,8 @@ end
 local function rename()
     local cword = vim.fn.expand('<cword>')
     vim.fn.setreg('/', ("\\<" .. cword .. "\\>"), 'c')
-    vim.api.nvim_feedkeys('cgn', 'n', false)
+    local keys = vim.api.nvim_replace_termcodes(':%s///gc<left><left><left>', true, false, true)
+    vim.api.nvim_feedkeys(keys, 'n', false)
 end
 
 local function yank_doc(exp)
@@ -90,8 +91,8 @@ map('n', 'P', "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'", {expr = t
 map('x', 'p', "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true})
 map('n', '`', 'g`')
 map('n', "'", "g'")
-map('n', 'n', '<Cmd>keepj norm! nzzzv<CR>', {silent = true})
-map('n', 'N', '<Cmd>keepj norm! Nzzzv<CR>', {silent = true})
+map('n', 'n', '<Cmd>keepj norm! nzv<CR>', {silent = true})
+map('n', 'N', '<Cmd>keepj norm! Nzv<CR>', {silent = true})
 map('n', '*', '*zzzv', {silent = true})
 map('n', '#', '#zzzv', {silent = true})
 map('n', 'g*', 'g*zzzv', {silent = true})

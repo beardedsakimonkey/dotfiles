@@ -20,10 +20,7 @@ end
 
 local function source_lua()
     local name = vim.fn.expand'<afile>:p'
-    if vim.startswith(name, vim.fn.stdpath'config') and
-        not name:match('after/ftplugin') and
-        not name:match('/lsp%.lua$') -- avoid spinning up a bunch of lsp servers
-        then
+    if vim.startswith(name, vim.fn.stdpath'config') and not name:match('after/ftplugin') then
         vim.cmd('luafile ' .. fe(name))
     end
 end
@@ -33,11 +30,10 @@ local function source_tmux()
 end
 
 local function update_user_js()
-    local function on_exit(exit)
-        print(exit == 0 and 'Updated user.js' or ('exited nonzero: ' .. exit))
-    end
     print('Updating...')
-    vim.loop.spawn(util.FF_PROFILE .. 'updater.sh', {args = {'-d', '-s', '-b'}}, on_exit)
+    vim.loop.spawn(util.FF_PROFILE .. 'updater.sh', {args = {'-d', '-s', '-b'}}, function(exit)
+        print(exit == 0 and 'Updated user.js' or ('exited nonzero: ' .. exit))
+    end)
 end
 
 local function fast_theme()

@@ -359,7 +359,7 @@ alias gp='git push'
 alias gb='git branch'
 
 alias youtube-dl='\youtube-dl --no-call-home --output "%(title)s.%(ext)s"'
-alias ydl='yt-dlp'
+# alias ydl='yt-dlp'
 alias dl='aria2c'
 alias peek='git-peek'
 
@@ -484,6 +484,12 @@ d2h(){
 
 showmagnet() {
     aria2c --bt-metadata-only=true --bt-save-metadata=true $@
+}
+
+ydl() {
+    emulate -L zsh
+    # assumes the last argument is the url
+    yt-dlp ${@[1,-2]} "${@[-1]:s/piped.video/youtube.com}"
 }
 
 #

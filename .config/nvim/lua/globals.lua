@@ -1,7 +1,7 @@
 local _print = _G.print
 
 -- Patch `print` to call vim.inspect on each table arg
-_G.print = function (...)
+_G.print = function(...)
     local args = {}
     local num_args = select('#', ...)
     -- Use for loop instead of `tbl_map` because `pairs` iteration stops at nil
@@ -9,13 +9,13 @@ _G.print = function (...)
         local arg = select(i, ...)
         if type(arg) == 'table' then
             table.insert(args, vim.inspect(arg))
-        elseif type(arg) == 'nil' then  -- lest it be ignored
-            table.insert(args, 'nil')
+        elseif type(arg) == 'nil' then
+            table.insert(args, 'nil')  -- lest it be ignored
         else
             table.insert(args, arg)
         end
     end
-    return _print(unpack(args))
+    _print(unpack(args))
 end
 
 -- _G.P = function(...)

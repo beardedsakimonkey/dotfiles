@@ -48,33 +48,36 @@ au('LspAttach', '*', function(args)
     map(',f', '<Cmd>lua vim.lsp.buf.format({async=true})<CR>')
 end)
 
-au('FileType', 'c', function()
-    vim.lsp.start(cfg{
-        name = 'c',
-        cmd = {'clangd'},
-        root_dir = find_dir{
-            '.clangd',
-            '.clang-format',
-            'compile_commands.json',
-            'compile_flags.txt',
-            'configure.ac', -- AutoTools
-        },
-        single_file_support = true,
-        capabilities = {
-            textDocument = {
-                completion = {
-                    editsNearCursor = true,
-                },
-            },
-            offsetEncoding = {'utf-8', 'utf-16'},
-        },
-    })
-end)
+-- Disabling because goto definition jumps to header file.
+-- https://github.com/clangd/clangd/issues/1348
 
-au('FileType', 'rs', function()
-    vim.lsp.start(cfg{
-        name = 'rust',
-        cmd = {'rls'},
-        root_dir = find_dir'Cargo.toml',
-    })
-end)
+-- au('FileType', 'c', function()
+--     vim.lsp.start(cfg{
+--         name = 'c',
+--         cmd = {'clangd'},
+--         root_dir = find_dir{
+--             '.clangd',
+--             '.clang-format',
+--             'compile_commands.json',
+--             'compile_flags.txt',
+--             'configure.ac', -- AutoTools
+--         },
+--         single_file_support = true,
+--         capabilities = {
+--             textDocument = {
+--                 completion = {
+--                     editsNearCursor = true,
+--                 },
+--             },
+--             offsetEncoding = {'utf-8', 'utf-16'},
+--         },
+--     })
+-- end)
+
+-- au('FileType', 'rust', function()
+--     vim.lsp.start(cfg{
+--         name = 'rust',
+--         cmd = {'rls'},
+--         root_dir = find_dir'Cargo.toml',
+--     })
+-- end)

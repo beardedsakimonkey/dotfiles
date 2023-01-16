@@ -1,4 +1,4 @@
-local cfg = require'udir.config'
+local config = require'udir'.config
 
 local function find(tbl, fn)
     for _, v in ipairs(tbl) do
@@ -54,16 +54,20 @@ local function sort_by_mtime(files)
 end
 
 local function toggle_sort()
-    cfg.sort = cfg.sort ~= sort_by_mtime and sort_by_mtime or nil
+    config.sort = config.sort ~= sort_by_mtime and sort_by_mtime or nil
     udir.reload()
 end
 
-cfg.show_hidden_files = false
-cfg.keymaps.i = "<Cmd>lua require'udir'.open()<CR>"
-cfg.keymaps.r = "<Cmd>lua require'udir'.move()<CR>"
-cfg.keymaps.gh = "<Cmd>lua require'udir'.toggle_hidden_files()<CR>"
-cfg.keymaps.C = toggle_sort
-cfg.keymaps.C = function() cd 'cd' end
-cfg.keymaps.L = function() cd 'lcd' end
+vim.tbl_deep_extend('force', config, {
+    show_hidden_files = false,
+    keymaps = {
+        i = "<Cmd>lua require'udir'.open()<CR>",
+        r = "<Cmd>lua require'udir'.move()<CR>",
+        gh = "<Cmd>lua require'udir'.toggle_hidden_files()<CR>",
+        C = toggle_sort,
+        C = function() cd 'cd' end,
+        L = function() cd 'lcd' end,
+    },
+})
 
 map('n', '-', '<Cmd>Udir<CR>')

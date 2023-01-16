@@ -34,3 +34,4 @@ com('Scriptnames', '<mods> Scratch scriptnames', {nargs = 0})
 
 com('UpdateUserJs', update_userjs)
 com('GithubUrl', github_url)
+com('TrimTrailingSpace', '%s/\\s\\+$//e')

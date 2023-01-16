@@ -16,7 +16,7 @@ local function goto_require()
 end
 
 vim.opt_local.keywordprg = ':help'
-vim.opt_local.textwidth = 100
+vim.opt_local.textwidth = 80
 map('n', 'gd', goto_require, {buffer = true})
 
 vim.b.undo_ftplugin = (vim.b.undo_ftplugin or 'exe')

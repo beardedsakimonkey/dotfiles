@@ -55,7 +55,6 @@ vim.opt.wrap = false
 
 vim.opt.number = true
 vim.opt.showmode = false
-vim.opt.showcmd = false
 vim.opt.cursorline = true
 vim.opt.ruler = false  -- don't echo anything when entering a floating window
 vim.opt.jumpoptions = 'view'

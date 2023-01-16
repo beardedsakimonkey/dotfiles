@@ -126,8 +126,11 @@ map('n', 'zk', 'zc', {silent = true})
 map('n', 'zK', 'zC', {silent = true})
 map('n', 'zj', 'zo', {silent = true})
 map('n', 'zJ', 'zO', {silent = true})
+
+-- Insert mode
 map('i', '<C-j>', '<C-n>')
 map('i', '<C-k>', '<C-p>')
+map('i', '<C-l>', '<C-n>')
 
 
 -- Miscellaneous

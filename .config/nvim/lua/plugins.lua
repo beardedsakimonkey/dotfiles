@@ -78,7 +78,7 @@ end
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'
 if not util.exists(path) then  -- bootstrap
     print('Cloning paq-nvim...')
-    vim.fn.system{'git', 'clone', '--depth', '1', 'https://github.com/beardedsakimonkey/paq-nvim', path}
+    vim.fn.system{'git', 'clone', '--depth', '1', 'https://github.com/savq/paq-nvim', path}
     vim.cmd 'pa paq-nvim'
     setup()
     require'paq'.install()

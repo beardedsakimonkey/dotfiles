@@ -487,8 +487,12 @@ showmagnet() {
     aria2c --bt-metadata-only=true --bt-save-metadata=true $@
 }
 
+mpv() {
+    # assumes the last argument is the url
+    command mpv ${@[1,-2]} "${@[-1]:s/piped.video/youtube.com}"
+}
+
 ydl() {
-    emulate -L zsh
     # assumes the last argument is the url
     yt-dlp ${@[1,-2]} "${@[-1]:s/piped.video/youtube.com}"
 }

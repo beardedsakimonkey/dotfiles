@@ -16,9 +16,6 @@ vim.g.loaded_python_provider = 1
 vim.g.loaded_python3_provider = 1
 vim.g.loaded_ruby_provider = 1
 
-vim.cmd 'colorscheme papyrus'
-vim.cmd 'syntax enable'  -- see :h syntax-loading
-
 function _G.require_safe(mod)
     local ok, msg = xpcall(function() return require(mod) end, debug.traceback)
     if not ok then
@@ -34,3 +31,7 @@ require_safe 'statusline'
 require_safe 'mappings'
 require_safe 'plugins'
 require_safe 'lsp'
+
+-- After setting up globals so they're available to ftplugin / colorscheme files
+vim.cmd 'colorscheme papyrus'
+vim.cmd 'syntax enable'  -- see :h syntax-loading

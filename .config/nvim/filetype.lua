@@ -1,8 +1,5 @@
 vim.filetype.add{
     extension = {
-        re = 'ocaml',
-        rei = 'ocaml',
-        res = 'ocaml',
         flow = 'javascript',
         vert = 'glsl',
         frag = 'glsl',
@@ -14,6 +11,7 @@ vim.filetype.add{
         ['.luacheckrc'] = 'lua',
     },
     pattern = {
-        ['.*/zsh/functions/.*'] = 'zsh',
+        ['/zsh/functions/[^/]-$'] = 'zsh',
+        ['res?i?$'] = 'ocaml',
     },
 }

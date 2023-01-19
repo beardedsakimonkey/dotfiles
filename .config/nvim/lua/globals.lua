@@ -18,11 +18,6 @@ _G.print = function(...)
     _print(unpack(args))
 end
 
--- _G.P = function(...)
---     print_PATCHED(...)
---     return ...
--- end
-
 _G.fe = vim.fn.fnameescape
 _G.se = vim.fn.shellescape
 

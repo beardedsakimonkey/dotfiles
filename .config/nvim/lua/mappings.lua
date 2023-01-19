@@ -250,9 +250,9 @@ map('n', 'yO', function() yank_doc('%:p') end, {silent = true})
 -- Toggle options
 map('n', 'gon', '<Cmd>set number!<CR>', {silent = true})
 map('n', 'goc', '<Cmd>set cursorline!<CR>', {silent = true})
-map('n', 'gow', '<Cmd>set wrap!<Bar>set wrap?<CR>', {silent = true})
-map('n', 'gol', '<Cmd>set hlsearch!<Bar>set hlsearch?<CR>', {silent = true})
-map('n', 'goi', '<Cmd>set ignorecase!<Bar>set ignorecase?<CR>', {silent = true})
+map('n', 'gol', '<Cmd>set list!<CR>', {silent = true})
+map('n', 'gow', '<Cmd>set wrap!<Bar>set wrap?<CR>')
+map('n', 'goi', '<Cmd>set ignorecase!<Bar>set ignorecase?<CR>')
 
 -- Diagnostics
 map('n', 'ge', '<Cmd>lua vim.diagnostic.open_float()<CR>', {silent = true})

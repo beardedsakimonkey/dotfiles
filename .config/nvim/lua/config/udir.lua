@@ -1,43 +1,13 @@
-local config = require'udir'.config
-
-local function find(tbl, fn)
-    for _, v in ipairs(tbl) do
-        if fn(v) then
-            return v
-        end
-    end
-end
-
-local function some(tbl, fn)
-    return find(tbl, fn) ~= nil
-end
-
-local function endswith_any(str, suffixes)
-    local found = false
-    for _, suf in ipairs(suffixes) do
-        if found then break end
-        if vim.endswith(str, suf) then
-            found = true
-        end
-    end
-    return found
-end
-
-local function is_file_hidden(file, files)
-    return endswith_any(file.name, {'.bs.js', '.o'})
-        or file.name == '.git'
-end
+local udir = require'udir'
 
 local function cd(cmd)
-    local store = require'udir.store'
-    local state = store.get()
+    local state = require'udir.store'.get()
     vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(state.cwd))
     vim.cmd 'pwd'
 end
 
 local function sort_by_mtime(files)
-    local store = require'udir.store'
-    local cwd = store.get().cwd
+    local cwd = require'udir.store'.cwd
     local mtimes = {}
     for _, file in ipairs(files) do
         --`fs_stat` fails in case of a broken symlink
@@ -54,20 +24,39 @@ local function sort_by_mtime(files)
 end
 
 local function toggle_sort()
-    config.sort = config.sort ~= sort_by_mtime and sort_by_mtime or nil
-    udir.reload()
+    udir.config.sort = udir.config.sort ~= sort_by_mtime and sort_by_mtime or nil
+    require'udir.core'.reload()
 end
 
-vim.tbl_deep_extend('force', config, {
+udir.config = {
     show_hidden_files = false,
+    is_file_hidden = function(file, files)
+        return false
+        -- return vim.endswith(file.name, '.o')
+        --     or file.name == '.git'
+    end,
+    sort = nil,
     keymaps = {
-        i = "<Cmd>lua require'udir'.open()<CR>",
-        r = "<Cmd>lua require'udir'.move()<CR>",
-        gh = "<Cmd>lua require'udir'.toggle_hidden_files()<CR>",
-        C = toggle_sort,
+        q = "<Cmd>lua require'udir.core'.quit()<CR>",
+        h = "<Cmd>lua require'udir.core'.up_dir()<CR>",
+        ['-'] = "<Cmd>lua require'udir.core'.up_dir()<CR>",
+        l = "<Cmd>lua require'udir.core'.open()<CR>",
+        i = "<Cmd>lua require'udir.core'.open()<CR>",
+        ['<CR>'] = "<Cmd>lua require'udir.core'.open()<CR>",
+        s = "<Cmd>lua require'udir.core'.open('split')<CR>",
+        v = "<Cmd>lua require'udir.core'.open('vsplit')<CR>",
+        t = "<Cmd>lua require'udir.core'.open('tabedit')<CR>",
+        R = "<Cmd>lua require'udir.core'.reload()<CR>",
+        d = "<Cmd>lua require'udir.core'.delete()<CR>",
+        ['+'] = "<Cmd>lua require'udir.core'.create()<CR>",
+        m = "<Cmd>lua require'udir.core'.move()<CR>",
+        r = "<Cmd>lua require'udir.core'.move()<CR>",
+        c = "<Cmd>lua require'udir.core'.copy()<CR>",
+        gh = "<Cmd>lua require'udir.core'.toggle_hidden_files()<CR>",
+        T = toggle_sort,
         C = function() cd 'cd' end,
         L = function() cd 'lcd' end,
     },
-})
+}
 
 map('n', '-', '<Cmd>Udir<CR>')

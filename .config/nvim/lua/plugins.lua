@@ -51,9 +51,10 @@ local function configure()
 
     --[[ colorizer ]]--
     local au = aug'my/colorizer'
-    au('BufEnter', {'rgb.txt', 'papyrus.lua'}, 'pa nvim-colorizer.lua | ColorizerAttachToBuffer')
-    au('BufWritePost', {'rgb.txt', 'papyrus.lua'}, function()
-        -- Workaround for https://github.com/norcalli/nvim-colorizer.lua/issues/35
+    local pats = {'rgb.txt', 'papyrus.lua', '*.css'}
+    au('BufEnter', pats, 'pa nvim-colorizer.lua | ColorizerAttachToBuffer')
+    au('BufWritePost', pats, function()
+        -- https://github.com/norcalli/nvim-colorizer.lua/issues/35
         package.loaded.colorizer = nil
         require'colorizer'
         vim.cmd 'ColorizerAttachToBuffer'
@@ -78,7 +79,8 @@ end
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'
 if not util.exists(path) then  -- bootstrap
     print('Cloning paq-nvim...')
-    vim.fn.system{'git', 'clone', '--depth', '1', 'https://github.com/savq/paq-nvim', path}
+    vim.fn.system{'git', 'clone', '--depth', '1',
+        'https://github.com/savq/paq-nvim', path}
     vim.cmd 'pa paq-nvim'
     setup()
     require'paq'.install()

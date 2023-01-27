@@ -3,6 +3,7 @@ vim.filetype.add{
         flow = 'javascript',
         vert = 'glsl',
         frag = 'glsl',
+        s = 'nasm',
     },
     filename = {
         ['tmux.conf'] = 'tmux',

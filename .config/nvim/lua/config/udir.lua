@@ -29,13 +29,6 @@ local function toggle_sort()
 end
 
 udir.config = {
-    show_hidden_files = false,
-    is_file_hidden = function(file, files)
-        return false
-        -- return vim.endswith(file.name, '.o')
-        --     or file.name == '.git'
-    end,
-    sort = nil,
     keymaps = {
         q = "<Cmd>lua require'udir.core'.quit()<CR>",
         h = "<Cmd>lua require'udir.core'.up_dir()<CR>",
@@ -57,6 +50,12 @@ udir.config = {
         C = function() cd 'cd' end,
         L = function() cd 'lcd' end,
     },
+    is_file_hidden = function(file, files)
+        return false
+        -- return vim.endswith(file.name, '.o')
+        --     or file.name == '.git'
+    end,
+    show_hidden_files = false,
 }
 
 map('n', '-', '<Cmd>Udir<CR>')

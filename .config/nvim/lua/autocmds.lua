@@ -30,7 +30,6 @@ local function source_tmux()
 end
 
 local function update_user_js()
-    print('Updating...')
     vim.loop.spawn(util.FF_PROFILE .. 'updater.sh', {args = {'-d', '-s', '-b'}}, function(exit)
         print(exit == 0 and 'Updated user.js' or ('exited nonzero: ' .. exit))
     end)

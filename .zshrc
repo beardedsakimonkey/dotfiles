@@ -343,7 +343,7 @@ alias sudoedit='sudo -e'
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
-alias at='ls -At'
+alias at='ls -AtU'
 alias temperature="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
 
 alias gj='git-jump'
@@ -429,7 +429,6 @@ cd() {
     fi
 }
 
-# Adapted from lacygoil's config
 cdl() {
     emulate -L zsh
     local most_recent_dir=$(\

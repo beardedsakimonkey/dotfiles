@@ -4,18 +4,11 @@ local function setup()
     require'paq'{
         {'beardedsakimonkey/nvim-udir', branch = 'develop'},
         {'beardedsakimonkey/nvim-ufind', branch = 'develop'},
-        'lewis6991/impatient.nvim',
         'tpope/vim-commentary',
-        'tpope/vim-repeat',
         'kylechui/nvim-surround',
         'savq/paq-nvim',
         {'Darazaki/indent-o-matic',     pin=true},
-        {'AndrewRadev/linediff.vim',    pin=true},
-        {'rhysd/clever-f.vim',          pin=true},
         {'norcalli/nvim-colorizer.lua', pin=true, opt=true},
-        {'tommcdo/vim-exchange',        pin=true, opt=true},
-        {'dstein64/vim-startuptime',    pin=true, opt=true},
-        {'mbbill/undotree',             pin=true, opt=true},
     }
 end
 
@@ -45,10 +38,6 @@ local function configure()
     com('PClean', 'PaqClean')
     com('PSync', 'PaqLogClean | PaqSync')
 
-    --[[ linediff ]]--
-    vim.g.linediff_buffer_type = 'scratch'
-    map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
-
     --[[ colorizer ]]--
     local au = aug'my/colorizer'
     local pats = {'rgb.txt', 'papyrus.lua', '*.css'}
@@ -64,16 +53,6 @@ local function configure()
     require'nvim-surround'.setup{
         indent_lines = false,
     }
-
-    --[[ vim-startuptime ]]--
-    stub_com('StartupTime', 'vim-startuptime')
-
-    --[[ undotree ]]--
-    stub_com('UndotreeToggle', 'undotree')
-
-    --[[ vim-exchange ]]--
-    stub_map('n', 'cx', 'vim-exchange')
-    stub_map('x', 'X', 'vim-exchange')
 end
 
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'

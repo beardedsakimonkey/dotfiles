@@ -1,12 +1,3 @@
-local function nav_change_list(cmd)
-    local line = vim.api.nvim_win_get_cursor(0)[1]
-    vim.cmd('sil! normal! ' .. cmd)
-    local line2 = vim.api.nvim_win_get_cursor(0)[1]
-    if line == line2 then
-        vim.cmd('sil! normal! ' .. cmd)
-    end
-end
-
 -- Adapted from lacygoill's vimrc
 local function zoom_toggle()
     if vim.fn.winnr('$') ~= 1 then
@@ -89,6 +80,7 @@ map('n', 's', '"_s')
 map('n', 'p', "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'", {expr = true})
 map('n', 'P', "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'", {expr = true})
 map('x', 'p', "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true})
+map('x', 'gp', 'p') -- paste and yank (useful for exchanging)
 map('n', '`', 'g`')
 map('n', "'", "g'")
 map('n', 'n', '<Cmd>keepj norm! nzv<CR>', {silent = true})
@@ -97,8 +89,7 @@ map('n', '*', '*zzzv', {silent = true})
 map('n', '#', '#zzzv', {silent = true})
 map('n', 'g*', 'g*zzzv', {silent = true})
 map('n', 'g#', 'g#zzzv', {silent = true})
-map('n', 'g;', function() nav_change_list'g;' end)
-map('n', "g'", function() nav_change_list'g,' end)
+map('n', "g'", 'g,')
 map('n', '<PageUp>', '<PageUp>:keepj norm! H<CR>', {silent = true})
 map('n', '<PageDown>', '<PageDown>:keepj norm! L<CR>', {silent = true})
 map('n', '/', '/\\V')

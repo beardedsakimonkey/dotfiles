@@ -33,7 +33,8 @@ au('LspAttach', '*', function(args)
     vim.bo[buf].formatexpr = ''
 
     local function map(lhs, rhs)
-        vim.keymap.set('n', lhs, rhs, {noremap = true, silent = true, buffer = buf})
+        vim.keymap.set('n', lhs, rhs, {noremap = true, silent = true,
+            buffer = buf})
     end
     -- NOTE: Diagnostic mappings are in mappings.lua because they aren't
     -- necessarily associated with an lsp.

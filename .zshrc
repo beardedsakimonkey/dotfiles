@@ -47,6 +47,7 @@ zstyle ':completion:*:builtins' list-colors '=*=0;32'
 
 zstyle ':completion:*:*:mpv:*' file-patterns \
     '.megatmp.*' \
+    '^._*:source-files' \
     '*.(#i)(flv|mp4|webm|mkv|wmv|mov|avi|mp3|ogg|wma|flac|wav|aiff|m4a|m4b|m4v|gif|ifo)(-.) *(-/):directories' \
     '*:all-files'
 
@@ -466,7 +467,7 @@ d() {
                 if [[ $1 == "ms" ]]; then
                     shuffle="--shuffle"
                 fi
-                dtach -c /tmp/music.sock mpv --vid=no $shuffle "$(fd --type=d . '/Volumes/T7 Shield/music' | fzy)"
+                dtach -c /tmp/music.sock mpv --vid=no $shuffle "$(fd --type=d . '/Volumes/T7 Shield/music' | sort | fzy)"
             fi
             ;;
         a) dtach -a /tmp/aria.sock ;;
@@ -475,12 +476,8 @@ d() {
 }
 
 # https://www.cyberciti.biz/faq/linux-unix-convert-hex-to-decimal-number/
-h2d(){
-  echo "ibase=16; $@"|bc
-}
-d2h(){
-  echo "obase=16; $@"|bc
-}
+hex_to_dec() { echo "ibase=16; $@" | bc }
+dec_to_hex() { echo "obase=16; $@" | bc }
 
 showmagnet() {
     aria2c --bt-metadata-only=true --bt-save-metadata=true $@

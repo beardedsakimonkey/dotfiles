@@ -13,17 +13,19 @@ local function on_complete_grep(cmd, lines)
     for i, line in ipairs(lines) do
         local found, _, fname, linenr, colnr = line:find('^([^:]-):(%d+):(%d+):')
         if found then
-            if i == #lines then  -- edit the last file
-                -- HACK: if we don't schedule, the cursor gets positioned one column to the left.
+            if i == #lines then
+                -- HACK: if we don't schedule, the cursor gets positioned one
+                -- column to the left.
                 vim.schedule(function()
-                    vim.cmd(('%s +%s %s|norm! %s|'):format(cmd, linenr, vim.fn.fnameescape(fname), colnr))
+                    vim.cmd(('%s +%s %s|norm! %s|'):format(
+                        cmd, linenr, vim.fn.fnameescape(fname), colnr))
                 end)
-            else  -- create the buffer
+            else
                 local buf = vim.fn.bufnr(fname, true)
                 vim.bo[buf].buflisted = true
             end
         else
-            print('regex fail for line: ', line)
+            print('regex fail for line:', line)
         end
     end
 end
@@ -35,24 +37,114 @@ local function live_grep()
     })
 end
 
+---@return (number[], number) | nil
+local function fuzzy_match_basename(str, query)
+    local positions = {}
+    local j = 1
+    -- Find the first match (not necessarily the shortest)
+    for i = 1, #str do
+        if str:sub(i, i) == query:sub(j, j) then
+            table.insert(positions, i)
+            if j == #query then
+                break
+            end
+            j = j + 1
+        end
+    end
+    if #positions < #query then
+        return nil
+    end
+    local function calc_score(positions, str)
+        local score = 0
+        local prev_pos = -1
+        for _, pos in ipairs(positions) do
+            local consec = pos == prev_pos + 1
+            if consec   then score = score + 2 end  -- consecutive char
+            if pos == 1 then score = score + 1 end  -- start of word
+            prev_pos = pos
+        end
+        return score
+    end
+    local score = calc_score(positions, str)
+    return positions, score
+end
+
+function split_basename(lines)
+    return vim.tbl_map(function(line)
+        line = line:gsub('^' .. os.getenv'HOME', '~')
+        local is_uri = line:find(':') ~= nil
+        if is_uri then
+            return line
+        end
+        local path, basename = line:match('^(.*)/(.-)$')
+        if not path then
+            return line
+        end
+        return basename .. '  ' .. path
+    end, lines)
+end
+
+function get_highlights_basename(line)
+    local is_uri = line:find(':') ~= nil
+    if is_uri then
+        return nil
+    end
+    local start = line:find('[~/]')
+    if not start then
+        return nil
+    end
+    return {{col_start = start-1, col_end = -1, hl_group = 'Comment'}}
+end
+
+function on_complete_basename(cmd, lines)
+    for i, line in ipairs(lines) do
+        local found, _, basename, dir  = line:find'^([^~/]+)  ([~/].*)$'
+        if found then
+            local path = dir .. '/' .. basename
+            if i == #lines then  -- open the file
+                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(path))
+            else  -- create a buffer
+                local buf = vim.fn.bufnr(path, true)
+                vim.bo[buf].buflisted = true
+            end
+        else
+            -- Could be a URI, so treat the whole line as the filename
+            if i == #lines then
+                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(line))
+            else
+                local buf = vim.fn.bufnr(line, true)
+                vim.bo[buf].buflisted = true
+            end
+        end
+    end
+end
+
+local function basename_cfg(t)
+    return vim.tbl_deep_extend('keep', t, cfg{
+        get_highlights = get_highlights_basename,
+        fuzzy_match = fuzzy_match_basename,
+        on_complete = on_complete_basename,
+        scopes = '^([^~/]+)  ([~/].*)$',
+    })
+end
+
+local function oldfiles()
+    ufind.open(split_basename(require'ufind.source.oldfiles'()), basename_cfg{})
+end
+
+local function buffers()
+    ufind.open(split_basename(require'ufind.source.buffers'()), basename_cfg{})
+end
+
 local function find()
     ufind.open_live('fd --color=always --fixed-strings --max-results=100 --type=file --', cfg{
         ansi = true,
     })
 end
 
-local function buffers()
-    ufind.open(require'ufind.source.buffers'(), cfg{})
-end
-
-local function oldfiles()
-    ufind.open(require'ufind.source.oldfiles'(), cfg{})
-end
-
 local function notes()
-    ufind.open('fd --color=always --type=file "" ' .. os.getenv'HOME' .. '/notes', cfg{
-        ansi = true
-    })
+    local paths = vim.fn.systemlist('fd --type=file "" ' .. os.getenv'HOME' .. '/notes')
+    ufind.open(split_basename(paths), basename_cfg{})
 end
 
 local function interactive_find()
@@ -94,20 +186,42 @@ local function interactive_find()
     })
 end
 
+local function help_grep()
+    ufind.open_live(function(query)
+            return 'rg', {'--vimgrep', '--column', '--fixed-strings', '--color=ansi',
+                '--glob=*.txt', '--', query, vim.env.VIMRUNTIME .. '/doc'}
+        end,
+        cfg{
+            ansi = true,
+            on_complete = function(cmd, lines)
+                for i, line in ipairs(lines) do
+                    local doc = line:match('[^:]+/([^:]+).txt:')
+                    if doc then
+                        vim.cmd('help ' .. doc)
+                    else
+                        print('not found:', doc)
+                    end
+                end
+            end,
+        })
+end
+
 map('n', '<space>b', buffers)
 map('n', '<space>o', oldfiles)
 map('n', '<space>f', find)
 map('n', '<space>F', interactive_find)
 map('n', '<space>n', notes)
 map('n', '<space>x', live_grep)
+map('n', '<space>h', help_grep)
 
 local function grep(query_str, query_tbl)
     local ft = vim.bo.ft
     local function cmd()
         local args = {'--vimgrep', '--column', '--fixed-strings', '--color=ansi', '--'}
-        -- pattern matching on the last arg being a path is unreliable (it might be part of the
-        -- query), so check if ft is 'udir'
-        if ft == 'udir' and #query_tbl > 1 and util.exists(query_tbl[#query_tbl]) then
+        -- pattern matching on the last arg being a path is unreliable (it might
+        -- be part of the query), so check if ft is 'udir'
+        if ft == 'udir' and #query_tbl > 1
+            and util.exists(query_tbl[#query_tbl]) then
             -- seperate the path into its own argument
             local path = table.remove(query_tbl)
             table.insert(args, table.concat(query_tbl, ' '))
@@ -124,7 +238,8 @@ local function grep(query_str, query_tbl)
     })
 end
 
-vim.api.nvim_create_user_command('Grep', function(o) grep(o.args, o.fargs) end, {nargs = '+'})
+vim.api.nvim_create_user_command('Grep', function(o) grep(o.args, o.fargs) end,
+    {nargs = '+'})
 map('x', '<space>a', '\"vy:Grep <C-r>v<CR>')
 map('n', '<space>a', function()
     local path = ''

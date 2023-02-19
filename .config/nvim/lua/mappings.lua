@@ -21,8 +21,8 @@ local function repeat_last_edit()
             return vim.fn.escape(c, '\\')
         end, changed)
         local pat = table.concat(changed_esc, '\\n')
-        -- Put the last changed text inside the search register, so that we can refer to it with the
-        -- text-object `gn`
+        -- Put the last changed text inside the search register, so that we can
+        -- refer to it with the text-object `gn`
         vim.fn.setreg('/', ('\\V' .. pat), 'c')
         vim.cmd 'exe "norm! cgn\\<c-@>"'
     end
@@ -34,21 +34,21 @@ local function navigate(dir)
     local cnr = vim.fn.winnr()
     local pnr = vim.fn.winnr('#')
     if dir == 'h' then
-        local leftedge_current_window = vim.fn.win_screenpos(cnr)[2]
-        local rightedge_previous_window = vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr) - 1
-        prev_win_same_dir =  (leftedge_current_window - 1) == (rightedge_previous_window + 1)
+        local leftedge_cur_win = vim.fn.win_screenpos(cnr)[2]
+        local rightedge_prev_win = vim.fn.win_screenpos(pnr)[2] + vim.fn.winwidth(pnr) - 1
+        prev_win_same_dir =  (leftedge_cur_win - 1) == (rightedge_prev_win + 1)
     elseif dir == 'l' then
-        local leftedge_previous_window = vim.fn.win_screenpos(pnr)[2]
-        local rightedge_current_window = vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr) - 1
-        prev_win_same_dir = (leftedge_previous_window - 1) == (rightedge_current_window + 1)
+        local leftedge_prev_win = vim.fn.win_screenpos(pnr)[2]
+        local rightedge_cur_win = vim.fn.win_screenpos(cnr)[2] + vim.fn.winwidth(cnr) - 1
+        prev_win_same_dir = (leftedge_prev_win - 1) == (rightedge_cur_win + 1)
     elseif dir == 'j' then
-        local topedge_previous_window = vim.fn.win_screenpos(pnr)[1]
-        local bottomedge_current_window = vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr) - 1
-        prev_win_same_dir = (topedge_previous_window - 1) == (bottomedge_current_window + 1)
+        local topedge_prev_win = vim.fn.win_screenpos(pnr)[1]
+        local bottomedge_cur_win = vim.fn.win_screenpos(cnr)[1] + vim.fn.winheight(cnr) - 1
+        prev_win_same_dir = (topedge_prev_win - 1) == (bottomedge_cur_win + 1)
     elseif dir == 'k' then
-        local topedge_current_window = vim.fn.win_screenpos(cnr)[1]
-        local bottomedge_previous_window = vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr) - 1
-        prev_win_same_dir = (topedge_current_window - 1) == (bottomedge_previous_window + 1)
+        local topedge_cur_win = vim.fn.win_screenpos(cnr)[1]
+        local bottomedge_prev_win = vim.fn.win_screenpos(pnr)[1] + vim.fn.winheight(pnr) - 1
+        prev_win_same_dir = (topedge_cur_win - 1) == (bottomedge_prev_win + 1)
     end
     vim.cmd('try | wincmd ' .. (prev_win_same_dir and 'p' or dir) .. ' | catch | entry')
 end
@@ -56,7 +56,8 @@ end
 local function rename()
     local cword = vim.fn.expand('<cword>')
     vim.fn.setreg('/', ("\\<" .. cword .. "\\>"), 'c')
-    local keys = vim.api.nvim_replace_termcodes(':%s///gc<left><left><left>', true, false, true)
+    local keys = vim.api.nvim_replace_termcodes(':%s///gc<left><left><left>',
+        true, false, true)
     vim.api.nvim_feedkeys(keys, 'n', false)
 end
 
@@ -145,9 +146,8 @@ map('n', '<space>z', zoom_toggle, {silent = true})
 map('x', '.', ':norm! .<CR>', {silent = true})
 map('n', '<space>.', repeat_last_edit)
 map('x', '<space>y', '"*y', {silent = true})
--- Adapted from justinmk's vimrc
-map('x', 'I', "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'", {expr = true})
-map('x', 'A', "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'", {expr = true})
+map('x', 'I', '<C-v>^o^I')
+map('x', 'A', '<C-v>0o$A')
 
 -- Command mode
 map('c', '<C-p>', '<Up>')

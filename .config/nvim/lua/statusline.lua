@@ -5,7 +5,8 @@ M.statusline = function()
     local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
     local has_lsp = #vim.lsp.get_active_clients({bufnr = buf}) > 0
     local issues = #vim.diagnostic.get(buf)
-    return "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}%2*%{&modified ? '  + ' : ''}%* %7*"
+    return "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}"
+        .. "%2*%{&modified ? '  + ' : ''}%* %7*"
         .. "%{&bt=='nofile' ? '[Nofile]' : expand('%:t')}%* "
         .. "%{&ff!='unix' ? '[' . &ff . '] ' : ''}"
         .. "%{&fenc!='utf-8' && &fenc != '' ? '[' . &fenc . '] ' : ''}"
@@ -37,7 +38,8 @@ M.tablabel = function(n)
             modified = '+ '
         end
     end
-    local name = vim.fn.fnamemodify(vim.fn.bufname(buflist[vim.fn.tabpagewinnr(n)]), ':t:s/^$/[No Name]/')
+    local name = vim.fn.fnamemodify(
+        vim.fn.bufname(buflist[vim.fn.tabpagewinnr(n)]), ':t:s/^$/[No Name]/')
     return modified .. name .. ' '
 end
 

@@ -7,6 +7,7 @@ local function setup()
         'tpope/vim-commentary',
         'kylechui/nvim-surround',
         'savq/paq-nvim',
+        {'AndrewRadev/linediff.vim',    pin=true},
         {'Darazaki/indent-o-matic',     pin=true},
         {'norcalli/nvim-colorizer.lua', pin=true, opt=true},
     }
@@ -37,6 +38,10 @@ local function configure()
     com('PUpdate', 'PaqLogClean | PaqUpdate')
     com('PClean', 'PaqClean')
     com('PSync', 'PaqLogClean | PaqSync')
+
+    --[[ linediff ]]--
+    vim.g.linediff_buffer_type = 'scratch'
+    map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
 
     --[[ colorizer ]]--
     local au = aug'my/colorizer'

@@ -11,7 +11,7 @@ end
 
 local function on_complete_grep(cmd, lines)
     for i, line in ipairs(lines) do
-        local found, _, fname, linenr, colnr = line:find('^([^:]-):(%d+):(%d+):')
+        local found, _, fname, linenr, colnr = line:find'^([^:]-):(%d+):(%d+):'
         if found then
             if i == #lines then
                 -- HACK: if we don't schedule, the cursor gets positioned one
@@ -37,20 +37,10 @@ local function live_grep()
     })
 end
 
----@return (number[], number) | nil
-local function fuzzy_match_basename(str, query)
-    local positions = {}
-    local j = 1
-    -- Find the first match (not necessarily the shortest)
-    for i = 1, #str do
-        if str:sub(i, i) == query:sub(j, j) then
-            table.insert(positions, i)
-            if j == #query then
-                break
-            end
-            j = j + 1
-        end
-    end
+local function match_basename(str, query)
+    str = str:lower()
+    query = query:lower()
+    local positions = require'ufind.helper.find_min_subsequence'(str, query) or {}
     if #positions < #query then
         return nil
     end
@@ -85,8 +75,7 @@ function split_basename(lines)
 end
 
 function get_highlights_basename(line)
-    local is_uri = line:find(':') ~= nil
-    if is_uri then
+    if line:find(':') then  -- looks like a URI
         return nil
     end
     local start = line:find('[~/]')
@@ -122,7 +111,7 @@ end
 local function basename_cfg(t)
     return vim.tbl_deep_extend('keep', t, cfg{
         get_highlights = get_highlights_basename,
-        fuzzy_match = fuzzy_match_basename,
+        matcher = match_basename,
         on_complete = on_complete_basename,
         scopes = '^([^~/]+)  ([~/].*)$',
     })
@@ -235,6 +224,7 @@ local function grep(query_str, query_tbl)
         scopes = '^([^:]-):%d+:%d+:(.*)$',
         ansi = true,
         on_complete = on_complete_grep,
+        matcher = require'ufind.matcher.exact',
     })
 end
 

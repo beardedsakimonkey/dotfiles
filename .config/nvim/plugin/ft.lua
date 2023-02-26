@@ -7,7 +7,7 @@ local function get_char()
     return vim.fn.nr2char(char_num)
 end
 
-local function get_hash(key)
+local function gen_hash(key)
     local win = vim.api.nvim_get_current_win()
     local cursor = vim.api.nvim_win_get_cursor(0)
     -- Note: ignore `key`s casing so that we can change direction
@@ -18,18 +18,18 @@ local prev_hash
 
 -- Supports repeating the last search with f/t/F/T instead of ;/,
 local function ft(key)
-    local hash = get_hash(key)
+    local hash = gen_hash(key)
     local is_forward = key == 'f' or key == 't'
     if hash == prev_hash then
         vim.cmd('normal! ' .. (is_forward and ';' or ','))
-        prev_hash = get_hash(key)
     else
         local char = get_char()
-        if char then
-            vim.cmd('normal! ' .. key .. char)
-            prev_hash = get_hash(key)
+        if not char then
+            return
         end
+        vim.cmd('normal! ' .. key .. char)
     end
+    prev_hash = gen_hash(key)
 end
 
 vim.keymap.set({'n', 'x'}, 'f', function() ft('f') end)

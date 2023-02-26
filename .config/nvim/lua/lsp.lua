@@ -30,6 +30,7 @@ au('LspAttach', '*', function(args)
     local buf = args.buf
     -- The built-in on_attach handler sets this to use the lsp server. But this
     -- means we can't gq on comments. So reset it.
+    -- Note that we *could* still get builtin formatting using gw.
     vim.bo[buf].formatexpr = ''
 
     local function map(lhs, rhs)

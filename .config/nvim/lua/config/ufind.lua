@@ -62,7 +62,7 @@ end
 function split_basename(lines)
     return vim.tbl_map(function(line)
         line = line:gsub('^' .. os.getenv'HOME', '~')
-        local is_uri = line:find(':') ~= nil
+        local is_uri = line:find('://') ~= nil
         if is_uri then
             return line
         end
@@ -70,24 +70,25 @@ function split_basename(lines)
         if not path then
             return line
         end
-        return basename .. '  ' .. path
+        -- unicode character 'EM SPACE'
+        return basename .. '\226\128\131' .. path
     end, lines)
 end
 
 function get_highlights_basename(line)
-    if line:find(':') then  -- looks like a URI
+    if line:find('://') then  -- looks like a URI
         return nil
     end
-    local start = line:find('[~/]')
-    if not start then
+    local starti, endi = line:find('\226\128\131')
+    if not starti then
         return nil
     end
-    return {{col_start = start-1, col_end = -1, hl_group = 'Comment'}}
+    return {{col_start = endi, col_end = -1, hl_group = 'Comment'}}
 end
 
 function on_complete_basename(cmd, lines)
     for i, line in ipairs(lines) do
-        local found, _, basename, dir  = line:find'^([^~/]+)  ([~/].*)$'
+        local found, _, basename, dir  = line:find'^([^:]+)\226\128\131(.*)$'
         if found then
             local path = dir .. '/' .. basename
             if i == #lines then  -- open the file
@@ -113,7 +114,7 @@ local function basename_cfg(t)
         get_highlights = get_highlights_basename,
         matcher = match_basename,
         on_complete = on_complete_basename,
-        scopes = '^([^~/]+)  ([~/].*)$',
+        scopes = '^([^:]+)\226\128\131(.*)$',
     })
 end
 

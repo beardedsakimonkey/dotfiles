@@ -2,13 +2,13 @@ local util = require'util'
 
 local function setup()
     require'paq'{
-        {'beardedsakimonkey/nvim-udir', branch = 'develop'},
-        {'beardedsakimonkey/nvim-ufind', branch = 'develop'},
-        'tpope/vim-commentary',
-        'kylechui/nvim-surround',
         'savq/paq-nvim',
+        {'beardedsakimonkey/nvim-udir',  branch='develop'},
+        {'beardedsakimonkey/nvim-ufind', branch='develop'},
+        'tpope/vim-commentary',
+        'tpope/vim-sleuth',
+        {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
-        {'Darazaki/indent-o-matic',     pin=true},
         {'norcalli/nvim-colorizer.lua', pin=true, opt=true},
     }
 end

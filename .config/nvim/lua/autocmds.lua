@@ -73,6 +73,7 @@ end
 local au = aug'my/autocmds'
 
 au('BufReadPre', '*', handle_large_buffer)
+au('BufRead', {'.bash_history', '.zsh_history'}, 'setlocal noundofile')
 au('FileType', '*', setup_fo)
 au('BufWritePost', '*.lua', source_lua)
 au('BufWritePost', '*/.config/nvim/plugin/*.vim', 'source <afile>:p')

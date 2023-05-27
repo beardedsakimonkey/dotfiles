@@ -9,7 +9,7 @@ local function setup()
         'tpope/vim-sleuth',
         {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
-        {'norcalli/nvim-colorizer.lua', pin=true, opt=true},
+        {'echasnovski/mini.hipatterns', pin=true, opt=true}
     }
 end
 
@@ -43,15 +43,40 @@ local function configure()
     vim.g.linediff_buffer_type = 'scratch'
     map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
 
-    --[[ colorizer ]]--
-    local au = aug'my/colorizer'
-    local pats = {'rgb.txt', 'papyrus.lua', '*.css'}
-    au('BufEnter', pats, 'pa nvim-colorizer.lua | ColorizerAttachToBuffer')
-    au('BufWritePost', pats, function()
-        -- https://github.com/norcalli/nvim-colorizer.lua/issues/35
-        package.loaded.colorizer = nil
-        require'colorizer'
-        vim.cmd 'ColorizerAttachToBuffer'
+    --[[ mini.hipatterns ]]--
+    local au = aug'my/hipatterns'
+
+    local function require_hipatterns()
+        vim.cmd'pa mini.hipatterns'
+        return require'mini.hipatterns'
+    end
+
+    local nvim_get_color_map = util.memo(vim.api.nvim_get_color_map)
+
+    local function enable_hipatterns(opts)
+        local hipatterns = require_hipatterns()
+        hipatterns.enable(opts.buf, {
+            highlighters = {
+                hex_color = hipatterns.gen_highlighter.hex_color(),
+                named_color = {
+                    pattern = '%w+',
+                    group = function(_, match)
+                        local color = nvim_get_color_map()[match]
+                        if color == nil then return nil end
+                        local hex = '#' .. require'bit'.tohex(color, 6)
+                        return require'mini.hipatterns'.compute_hex_color_group(hex, 'bg')
+                    end
+                },
+            },
+        })
+    end
+
+    au('BufEnter', {'papyrus.lua', 'rgb.txt', '*.css'}, enable_hipatterns)
+    -- Sourcing colorscheme invokes `:hi clear`, which clears mini's highlight
+    -- groups.
+    au('BufWritePost', 'papyrus.lua', function(opts)
+        package.loaded['mini.hipatterns'] = nil
+        enable_hipatterns(opts)
     end)
 
     --[[ nvim-surround ]]--

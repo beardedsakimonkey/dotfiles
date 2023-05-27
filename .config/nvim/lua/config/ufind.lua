@@ -207,7 +207,7 @@ map('n', '<space>h', help_grep)
 local function grep(query_str, query_tbl)
     local ft = vim.bo.ft
     local function cmd()
-        local args = {'--vimgrep', '--column', '--fixed-strings', '--color=ansi', '--'}
+        local args = {'--vimgrep', '--column', '--fixed-strings', '--color=ansi', '--smart-case', '--'}
         -- pattern matching on the last arg being a path is unreliable (it might
         -- be part of the query), so check if ft is 'udir'
         if ft == 'udir' and #query_tbl > 1

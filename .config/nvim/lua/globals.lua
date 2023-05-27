@@ -42,3 +42,13 @@ _G.aug = function(group)
 end
 
 _G.map = vim.keymap.set
+
+-- Convert snake_case to PascalCase
+-- Ex: `:s/\w\+/\=v:lua.cc(submatch(0))/g`
+_G.cc = function(str)
+    return str:gsub('_(.)', function(match)
+        return match:upper()
+    end):gsub('^%l', function(match)
+        return match:upper()
+    end)
+end

@@ -13,7 +13,7 @@ vim.opt.undofile = true
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-vim.opt.splitkeep = 'screen'
+-- vim.opt.splitkeep = 'screen'
 vim.opt.winminheight = 0
 vim.opt.winminwidth = 0
 
@@ -60,4 +60,4 @@ vim.opt.cursorline = true
 vim.opt.ruler = false  -- don't echo anything when entering a floating window
 vim.opt.jumpoptions = 'view'
 
-vim.opt.diffopt:append('linematch:60')  -- better diff
+-- vim.opt.diffopt:append('linematch:60')  -- better diff

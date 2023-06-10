@@ -1,5 +1,3 @@
-
-
 " 27a1 = right arrow
 " 2b06 = up arrow
 " 2b05 = left arrow

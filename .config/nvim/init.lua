@@ -1,4 +1,5 @@
-vim.loader.enable()
+-- Disabling because it breaks :so
+-- vim.loader.enable()
 
 -- In $VIMRUNTIME/plugin/
 vim.g.loaded_matchit = 1

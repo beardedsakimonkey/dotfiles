@@ -5,20 +5,25 @@ local uv = vim.loop
 local function cfg(t)
     return vim.tbl_deep_extend('keep', t, {
         layout = { border = 'single' },
-        keymaps = { open_vsplit = '<C-l>' },
+        keymaps = {
+            actions = {
+                vsplit = '<C-l>',
+            }
+        },
     })
 end
 
-local function on_complete_grep(cmd, lines)
+local function on_complete_grep(action, lines)
+    local is_edit = action:match('edit') or action:match('split')
     for i, line in ipairs(lines) do
         local found, _, fname, linenr, colnr = line:find'^([^:]-):(%d+):(%d+):'
         if found then
-            if i == #lines then
+            if i == #lines or not is_edit then
                 -- HACK: if we don't schedule, the cursor gets positioned one
                 -- column to the left.
                 vim.schedule(function()
                     vim.cmd(('%s +%s %s|norm! %s|'):format(
-                        cmd, linenr, vim.fn.fnameescape(fname), colnr))
+                        action, linenr, vim.fn.fnameescape(fname), colnr))
                 end)
             else
                 local buf = vim.fn.bufnr(fname, true)
@@ -59,48 +64,51 @@ local function match_basename(str, query)
     return positions, score
 end
 
+-- unicode character 'EM SPACE'
+local EM_SPACE = '\226\128\131'
+
 function split_basename(lines)
     return vim.tbl_map(function(line)
         line = line:gsub('^' .. os.getenv'HOME', '~')
         local is_uri = line:find('://') ~= nil
         if is_uri then
-            return line
+            return line .. EM_SPACE
         end
         local path, basename = line:match('^(.*)/(.-)$')
         if not path then
-            return line
+            return line .. EM_SPACE
         end
-        -- unicode character 'EM SPACE'
-        return basename .. '\226\128\131' .. path
+        return basename .. EM_SPACE .. path
     end, lines)
 end
 
 function get_highlights_basename(line)
     if line:find('://') then  -- looks like a URI
-        return nil
+        return {}
     end
-    local starti, endi = line:find('\226\128\131')
+    local starti, endi = line:find(EM_SPACE)
     if not starti then
-        return nil
+        return {}
     end
     return {{col_start = endi, col_end = -1, hl_group = 'Comment'}}
 end
 
-function on_complete_basename(cmd, lines)
+function on_complete_basename(action, lines)
+    local is_edit = action:match('edit') or action:match('split')
     for i, line in ipairs(lines) do
         local found, _, basename, dir  = line:find'^([^:]+)\226\128\131(.*)$'
         if found then
             local path = dir .. '/' .. basename
-            if i == #lines then  -- open the file
-                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(path))
+            if i == #lines or not is_edit then  -- open the file
+                vim.cmd(action .. ' ' .. vim.fn.fnameescape(path))
             else  -- create a buffer
                 local buf = vim.fn.bufnr(path, true)
                 vim.bo[buf].buflisted = true
             end
         else
             -- Could be a URI, so treat the whole line as the filename
-            if i == #lines then
-                vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(line))
+            if i == #lines or not is_edit then
+                vim.cmd(action .. ' ' .. vim.fn.fnameescape(line))
             else
                 local buf = vim.fn.bufnr(line, true)
                 vim.bo[buf].buflisted = true
@@ -123,7 +131,13 @@ local function oldfiles()
 end
 
 local function buffers()
-    ufind.open(split_basename(require'ufind.source.buffers'()), basename_cfg{})
+    ufind.open(split_basename(require'ufind.source.buffers'()), basename_cfg{
+        keymaps = {
+            actions = {
+                bd = '<C-d>',
+            },
+        },
+    })
 end
 
 local function find()
@@ -155,7 +169,7 @@ local function interactive_find()
             return {}
         end
     end
-    local function on_complete(cmd, lines)
+    local function on_complete(action, lines)
         local line = assert(uv.fs_realpath(lines[1]))
         local info = uv.fs_stat(line)
         local is_dir = info and info.type == 'directory' or false
@@ -167,7 +181,7 @@ local function interactive_find()
                 })
             end)
         else
-            vim.cmd(cmd .. ' ' .. vim.fn.fnameescape(line))
+            vim.cmd(action .. ' ' .. vim.fn.fnameescape(line))
         end
     end
     ufind.open(ls(uv.cwd()), cfg{

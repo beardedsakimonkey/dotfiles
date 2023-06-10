@@ -33,45 +33,45 @@ local function configure()
     require_safe 'config.udir'
     require_safe 'config.ufind'
 
-    --[[ paq ]]--
+    -- paq ---------------------------------------------------------------------
     com('PInstall', 'PaqInstall')
     com('PUpdate', 'PaqLogClean | PaqUpdate')
     com('PClean', 'PaqClean')
     com('PSync', 'PaqLogClean | PaqSync')
 
-    --[[ linediff ]]--
+    -- linediff ----------------------------------------------------------------
     vim.g.linediff_buffer_type = 'scratch'
     map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
 
-    --[[ mini.hipatterns ]]--
-    local au = aug'my/hipatterns'
-
-    local function require_hipatterns()
-        vim.cmd'pa mini.hipatterns'
-        return require'mini.hipatterns'
-    end
-
-    local nvim_get_color_map = util.memo(vim.api.nvim_get_color_map)
+    -- mini.hipatterns ---------------------------------------------------------
+    local color_map
 
     local function enable_hipatterns(opts)
-        local hipatterns = require_hipatterns()
+        vim.cmd'pa mini.hipatterns'
+        local hipatterns = require'mini.hipatterns'
         hipatterns.enable(opts.buf, {
             highlighters = {
                 hex_color = hipatterns.gen_highlighter.hex_color(),
                 named_color = {
                     pattern = '%w+',
                     group = function(_, match)
-                        local color = nvim_get_color_map()[match]
+                        local color = color_map[match]
                         if color == nil then return nil end
-                        local hex = '#' .. require'bit'.tohex(color, 6)
-                        return require'mini.hipatterns'.compute_hex_color_group(hex, 'bg')
+                        return hipatterns.compute_hex_color_group(color, 'bg')
                     end
                 },
             },
         })
     end
 
-    au('BufEnter', {'papyrus.lua', 'rgb.txt', '*.css'}, enable_hipatterns)
+    local au = aug'my/hipatterns'
+    au('BufEnter', {'papyrus.lua', 'rgb.txt', '*.css'}, function(opts)
+        color_map = color_map or vim.tbl_map(
+            function(dec) return string.format('#%06x', dec) end,
+            vim.api.nvim_get_color_map()
+        )
+        enable_hipatterns(opts)
+    end)
     -- Sourcing colorscheme invokes `:hi clear`, which clears mini's highlight
     -- groups.
     au('BufWritePost', 'papyrus.lua', function(opts)
@@ -79,7 +79,7 @@ local function configure()
         enable_hipatterns(opts)
     end)
 
-    --[[ nvim-surround ]]--
+    -- nvim-surround -----------------------------------------------------------
     require'nvim-surround'.setup{
         indent_lines = false,
     }

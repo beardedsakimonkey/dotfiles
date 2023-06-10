@@ -146,9 +146,6 @@ map('n', '<space>z', zoom_toggle, {silent = true})
 map('x', '.', ':norm! .<CR>', {silent = true})
 map('n', '<space>.', repeat_last_edit)
 map('x', '<space>y', '"*y', {silent = true})
--- Adapted from justinmk's vimrc
-map('x', 'I', "mode() =~# '[vV]' ? '<C-v>^o^I' : 'I'", {expr = true})
-map('x', 'A', "mode() =~# '[vV]' ? '<C-v>0o$A' : 'A'", {expr = true})
 
 -- Command mode
 map('c', '<C-p>', '<Up>')

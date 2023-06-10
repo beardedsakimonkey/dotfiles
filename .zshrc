@@ -344,7 +344,7 @@ alias sudoedit='sudo -e'
 alias t='tmux -f ~/.config/tmux/tmux.conf new-session -A -s main'
 alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
-alias at='ls -AtU'
+alias at='ls -AUt'
 alias temperature="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
 
 alias gj='git-jump'
@@ -433,7 +433,7 @@ cd() {
 cdl() {
     emulate -L zsh
     local most_recent_dir=$(\
-        # sort by ctime
+        # sort by ctime (inode change time)
         stat -f '%c %N' * \
         | sort --key=1,1 --numeric-sort --reverse \
         | head -n1 \
@@ -491,6 +491,10 @@ mpv() {
 ydl() {
     # assumes the last argument is the url
     yt-dlp ${@[1,-2]} "${@[-1]:s/piped.video/youtube.com}"
+}
+
+update-ytdlp() {
+    pip install --force-reinstall https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
 }
 
 #

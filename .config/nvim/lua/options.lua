@@ -60,4 +60,4 @@ vim.opt.cursorline = true
 vim.opt.ruler = false  -- don't echo anything when entering a floating window
 vim.opt.jumpoptions = 'view'
 
--- vim.opt.diffopt:append('linematch:60')  -- better diff
+vim.opt.diffopt:append('linematch:60')  -- better diff

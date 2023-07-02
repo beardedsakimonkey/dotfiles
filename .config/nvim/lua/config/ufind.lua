@@ -250,8 +250,8 @@ map('n', '<space>a', function()
     local path = ''
     if vim.bo.ft == 'udir' then
         -- can't rely on % because sometimes the bufname has '[1]'
-        local cwd = require'udir.store'.get().cwd
-        path = ' ' .. cwd .. string.rep('<Left>', #cwd + 1)
+        local cwd = vim.fn.fnameescape(require'udir.store'.get().cwd)
+        path = " " .. cwd .. string.rep('<Left>', #cwd + 1)
     end
     return ':<C-u>Grep ' .. path
 end, {expr = true})

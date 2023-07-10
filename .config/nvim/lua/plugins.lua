@@ -7,6 +7,7 @@ local function setup()
         {'beardedsakimonkey/nvim-ufind', branch='develop'},
         'tpope/vim-commentary',
         'tpope/vim-sleuth',
+        {'tpope/vim-abolish',           opt=true},
         {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
         {'echasnovski/mini.hipatterns', pin=true, opt=true}
@@ -83,6 +84,9 @@ local function configure()
     require'nvim-surround'.setup{
         indent_lines = false,
     }
+
+    -- vim-abolish -------------------------------------------------------------
+    stub_map('n', 'cr', 'vim-abolish')
 end
 
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'

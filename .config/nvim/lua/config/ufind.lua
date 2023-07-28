@@ -13,30 +13,39 @@ local function cfg(t)
     })
 end
 
-local function on_complete_grep(action, lines)
-    local is_edit = action:match('edit') or action:match('split')
-    for i, line in ipairs(lines) do
-        local found, _, fname, linenr, colnr = line:find'^([^:]-):(%d+):(%d+):'
-        if found then
-            if i == #lines or not is_edit then
-                -- HACK: if we don't schedule, the cursor gets positioned one
-                -- column to the left.
-                vim.schedule(function()
-                    vim.cmd(('%s +%s %s|norm! %s|'):format(
+local function on_complete_grep(action, results)
+    local pat = '^([^:]-):(%d+):(%d+):(.*)$'
+    if #results == 1 then -- open a single result
+        local fname, linenr, colnr = results[1]:match(pat)
+        if fname then
+            -- HACK: if we don't schedule, the cursor gets positioned one
+            -- column to the left.
+            vim.schedule(function()
+                -- edit the file at the appropriate line/column number
+                vim.cmd(('%s +%s %s | norm! %s|'):format(
                         action, linenr, vim.fn.fnameescape(fname), colnr))
-                end)
-            else
-                local buf = vim.fn.bufnr(fname, true)
-                vim.bo[buf].buflisted = true
-            end
-        else
-            print('regex fail for line:', line)
+            end)
         end
+    else -- put selected results into a quickfix list
+        -- TODO: handle `action`?
+        vim.fn.setqflist({}, ' ', {
+            nr = '$', -- push to top of qf-list stack
+            items = vim.tbl_map(function(result)
+                local fname, linenr, colnr, line = result:match(pat)
+                return fname and {
+                    filename = fname,
+                    text = line,
+                    lnum = linenr,
+                    col = colnr,
+                } or {}
+            end, results),
+        })
+        vim.cmd'copen | cc!'
     end
 end
 
 local function live_grep()
-    ufind.open_live('rg --vimgrep --column --fixed-strings --color=ansi -- ', cfg{
+    ufind.open_live('rg --vimgrep --fixed-strings --color=ansi -- ', cfg{
         ansi = true,
         on_complete = on_complete_grep,
     })
@@ -82,35 +91,35 @@ function split_basename(lines)
     end, lines)
 end
 
-function get_highlights_basename(line)
-    if line:find('://') then  -- looks like a URI
+function get_highlights_basename(result)
+    if result:find('://') then  -- looks like a URI
         return {}
     end
-    local starti, endi = line:find(EM_SPACE)
+    local starti, endi = result:find(EM_SPACE)
     if not starti then
         return {}
     end
     return {{col_start = endi, col_end = -1, hl_group = 'Comment'}}
 end
 
-function on_complete_basename(action, lines)
+function on_complete_basename(action, results)
     local is_edit = action:match('edit') or action:match('split')
-    for i, line in ipairs(lines) do
-        local found, _, basename, dir  = line:find'^([^:]+)\226\128\131(.*)$'
+    for i, result in ipairs(results) do
+        local found, _, basename, dir  = result:find'^([^:]+)\226\128\131(.*)$'
         if found then
             local path = dir .. '/' .. basename
-            if i == #lines or not is_edit then  -- open the file
+            if i == #results or not is_edit then  -- open the file
                 vim.cmd(action .. ' ' .. vim.fn.fnameescape(path))
             else  -- create a buffer
                 local buf = vim.fn.bufnr(path, true)
                 vim.bo[buf].buflisted = true
             end
         else
-            -- Could be a URI, so treat the whole line as the filename
-            if i == #lines or not is_edit then
-                vim.cmd(action .. ' ' .. vim.fn.fnameescape(line))
+            -- Could be a URI, so treat the whole result as the filename
+            if i == #results or not is_edit then
+                vim.cmd(action .. ' ' .. vim.fn.fnameescape(result))
             else
-                local buf = vim.fn.bufnr(line, true)
+                local buf = vim.fn.bufnr(result, true)
                 vim.bo[buf].buflisted = true
             end
         end
@@ -192,7 +201,7 @@ end
 
 local function help_grep()
     ufind.open_live(function(query)
-            return 'rg', {'--vimgrep', '--column', '--fixed-strings', '--color=ansi',
+            return 'rg', {'--vimgrep', '--fixed-strings', '--color=ansi',
                 '--glob=*.txt', '--', query, vim.env.VIMRUNTIME .. '/doc'}
         end,
         cfg{
@@ -221,11 +230,10 @@ map('n', '<space>h', help_grep)
 local function grep(query_str, query_tbl)
     local ft = vim.bo.ft
     local function cmd()
-        local args = {'--vimgrep', '--column', '--fixed-strings', '--color=ansi', '--smart-case', '--'}
+        local args = {'--vimgrep', '--fixed-strings', '--color=ansi', '--smart-case', '--'}
         -- pattern matching on the last arg being a path is unreliable (it might
         -- be part of the query), so check if ft is 'udir'
-        if ft == 'udir' and #query_tbl > 1
-            and util.exists(query_tbl[#query_tbl]) then
+        if ft == 'udir' and #query_tbl > 1 and util.exists(query_tbl[#query_tbl]) then
             -- seperate the path into its own argument
             local path = table.remove(query_tbl)
             table.insert(args, table.concat(query_tbl, ' '))
@@ -236,8 +244,8 @@ local function grep(query_str, query_tbl)
         return 'rg', args
     end
     ufind.open(cmd, cfg{
-        scopes = '^([^:]-):%d+:%d+:(.*)$',
         ansi = true,
+        scopes = '^([^:]-):%d+:%d+:(.*)$',
         on_complete = on_complete_grep,
         matcher = require'ufind.matcher.exact',
     })

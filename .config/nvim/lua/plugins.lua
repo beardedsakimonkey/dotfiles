@@ -7,10 +7,12 @@ local function setup()
         {'beardedsakimonkey/nvim-ufind', branch='develop'},
         'tpope/vim-commentary',
         'tpope/vim-sleuth',
-        {'tpope/vim-abolish',           opt=true},
+        {'tpope/vim-abolish',                     opt=true},
         {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
-        {'echasnovski/mini.hipatterns', pin=true, opt=true}
+        {'echasnovski/mini.hipatterns', pin=true, opt=true},
+        {'tommcdo/vim-exchange',        pin=true, opt=true},
+        {'dstein64/vim-startuptime',    pin=true, opt=true},
     }
 end
 
@@ -84,6 +86,13 @@ local function configure()
     require'nvim-surround'.setup{
         indent_lines = false,
     }
+
+    -- vim-exchange ------------------------------------------------------------
+    stub_map('n', 'cx', 'vim-exchange')
+    stub_map('x', 'X', 'vim-exchange')
+
+    -- vim-startuptime ---------------------------------------------------------
+    stub_com('StartupTime', 'vim-startuptime')
 
     -- vim-abolish -------------------------------------------------------------
     stub_map('n', 'cr', 'vim-abolish')

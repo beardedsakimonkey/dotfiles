@@ -40,7 +40,7 @@ local function on_complete_grep(action, results)
                 } or {}
             end, results),
         })
-        vim.cmd'copen | cc!'
+        vim.cmd(action .. '| copen | cc!')
     end
 end
 
@@ -107,6 +107,8 @@ function on_complete_basename(action, results)
     for i, result in ipairs(results) do
         local found, _, basename, dir  = result:find'^([^:]+)\226\128\131(.*)$'
         if found then
+            -- sometimes buffers just contain the basename for some reason
+            dir = dir or vim.fn.getcwd()
             local path = dir .. '/' .. basename
             if i == #results or not is_edit then  -- open the file
                 vim.cmd(action .. ' ' .. vim.fn.fnameescape(path))

@@ -346,6 +346,7 @@ alias ls='LSCOLORS=exfxcxdxbxegedabagacex \ls -FG'
 alias a='ls -A'
 alias at='ls -AUt'
 alias temperature="sudo powermetrics --samplers smc | grep -i 'CPU die temperature'"
+alias calc='zcalc'
 
 alias gj='git-jump'
 alias gs='git status'

@@ -4,10 +4,10 @@ local function setup()
     require'paq'{
         'savq/paq-nvim',
         {'beardedsakimonkey/nvim-udir',  branch='develop'},
-        {'beardedsakimonkey/nvim-ufind', branch='develop'},
+        {'beardedsakimonkey/nvim-ufind'},
         'tpope/vim-commentary',
         'tpope/vim-sleuth',
-        {'tpope/vim-abolish',                     opt=true},
+        {'tpope/vim-abolish'},
         {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
         {'echasnovski/mini.hipatterns', pin=true, opt=true},
@@ -95,7 +95,7 @@ local function configure()
     stub_com('StartupTime', 'vim-startuptime')
 
     -- vim-abolish -------------------------------------------------------------
-    stub_map('n', 'cr', 'vim-abolish')
+    -- Abbreviations in ../after/plugin/abolish.vim
 end
 
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'

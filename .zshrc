@@ -409,17 +409,18 @@ compdef _vim v
 # Functions
 #
 
-mv() {
-    emulate -L zsh
-    if (( $# > 1 )) && [[ "${@[-1]}" =~ / ]]; then
-        local destdir=${@[-1]%/*}
-        if [ ! -d "$destdir" ]; then
-            printf 'making intermediate directories: %s\n' "$destdir"
-            mkdir -p "$destdir"
-        fi
-    fi
-    command mv "$@"
-}
+# mv() {
+#     emulate -L zsh
+#     if (( $# > 1 )) && [[ "${@[-1]}" =~ / ]]; then
+          # FIXME: `mv foo /bar`
+#         local destdir=${@[-1]%/*}
+#         if [ ! -d "$destdir" ]; then
+#             printf 'making intermediate directories: %s\n' "$destdir"
+#             mkdir -p "$destdir"
+#         fi
+#     fi
+#     command mv "$@"
+# }
 
 cd() {
     emulate -L zsh

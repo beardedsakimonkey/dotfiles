@@ -2,16 +2,23 @@ local util = require'util'
 
 local function setup()
     require'paq'{
-        'savq/paq-nvim',
-        {'beardedsakimonkey/nvim-udir',  branch='develop'},
+        {'beardedsakimonkey/nvim-udir', branch='develop'},
         {'beardedsakimonkey/nvim-ufind'},
-        'tpope/vim-commentary',
-        'tpope/vim-sleuth',
+        {'tpope/vim-commentary'},
+        {'tpope/vim-sleuth'},
         {'tpope/vim-abolish'},
+
+        'neovim/nvim-lspconfig',
+        'hrsh7th/nvim-cmp',
+        'hrsh7th/cmp-nvim-lsp',
+        'kkharji/xbase',
+        'keith/swift.vim',
+
+        {'savq/paq-nvim',               pin=true},
         {'kylechui/nvim-surround',      pin=true},
         {'AndrewRadev/linediff.vim',    pin=true},
+        {'echasnovski/mini.operators',  pin=true},
         {'echasnovski/mini.hipatterns', pin=true, opt=true},
-        {'tommcdo/vim-exchange',        pin=true, opt=true},
         {'dstein64/vim-startuptime',    pin=true, opt=true},
     }
 end
@@ -45,6 +52,11 @@ local function configure()
     -- linediff ----------------------------------------------------------------
     vim.g.linediff_buffer_type = 'scratch'
     map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
+
+    -- nvim-surround -----------------------------------------------------------
+    require'nvim-surround'.setup{
+        indent_lines = false,
+    }
 
     -- mini.hipatterns ---------------------------------------------------------
     local color_map
@@ -82,20 +94,64 @@ local function configure()
         enable_hipatterns(opts)
     end)
 
-    -- nvim-surround -----------------------------------------------------------
-    require'nvim-surround'.setup{
-        indent_lines = false,
-    }
-
-    -- vim-exchange ------------------------------------------------------------
-    stub_map('n', 'cx', 'vim-exchange')
-    stub_map('x', 'X', 'vim-exchange')
+    -- mini.operators ----------------------------------------------------------
+    require('mini.operators').setup({
+        evaluate = { prefix = 'g=' },
+        exchange = { prefix = 'gx' },
+        multiply = { prefix = 'gm' },
+        replace  = { prefix = 'gr' },
+        sort     = { prefix = 'gs' }
+    })
 
     -- vim-startuptime ---------------------------------------------------------
     stub_com('StartupTime', 'vim-startuptime')
 
     -- vim-abolish -------------------------------------------------------------
     -- Abbreviations in ../after/plugin/abolish.vim
+
+    -- xbase -------------------------------------------------------------------
+    require'xbase'.setup{
+        sourcekit = {},
+        simctl = {
+            iOS = {
+                "iPhone 14 Pro",
+            },
+        },
+    }
+
+    -- nvim-cmp ----------------------------------------------------------------
+      local cmp = require'cmp'
+
+      cmp.setup({
+          snippet = {
+              -- REQUIRED - you must specify a snippet engine
+              expand = function(args)
+              end,
+          },
+          window = {
+              -- completion = cmp.config.window.bordered(),
+              -- documentation = cmp.config.window.bordered(),
+          },
+          mapping = cmp.mapping.preset.insert({
+              ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+              ['<C-f>'] = cmp.mapping.scroll_docs(4),
+              ['<C-Space>'] = cmp.mapping.complete(),
+              ['<C-e>'] = cmp.mapping.abort(),
+              ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          }),
+          sources = cmp.config.sources({
+              { name = 'nvim_lsp' },
+          }, {
+              { name = 'buffer' },
+          })
+      })
+      -- Set up lspconfig.
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+      require('lspconfig')['sourcekit'].setup {
+          root_dir = require'lspconfig'.util.root_pattern("Package.swift", ".git", "*.xcodeproj"),
+          capabilities = capabilities,
+      }
 end
 
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'

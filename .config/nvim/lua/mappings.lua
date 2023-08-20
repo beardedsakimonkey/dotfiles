@@ -1,3 +1,6 @@
+-- backslash is the default <leader>
+vim.g.mapleader = '\\'
+
 -- Adapted from lacygoill's vimrc
 local function zoom_toggle()
     if vim.fn.winnr('$') ~= 1 then
@@ -84,8 +87,8 @@ map('x', 'p', "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true})
 map('x', 'gp', 'p') -- paste and yank (useful for exchanging)
 map('n', '`', 'g`')
 map('n', "'", "g'")
-map('n', 'n', '<Cmd>keepj norm! nzv<CR>', {silent = true})
-map('n', 'N', '<Cmd>keepj norm! Nzv<CR>', {silent = true})
+map('n', 'n', '<Cmd>keepj norm! nzzzv<CR>', {silent = true})
+map('n', 'N', '<Cmd>keepj norm! Nzzzv<CR>', {silent = true})
 map('n', '*', '*zzzv', {silent = true})
 map('n', '#', '#zzzv', {silent = true})
 map('n', 'g*', 'g*zzzv', {silent = true})

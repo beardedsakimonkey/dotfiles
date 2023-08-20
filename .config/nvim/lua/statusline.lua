@@ -6,12 +6,12 @@ M.statusline = function()
     local has_lsp = #vim.lsp.get_active_clients({bufnr = buf}) > 0
     local issues = #vim.diagnostic.get(buf)
     return "%1*%{!&modifiable ? '  X ' : &ro ? '  RO ' : ''}"
-        .. "%2*%{&modified ? '  + ' : ''}%* %7*"
+        .. "%2*%{&modified ? '  + ' : ''}%* %3*"
         .. "%{&bt=='nofile' ? '[Nofile]' : expand('%:t')}%* "
         .. "%{&ff!='unix' ? '[' . &ff . '] ' : ''}"
         .. "%{&fenc!='utf-8' && &fenc != '' ? '[' . &fenc . '] ' : ''}"
-        .. (has_lsp and issues == 0 and '✔' or '')
-        .. (issues > 0 and '✘ ' .. issues or '')
+        .. (has_lsp and issues == 0 and '%5*✔%*' or '')
+        .. (issues > 0 and '%4*✘%* ' .. issues or '')
         .. '%='
         .. (current_win and  '%6*%{session#status()}%* ' or '')
 end

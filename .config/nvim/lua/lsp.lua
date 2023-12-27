@@ -83,3 +83,12 @@ end)
 --         root_dir = find_dir'Cargo.toml',
 --     })
 -- end)
+
+au('FileType', 'typescript', function()
+    vim.lsp.start(cfg{
+        name = 'tsserver',
+        cmd = { 'typescript-language-server', '--stdio' },
+        root_dir = find_dir{'tsconfig.json', 'package.json', '.git'},
+        single_file_support = true,
+    })
+end)

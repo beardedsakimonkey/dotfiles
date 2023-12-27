@@ -13,6 +13,7 @@ local function setup()
         'hrsh7th/cmp-nvim-lsp',
         'kkharji/xbase',
         'keith/swift.vim',
+        'Bakudankun/PICO-8.vim',
 
         {'savq/paq-nvim',               pin=true},
         {'kylechui/nvim-surround',      pin=true},
@@ -20,6 +21,7 @@ local function setup()
         {'echasnovski/mini.operators',  pin=true},
         {'echasnovski/mini.hipatterns', pin=true, opt=true},
         {'dstein64/vim-startuptime',    pin=true, opt=true},
+        'mhartington/formatter.nvim',
     }
 end
 
@@ -152,6 +154,23 @@ local function configure()
           root_dir = require'lspconfig'.util.root_pattern("Package.swift", ".git", "*.xcodeproj"),
           capabilities = capabilities,
       }
+
+      -- formatter.nvim --------------------------------------------------------
+      require('formatter').setup{
+          filetype = {
+              typescript = {
+                  function()
+                      return {
+                          exe = 'dprint',
+                          args = {'fmt', '--stdin', '.ts'},
+                          stdin = true,
+                      }
+                  end
+              }
+          }
+      }
+      local au2 = aug'my/formatter'
+      au2('BufWritePost', '*.ts', ':FormatWrite')
 end
 
 local path = vim.fn.stdpath('data') .. '/site/pack/paqs/start/paq-nvim'

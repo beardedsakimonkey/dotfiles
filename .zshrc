@@ -265,7 +265,12 @@ export CORRECT_IGNORE=_*,.*
 
 export WASMTIME_HOME="$HOME/.wasmtime"
 export PATH="$WASMTIME_HOME/bin:$PATH"
+
+export DPRINT_INSTALL="/Users/tim/.dprint"
+export PATH="$DPRINT_INSTALL/bin:$PATH"
+
 export PATH="/usr/local/opt/llvm/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 #
 # Third-party
@@ -325,14 +330,13 @@ if [ -n "$(command -v fasd)" ]; then
     compctl -U -K _fasd_zsh_cmd_complete -V fasd -x 'C[-1,-*e],s[-]n[1,e]' -c - 'c[-1,-A][-1,-D]' -f -- fasd_cdv
 fi
 
-
-# nvm
-if [ -d "$HOME/.nvm" ]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-    export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
-    alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
-fi
+# # nvm
+# if [ -d "$HOME/.nvm" ]; then
+#     export NVM_DIR="$HOME/.nvm"
+#     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+#     export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
+#     alias nvm='unalias nvm; . "$NVM_DIR/nvm.sh"; nvm $@'
+# fi
 
 #
 # Aliases

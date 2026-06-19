@@ -1,0 +1,309 @@
+local function zoom_toggle()
+    if vim.fn.winnr('$') ~= 1 then
+        if vim.t.zoom_restore then
+            vim.cmd 'exe t:zoom_restore'
+            vim.cmd 'unlet t:zoom_restore'
+        else
+            vim.t.zoom_restore = vim.fn.winrestcmd()
+            vim.cmd 'wincmd |'
+            vim.cmd 'wincmd _'
+        end
+    end
+end
+
+local function repeat_last_edit()
+    local changed = vim.fn.getreg('"', 1, 1)
+    if changed then
+        -- Escape backslashes
+        local changed_esc = vim.tbl_map(function(c)
+            return vim.fn.escape(c, '\\')
+        end, changed)
+        local pat = table.concat(changed_esc, '\\n')
+        -- Put the last changed text inside the search register, so that we can
+        -- refer to it with the text-object `gn`
+        vim.fn.setreg('/', ('\\V' .. pat), 'c')
+        vim.cmd 'exe "norm! cgn\\<c-@>"'
+    end
+end
+
+-- Check if previously accessed window (#) is sitting exactly adjacent to the
+-- current window in the direction we want to move. If it is, move to that
+-- window, otherwise fallback to default behavior.
+local function navigate(dir)
+    local prev_win_same_dir
+    local cur_win  = vim.fn.winnr()
+    local prev_win = vim.fn.winnr('#')
+    if dir == 'h' then
+        local leftedge_cur_win = vim.fn.win_screenpos(cur_win)[2]
+        local rightedge_prev_win = vim.fn.win_screenpos(prev_win)[2] + vim.fn.winwidth(prev_win) - 1
+        prev_win_same_dir =  (leftedge_cur_win - 1) == (rightedge_prev_win + 1)
+    elseif dir == 'l' then
+        local leftedge_prev_win = vim.fn.win_screenpos(prev_win)[2]
+        local rightedge_cur_win = vim.fn.win_screenpos(cur_win)[2] + vim.fn.winwidth(cur_win) - 1
+        prev_win_same_dir = (leftedge_prev_win - 1) == (rightedge_cur_win + 1)
+    elseif dir == 'j' then
+        local topedge_prev_win = vim.fn.win_screenpos(prev_win)[1]
+        local bottomedge_cur_win = vim.fn.win_screenpos(cur_win)[1] + vim.fn.winheight(cur_win) - 1
+        prev_win_same_dir = (topedge_prev_win - 1) == (bottomedge_cur_win + 1)
+    elseif dir == 'k' then
+        local topedge_cur_win = vim.fn.win_screenpos(cur_win)[1]
+        local bottomedge_prev_win = vim.fn.win_screenpos(prev_win)[1] + vim.fn.winheight(prev_win) - 1
+        prev_win_same_dir = (topedge_cur_win - 1) == (bottomedge_prev_win + 1)
+    end
+    vim.cmd('try | wincmd ' .. (prev_win_same_dir and 'p' or dir) .. ' | catch | endtry')
+end
+
+local function yank_doc(exp)
+    local txt = vim.fn.expand(exp)
+    vim.fn.setreg('"', txt, 'c')
+    vim.fn.setreg('+', txt, 'c')
+end
+
+local function get_char()
+    local ok, char_num = pcall(vim.fn.getchar)
+    -- Return nil if error (e.g. <C-c>) or for control characters
+    if not ok or type(char_num) ~= 'number' or char_num < 32 then
+        return nil
+    end
+    return vim.fn.nr2char(char_num)
+end
+
+local function gen_hash(key)
+    local win = vim.api.nvim_get_current_win()
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    -- Note: ignore `key`s casing so that we can change direction
+    return ('%s|%s|%s:%s'):format(key:lower(), win, cursor[1], cursor[2])
+end
+
+local prev_hash
+
+-- Supports repeating the last search with f/t/F/T instead of ;/,
+local function ft(key)
+    local hash = gen_hash(key)
+    local is_forward = key == 'f' or key == 't'
+    if hash == prev_hash then
+        vim.cmd('normal! ' .. (is_forward and ';' or ','))
+    else
+        local char = get_char()
+        if not char then
+            return
+        end
+        vim.cmd('normal! ' .. key .. char)
+    end
+    prev_hash = gen_hash(key)
+end
+
+local function move_line(dir)
+    vim.cmd 'keepj norm! mv'
+    vim.cmd('move ' .. (dir == 'up' and '--' or '+') .. vim.v.count1)
+    vim.cmd 'keepj norm! =`v'
+end
+
+local function cabbrev(short, long)
+    -- NOTE: using `map` causes weird behavior when typing a command
+    vim.cmd(string.format(
+        [[cnoreabbrev <expr> %s getcmdtype() is# ":" && getcmdpos() == %d ? '%s' : '%s']],
+        short, #short+1, long, short))
+end
+
+-------------------------------------------------------------------------------
+
+-- Enhanced defaults
+map('n', 'j', 'gj')
+map('n', 'k', 'gk')
+map('n', '<Down>', 'gj')
+map('n', '<Up>', 'gk')
+map('', '<C-g>', 'g<C-g>')
+map('n', '<', '<<')
+map('n', '>', '>>')
+map('x', '<', '<gv')
+map('x', '>', '>gv')
+map('n', 's', '"_s')
+map('n', 'p', "getreg(v:register) =~# \"\\n\" ? \"pmv=g']g`v\" : 'p'", {expr = true})
+map('n', 'P', "getreg(v:register) =~# \"\\n\" ? \"Pmv=g']g`v\" : 'P'", {expr = true})
+map('x', 'p', "'\"_c<C-r>'.v:register.'<Esc>'", {expr = true})
+map('x', 'gp', 'p') -- paste and yank (useful for exchanging)
+map('n', '`', 'g`')
+map('n', "'", "g'")
+map('n', 'n', '<Cmd>keepj norm! nzv<CR>', {silent = true})
+map('n', 'N', '<Cmd>keepj norm! Nzv<CR>', {silent = true})
+map('n', '*', '*zzzv', {silent = true})
+map('n', '#', '#zzzv', {silent = true})
+map('n', 'g*', 'g*zzzv', {silent = true})
+map('n', 'g#', 'g#zzzv', {silent = true})
+map('n', "g'", 'g,')
+map('n', '<PageUp>', '<PageUp>:keepj norm! H<CR>', {silent = true})
+map('n', '<PageDown>', '<PageDown>:keepj norm! L<CR>', {silent = true})
+map('n', '/', '/\\V')
+map('x', '/', function() vim.api.nvim_input('/\\%V') end) -- search in visual selection
+map('x', 'I', function() return vim.fn.mode():match('[vV]') and '<C-v>^o^I' or 'I' end, {expr = true})
+map('x', 'A', function() return vim.fn.mode():match('[vV]') and '<C-v>0o$A' or 'A' end, {expr = true})
+
+
+-- Rearrange some default mappings
+map({'n', 'x'}, ';', ':')
+map({'n', 'x'}, ':', ';')
+map('n', '`', "'")
+map('n', "'", '`')
+map('', 'H', '^')
+map('', 'L', '$')
+map('', '(', '<Cmd>keepj norm! H<CR>', {silent = true})
+map('', ')', '<Cmd>keepj norm! L<CR>', {silent = true})
+map('n', '<Home>', '<Cmd>keepj norm! gg<CR>', {silent = true})
+map('n', '<End>', '<Cmd>keepj norm! G<CR>', {silent = true})
+map('n', '<C-s>', '<C-a>', {silent = true})
+map('', '<tab>', '<Cmd>keepj norm! %<CR>', {silent = true})
+map('n', '<C-p>', '<Tab>')
+map('n', '<C-l>', function() navigate'l' end, {silent = true})
+map('n', '<C-h>', function() navigate'h' end, {silent = true})
+map('n', '<C-j>', function() navigate'j' end, {silent = true})
+map('n', '<C-k>', function() navigate'k' end, {silent = true})
+map('n', 'zk', 'zc', {silent = true})
+map('n', 'zK', 'zC', {silent = true})
+map('n', 'zj', 'zo', {silent = true})
+map('n', 'zJ', 'zO', {silent = true})
+map({'n','x'}, 'q', '<NOP>') -- avoid accidental macros
+map('n', 'gcu', 'gcgc', { remap = true })
+
+-- Insert mode
+map('i', '<C-j>', '<C-n>')
+map('i', '<C-k>', '<C-p>')
+map('i', '<C-l>', '<C-n>')
+
+-- Miscellaneous
+map('n', 'cn', 'cgn', {silent = true})
+map({'n', 'x'}, 'Z', 'zzzH')
+map('n', '<A-LeftMouse>', '<nop>')
+map('n', '<CR>', '<Cmd>silent w<CR>', {silent = true})
+map('', '<C-q>', '<Cmd>q<CR>', {silent = true})
+map('n', '<space>l', '<Cmd>vsplit<CR>', {silent = true})
+map('n', '<space>j', '<Cmd>split<CR>', {silent = true})
+map('n', '<space>t', '<Cmd>tabedit<CR>', {silent = true})
+map('', '<Space>d', function() require'mini.bufremove'.delete() end, {silent = true})
+map('', '<Space>q', '<Cmd>b#<CR>', {silent = true})
+map('n', 'g>', '<Cmd>40messages<CR>', {silent = true})
+map('n', 'gi', 'g`^')  -- go to last insert
+map('n', 'g.', 'g`.')  -- go to last change
+map('n', 'gs', 'g`[vg`]')  -- select last changed/yanked text
+map('n', 'gS', "g'[Vg']")
+map('n', '<space>z', zoom_toggle, {silent = true})
+map('x', '.', ':norm! .<CR>', {silent = true})
+map('n', '<space>.', repeat_last_edit)
+map('x', '<space>y', '"*y', {silent = true})
+map('n', '<space>r', '<Cmd>Restart<CR>', {silent = true})
+
+-- Command mode
+map('c', '<C-p>', '<Up>')
+map('c', '<C-n>', '<Down>')
+map('c', '<C-j>', '<C-g>')
+map('c', '<C-k>', '<C-t>')
+map('c', '<C-a>', '<Home>')
+
+-- Keepjumps
+map('n', 'M', '<Cmd>keepj norm! M<CR>', {silent = true})
+map('n', '{', '<Cmd>keepj norm! {<CR>', {silent = true})
+map('n', '}', '<Cmd>keepj norm! }<CR>', {silent = true})
+map('n', 'gg', '<Cmd>keepj norm! gg<CR>', {silent = true})
+map('n', 'G', '<Cmd>keepj norm! G<CR>', {silent = true})
+
+-- Search & substitute
+-- NOTE: Doesn't support multiline selection.
+map("x", "*", "\"vy:let @/='\\<<c-r>v\\>'<CR>nzzzv", {silent = true})
+map("x", "#", "\"vy:let @/='\\<<c-r>v\\>'<CR>Nzzzv", {silent = true})
+map("x", "g*", "\"vy:let @/='<c-r>v'<CR>nzzzv", {silent = true})
+map("x", "g#", "\"vy:let @/='<c-r>v'<CR>Nzzzv", {silent = true})
+map("n", "g/", ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
+map("x", "g/", "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
+map({"n", "x"}, "<RightMouse>", "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
+map('n', '<2-RightMouse>', '<RightMouse>')
+map("n", "<Space>s", "ms:<C-u>%s///g<left><left>")
+map("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
+
+-- Alt
+map('!', '<A-h>', '<Left>')
+map('!', '<A-l>', '<Right>')
+map('!', '<A-j>', '<C-Left>')
+map('!', '<A-k>', '<C-Right>')
+map('n', '<A-l>', '<C-w>L')
+map('n', '<A-h>', '<C-w>H')
+map('n', '<A-j>', '<C-w>J')
+map('n', '<A-k>', '<C-w>K')
+
+local function comment_jump(dir)
+    local cs = vim.bo.commentstring
+    if not cs or cs == '' then return end
+    local parts = vim.split(cs, '%%s', {plain = true})
+    local leader
+    for _, p in ipairs(parts) do
+        local stripped = p:gsub('^%s+', ''):gsub('%s+$', '')
+        if stripped ~= '' then
+            leader = stripped
+            break
+        end
+    end
+    if not leader then return end
+    local flags = dir == 'down' and 'W' or 'bW'
+    vim.fn.search('^\\s*' .. vim.pesc(leader), flags)
+end
+
+-- Bracket
+map('n', ']c', function() comment_jump('down') end, {silent = true})
+map('n', '[c', function() comment_jump('up') end, {silent = true})
+map('n', '[t', '<Cmd>tabprev<CR>', {silent = true})
+map('n', ']t', '<Cmd>tabnext<CR>', {silent = true})
+map('n', ']T', '<Cmd>+tabmove<CR>', {silent = true})
+map('n', '[T', '<Cmd>-tabmove<CR>', {silent = true})
+map('', ']n', '/\\v^[<\\|=>]{7}<CR>zvzz', {silent = true})
+map('', '[n', '?\\v^[<\\|=>]{7}<CR>zvzz', {silent = true})
+map('n', '[d', function() move_line'up' end)
+map('n', ']d', function() move_line'down' end)
+
+-- Bookmarks
+map('n', ':R', '<Cmd>e $VIMRUNTIME<CR>', {silent = true})
+map('n', ':C', '<Cmd>e ~/.config/nvim/lua/<CR>', {silent = true})
+map('n', ':L', '<Cmd>e ~/.config/nvim/lua/<CR>', {silent = true})
+map('n', ':P', '<Cmd>e ~/.local/share/nvim/site/pack/core/opt/<CR>', {silent = true})
+map('n', ':Z', '<Cmd>e ~/.zshrc<CR>', {silent = true})
+map('n', ':N', '<Cmd>e ~/notes<CR>', {silent = true})
+map('n', ':X', '<Cmd>e ~/.config/tmux/tmux.conf<CR>', {silent = true})
+map('n', ':U', '<Cmd>e ' .. fe(require'util'.FF_PROFILE) .. '/user.js<CR>', {silent = true})
+map('n', ':G', '<Cmd>e ~/.config/ghostty/config<CR>', {silent = true})
+
+-- Text objects
+map({'x', 'o'}, 'il', '<Cmd>norm! g_v^<CR>', {silent = true})
+map({'x', 'o'}, 'al', '<Cmd>norm! $v0<CR>', {silent = true})
+map('x', 'id', '<Cmd>norm! G$Vgg0<CR>', {silent = true})
+map('o', 'id', '<Cmd>norm! GVgg<CR>', {silent = true})
+
+-- File name
+map('i', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
+map('c', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
+map('n', 'yo', function() yank_doc('%:t:r:r:r') end, {silent = true})
+map('n', 'yO', function() yank_doc('%:p') end, {silent = true})
+
+-- Toggle options
+map('n', 'gon', '<Cmd>set number!<CR>', {silent = true})
+map('n', 'gob', '<Cmd>let &bg=&bg=="dark"?"light":"dark"<CR>', {silent = true})
+map('n', 'goc', '<Cmd>set cursorline!<CR>', {silent = true})
+map('n', 'gol', '<Cmd>set list!<CR>', {silent = true})
+map('n', 'gow', '<Cmd>set wrap!<Bar>set wrap?<CR>')
+map('n', 'goi', '<Cmd>set ignorecase!<Bar>set ignorecase?<CR>')
+
+-- Diagnostics
+map('n', 'ge', '<Cmd>lua vim.diagnostic.open_float()<CR>', {silent = true})
+map('n', 'gl', '<Cmd>lua vim.diagnostic.setloclist()<CR>', {silent = true})
+
+-- F/f/T/t
+map({'n','x'}, 'f', function() ft'f' end)
+map({'n','x'}, 't', function() ft't' end)
+map({'n','x'}, 'F', function() ft'F' end)
+map({'n','x'}, 'T', function() ft'T' end)
+
+-- Quickfix/location list
+map('n', '<space>xq', function() if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then vim.cmd.cclose() else vim.cmd.copen() end end)
+map('n', '<space>xl', function() if vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 then vim.cmd.lclose() else vim.cmd.lopen() end end)
+
+-- Command-mode abbreviations
+cabbrev('man', 'vert Man')
+cabbrev('git', 'Git')
+cabbrev('g', 'Git')

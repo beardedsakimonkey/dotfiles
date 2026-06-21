@@ -46,6 +46,66 @@ map('n', '<space>h', function()
     })
 end)
 
+-- Colorschemes
+map('n', '<space>c', function()
+    local original = vim.g.colors_name
+    local original_bg = vim.o.background
+    local applied = original
+
+    local items = vim.tbl_map(function(name)
+        return { text = name }
+    end, vim.fn.getcompletion('', 'color'))
+
+    local function preview(name)
+        if name and name ~= applied then
+            applied = name
+            -- Prefer the dark variant: set background first so schemes that
+            -- branch on it load dark, then nudge it back if the scheme flipped
+            -- to light on its own.
+            vim.o.background = 'dark'
+            pcall(vim.cmd.colorscheme, name)
+            if vim.o.background ~= 'dark' then
+                pcall(function() vim.o.background = 'dark' end)
+            end
+        end
+    end
+
+    local accepted = false
+    local session = picky.open({
+        window = {
+            width = 30,
+        },
+        source = picky.sources.items(items),
+        keymaps = {
+            ['<CR>'] = function(ctx)
+                accepted = true
+                ctx.close()
+            end,
+        },
+    })
+
+    -- Drive the live preview off the session's update hook: every hover bumps
+    -- the active item and notifies, and close() notifies once with closed set.
+    local render = session.on_update
+    session.on_update = function()
+        render()
+        if session.closed then
+            if not accepted and original and applied ~= original then
+                pcall(vim.cmd.colorscheme, original)
+                vim.o.background = original_bg
+            end
+            return
+        end
+        local current = session:current_item()
+        if current then
+            preview(current.text)
+        end
+    end
+
+    -- Preview the item the picker opened on.
+    session.on_update()
+end)
+
 -- Grep -----------------------------------------------------------------------
 
 local function absolute_path(cwd, path)

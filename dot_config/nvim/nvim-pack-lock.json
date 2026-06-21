@@ -8,6 +8,10 @@
       "rev": "7ab445c39224160203ae692d3c883e2f51f2d442",
       "src": "https://github.com/barrettruth/diffs.nvim"
     },
+    "github-nvim-theme": {
+      "rev": "c106c9472154d6b2c74b74565616b877ae8ed31d",
+      "src": "https://github.com/projekt0n/github-nvim-theme"
+    },
     "linediff.vim": {
       "rev": "245d16328c47a132574e0fa4298d24a0f78b20b0",
       "src": "https://github.com/AndrewRadev/linediff.vim"
@@ -27,18 +31,23 @@
       "src": "https://github.com/echasnovski/mini.hipatterns",
       "version": "'stable'"
     },
+    "mini.icons": {
+      "rev": "ff2e4f1d29f659cc2bad0f9256f2f6195c6b2428",
+      "src": "https://github.com/echasnovski/mini.icons",
+      "version": "'stable'"
+    },
     "mini.operators": {
       "rev": "6df2fd410afd55ebd87757345031fc0af0c95068",
       "src": "https://github.com/echasnovski/mini.operators",
       "version": "'stable'"
     },
     "nvim-dora": {
-      "rev": "53ed44805eae0156a7f03ebc5bffa80c01b635f0",
-      "src": "https://github.com/beardedsakimonkey/nvim-dora"
+      "rev": "9763ee479d0d6931a7bd66e9dd50c78695df8294",
+      "src": "git@github.com:beardedsakimonkey/nvim-dora.git"
     },
     "nvim-picky": {
-      "rev": "e3d33c8a879a93d10b6c08f273a3ccb9965d2551",
-      "src": "https://github.com/beardedsakimonkey/nvim-picky"
+      "rev": "61e9fa413ef2e4224aeb871145e15c5e348cf3c5",
+      "src": "git@github.com:beardedsakimonkey/nvim-picky.git"
     },
     "nvim-surround": {
       "rev": "2e93e154de9ff326def6480a4358bfc149d5da2c",
@@ -47,6 +56,10 @@
     "nvim-web-devicons": {
       "rev": "dfbfaa967a6f7ec50789bead7ef87e336c1fa63c",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
+    },
+    "onedark.nvim": {
+      "rev": "df4792accde9db0043121f32628bcf8e645d9aea",
+      "src": "https://github.com/navarasu/onedark.nvim"
     },
     "onehalf": {
       "rev": "cb25877a6aada5ef98681950b85bd9f9f7f29a59",

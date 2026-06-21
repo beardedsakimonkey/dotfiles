@@ -19,15 +19,9 @@ local function pack_clean()
         { " • " .. table.concat(inactive, '\n • ') .. "\n", "WarningMsg" }
     }, true, {})
 
-    vim.ui.input({
-        prompt = 'Delete these ' .. #inactive .. ' plugins? (y/N): '
-    }, function(input)
-        if input and input:lower() == 'y' then
-            vim.pack.del(inactive)
-            vim.notify('\nSuccessfully deleted ' .. #inactive .. ' plugin(s)', vim.log.levels.INFO)
-            vim.api.nvim_exec_autocmds('User', { pattern = 'PackChanged' })
-        end
-    end)
+    vim.pack.del(inactive)
+    vim.notify('Successfully deleted ' .. #inactive .. ' plugin(s)', vim.log.levels.INFO)
+    vim.api.nvim_exec_autocmds('User', { pattern = 'PackChanged' })
 end
 
 local function update_unpinned(opts)
@@ -75,7 +69,7 @@ function M.add(specs)
         return expanded
     end):totable()
 
-    local ok, err = xpcall(function() vim.pack.add(expanded_specs) end, debug.traceback)
+    local ok, err = xpcall(function() vim.pack.add(expanded_specs, {confirm = false}) end, debug.traceback)
     if not ok then
         -- fallback to :packadd
         for _, spec in ipairs(expanded_specs) do

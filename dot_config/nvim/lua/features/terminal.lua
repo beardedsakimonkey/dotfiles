@@ -10,20 +10,28 @@ au('TermOpen', '*', function(args)
     vim.opt_local.relativenumber = false
     vim.opt_local.signcolumn = 'no'
     map('n', '<Esc>', function()
-        close_terminal()
+        local win = vim.api.nvim_get_current_win()
+        if win == term.win then
+            close_terminal(win)
+        end
     end, {buffer = args.buf})
     map('n', 'q', function()
-        close_terminal()
+        close_terminal(vim.api.nvim_get_current_win())
     end, {buffer = args.buf})
+    map('n', '<2-LeftMouse>', '<Cmd>startinsert<CR>', {buffer = args.buf})
     vim.cmd('startinsert')
 end)
 
 au('TermClose', '*', function(args)
-    vim.cmd('bdelete! ' .. args.buf)
     if term.buf == args.buf then
         term.buf = nil
         term.win = nil
     end
+    vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(args.buf) then
+            vim.api.nvim_buf_delete(args.buf, { force = true })
+        end
+    end)
 end)
 
 local function valid_buf(buf)
@@ -65,10 +73,27 @@ local function float_config()
     }
 end
 
-function close_terminal()
+function close_terminal(win)
+    win = win or term.win
+    if not valid_win(win) then
+        return
+    end
+
     vim.cmd('stopinsert')
-    vim.api.nvim_win_close(term.win, true)
-    term.win = nil
+    if #vim.api.nvim_list_wins() == 1 then
+        local current_buf = vim.api.nvim_win_get_buf(win)
+        local alternate_buf = vim.fn.bufnr('#')
+        if not valid_buf(alternate_buf) or alternate_buf == current_buf then
+            alternate_buf = vim.api.nvim_create_buf(true, false)
+        end
+        vim.api.nvim_win_set_buf(win, alternate_buf)
+    else
+        vim.api.nvim_win_close(win, true)
+    end
+
+    if win == term.win then
+        term.win = nil
+    end
 end
 
 local function open_terminal()
@@ -96,7 +121,7 @@ end
 
 map('n', '<C-t>', toggle_terminal)
 map('t', '<C-t>', toggle_terminal)
-map('t', '<Esc>', [[<C-\><C-n>]])
+map('t', '<C-\\>', [[<C-\><C-n>]])
 map('t', '<C-h>', [[<C-\><C-n><C-w>h]])
 map('t', '<C-j>', [[<C-\><C-n><C-w>j]])
 map('t', '<C-k>', [[<C-\><C-n><C-w>k]])

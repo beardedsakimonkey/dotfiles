@@ -51,24 +51,26 @@ local function fast_theme()
     end
 end
 
-local function set_highlights()
-    local function update_hl(name)
-        vim.api.nvim_set_hl(0, name, {undercurl = true, update = true})
-    end
-    -- undercurls
-    update_hl('DiagnosticUnderlineError')
-    update_hl('DiagnosticUnderlineWarn')
-    update_hl('DiagnosticUnderlineInfo')
-    update_hl('DiagnosticUnderlineHint')
-    update_hl('DiagnosticUnderlineOk')
-    vim.api.nvim_set_hl(0, 'FoldColumn', { link = 'Comment' })
-end
-
 local function restore_cursor_position(args)
     local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
     if mark[1] > 0 and mark[1] <= vim.api.nvim_buf_line_count(args.buf) then
         vim.api.nvim_win_set_cursor(0, mark)
     end
+end
+
+local function set_highlights()
+    local function add_undercurl(name)
+        vim.api.nvim_set_hl(0, name, {undercurl = true, update = true})
+    end
+    -- undercurl instead of underline
+    add_undercurl('DiagnosticUnderlineError')
+    add_undercurl('DiagnosticUnderlineWarn')
+    add_undercurl('DiagnosticUnderlineInfo')
+    add_undercurl('DiagnosticUnderlineHint')
+    add_undercurl('DiagnosticUnderlineOk')
+    vim.api.nvim_set_hl(0, 'FoldColumn', { link = 'Comment' })
+    -- no border background
+    vim.api.nvim_set_hl(0, 'FloatBorder', { bg = 'NONE', update = true })
 end
 
 local au = aug'my/autocmds'
@@ -83,5 +85,5 @@ au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)
 au('VimResized', '*', 'wincmd =')
 au({'FocusGained', 'BufEnter'}, '*', 'checktime')
 au('TextYankPost', '*', function() vim.hl.on_yank{on_visual = true} end)
-au('ColorScheme', '*', set_highlights)
 au('BufReadPost', '*', restore_cursor_position)
+au('ColorScheme', '*', set_highlights)

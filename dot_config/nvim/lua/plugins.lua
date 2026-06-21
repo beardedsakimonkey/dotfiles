@@ -8,6 +8,7 @@ require('features.pack').add({
     {'echasnovski/mini.bufremove',  version = 'stable'},
     {'echasnovski/mini.hipatterns', version = 'stable'},
     {'echasnovski/mini.diff',       version = 'stable'},
+    {'echasnovski/mini.icons',      version = 'stable'},
     'tpope/vim-fugitive',
     'tpope/vim-sleuth',
     'github/copilot.vim',
@@ -25,18 +26,9 @@ require('features.pack').add({
 
     -- Colorschemes
     'ClearAspect/onehalf',
+    'navarasu/onedark.nvim',
+    'projekt0n/github-nvim-theme',
 })
-
-vim.g.diffs = {
-    integrations = {
-        fugitive = true,
-        neogit = false,
-        neojj = false,
-        gitsigns = false,
-        committia = false,
-        telescope = false,
-    },
-}
 
 vim.cmd('colorscheme onehalfdark')
 
@@ -48,22 +40,16 @@ stub_com('DiffTool', 'nvim.difftool', {nargs = '*', complete = 'file'})
 require('config.picky')
 
 -- nvim-dora ------------------------------------------------------------------
+-- require'mini.icons'.setup{}
 map('n', '-', '<Cmd>Dora<CR>')
 
 local dora = require('dora')
 dora.setup({
     icons = true,
-    keymaps = {
-        ["g'"] = 'next_change',
-    },
 })
-dora.config.keymaps['g,'] = nil
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'dora-prompt',
-    callback = function(args)
-        vim.keymap.set('i', '<Esc>', '<Cmd>close<CR>', {buffer = args.buf})
-    end,
-})
+aug('my/dora')('FileType', {'dora-prompt'}, function()
+    vim.keymap.set('i', '<Esc>', '<Cmd>close<CR>', {buf = 0})
+end)
 
 -- mini.hipatterns ------------------------------------------------------------
 aug('my/mini')('BufEnter', {'*.css'}, function(opts)
@@ -83,7 +69,6 @@ require('mini.operators').setup({
     replace  = { prefix = 'gr' },
     sort     = { prefix = 'gs' }
 })
-
 require('mini.operators').make_mappings(
     'exchange',
     { textobject = 'cx', line = 'cxx', selection = 'X' }
@@ -113,3 +98,10 @@ require('nvim-surround').setup({ indent_lines = false })
 -- vim-matchup ----------------------------------------------------------------
 map({'n', 'x', 'o'}, '<Tab>',   '<Plug>(matchup-%)',  {remap = true})
 map({'n', 'x', 'o'}, '<S-Tab>', '<Plug>(matchup-g%)', {remap = true})
+
+-- diffs.nvim------------------------------------------------------------------
+vim.g.diffs = {
+    integrations = {
+        fugitive = true,
+    },
+}

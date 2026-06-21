@@ -1,7 +1,7 @@
 const float SCANLINE_STRENGTH = 0.05;
 
 // Scanline frequency independent of the window size.
-const float SCANLINE_PERIOD_PX = 20.0;
+const float SCANLINE_PERIOD_PX = 40.0;
 
 // Direction vector: (1,0) → horizontal, (0,1) → vertical, (1,1) → diagonal
 const vec2  SCANLINE_DIRECTION = vec2(1, 1);

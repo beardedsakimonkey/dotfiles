@@ -1,10 +1,6 @@
 local M = {}
 local default_statusline = vim.o.statusline
 
-local function set_hl(name, val)
-    vim.api.nvim_set_hl(0, name, val)
-end
-
 local escape_statusline = function(s)
     return tostring(s):gsub('%%', '%%%%'):gsub('[\r\n]', ' ')
 end
@@ -67,42 +63,6 @@ local function lsp_status(bufnr)
     return component('DiagnosticOk', '✔') .. ' '
 end
 
-local function git_diff_summary(bufnr)
-    local summary = vim.b[bufnr].minidiff_summary
-    if type(summary) ~= 'table' or summary.n_ranges == nil then return '' end
-
-    local parts = {}
-    if summary.add > 0    then table.insert(parts, component('StatusLineGitAdd',    '+' .. summary.add)) end
-    if summary.change > 0 then table.insert(parts, component('StatusLineGitChange', '~' .. summary.change)) end
-    if summary.delete > 0 then table.insert(parts, component('StatusLineGitDelete', '-' .. summary.delete)) end
-
-    return table.concat(parts, ' ')
-end
-
-local function git_status(winid, bufnr)
-    if type(winid) ~= 'number' or not vim.api.nvim_win_is_valid(winid) then
-        return ''
-    end
-
-    local summary = vim.b[bufnr].minigit_summary
-    if type(summary) ~= 'table' or summary.head_name == nil then return '' end
-
-    local parts = {}
-
-    -- Git status
-    local diff = git_diff_summary(bufnr)
-    if diff ~= '' then
-        table.insert(parts, ' ' .. diff)
-    end
-
-    -- Git branch
-    if summary.head_name ~= nil then
-        table.insert(parts, component('StatusLineGitBranch', '  ' .. summary.head_name))
-    end
-
-    return table.concat(parts, ' ') .. ' '
-end
-
 local session_status_available = false
 local function session_status()
     if not session_status_available then
@@ -112,16 +72,12 @@ local function session_status()
 
     local status = vim.fn['session#status']()
     if status == '' then return '' end
-    -- only show the first character
-    -- local char = vim.fn.strcharpart(status, 0, 1, true)
     return component('StatusLineSession', status) .. ' '
 end
 
 local diagnostic_levels = {
     {vim.diagnostic.severity.ERROR, 'DiagnosticUnderlineError'},
     {vim.diagnostic.severity.WARN,  'DiagnosticUnderlineWarn'},
-    -- {vim.diagnostic.severity.INFO,  'DiagnosticTextInfo'},
-    -- {vim.diagnostic.severity.HINT,  'DiagnosticTextHint'},
 }
 
 -- LSP diagnostics
@@ -145,7 +101,6 @@ M.statusline = function()
         local bufnr = vim.api.nvim_win_get_buf(winid)
         return default_statusline
             .. lsp_status(bufnr)
-            -- .. git_status(winid, bufnr)
             .. session_status()
     end
     return default_statusline
@@ -153,16 +108,11 @@ end
 
 vim.opt.statusline = "%!v:lua.require'statusline'.statusline()"
 
-local function setup_highlights()
-    set_hl('StatusLineSession',   {fg_indexed = true, ctermfg = 13})
-    set_hl('StatusLineGitAdd',    {link = 'Added'})
-    set_hl('StatusLineGitChange', {link = 'Changed'})
-    set_hl('StatusLineGitDelete', {link = 'Removed'})
-end
-
 local au = aug'my/statusline'
-au('ColorScheme', '*', setup_highlights)
 
+au('ColorScheme', '*', function()
+    vim.api.nvim_set_hl(0, 'StatusLineSession',   {fg_indexed = true, ctermfg = 13})
+end)
 
 au('LspAttach', '*', function(args)
     set_lsp_status(args.buf, args.data.client_id, true)

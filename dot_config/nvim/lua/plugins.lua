@@ -8,16 +8,15 @@ require('features.pack').add({
     {'echasnovski/mini.bufremove',  version = 'stable'},
     {'echasnovski/mini.hipatterns', version = 'stable'},
     {'echasnovski/mini.diff',       version = 'stable'},
-    {'echasnovski/mini.icons',      version = 'stable'},
     'tpope/vim-fugitive',
     'tpope/vim-sleuth',
-    'github/copilot.vim',
     'kylechui/nvim-surround',
     'AndrewRadev/linediff.vim',
     'andymass/vim-matchup',
     'nvim-tree/nvim-web-devicons',
     'tommcdo/vim-lion',
     'barrettruth/diffs.nvim',
+    'AndrewRadev/splitjoin.vim',
 
     -- Filetypes
     'DingDean/wgsl.vim',
@@ -27,7 +26,6 @@ require('features.pack').add({
     -- Colorschemes
     'ClearAspect/onehalf',
     'navarasu/onedark.nvim',
-    'projekt0n/github-nvim-theme',
 })
 
 vim.cmd('colorscheme onehalfdark')
@@ -40,26 +38,13 @@ stub_com('DiffTool', 'nvim.difftool', {nargs = '*', complete = 'file'})
 require('config.picky')
 
 -- nvim-dora ------------------------------------------------------------------
--- require'mini.icons'.setup{}
 map('n', '-', '<Cmd>Dora<CR>')
 
 local dora = require('dora')
 dora.setup({
     icons = true,
+    keymaps = {},
 })
-aug('my/dora')('FileType', {'dora-prompt'}, function()
-    vim.keymap.set('i', '<Esc>', '<Cmd>close<CR>', {buf = 0})
-end)
-
--- mini.hipatterns ------------------------------------------------------------
-aug('my/mini')('BufEnter', {'*.css'}, function(opts)
-    local hipatterns = require'mini.hipatterns'
-    hipatterns.enable(opts.buf, {
-        highlighters = {
-            hex_color = hipatterns.gen_highlighter.hex_color(),
-        },
-    })
-end)
 
 -- mini.operators -------------------------------------------------------------
 require('mini.operators').setup({
@@ -85,8 +70,45 @@ require('mini.diff').setup({
     goto_next  = ']h',
     goto_last  = ']H',
   },
+  options = {
+    wrap_goto = true,
+  },
 })
 map('n', 'god', function() require'mini.diff'.toggle_overlay(0) end)
+
+-- ]]  -> quickfix list of every hunk in the repo (working tree vs index,
+--        matching mini.diff's default source).
+map('n', ']]', function()
+  local root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+  if vim.v.shell_error ~= 0 or not root or root == '' then
+    vim.notify('Not in a git repository', vim.log.levels.WARN)
+    return
+  end
+  local lines = vim.fn.systemlist(
+    {'git', '-C', root, 'diff', '--no-color', '--unified=0'})
+  local items, file = {}, nil
+  for _, line in ipairs(lines) do
+    local f = line:match('^%+%+%+ b/(.*)')
+    if f then
+      file = root .. '/' .. f
+    else
+      local lnum = line:match('^@@ %-%d+,?%d* %+(%d+)')
+      if lnum and file then
+        items[#items + 1] = {
+          filename = file,
+          lnum = tonumber(lnum),
+          text = line:match('@@ .-@@%s*(.*)') or '',
+        }
+      end
+    end
+  end
+  if #items == 0 then
+    vim.notify('No hunks in repo', vim.log.levels.INFO)
+    return
+  end
+  vim.fn.setqflist({}, ' ', {title = 'git hunks', items = items})
+  vim.cmd('copen')
+end)
 
 -- linediff -------------------------------------------------------------------
 vim.g.linediff_buffer_type = 'scratch'
@@ -105,3 +127,6 @@ vim.g.diffs = {
         fugitive = true,
     },
 }
+
+-- fugitive -------------------------------------------------------------------
+map('n', '<space>gc', '<Cmd>G commit<CR>')

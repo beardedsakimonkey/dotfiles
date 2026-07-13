@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun run test:shader",
+    "test": "bun run test:shader && bun run test:screenshot",
     "test:shader": "bun tests/run-shader-snapshots.mjs",
-    "test:shader:update": "UPDATE_SHADER_SNAPSHOTS=1 bun tests/run-shader-snapshots.mjs"
+    "test:shader:update": "UPDATE_SHADER_SNAPSHOTS=1 bun tests/run-shader-snapshots.mjs",
+    "test:screenshot": "bun tests/run-screenshot-artifacts.mjs"
   },
   "devDependencies": {
     "playwright": "1.60.0"

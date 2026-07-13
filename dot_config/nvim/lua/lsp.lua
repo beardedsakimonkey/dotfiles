@@ -23,6 +23,9 @@ local au = aug'my/lsp'
 
 au('LspAttach', '*', function(args)
     local buf = args.buf
+    -- Don't install LSP keymaps/settings on special buffers (e.g. dora's
+    -- nofile buffer), where they'd clobber the buffer's own buffer-local maps.
+    if vim.bo[buf].buftype ~= '' then return end
     -- The built-in on_attach handler sets this to use the lsp server. But this
     -- means we can't gq on comments. So reset it.
     vim.bo[buf].formatexpr = nil

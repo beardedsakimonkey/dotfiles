@@ -1,5 +1,5 @@
 vim.opt.termguicolors = true
-vim.opt.shada = "!,'1024,<0,s8,:128,/8,@8,f0,h,r/tmp,rterm:,rman:"
+vim.opt.shada = "!,'10000,<0,s8,:128,/8,@8,f0,h,r/tmp,r/private,rterm:,rman:"
 vim.opt.sessionoptions = {'help', 'tabpages', 'winsize', 'curdir'}
 vim.opt.mousemodel = 'extend'
 
@@ -50,7 +50,7 @@ vim.opt.foldopen:remove('block')
 vim.opt.foldtext = ''
 
 vim.opt.modeline = false
-vim.opt.shortmess = 'filnxtToOfaTWIcFS'
+vim.opt.shortmess = 'filnxtToOfaTWIcF'  -- keep search count visible
 vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldinner: ,foldclose:'
 vim.o.foldcolumn = 'auto'
 vim.opt.list = true
@@ -68,4 +68,3 @@ vim.opt.ruler = false  -- don't echo anything when entering a floating window
 vim.opt.jumpoptions = 'view'
 
 vim.opt.diffopt:append('linematch:60')  -- better diff
-

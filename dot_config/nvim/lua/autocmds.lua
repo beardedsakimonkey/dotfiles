@@ -51,6 +51,31 @@ local function fast_theme()
     end
 end
 
+-- A nameless `:w` errors with E32 before any BufWriteCmd can run, so instead
+-- give an unnamed buffer a generated $HOME name the moment it's edited; a plain
+-- `:w` then just writes there (the file isn't created until you actually save).
+local function name_scratch(args)
+    if vim.api.nvim_buf_get_name(args.buf) ~= '' then return end
+    local name = vim.fn.expand'~'
+        .. os.date'/scratch-%Y-%m-%d-%H%M%S' .. '-' .. args.buf .. '.txt'
+    vim.api.nvim_buf_set_name(args.buf, name)
+end
+
+local function setup_scratch_write(args)
+    -- only plain unnamed file buffers, and only arm the hook once
+    if vim.api.nvim_buf_get_name(args.buf) ~= ''
+        or vim.bo[args.buf].buftype ~= ''
+        or vim.b[args.buf].scratch_write then
+        return
+    end
+    vim.b[args.buf].scratch_write = true
+    vim.api.nvim_create_autocmd({'TextChanged', 'TextChangedI'}, {
+        buffer = args.buf,
+        once = true,
+        callback = name_scratch,
+    })
+end
+
 local function restore_cursor_position(args)
     local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
     if mark[1] > 0 and mark[1] <= vim.api.nvim_buf_line_count(args.buf) then
@@ -71,6 +96,8 @@ local function set_highlights()
     vim.api.nvim_set_hl(0, 'FoldColumn', { link = 'Comment' })
     -- no border background
     vim.api.nvim_set_hl(0, 'FloatBorder', { bg = 'NONE', update = true })
+    -- don't change foreground on matching parens
+    vim.api.nvim_set_hl(0, 'MatchParen', { fg = 'NONE', update = true })
 end
 
 local au = aug'my/autocmds'
@@ -84,6 +111,7 @@ au('BufWritePost', 'user-overrides.js', update_user_js)
 au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)
 au('VimResized', '*', 'wincmd =')
 au({'FocusGained', 'BufEnter'}, '*', 'checktime')
-au('TextYankPost', '*', function() vim.hl.on_yank{on_visual = true} end)
+au('TextYankPost', '*', function() vim.hl.on_yank{on_visual = true, timeout = 250} end)
 au('BufReadPost', '*', restore_cursor_position)
+au({'BufNewFile', 'BufEnter'}, '*', setup_scratch_write)
 au('ColorScheme', '*', set_highlights)

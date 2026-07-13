@@ -121,6 +121,7 @@ end
 
 map('n', '<C-t>', toggle_terminal)
 map('t', '<C-t>', toggle_terminal)
+map('n', '<C-CR>', '<Cmd>vsplit | terminal<CR>', {silent = true})
 map('t', '<C-\\>', [[<C-\><C-n>]])
 map('t', '<C-h>', [[<C-\><C-n><C-w>h]])
 map('t', '<C-j>', [[<C-\><C-n><C-w>j]])

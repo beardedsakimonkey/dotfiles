@@ -1,0 +1,6 @@
+#command
+J forw-search diff --git\n
+K back-search diff --git\n
+
+#env
+LESS = ${LESS} -j1 -A

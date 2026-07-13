@@ -10,6 +10,14 @@ vim.opt.wildoptions = 'pum'
 vim.cmd[[cnoremap <expr> <Left>  wildmenumode() ? "\<C-E>\<Left>"  : "\<Left>"]]
 vim.cmd[[cnoremap <expr> <Right> wildmenumode() ? "\<C-E>\<Right>" : "\<Right>"]]
 
+map('i', '<Tab>', function()
+    return vim.fn.pumvisible() == 1 and '<C-n>' or '<Tab>'
+end, {expr = true})
+
+map('i', '<S-Tab>', function()
+    return vim.fn.pumvisible() == 1 and '<C-p>' or '<S-Tab>'
+end, {expr = true})
+
 vim.cmd[[
     set findfunc=Find
     func! Find(arg, _)

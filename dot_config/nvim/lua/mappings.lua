@@ -139,14 +139,14 @@ map('x', '/', function() vim.api.nvim_input('/\\%V') end) -- search in visual se
 map('x', 'I', function() return vim.fn.mode():match('[vV]') and '<C-v>^o^I' or 'I' end, {expr = true})
 map('x', 'A', function() return vim.fn.mode():match('[vV]') and '<C-v>0o$A' or 'A' end, {expr = true})
 
-
 -- Rearrange some default mappings
 map({'n', 'x'}, ';', ':')
 map({'n', 'x'}, ':', ';')
 map('n', '`', "'")
 map('n', "'", '`')
 map('', 'H', '^')
-map('', 'L', '$')
+map('n', 'L', 'zv$')
+map({'x', 'o'}, 'L', '$')
 map('', '(', '<Cmd>keepj norm! H<CR>', {silent = true})
 map('', ')', '<Cmd>keepj norm! L<CR>', {silent = true})
 map('n', '<Home>', '<Cmd>keepj norm! gg<CR>', {silent = true})
@@ -216,8 +216,8 @@ map("n", "g/", ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<C
 map("x", "g/", "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
 map({"n", "x"}, "<RightMouse>", "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
 map('n', '<2-RightMouse>', '<RightMouse>')
-map("n", "<Space>s", "ms:<C-u>%s///g<left><left>")
-map("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
+-- map("n", "<Space>s", "ms:<C-u>%s///g<left><left>")
+-- map("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
 
 -- Alt
 map('!', '<A-h>', '<Left>')
@@ -229,26 +229,7 @@ map('n', '<A-h>', '<C-w>H')
 map('n', '<A-j>', '<C-w>J')
 map('n', '<A-k>', '<C-w>K')
 
-local function comment_jump(dir)
-    local cs = vim.bo.commentstring
-    if not cs or cs == '' then return end
-    local parts = vim.split(cs, '%%s', {plain = true})
-    local leader
-    for _, p in ipairs(parts) do
-        local stripped = p:gsub('^%s+', ''):gsub('%s+$', '')
-        if stripped ~= '' then
-            leader = stripped
-            break
-        end
-    end
-    if not leader then return end
-    local flags = dir == 'down' and 'W' or 'bW'
-    vim.fn.search('^\\s*' .. vim.pesc(leader), flags)
-end
-
 -- Bracket
-map('n', ']c', function() comment_jump('down') end, {silent = true})
-map('n', '[c', function() comment_jump('up') end, {silent = true})
 map('n', '[t', '<Cmd>tabprev<CR>', {silent = true})
 map('n', ']t', '<Cmd>tabnext<CR>', {silent = true})
 map('n', ']T', '<Cmd>+tabmove<CR>', {silent = true})
@@ -265,6 +246,7 @@ map('n', ':L', '<Cmd>e ~/.config/nvim/lua/<CR>', {silent = true})
 map('n', ':P', '<Cmd>e ~/.local/share/nvim/site/pack/core/opt/<CR>', {silent = true})
 map('n', ':Z', '<Cmd>e ~/.zshrc<CR>', {silent = true})
 map('n', ':N', '<Cmd>e ~/notes<CR>', {silent = true})
+map('n', ':V', '<Cmd>e /Volumes/T7 Shield/<CR>', {silent = true})
 map('n', ':X', '<Cmd>e ~/.config/tmux/tmux.conf<CR>', {silent = true})
 map('n', ':U', '<Cmd>e ' .. fe(require'util'.FF_PROFILE) .. '/user.js<CR>', {silent = true})
 map('n', ':G', '<Cmd>e ~/.config/ghostty/config<CR>', {silent = true})

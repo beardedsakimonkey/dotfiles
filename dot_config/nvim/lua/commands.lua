@@ -39,22 +39,9 @@ local function restart_with_session()
     vim.cmd('restart')
 end
 
--- Make this instance the target for the shell `open` command (see ~/.zshrc).
-local function register_open_target()
-    if vim.v.servername == '' then
-        return vim.notify('No server to register (v:servername is empty)',
-            vim.log.levels.WARN)
-    end
-    local cache = vim.fn.stdpath'cache'
-    vim.fn.mkdir(cache, 'p')
-    vim.fn.writefile({vim.v.servername}, cache .. '/open-target')
-    vim.notify('`open` now targets this nvim')
-end
-
 com('FormatJSON', ':%!jq .')
 com('StripTrailingSpace', '%s/\\s\\+$//e')
 com('UpdateUserJs', update_userjs)
 com('OpenGithubUrl', open_github_url)
 com('Restart', restart_with_session)
-com('OpenHere', register_open_target)
 com('TSPlayground', 'InspectTree')

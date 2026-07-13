@@ -10,17 +10,32 @@ picky.setup({
     },
 })
 
+vim.cmd('hi link PickyOperator Special')
+local function set_picky_muted()
+    vim.api.nvim_set_hl(0, 'PickyMuted', vim.tbl_extend('force',
+        vim.api.nvim_get_hl(0, { name = 'Comment', link = false }),
+        { italic = false }
+    ))
+end
+set_picky_muted()
+local au = aug'my/picky'
+au('ColorScheme', '*', set_picky_muted)
+
+-- Git
+map('n', '<space>gl', function() picky.git_log() end)
+map('n', '<space>gs', function() picky.git_status({ window = { width = 50 } }) end)
+
+-- Symbols
+map('n', '<space>s', function() picky.symbols() end)
+map('n', '<space>S', function() picky.symbols({ workspace = true }) end)
+
 -- Oldfiles
-map('n', '<space>o', function()
-    picky.open({ source = picky.sources.oldfiles() })
-end)
+map('n', '<space>o', function() picky.oldfiles() end)
 
 -- Buffers
 map('n', '<space>b', function()
-    picky.open({
-        source = picky.sources.buffers({
-            include_current = true
-        }),
+    picky.buffers({
+        include_current = true,
         keymaps = {
             ['<C-d>'] = function(ctx)
                 for _, item in ipairs(ctx.targets) do
@@ -33,18 +48,11 @@ map('n', '<space>b', function()
 end)
 
 -- Files
-map('n', '<space>f', function()
-    picky.open({ source = picky.sources.files() })
-end)
+map('n', '<space>f', function() picky.files() end)
 
 -- Help
-map('n', '<space>h', function()
-    picky.open({
-        source = picky.sources.help({
-            live = true,
-        }),
-    })
-end)
+map('n', '<space>h', function() picky.help() end)
+map('n', '<space>H', function() picky.help({ live = true }) end)
 
 -- Colorschemes
 map('n', '<space>c', function()

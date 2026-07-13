@@ -1,16 +1,8 @@
 {
   "plugins": {
-    "copilot.vim": {
-      "rev": "a12fd5672110c8aa7e3c8419e28c96943ca179be",
-      "src": "https://github.com/github/copilot.vim"
-    },
     "diffs.nvim": {
       "rev": "7ab445c39224160203ae692d3c883e2f51f2d442",
       "src": "https://github.com/barrettruth/diffs.nvim"
-    },
-    "github-nvim-theme": {
-      "rev": "c106c9472154d6b2c74b74565616b877ae8ed31d",
-      "src": "https://github.com/projekt0n/github-nvim-theme"
     },
     "linediff.vim": {
       "rev": "245d16328c47a132574e0fa4298d24a0f78b20b0",
@@ -29,11 +21,6 @@
     "mini.hipatterns": {
       "rev": "add8d8abad602787377ec5d81f6b248605828e0f",
       "src": "https://github.com/echasnovski/mini.hipatterns",
-      "version": "'stable'"
-    },
-    "mini.icons": {
-      "rev": "ff2e4f1d29f659cc2bad0f9256f2f6195c6b2428",
-      "src": "https://github.com/echasnovski/mini.icons",
       "version": "'stable'"
     },
     "mini.operators": {
@@ -64,6 +51,10 @@
     "onehalf": {
       "rev": "cb25877a6aada5ef98681950b85bd9f9f7f29a59",
       "src": "https://github.com/ClearAspect/onehalf"
+    },
+    "splitjoin.vim": {
+      "rev": "b26971a7fdc7ca645b766459e3ed7949300c404f",
+      "src": "https://github.com/AndrewRadev/splitjoin.vim"
     },
     "typst.vim": {
       "rev": "1d5436c0f55490893892441c0eca55e6cdf4916c",

@@ -1,7 +1,7 @@
 custom-shader = text-gradient.glsl
-custom-shader = party_sparks.glsl
+# custom-shader = party_sparks.glsl
 custom-shader = cursor_blaze_tapered.glsl
-custom-shader = scanlines.glsl
+# custom-shader = scanlines.glsl
 custom-shader-animation = false
 
 # adjust-underline-position = -3
@@ -9,18 +9,11 @@ custom-shader-animation = false
 
 ###### one half
 theme = one half dark
-font-family = source code pro
-font-size = 14
-
-###### unokai
-# theme = Monokai Classic
-# font-family = cascadia code
-# font-size = 15
-
-###### wave
-# theme = kanagawa wave
-# font-family = triplicate t4
-# font-size = 14
+# font-family = fixedsys excelsior
+font-family = berkeley mono
+# font-family = pragmatapro
+# font-family = jetbrains mono
+font-size = 13
 
 font-thicken = true
 font-thicken-strength = 0
@@ -28,7 +21,6 @@ font-thicken-strength = 0
 title = " "
 macos-titlebar-proxy-icon = hidden
 # macos-titlebar-style = tabs
-window-decoration = none
 link-previews = osc8
 notify-on-command-finish = unfocused
 
@@ -38,7 +30,7 @@ shell-integration-features = no-cursor
 unfocused-split-opacity = 0.8
 mouse-scroll-multiplier = precision:1,discrete:1
 
-window-decoration = true
+# window-decoration = none
 confirm-close-surface = false
 mouse-hide-while-typing = true
 
@@ -52,3 +44,5 @@ keybind = cmd+shift+enter=new_split:down
 
 keybind = cmd+]=next_tab
 keybind = cmd+[=previous_tab
+
+keybind = cmd+z=toggle_split_zoom

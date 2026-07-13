@@ -4,7 +4,8 @@
 <canvas id="shader-canvas"></canvas>
 <script>
 const canvas = document.getElementById("shader-canvas");
-let harnessState = null;
+let glState = null;
+const programStates = new Map();
 
 function assert(condition, message) {
   if (!condition) {
@@ -365,7 +366,24 @@ function makeFixture(def) {
   };
 }
 
-function makeFragmentSource(shaderSource) {
+// mode "image" renders mainImage output; mode "cellBackground" renders the raw
+// estimateCellBackground result so tests can compare it to ground truth.
+function makeFragmentSource(shaderSource, mode = "image") {
+  const mainBody = mode === "cellBackground"
+    ? `
+  vec2 ghosttyFragCoord = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y);
+  // Mirrors the row/cell derivation in mainImage; keep in sync with the shader.
+  float rowHeight = max(max(iPreviousCursor.w, iCurrentCursor.w), 1.0);
+  float cellWidth = max(max(iPreviousCursor.z, iCurrentCursor.z), 1.0);
+  vec3 sourceColor = texture(iChannel0, ghosttyFragCoord / iResolution.xy).rgb;
+  vec3 cellBackground = estimateCellBackground(ghosttyFragCoord, sourceColor, rowHeight, cellWidth, iCurrentCursor.x);
+  harnessColor = vec4(cellBackground, 1.0);
+`
+    : `
+  vec2 ghosttyFragCoord = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y);
+  mainImage(harnessColor, ghosttyFragCoord);
+`;
+
   return `#version 300 es
 precision highp float;
 precision highp sampler2D;
@@ -380,14 +398,15 @@ ${shaderSource}
 
 out vec4 harnessColor;
 
-void main() {
-  vec2 ghosttyFragCoord = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y);
-  mainImage(harnessColor, ghosttyFragCoord);
-}
+void main() {${mainBody}}
 `;
 }
 
-function makeHarness(shaderSource) {
+function getGlState() {
+  if (glState) {
+    return glState;
+  }
+
   const gl = canvas.getContext("webgl2", {
     antialias: false,
     depth: false,
@@ -397,16 +416,6 @@ function makeHarness(shaderSource) {
     preserveDrawingBuffer: true
   });
   assert(gl, "WebGL2 is not available in this browser");
-
-  const vertexSource = `#version 300 es
-in vec2 a_position;
-
-void main() {
-  gl_Position = vec4(a_position, 0.0, 1.0);
-}
-`;
-  const program = makeProgram(gl, vertexSource, makeFragmentSource(shaderSource));
-  const positionLocation = gl.getAttribLocation(program, "a_position");
 
   const vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -423,11 +432,6 @@ void main() {
     gl.STATIC_DRAW
   );
 
-  const vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  gl.enableVertexAttribArray(positionLocation);
-  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
   const texture = gl.createTexture();
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -437,20 +441,96 @@ void main() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  return {
-    gl,
-    program,
-    texture,
-    vao,
-    shaderSource
-  };
+  glState = { gl, vertexBuffer, texture };
+  return glState;
 }
 
-function getHarness(shaderSource) {
-  if (!harnessState || harnessState.shaderSource !== shaderSource) {
-    harnessState = makeHarness(shaderSource);
+function getProgramState(fragmentSource) {
+  const cached = programStates.get(fragmentSource);
+  if (cached) {
+    return cached;
   }
-  return harnessState;
+
+  const { gl, vertexBuffer } = getGlState();
+  const vertexSource = `#version 300 es
+in vec2 a_position;
+
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+  const program = makeProgram(gl, vertexSource, fragmentSource);
+  const positionLocation = gl.getAttribLocation(program, "a_position");
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+  const state = { program, vao };
+  programStates.set(fragmentSource, state);
+  return state;
+}
+
+// image: { width, height, data } where data is tightly packed RGBA bytes with
+// row 0 at the top (the same orientation Ghostty's fragCoord assumes).
+function drawScene(shaderSource, mode, image, cursor, backgroundColor) {
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  const { gl, texture } = getGlState();
+  const { program, vao } = getProgramState(makeFragmentSource(shaderSource, mode));
+
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    image.width,
+    image.height,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    image.data instanceof Uint8Array
+      ? image.data
+      : new Uint8Array(image.data.buffer, image.data.byteOffset, image.data.byteLength)
+  );
+
+  const bg = [backgroundColor[0] / 255, backgroundColor[1] / 255, backgroundColor[2] / 255];
+  gl.useProgram(program);
+  gl.bindVertexArray(vao);
+  gl.uniform3f(gl.getUniformLocation(program, "iResolution"), image.width, image.height, 1.0);
+  gl.uniform1i(gl.getUniformLocation(program, "iChannel0"), 0);
+  gl.uniform3f(gl.getUniformLocation(program, "iBackgroundColor"), bg[0], bg[1], bg[2]);
+  gl.uniform4f(gl.getUniformLocation(program, "iPreviousCursor"), cursor[0], cursor[1], cursor[2], cursor[3]);
+  gl.uniform4f(gl.getUniformLocation(program, "iCurrentCursor"), cursor[0], cursor[1], cursor[2], cursor[3]);
+
+  gl.viewport(0, 0, image.width, image.height);
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.finish();
+}
+
+function readFramebufferPixels(width, height) {
+  const { gl } = getGlState();
+  const raw = new Uint8Array(width * height * 4);
+  gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, raw);
+
+  // readPixels returns rows bottom-up; flip back to top-down image order.
+  const flipped = new Uint8Array(width * height * 4);
+  const rowBytes = width * 4;
+  for (let y = 0; y < height; y++) {
+    flipped.set(raw.subarray((height - 1 - y) * rowBytes, (height - y) * rowBytes), y * rowBytes);
+  }
+  return flipped;
+}
+
+function renderToPixels(shaderSource, mode, image, cursor, backgroundColor) {
+  drawScene(shaderSource, mode, image, cursor, backgroundColor);
+  return readFramebufferPixels(image.width, image.height);
 }
 
 function captureCanvasPixels(width, height) {
@@ -465,41 +545,30 @@ function captureCanvasPixels(width, height) {
   };
 }
 
+function pixelsToPngDataUrl(pixels, width, height) {
+  const encodeCanvas = document.createElement("canvas");
+  encodeCanvas.width = width;
+  encodeCanvas.height = height;
+  const ctx = encodeCanvas.getContext("2d");
+  const imageData = ctx.createImageData(width, height);
+  imageData.data.set(pixels);
+  ctx.putImageData(imageData, 0, 0);
+  return encodeCanvas.toDataURL("image/png");
+}
+
+async function decodeImageDataFromBase64(base64) {
+  const image = await loadImage(`data:image/png;base64,${base64}`);
+  const decodeCanvas = document.createElement("canvas");
+  decodeCanvas.width = image.width;
+  decodeCanvas.height = image.height;
+  const ctx = decodeCanvas.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(image, 0, 0);
+  return ctx.getImageData(0, 0, image.width, image.height);
+}
+
 window.renderShaderCase = function renderShaderCase(shaderSource, caseDef) {
   const fixture = makeFixture(caseDef);
-  canvas.width = fixture.width;
-  canvas.height = fixture.height;
-
-  const state = getHarness(shaderSource);
-  const gl = state.gl;
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, state.texture);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.RGBA,
-    fixture.width,
-    fixture.height,
-    0,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    fixture.data
-  );
-
-  const bg = fixture.backgroundColor.map((value) => value / 255);
-  gl.useProgram(state.program);
-  gl.bindVertexArray(state.vao);
-  gl.uniform3f(gl.getUniformLocation(state.program, "iResolution"), fixture.width, fixture.height, 1.0);
-  gl.uniform1i(gl.getUniformLocation(state.program, "iChannel0"), 0);
-  gl.uniform3f(gl.getUniformLocation(state.program, "iBackgroundColor"), bg[0], bg[1], bg[2]);
-  gl.uniform4f(gl.getUniformLocation(state.program, "iPreviousCursor"), fixture.cursor[0], fixture.cursor[1], fixture.cursor[2], fixture.cursor[3]);
-  gl.uniform4f(gl.getUniformLocation(state.program, "iCurrentCursor"), fixture.cursor[0], fixture.cursor[1], fixture.cursor[2], fixture.cursor[3]);
-
-  gl.viewport(0, 0, fixture.width, fixture.height);
-  gl.clearColor(0, 0, 0, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-  gl.finish();
+  drawScene(shaderSource, "image", fixture, fixture.cursor, fixture.backgroundColor);
 
   const captured = captureCanvasPixels(fixture.width, fixture.height);
   return {
@@ -511,16 +580,11 @@ window.renderShaderCase = function renderShaderCase(shaderSource, caseDef) {
 };
 
 window.decodePngBase64 = async function decodePngBase64(base64) {
-  const image = await loadImage(`data:image/png;base64,${base64}`);
-  const decodeCanvas = document.createElement("canvas");
-  decodeCanvas.width = image.width;
-  decodeCanvas.height = image.height;
-  const ctx = decodeCanvas.getContext("2d", { willReadFrequently: true });
-  ctx.drawImage(image, 0, 0);
+  const imageData = await decodeImageDataFromBase64(base64);
   return {
-    width: image.width,
-    height: image.height,
-    pixels: Array.from(ctx.getImageData(0, 0, image.width, image.height).data)
+    width: imageData.width,
+    height: imageData.height,
+    pixels: Array.from(imageData.data)
   };
 };
 
@@ -557,5 +621,561 @@ window.makeDiffPngDataUrl = function makeDiffPngDataUrl(args) {
 
   ctx.putImageData(imageData, 0, 0);
   return diffCanvas.toDataURL("image/png");
+};
+
+//========================================================================
+// Screenshot artifact analysis
+//
+// Terminal cells have a single background color each, so the dominant
+// (modal) color of every cell region in a clean pre-shader screenshot is
+// ground truth for estimateCellBackground. The screenshot suite renders the
+// shader over the screenshot and counts background-colored pixels that
+// changed: with correct estimation that count must be zero.
+//========================================================================
+
+const OPAQUE_ALPHA_MIN = 250;
+
+// Buckets every pixel into a cell, including partial margin cells outside the
+// grid origin (negative col/row indices are shifted into range).
+function buildCellGrid(width, height, grid) {
+  const cw = grid.cellWidth;
+  const ch = grid.cellHeight;
+  const ox = grid.originX || 0;
+  const oy = grid.originY || 0;
+  assert(cw >= 2 && ch >= 2, `Cell size ${cw}x${ch} is too small to analyze`);
+
+  const minCol = Math.floor((0 - ox) / cw);
+  const maxCol = Math.floor((width - 1 - ox) / cw);
+  const minRow = Math.floor((0 - oy) / ch);
+  const maxRow = Math.floor((height - 1 - oy) / ch);
+  const cols = maxCol - minCol + 1;
+  const rows = maxRow - minRow + 1;
+
+  const colOf = new Int32Array(width);
+  for (let x = 0; x < width; x++) {
+    colOf[x] = Math.floor((x - ox) / cw) - minCol;
+  }
+  const rowOf = new Int32Array(height);
+  for (let y = 0; y < height; y++) {
+    rowOf[y] = Math.floor((y - oy) / ch) - minRow;
+  }
+
+  return { cols, rows, minCol, minRow, colOf, rowOf };
+}
+
+function computeCellDominants(imageData, cellGrid) {
+  const { width, height, data } = imageData;
+  const { cols, rows, colOf, rowOf } = cellGrid;
+  const cellCount = cols * rows;
+  const counts = Array.from({ length: cellCount }, () => new Map());
+
+  for (let y = 0; y < height; y++) {
+    const rowBase = rowOf[y] * cols;
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      if (data[i + 3] < OPAQUE_ALPHA_MIN) {
+        continue;
+      }
+      const key = (data[i] << 16) | (data[i + 1] << 8) | data[i + 2];
+      const cellCounts = counts[rowBase + colOf[x]];
+      cellCounts.set(key, (cellCounts.get(key) || 0) + 1);
+    }
+  }
+
+  const dominant = new Int32Array(cellCount).fill(-1);
+  for (let cell = 0; cell < cellCount; cell++) {
+    let bestKey = -1;
+    let bestCount = 0;
+    for (const [key, count] of counts[cell]) {
+      if (count > bestCount) {
+        bestKey = key;
+        bestCount = count;
+      }
+    }
+    dominant[cell] = bestKey;
+  }
+  return dominant;
+}
+
+function unpackColor(key) {
+  return [(key >> 16) & 255, (key >> 8) & 255, key & 255];
+}
+
+function maxChannelDelta3(data, i, r, g, b) {
+  return Math.max(
+    Math.abs(data[i] - r),
+    Math.abs(data[i + 1] - g),
+    Math.abs(data[i + 2] - b)
+  );
+}
+
+window.renderFixtureToPngBase64 = function renderFixtureToPngBase64(caseDef) {
+  const fixture = makeFixture(caseDef);
+  const dataUrl = pixelsToPngDataUrl(fixture.data, fixture.width, fixture.height);
+  return {
+    width: fixture.width,
+    height: fixture.height,
+    pngBase64: dataUrl.slice(dataUrl.indexOf("base64,") + "base64,".length),
+    cursor: fixture.cursor,
+    backgroundColor: fixture.backgroundColor
+  };
+};
+
+// args: {
+//   shaderSource, pngBase64, grid: {cellWidth, cellHeight, originX, originY},
+//   cursor: [x, y, w, h], backgroundColor: [r, g, b],
+//   sourceEpsilon, changedTolerance, estimationEpsilon, inkThreshold,
+//   estimation: bool, makeOverlays: bool, probeCells: [{col, row}]
+// }
+window.runScreenshotArtifactCase = async function runScreenshotArtifactCase(args) {
+  const imageData = await decodeImageDataFromBase64(args.pngBase64);
+  const { width, height, data } = imageData;
+  const sourceEpsilon = args.sourceEpsilon ?? 2;
+  const changedTolerance = args.changedTolerance ?? 2;
+  const estimationEpsilon = args.estimationEpsilon ?? 12;
+  const inkThreshold = args.inkThreshold ?? 20;
+
+  const cellGrid = buildCellGrid(width, height, args.grid);
+  const dominant = computeCellDominants(imageData, cellGrid);
+
+  const output = renderToPixels(args.shaderSource, "image", imageData, args.cursor, args.backgroundColor);
+
+  let estimationPixels = null;
+  let estimationError = null;
+  if (args.estimation !== false) {
+    try {
+      estimationPixels = renderToPixels(args.shaderSource, "cellBackground", imageData, args.cursor, args.backgroundColor);
+    } catch (error) {
+      estimationError = String(error && error.message || error);
+    }
+  }
+
+  const { cols, rows, minCol, minRow, colOf, rowOf } = cellGrid;
+  const artifactPerCell = new Uint32Array(cols * rows);
+  let backgroundPixels = 0;
+  let artifactPixels = 0;
+  let estimationBgWrong = 0;
+  let inkPixels = 0;
+  let inkCovered = 0;
+
+  for (let y = 0; y < height; y++) {
+    const rowBase = rowOf[y] * cols;
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      if (data[i + 3] < OPAQUE_ALPHA_MIN) {
+        continue;
+      }
+      const cell = rowBase + colOf[x];
+      const key = dominant[cell];
+      if (key < 0) {
+        continue;
+      }
+      const dr = (key >> 16) & 255;
+      const dg = (key >> 8) & 255;
+      const db = key & 255;
+      const sourceDelta = maxChannelDelta3(data, i, dr, dg, db);
+
+      if (sourceDelta <= sourceEpsilon) {
+        backgroundPixels += 1;
+        const outputDelta = Math.max(
+          Math.abs(output[i] - data[i]),
+          Math.abs(output[i + 1] - data[i + 1]),
+          Math.abs(output[i + 2] - data[i + 2])
+        );
+        if (outputDelta > changedTolerance) {
+          artifactPixels += 1;
+          artifactPerCell[cell] += 1;
+        }
+        if (estimationPixels && maxChannelDelta3(estimationPixels, i, dr, dg, db) > estimationEpsilon) {
+          estimationBgWrong += 1;
+        }
+      } else if (sourceDelta >= inkThreshold) {
+        inkPixels += 1;
+        if (estimationPixels && maxChannelDelta3(estimationPixels, i, dr, dg, db) <= estimationEpsilon) {
+          inkCovered += 1;
+        }
+      }
+    }
+  }
+
+  let artifactCells = 0;
+  const cellRanking = [];
+  for (let cell = 0; cell < artifactPerCell.length; cell++) {
+    if (artifactPerCell[cell] > 0) {
+      artifactCells += 1;
+      cellRanking.push(cell);
+    }
+  }
+  cellRanking.sort((a, b) => artifactPerCell[b] - artifactPerCell[a]);
+  const topCells = cellRanking.slice(0, 20).map((cell) => ({
+    col: (cell % cols) + minCol,
+    row: Math.floor(cell / cols) + minRow,
+    artifactPixels: artifactPerCell[cell],
+    dominant: dominant[cell] >= 0 ? unpackColor(dominant[cell]) : null
+  }));
+
+  const probes = (args.probeCells || []).map((probe) => {
+    const cell = (probe.row - minRow) * cols + (probe.col - minCol);
+    const inRange = cell >= 0 && cell < dominant.length;
+    return {
+      col: probe.col,
+      row: probe.row,
+      dominant: inRange && dominant[cell] >= 0 ? unpackColor(dominant[cell]) : null
+    };
+  });
+
+  let overlays = null;
+  if (args.makeOverlays !== false) {
+    overlays = {
+      artifacts: makeArtifactOverlay(imageData, output, dominant, cellGrid, sourceEpsilon, changedTolerance),
+      estimation: estimationPixels
+        ? makeEstimationOverlay(imageData, estimationPixels, dominant, cellGrid, sourceEpsilon, estimationEpsilon, inkThreshold)
+        : null
+    };
+  }
+
+  return {
+    width,
+    height,
+    cells: { cols, rows, minCol, minRow },
+    backgroundPixels,
+    artifactPixels,
+    artifactCells,
+    topCells,
+    estimation: estimationError
+      ? { error: estimationError }
+      : estimationPixels
+        ? {
+            backgroundPixels,
+            backgroundWrongPixels: estimationBgWrong,
+            inkPixels,
+            inkCoveredPixels: inkCovered
+          }
+        : null,
+    probes,
+    overlays
+  };
+};
+
+// Dimmed shader output with artifact pixels highlighted in red.
+function makeArtifactOverlay(imageData, output, dominant, cellGrid, sourceEpsilon, changedTolerance) {
+  const { width, height, data } = imageData;
+  const { cols, colOf, rowOf } = cellGrid;
+  const out = new Uint8ClampedArray(width * height * 4);
+
+  for (let y = 0; y < height; y++) {
+    const rowBase = rowOf[y] * cols;
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      out[i] = output[i] * 0.35;
+      out[i + 1] = output[i + 1] * 0.35;
+      out[i + 2] = output[i + 2] * 0.35;
+      out[i + 3] = 255;
+      if (data[i + 3] < OPAQUE_ALPHA_MIN) {
+        continue;
+      }
+      const key = dominant[rowBase + colOf[x]];
+      if (key < 0) {
+        continue;
+      }
+      const sourceDelta = maxChannelDelta3(data, i, (key >> 16) & 255, (key >> 8) & 255, key & 255);
+      if (sourceDelta > sourceEpsilon) {
+        continue;
+      }
+      const outputDelta = Math.max(
+        Math.abs(output[i] - data[i]),
+        Math.abs(output[i + 1] - data[i + 1]),
+        Math.abs(output[i + 2] - data[i + 2])
+      );
+      if (outputDelta > changedTolerance) {
+        out[i] = 255;
+        out[i + 1] = 40;
+        out[i + 2] = 80;
+      }
+    }
+  }
+
+  return pixelsToPngDataUrl(out, width, height);
+}
+
+// Red = background pixel whose estimated background is wrong (halo risk).
+// Blue = ink pixel whose estimated background misses ground truth (treatment
+// may be skipped there; informational, not necessarily a bug).
+function makeEstimationOverlay(imageData, estimationPixels, dominant, cellGrid, sourceEpsilon, estimationEpsilon, inkThreshold) {
+  const { width, height, data } = imageData;
+  const { cols, colOf, rowOf } = cellGrid;
+  const out = new Uint8ClampedArray(width * height * 4);
+
+  for (let y = 0; y < height; y++) {
+    const rowBase = rowOf[y] * cols;
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      out[i] = data[i] * 0.35;
+      out[i + 1] = data[i + 1] * 0.35;
+      out[i + 2] = data[i + 2] * 0.35;
+      out[i + 3] = 255;
+      if (data[i + 3] < OPAQUE_ALPHA_MIN) {
+        continue;
+      }
+      const key = dominant[rowBase + colOf[x]];
+      if (key < 0) {
+        continue;
+      }
+      const dr = (key >> 16) & 255;
+      const dg = (key >> 8) & 255;
+      const db = key & 255;
+      const sourceDelta = maxChannelDelta3(data, i, dr, dg, db);
+      const estimationWrong = maxChannelDelta3(estimationPixels, i, dr, dg, db) > estimationEpsilon;
+      if (sourceDelta <= sourceEpsilon && estimationWrong) {
+        out[i] = 255;
+        out[i + 1] = 40;
+        out[i + 2] = 80;
+      } else if (sourceDelta >= inkThreshold && estimationWrong) {
+        out[i] = 70;
+        out[i + 1] = 120;
+        out[i + 2] = 255;
+      }
+    }
+  }
+
+  return pixelsToPngDataUrl(out, width, height);
+}
+
+//========================================================================
+// Screenshot grid detection
+//========================================================================
+
+function luminanceEnergies(imageData) {
+  const { width, height, data } = imageData;
+  const lum = new Float32Array(width * height);
+  for (let i = 0, p = 0; p < lum.length; i += 4, p++) {
+    lum[p] = data[i + 3] < OPAQUE_ALPHA_MIN
+      ? 0
+      : 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+  }
+
+  const colEnergy = new Float64Array(width);
+  const rowEnergy = new Float64Array(height);
+  for (let y = 0; y < height; y++) {
+    const base = y * width;
+    for (let x = 0; x + 1 < width; x++) {
+      colEnergy[x] += Math.abs(lum[base + x + 1] - lum[base + x]);
+    }
+    if (y + 1 < height) {
+      for (let x = 0; x < width; x++) {
+        rowEnergy[y] += Math.abs(lum[base + width + x] - lum[base + x]);
+      }
+    }
+  }
+  return { colEnergy, rowEnergy };
+}
+
+function autocorrelationScore(centered, lag) {
+  let num = 0;
+  let d1 = 0;
+  let d2 = 0;
+  for (let i = 0; i + lag < centered.length; i++) {
+    const a = centered[i];
+    const b = centered[i + lag];
+    num += a * b;
+    d1 += a * a;
+    d2 += b * b;
+  }
+  return d1 > 0 && d2 > 0 ? num / Math.sqrt(d1 * d2) : 0;
+}
+
+function detectPitch(energy, minLag, maxLag) {
+  let mean = 0;
+  for (const value of energy) {
+    mean += value;
+  }
+  mean /= energy.length;
+  const centered = Float64Array.from(energy, (value) => value - mean);
+
+  let bestLag = minLag;
+  let bestScore = -Infinity;
+  const cappedMax = Math.min(maxLag, Math.floor(energy.length / 3));
+  for (let lag = minLag; lag <= cappedMax; lag++) {
+    const score = autocorrelationScore(centered, lag);
+    if (score > bestScore) {
+      bestScore = score;
+      bestLag = lag;
+    }
+  }
+
+  // The strongest peak can be a multiple of the true pitch; prefer the
+  // smallest divisor that scores nearly as well.
+  for (let divisor = 4; divisor >= 2; divisor--) {
+    const candidate = Math.round(bestLag / divisor);
+    if (candidate >= minLag && Math.abs(candidate * divisor - bestLag) <= 1) {
+      const score = autocorrelationScore(centered, candidate);
+      if (score >= bestScore * 0.85) {
+        bestLag = candidate;
+        bestScore = score;
+        break;
+      }
+    }
+  }
+
+  return { pitch: bestLag, score: bestScore };
+}
+
+// Cell boundaries pass through the low-ink gaps between glyphs and lines, so
+// grid phase shows up as a valley in the pitch-folded energy profile. Flat
+// window padding at the image borders is trimmed first (it contributes
+// near-zero samples only at its own offsets, biasing a plain argmin), and the
+// valley center is used because a single-offset minimum ties arbitrarily
+// between clean margin columns.
+function detectPhase(energy, pitch) {
+  let maxEnergy = 0;
+  for (const value of energy) {
+    maxEnergy = Math.max(maxEnergy, value);
+  }
+  let lo = 0;
+  while (lo < energy.length && energy[lo] <= maxEnergy * 0.02) {
+    lo += 1;
+  }
+  let hi = energy.length - 1;
+  while (hi > lo && energy[hi] <= maxEnergy * 0.02) {
+    hi -= 1;
+  }
+
+  const folded = new Float64Array(pitch);
+  const samples = new Uint32Array(pitch);
+  for (let i = lo; i <= hi; i++) {
+    folded[i % pitch] += energy[i];
+    samples[i % pitch] += 1;
+  }
+  let minFolded = Infinity;
+  let meanFolded = 0;
+  for (let offset = 0; offset < pitch; offset++) {
+    folded[offset] = samples[offset] > 0 ? folded[offset] / samples[offset] : Infinity;
+    minFolded = Math.min(minFolded, folded[offset]);
+    meanFolded += folded[offset] / pitch;
+  }
+
+  // Widest circular run of low offsets; its center is the boundary.
+  const lowThreshold = minFolded + 0.2 * Math.max(meanFolded - minFolded, 1e-9);
+  let bestStart = 0;
+  let bestLength = 0;
+  let runStart = -1;
+  for (let i = 0; i < pitch * 2; i++) {
+    if (folded[i % pitch] <= lowThreshold) {
+      if (runStart === -1) {
+        runStart = i;
+      }
+      const length = Math.min(i - runStart + 1, pitch);
+      if (length > bestLength) {
+        bestLength = length;
+        bestStart = runStart;
+      }
+    } else {
+      runStart = -1;
+    }
+  }
+  return (bestStart + Math.floor((bestLength - 1) / 2)) % pitch;
+}
+
+function dominantBorderColor(imageData) {
+  const { width, height, data } = imageData;
+  const counts = new Map();
+  const ring = 2;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (x >= ring && x < width - ring && y >= ring && y < height - ring) {
+        x = width - ring - 1;
+        continue;
+      }
+      const i = (y * width + x) * 4;
+      if (data[i + 3] < OPAQUE_ALPHA_MIN) {
+        continue;
+      }
+      const key = (data[i] << 16) | (data[i + 1] << 8) | data[i + 2];
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  let bestKey = 0;
+  let bestCount = 0;
+  for (const [key, count] of counts) {
+    if (count > bestCount) {
+      bestKey = key;
+      bestCount = count;
+    }
+  }
+  return unpackColor(bestKey);
+}
+
+// args: { pngBase64, minCellWidth, maxCellWidth, minCellHeight, maxCellHeight }
+window.detectScreenshotGrid = async function detectScreenshotGrid(args) {
+  const imageData = await decodeImageDataFromBase64(args.pngBase64);
+  const { colEnergy, rowEnergy } = luminanceEnergies(imageData);
+
+  const widthPitch = detectPitch(colEnergy, args.minCellWidth ?? 6, args.maxCellWidth ?? 96);
+  const heightPitch = detectPitch(rowEnergy, args.minCellHeight ?? 10, args.maxCellHeight ?? 160);
+
+  return {
+    width: imageData.width,
+    height: imageData.height,
+    cellWidth: widthPitch.pitch,
+    cellHeight: heightPitch.pitch,
+    originX: detectPhase(colEnergy, widthPitch.pitch),
+    originY: detectPhase(rowEnergy, heightPitch.pitch),
+    scoreX: widthPitch.score,
+    scoreY: heightPitch.score,
+    borderColor: dominantBorderColor(imageData)
+  };
+};
+
+// args: { pngBase64, grid, shaderRowHeightPx, shaderRowOffsetPx }
+window.makeGridOverlayPngDataUrl = async function makeGridOverlayPngDataUrl(args) {
+  const image = await loadImage(`data:image/png;base64,${args.pngBase64}`);
+  const overlayCanvas = document.createElement("canvas");
+  overlayCanvas.width = image.width;
+  overlayCanvas.height = image.height;
+  const ctx = overlayCanvas.getContext("2d");
+  ctx.drawImage(image, 0, 0);
+
+  const grid = args.grid;
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(255, 0, 200, 0.55)";
+  for (let x = grid.originX; x <= image.width; x += grid.cellWidth) {
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 0);
+    ctx.lineTo(x + 0.5, image.height);
+    ctx.stroke();
+  }
+  for (let y = grid.originY; y <= image.height; y += grid.cellHeight) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + 0.5);
+    ctx.lineTo(image.width, y + 0.5);
+    ctx.stroke();
+  }
+
+  // Row bottoms the shader assumes: (y + GRADIENT_Y_OFFSET_PX) % rowHeight == 0.
+  if (args.shaderRowHeightPx > 0) {
+    ctx.strokeStyle = "rgba(0, 220, 255, 0.55)";
+    const offset = args.shaderRowOffsetPx || 0;
+    const firstK = Math.ceil(offset / args.shaderRowHeightPx);
+    for (let k = firstK; ; k++) {
+      const y = k * args.shaderRowHeightPx - offset;
+      if (y > image.height) {
+        break;
+      }
+      ctx.beginPath();
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(image.width, y + 0.5);
+      ctx.stroke();
+    }
+  }
+
+  ctx.font = "12px sans-serif";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillRect(4, 4, 320, 18);
+  ctx.fillStyle = "rgb(255, 0, 200)";
+  ctx.fillText("magenta = detected grid", 8, 17);
+  ctx.fillStyle = "rgb(0, 220, 255)";
+  ctx.fillText("cyan = shader row phase", 170, 17);
+
+  return overlayCanvas.toDataURL("image/png");
 };
 </script>

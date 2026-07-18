@@ -59,6 +59,29 @@ local function yank_doc(exp)
     vim.fn.setreg('+', txt, 'c')
 end
 
+local function yank_file_location()
+    local file = vim.api.nvim_buf_get_name(0)
+    if file == '' then
+        vim.notify('Current buffer has no file', vim.log.levels.WARN)
+        return
+    end
+
+    local root = vim.fs.root(file, '.git') or vim.uv.cwd()
+    local path = vim.fs.relpath(root, file) or file
+    local first = vim.fn.line('v')
+    local last = vim.fn.line('.')
+    if first > last then
+        first, last = last, first
+    end
+
+    local location = ('%s:%d'):format(path, first)
+    if first ~= last then
+        location = location .. '-' .. last
+    end
+    vim.fn.setreg('+', location, 'c')
+    vim.notify('Yanked ' .. location)
+end
+
 local function get_char()
     local ok, char_num = pcall(vim.fn.getchar)
     -- Return nil if error (e.g. <C-c>) or for control characters
@@ -246,7 +269,7 @@ map('n', ':L', '<Cmd>e ~/.config/nvim/lua/<CR>', {silent = true})
 map('n', ':P', '<Cmd>e ~/.local/share/nvim/site/pack/core/opt/<CR>', {silent = true})
 map('n', ':Z', '<Cmd>e ~/.zshrc<CR>', {silent = true})
 map('n', ':N', '<Cmd>e ~/notes<CR>', {silent = true})
-map('n', ':V', '<Cmd>e /Volumes/T7 Shield/<CR>', {silent = true})
+map('n', ':V', '<Cmd>e /Volumes/T7 Shield/movies<CR>', {silent = true})
 map('n', ':X', '<Cmd>e ~/.config/tmux/tmux.conf<CR>', {silent = true})
 map('n', ':U', '<Cmd>e ' .. fe(require'util'.FF_PROFILE) .. '/user.js<CR>', {silent = true})
 map('n', ':G', '<Cmd>e ~/.config/ghostty/config<CR>', {silent = true})
@@ -262,6 +285,7 @@ map('i', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
 map('c', '<C-o>', '<c-r>=expand("%:t:r:r:r")<CR>', {silent = true})
 map('n', 'yo', function() yank_doc('%:t:r:r:r') end, {silent = true})
 map('n', 'yO', function() yank_doc('%:p') end, {silent = true})
+map('x', '<space>c', yank_file_location, {silent = true})
 
 -- Toggle options
 map('n', 'gon', '<Cmd>set number!<CR>', {silent = true})

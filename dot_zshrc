@@ -10,7 +10,7 @@ stty quit undef # disable C-\
 # Options
 #
 
-setopt AUTO_CD
+setopt AUTO_CD # enter a directory path to cd into it
 setopt AUTO_PUSHD
 setopt CDABLE_VARS
 setopt CD_SILENT 2&>/dev/null # needs zsh 5.8
@@ -231,7 +231,7 @@ autoload -U colors && colors
 
 PROMPT=
 PROMPT+="%F{white}${SSH_TTY:+ssh:}"
-PROMPT+="%F{white}%B%90<..<%~%<<"
+PROMPT+="%F{cyan}%U%90<..<%~%<<%u"
 PROMPT+="%F{green}%(1j. *.)"
 PROMPT+=" %(?.%F{yellow}.%F{red})❯%b%f "
 

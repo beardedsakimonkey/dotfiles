@@ -49,6 +49,7 @@ end)
 
 -- Files
 map('n', '<space>f', function() picky.files() end)
+map('n', '<space>v', function() picky.files({ cwd = vim.fn.stdpath('config') }) end)
 
 -- Help
 map('n', '<space>h', function() picky.help() end)

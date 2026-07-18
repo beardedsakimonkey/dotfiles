@@ -28,7 +28,7 @@ require('features.pack').add({
     'navarasu/onedark.nvim',
 })
 
-vim.cmd('colorscheme onehalfdark')
+vim.cmd('colorscheme onedark')
 
 -- Neovim ---------------------------------------------------------------------
 stub_com('Undotree', 'nvim.undotree')
@@ -40,10 +40,15 @@ require('config.picky')
 -- nvim-dora ------------------------------------------------------------------
 map('n', '-', '<Cmd>Dora<CR>')
 
-local dora = require('dora')
-dora.setup({
-    icons = true,
-    keymaps = {},
+require('dora').configure({
+    keymaps = {
+        ['!'] = {
+            function()
+                require('dora.api').shell_cmd('chmod +x')
+            end,
+            desc = 'Make executable',
+        },
+    },
 })
 
 -- mini.operators -------------------------------------------------------------

@@ -1,6 +1,6 @@
 custom-shader = text-gradient.glsl
 # custom-shader = party_sparks.glsl
-custom-shader = cursor_blaze_tapered.glsl
+# custom-shader = cursor_blaze_tapered.glsl
 # custom-shader = scanlines.glsl
 custom-shader-animation = false
 

@@ -9,32 +9,32 @@
       "src": "https://github.com/AndrewRadev/linediff.vim"
     },
     "mini.bufremove": {
-      "rev": "10857aa39160c127694151828914df3131ba83b6",
+      "rev": "4cfbb201b2760da79ca6e1a00e9f67cbc99cbb8f",
       "src": "https://github.com/echasnovski/mini.bufremove",
       "version": "'stable'"
     },
     "mini.diff": {
-      "rev": "fbb93ea1728e7c9d0944df8bd022a68402bd2e7e",
+      "rev": "0743d26bd858ebe32efcf5c86a91a422a000f273",
       "src": "https://github.com/echasnovski/mini.diff",
       "version": "'stable'"
     },
     "mini.hipatterns": {
-      "rev": "add8d8abad602787377ec5d81f6b248605828e0f",
+      "rev": "607d604e650cdf21d71f863d040c496a1d0cb320",
       "src": "https://github.com/echasnovski/mini.hipatterns",
       "version": "'stable'"
     },
     "mini.operators": {
-      "rev": "6df2fd410afd55ebd87757345031fc0af0c95068",
+      "rev": "59c7f7362461a5db830a5752b22ce9f5cd25a966",
       "src": "https://github.com/echasnovski/mini.operators",
       "version": "'stable'"
     },
     "nvim-dora": {
-      "rev": "9763ee479d0d6931a7bd66e9dd50c78695df8294",
-      "src": "git@github.com:beardedsakimonkey/nvim-dora.git"
+      "rev": "e9f75cb97b20ab669305ee6d7d035505ff4ff3f2",
+      "src": "https://github.com/beardedsakimonkey/nvim-dora"
     },
     "nvim-picky": {
-      "rev": "61e9fa413ef2e4224aeb871145e15c5e348cf3c5",
-      "src": "git@github.com:beardedsakimonkey/nvim-picky.git"
+      "rev": "28b9787a9f56b8716b9bffbb815f2e8a94a8f135",
+      "src": "https://github.com/beardedsakimonkey/nvim-picky"
     },
     "nvim-surround": {
       "rev": "2e93e154de9ff326def6480a4358bfc149d5da2c",

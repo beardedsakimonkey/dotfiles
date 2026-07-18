@@ -103,7 +103,10 @@ vim.lsp.config('lua_ls', {
             diagnostics = { globals = {'vim'} },
             workspace = {
                 checkThirdParty = false,
-                library = vim.api.nvim_get_runtime_file('', true),
+                library = vim.list_extend(
+                    vim.api.nvim_get_runtime_file('', true),
+                    { '${3rd}/luv/library' }
+                ),
             },
         },
     }

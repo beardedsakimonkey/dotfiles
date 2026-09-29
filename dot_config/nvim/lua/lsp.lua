@@ -64,11 +64,15 @@ local definition_handler = function(...)
     vim.cmd 'norm! zz'
 end
 
+vim.lsp.config('*', {
+    root_markers = {'.git'},
+})
+
 -- Typescript
 vim.lsp.config('tsserver', {
     cmd = { 'typescript-language-server', '--stdio' },
-    filetypes = {'typescript', 'typescriptreact'},
-    root_markers = {'tsconfig.json', 'package.json', '.git'},
+    filetypes = {'typescript', 'typescriptreact', 'javascript'},
+    root_markers = {'tsconfig.json', 'package.json'},
     handlers = { ['textDocument/definition'] = definition_handler },
 })
 vim.lsp.enable('tsserver')
@@ -78,7 +82,7 @@ vim.lsp.config('tinymist', {
     cmd = {'tinymist'},
     filetypes = {'typst'},
     root_dir = function(bufnr, on_dir)
-        local root = vim.fs.root(bufnr, {'typst.toml', '.git'})
+        local root = vim.fs.root(bufnr, {'typst.toml'})
         local name = vim.api.nvim_buf_get_name(bufnr)
 
         if root == nil and name ~= '' then
@@ -92,11 +96,19 @@ vim.lsp.config('tinymist', {
 })
 vim.lsp.enable('tinymist')
 
+-- Go
+vim.lsp.config('gopls', {
+    cmd = {'gopls'},
+    filetypes = {'go', 'gomod', 'gowork', 'gotmpl'},
+    root_markers = {'go.work', 'go.mod'},
+})
+vim.lsp.enable('gopls')
+
 -- Lua
 vim.lsp.config('lua_ls', {
-    cmd = { 'lua-language-server' },
-    filetypes = { 'lua' },
-    root_markers = { { '.luarc.json', '.luarc.jsonc' }, '.git' },
+    cmd = {'lua-language-server'},
+    filetypes = {'lua'},
+    root_markers = {{'.luarc.json', '.luarc.jsonc'}},
     settings = {
         Lua = {
             runtime = { version = 'LuaJIT' },
@@ -112,3 +124,40 @@ vim.lsp.config('lua_ls', {
     }
 })
 vim.lsp.enable('lua_ls')
+
+-- Swift
+vim.lsp.config('sourcekit', {
+    cmd = {'sourcekit-lsp'},
+    filetypes = {'swift', 'objc', 'objcpp', 'c', 'cpp'},
+    root_dir = function(bufnr, on_dir)
+        on_dir(vim.fs.root(bufnr, {
+            {'buildServer.json', '.bsp'},
+            function(name)
+                local ext = vim.fs.ext(name)
+                return ext == 'xcodeproj' or ext == 'xcworkspace'
+            end,
+            {'compile_commands.json', 'Package.swift'},
+        }))
+    end,
+    get_language_id = function(_, filetype)
+        local language_ids = {
+            objc = 'objective-c',
+            objcpp = 'objective-cpp',
+        }
+        return language_ids[filetype] or filetype
+    end,
+    capabilities = {
+        workspace = {
+            didChangeWatchedFiles = {
+                dynamicRegistration = true,
+            },
+        },
+        textDocument = {
+            diagnostic = {
+                dynamicRegistration = true,
+                relatedDocumentSupport = true,
+            },
+        },
+    },
+})
+vim.lsp.enable('sourcekit')

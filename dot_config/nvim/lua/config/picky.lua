@@ -1,5 +1,7 @@
 local picky = require('picky')
 
+vim.ui.select = picky.select
+
 picky.setup({
     window = {
         border = 'rounded',
@@ -48,7 +50,13 @@ map('n', '<space>b', function()
 end)
 
 -- Files
-map('n', '<space>f', function() picky.files() end)
+map('n', '<space>f', function()
+    picky.files({ ignore = {
+        '.git',
+        'node_modules',
+        'DerivedData',
+    } })
+end)
 map('n', '<space>v', function() picky.files({ cwd = vim.fn.stdpath('config') }) end)
 
 -- Help

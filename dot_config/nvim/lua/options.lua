@@ -48,11 +48,11 @@ vim.opt.foldlevel = 99 -- fixes folds closed on nvim startup
 vim.opt.foldlevelstart = 99
 vim.opt.foldopen:remove('block')
 vim.opt.foldtext = ''
+vim.o.foldcolumn = 'auto'
 
 vim.opt.modeline = false
 vim.opt.shortmess = 'filnxtToOfaTWIcF'  -- keep search count visible
 vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldinner: ,foldclose:'
-vim.o.foldcolumn = 'auto'
 vim.opt.list = true
 vim.opt.colorcolumn = '+0'
 
@@ -65,6 +65,6 @@ vim.opt.number = true
 vim.opt.showmode = false
 vim.opt.cursorline = true
 vim.opt.ruler = false  -- don't echo anything when entering a floating window
-vim.opt.jumpoptions = 'view'
+vim.opt.jumpoptions = 'view,stack'
 
 vim.opt.diffopt:append('linematch:60')  -- better diff

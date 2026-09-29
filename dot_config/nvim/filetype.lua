@@ -5,6 +5,7 @@ vim.filetype.add{
         vert = 'glsl',
         frag = 'glsl',
         s = 'nasm',
+        metal = 'metal',
     },
     filename = {
         ['tmux.conf'] = 'tmux',

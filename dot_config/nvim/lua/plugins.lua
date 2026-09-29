@@ -15,8 +15,9 @@ require('features.pack').add({
     'andymass/vim-matchup',
     'nvim-tree/nvim-web-devicons',
     'tommcdo/vim-lion',
-    'barrettruth/diffs.nvim',
     'AndrewRadev/splitjoin.vim',
+    'barrettruth/diffs.nvim',
+    'CoreyKaylor/diffbandit.nvim',
 
     -- Filetypes
     'DingDean/wgsl.vim',
@@ -40,6 +41,55 @@ require('config.picky')
 -- nvim-dora ------------------------------------------------------------------
 map('n', '-', '<Cmd>Dora<CR>')
 
+local video_extensions = {
+    ['3gp'] = true,
+    asf = true,
+    avi = true,
+    flv = true,
+    m2ts = true,
+    m4v = true,
+    mkv = true,
+    mov = true,
+    mp4 = true,
+    mpeg = true,
+    mpg = true,
+    mts = true,
+    ogv = true,
+    ts = true,
+    vob = true,
+    webm = true,
+    wmv = true,
+}
+
+local function open_dora_external(ctx)
+    local extension = ctx.path and vim.fn.fnamemodify(ctx.path, ':e'):lower()
+    local is_file = ctx.type == 'file' or ctx.type == 'link'
+
+    if not is_file or not video_extensions[extension] then
+        require('dora.api').open_external()
+        return
+    end
+
+    local handle, pid_or_error
+    ---@diagnostic disable-next-line: missing-fields
+    handle, pid_or_error = vim.uv.spawn('mpv', {
+        args = {ctx.path},
+        detached = true,
+        stdio = {nil, nil, nil},
+    }, function()
+        if handle and not handle:is_closing() then
+            handle:close()
+        end
+    end)
+
+    if not handle then
+        vim.notify('Could not open video with mpv: ' .. tostring(pid_or_error), vim.log.levels.ERROR)
+        return
+    end
+
+    handle:unref()
+end
+
 require('dora').configure({
     keymaps = {
         ['!'] = {
@@ -47,6 +97,10 @@ require('dora').configure({
                 require('dora.api').shell_cmd('chmod +x')
             end,
             desc = 'Make executable',
+        },
+        gx = {
+            open_dora_external,
+            desc = 'Open externally',
         },
     },
 })
@@ -81,40 +135,6 @@ require('mini.diff').setup({
 })
 map('n', 'god', function() require'mini.diff'.toggle_overlay(0) end)
 
--- ]]  -> quickfix list of every hunk in the repo (working tree vs index,
---        matching mini.diff's default source).
-map('n', ']]', function()
-  local root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
-  if vim.v.shell_error ~= 0 or not root or root == '' then
-    vim.notify('Not in a git repository', vim.log.levels.WARN)
-    return
-  end
-  local lines = vim.fn.systemlist(
-    {'git', '-C', root, 'diff', '--no-color', '--unified=0'})
-  local items, file = {}, nil
-  for _, line in ipairs(lines) do
-    local f = line:match('^%+%+%+ b/(.*)')
-    if f then
-      file = root .. '/' .. f
-    else
-      local lnum = line:match('^@@ %-%d+,?%d* %+(%d+)')
-      if lnum and file then
-        items[#items + 1] = {
-          filename = file,
-          lnum = tonumber(lnum),
-          text = line:match('@@ .-@@%s*(.*)') or '',
-        }
-      end
-    end
-  end
-  if #items == 0 then
-    vim.notify('No hunks in repo', vim.log.levels.INFO)
-    return
-  end
-  vim.fn.setqflist({}, ' ', {title = 'git hunks', items = items})
-  vim.cmd('copen')
-end)
-
 -- linediff -------------------------------------------------------------------
 vim.g.linediff_buffer_type = 'scratch'
 map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
@@ -123,6 +143,7 @@ map('x', 'D', "mode() is# 'V' ? ':Linediff<cr>' : 'D'", {expr = true})
 require('nvim-surround').setup({ indent_lines = false })
 
 -- vim-matchup ----------------------------------------------------------------
+vim.g.matchup_matchparen_offscreen = {method = 'none'}
 map({'n', 'x', 'o'}, '<Tab>',   '<Plug>(matchup-%)',  {remap = true})
 map({'n', 'x', 'o'}, '<S-Tab>', '<Plug>(matchup-g%)', {remap = true})
 

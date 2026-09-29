@@ -1,6 +1,6 @@
 #command
-J forw-search diff --git\n
-K back-search diff --git\n
+J forw-search diff --git|commit [[:xdigit:]]\n
+K back-search diff --git|commit [[:xdigit:]]\n
 
 #env
 LESS = ${LESS} -j1 -A

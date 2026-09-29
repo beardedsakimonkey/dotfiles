@@ -1,38 +1,36 @@
 custom-shader = text-gradient.glsl
 # custom-shader = party_sparks.glsl
-# custom-shader = cursor_blaze_tapered.glsl
+custom-shader = cursor_blaze_tapered.glsl
 # custom-shader = scanlines.glsl
-custom-shader-animation = false
+custom-shader-animation = true
 
-# adjust-underline-position = -3
-# adjust-cell-height = -20%
+# custom-shader = focus_glitch.glsl
+# split-divider-color = 282c34
 
-###### one half
 theme = one half dark
-# font-family = fixedsys excelsior
 font-family = berkeley mono
-# font-family = pragmatapro
-# font-family = jetbrains mono
-font-size = 13
+font-size = 18
 
 font-thicken = true
 font-thicken-strength = 0
 
 title = " "
 macos-titlebar-proxy-icon = hidden
-# macos-titlebar-style = tabs
 link-previews = osc8
 notify-on-command-finish = unfocused
 
 font-feature = -calt, -liga, -dlig
 cursor-style = block
 shell-integration-features = no-cursor
-unfocused-split-opacity = 0.8
+unfocused-split-opacity = 1
 mouse-scroll-multiplier = precision:1,discrete:1
 
-# window-decoration = none
 confirm-close-surface = false
 mouse-hide-while-typing = true
+
+bell-features = audio,no-system
+bell-audio-path = /System/Library/Sounds/Glass.aiff
+bell-audio-volume = 1.0
 
 keybind = cmd+h=goto_split:left
 keybind = cmd+j=goto_split:bottom

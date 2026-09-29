@@ -18,6 +18,18 @@ local function setup_formatoptions()
     vim.opt.fo = vim.opt.fo - 'o'  -- don't auto-insert comment leader on 'o'
 end
 
+local function setup_folding()
+    local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+    local ok, has_parser = pcall(vim.treesitter.language.add, lang)
+    if ok and has_parser then
+        vim.opt_local.foldmethod = 'expr'
+        vim.opt_local.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    else
+        vim.opt_local.foldmethod = 'indent'
+        vim.opt_local.foldexpr = '0'
+    end
+end
+
 local function source_lua()
     local name = vim.fn.expand'<afile>:p'
     if vim.startswith(name, vim.fn.stdpath'config')
@@ -30,11 +42,45 @@ local function source_tmux()
     vim.fn.system('tmux source-file ' .. se(vim.fn.expand'<afile>:p'))
 end
 
+local function run_command(command, options)
+    options = vim.tbl_extend('force', {text = true}, options or {})
+    vim.system(command, options, vim.schedule_wrap(function(result)
+        if result.code == 0 then return end
+        local output = result.stderr ~= '' and result.stderr or result.stdout
+        vim.notify(output, vim.log.levels.ERROR)
+    end))
+end
+
+local function reload_herdr()
+    run_command({'herdr', 'server', 'reload-config'})
+end
+
 local function update_user_js()
     local cmd = util.FF_PROFILE .. 'updater.sh'
     vim.uv.spawn(cmd, {args = {'-d', '-s', '-b'}}, function(exit)
         print(exit == 0 and 'Updated user.js' or ('exited nonzero: ' .. exit))
     end)
+end
+
+local function build_go(args)
+    local root = vim.fs.root(args.buf, {'go.work', 'go.mod', '.git'})
+        or vim.fs.dirname(vim.api.nvim_buf_get_name(args.buf))
+
+    -- This only builds the package at the project root, not subprojects.
+    run_command({'go', 'build'}, {cwd = root})
+end
+
+local function build_typescript(args)
+    local root = vim.fs.root(args.buf, {'tsconfig.json', '.git'})
+        or vim.fs.dirname(vim.api.nvim_buf_get_name(args.buf))
+    local tsc = vim.fn.exepath'tsc'
+
+    if tsc == '' then
+        vim.notify('tsc not found in PATH', vim.log.levels.ERROR)
+        return
+    end
+
+    run_command({tsc, '--project', root}, {cwd = root})
 end
 
 local function fast_theme()
@@ -104,11 +150,15 @@ local au = aug'my/autocmds'
 au('BufReadPre', '*', handle_large_buffer)
 au('BufRead', {'.bash_history', '.zsh_history'}, 'setlocal noundofile')
 au('FileType', '*', setup_formatoptions)
+au('FileType', '*', setup_folding)
 au('BufWritePost', '*.lua', source_lua, {nested = true})
 au('BufWritePost', '*/.config/nvim/plugin/*.vim', 'source <afile>:p')
 au('BufWritePost', '*tmux.conf', source_tmux)
+au('BufWritePost', '*/.config/herdr/config.toml', reload_herdr)
 au('BufWritePost', 'user-overrides.js', update_user_js)
 au('BufWritePost', '*/.zsh/overlay.ini', fast_theme)
+au('BufWritePost', '*.go', build_go)
+au('BufWritePost', '*.ts', build_typescript)
 au('VimResized', '*', 'wincmd =')
 au({'FocusGained', 'BufEnter'}, '*', 'checktime')
 au('TextYankPost', '*', function() vim.hl.on_yank{on_visual = true, timeout = 250} end)

@@ -213,7 +213,7 @@ map('n', '<space>z', zoom_toggle, {silent = true})
 map('x', '.', ':norm! .<CR>', {silent = true})
 map('n', '<space>.', repeat_last_edit)
 map('x', '<space>y', '"*y', {silent = true})
-map('n', '<space>r', '<Cmd>Restart<CR>', {silent = true})
+map('n', '<space>r', '<Cmd>restart<CR>', {silent = true})
 
 -- Command mode
 map('c', '<C-p>', '<Up>')
@@ -239,8 +239,8 @@ map("n", "g/", ":<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<C
 map("x", "g/", "\"vy:let @/='<c-r>v'<Bar>set hls<CR>")
 map({"n", "x"}, "<RightMouse>", "<leftmouse>:<c-u>let @/='\\<<c-r>=expand(\"<cword>\")<CR>\\>'<CR>:set hls<CR>", {silent = true})
 map('n', '<2-RightMouse>', '<RightMouse>')
--- map("n", "<Space>s", "ms:<C-u>%s///g<left><left>")
--- map("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
+map("n", "<Space>s", "ms:<C-u>%s///g<left><left>")
+map("x", "<space>s", "\"vy:let @/='<c-r>v'<CR>:<C-u>%s///g<left><left>")
 
 -- Alt
 map('!', '<A-h>', '<Left>')

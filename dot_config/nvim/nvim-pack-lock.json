@@ -1,5 +1,13 @@
 {
   "plugins": {
+    "Metal-Vim-Syntax-Highlighting": {
+      "rev": "f2d69c2a048394bc47ad2b02dd9abc9cb89ee6c1",
+      "src": "https://github.com/stewartimel/Metal-Vim-Syntax-Highlighting"
+    },
+    "diffbandit.nvim": {
+      "rev": "207ef5718edb74161897eafb1cbe6f7832cda28b",
+      "src": "https://github.com/CoreyKaylor/diffbandit.nvim"
+    },
     "diffs.nvim": {
       "rev": "7ab445c39224160203ae692d3c883e2f51f2d442",
       "src": "https://github.com/barrettruth/diffs.nvim"
@@ -29,11 +37,11 @@
       "version": "'stable'"
     },
     "nvim-dora": {
-      "rev": "e9f75cb97b20ab669305ee6d7d035505ff4ff3f2",
+      "rev": "2bba547a6bfa1943a9bbafa4d32fc50b7b47445e",
       "src": "https://github.com/beardedsakimonkey/nvim-dora"
     },
     "nvim-picky": {
-      "rev": "28b9787a9f56b8716b9bffbb815f2e8a94a8f135",
+      "rev": "539b0984bed157276621e8cd301f95e5ed14e635",
       "src": "https://github.com/beardedsakimonkey/nvim-picky"
     },
     "nvim-surround": {
